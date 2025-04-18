@@ -4,5 +4,6 @@
     "skip": [
         "dist"
     ],
-    "playUrl": "http://localhost:8080"
+    "playUrl": "http://localhost:8080",
+    "settings": {}
 }

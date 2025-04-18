@@ -1,4 +1,3 @@
-
 // You can write more code here
 
 /* START OF COMPILED CODE */
@@ -57,25 +56,65 @@ export default class Preload extends Phaser.Scene {
 
 	/* START-USER-CODE */
 
-	// Write your code here
-
 	preload() {
+		try {
+			this.editorCreate();
+			this.editorPreload();
 
-		this.editorCreate();
-
-		this.editorPreload();
-
-		const width =  this.progressBar.width;
-
-		this.load.on("progress", (progress) => {
-
-			this.progressBar.width = progress * width;
-		});
+			const width = this.progressBar.width;
+			
+			// Load experience orb texture with error handling
+			try {
+				this.load.image('Exp', 'assets/images/exp_orb.png');
+				console.log("Started loading Exp texture");
+			} catch (error) {
+				console.error("Error loading Exp texture:", error);
+				
+				// Create a fallback texture for Exp
+				this.createFallbackTexture();
+			}
+			
+			// Update progress bar
+			this.load.on("progress", (progress) => {
+				this.progressBar.width = progress * width;
+			});
+			
+			// Log when all assets are loaded
+			this.load.on("complete", () => {
+				console.log("All assets loaded. Exp texture exists:", this.textures.exists('Exp'));
+			});
+		} catch (error) {
+			console.error("Error in preload:", error);
+		}
 	}
 
 	create() {
-
+		// Verify if Exp texture was loaded successfully
+		if (!this.textures.exists('Exp')) {
+			console.warn("Exp texture failed to load, creating fallback texture");
+			this.createFallbackTexture();
+		}
+		
+		// Proceed to next scene
 		this.scene.start("FirstArea");
+	}
+	
+	// Create a simple circle texture as fallback
+	createFallbackTexture() {
+		try {
+			// Create a circle texture as fallback
+			const graphics = this.add.graphics();
+			graphics.fillStyle(0x00ffff, 1); // Cyan color
+			graphics.fillCircle(8, 8, 8);
+			
+			// Generate texture from graphics
+			graphics.generateTexture('Exp', 16, 16);
+			graphics.destroy();
+			
+			console.log("Created fallback Exp texture");
+		} catch (error) {
+			console.error("Error creating fallback texture:", error);
+		}
 	}
 
 	/* END-USER-CODE */

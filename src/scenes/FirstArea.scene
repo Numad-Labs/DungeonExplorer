@@ -15,13 +15,36 @@
             "type": "Rectangle",
             "id": "1993b9ad-6082-463f-9eec-44e410a24bb7",
             "label": "rectangle_1",
-            "x": 802,
-            "y": 451,
+            "x": 621,
+            "y": 363,
             "scaleX": 14.943331427545049,
             "scaleY": 6.893171431980892,
             "isFilled": true,
             "width": 128,
             "height": 128
+        },
+        {
+            "prefabId": "fba49a7a-3752-48b8-b135-35e7c9eb4e29",
+            "id": "e2500afa-6b34-4992-a868-a541ec349b21",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "playerPrefab",
+            "scope": "CLASS",
+            "x": 447,
+            "y": 294
+        },
+        {
+            "prefabId": "efc32997-bc1d-4652-9514-7e30084a502f",
+            "id": "6a50f3e6-dbb4-4733-b775-1a1e67147a32",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "expOrb",
+            "x": 529,
+            "y": 303
         }
     ],
     "plainObjects": [],
