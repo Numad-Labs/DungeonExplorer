@@ -96,7 +96,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 		this.levelText.setText(`LEVEL: ${this.level}`);
 		this.expText.setText(`EXP: ${this.experience}/${this.nextLevelExp}`);
 		
-		const totalWidth = Math.max(200, this.levelText.width + this.expText.width + 30);
+		const totalWidth = Math.max(204, this.levelText.width + this.expText.width + 30);
 		this.background.width = totalWidth;
 		
 		if (this.progressBarFill) {
@@ -251,7 +251,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			
 			this.progressBarFill = this.scene.add.rectangle(
 				2, 40, 0, height - 4,
-				0x00FF00, 1
+				0x00FFFF, 1
 			);
 			this.progressBarFill.setScrollFactor(0);
 			this.progressBarFill.setOrigin(0, 0.5);

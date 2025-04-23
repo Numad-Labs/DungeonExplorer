@@ -18,19 +18,14 @@ export default class FirstArea extends Phaser.Scene {
 		super("FirstArea");
 
 		/* START-USER-CTR-CODE */
-		// Game parameters
 		this.enemySpawnTimer = null;
 		this.orbSpawnTimer = null;
 		this.gameTime = 0;
-        this.orbMagnetRange = 50; // Default magnet range for orbs
-        
-        // Enemy containers
+        this.orbMagnetRange = 50;
         this.enemies = null;
-        
-        // Difficulty settings
         this.difficultyLevel = 1;
-        this.maxEnemies = 10; // Start with 10 max enemies
-        this.enemySpawnDelay = 3000; // Start with 3 seconds between spawns
+        this.maxEnemies = 10;
+        this.enemySpawnDelay = 3000;
 		/* END-USER-CTR-CODE */
 	}
 
@@ -63,23 +58,12 @@ export default class FirstArea extends Phaser.Scene {
 
 	create() {
 		try {
-			// Create the base scene
 			this.editorCreate();
-
-			// Make player accessible to other game objects
 			this.player = this.playerPrefab;
-
-            // Set initial player stats
             this.setupPlayerStats();
-
-			// Make sure main camera is properly set up
 			const cam = this.cameras.main;
 			console.log("Camera bounds:", cam.width, cam.height);
-
-			// Setup HUD systems
 			this.setupHUD();
-
-            // Setup power-up manager
             this.setupPowerUpManager();
 
 			// Setup enemy container
@@ -172,28 +156,19 @@ export default class FirstArea extends Phaser.Scene {
                 this.player.attackRange = 100;
             }
             
-            // Ensure player has takeDamage method
             if (typeof this.player.takeDamage !== 'function') {
                 this.player.takeDamage = function(amount) {
-                    // If player is invulnerable, ignore damage
                     if (this.isInvulnerable) return;
                     
-                    // Apply damage
                     this.health -= amount;
                     
-                    // Update health bar
                     if (this.scene.healthBar) {
                         this.scene.healthBar.updateHealth(this.health, this.maxHealth);
                         this.scene.healthBar.showDamageFlash();
                     }
-                    
-                    // Visual feedback - flash red
                     this.setTint(0xff0000);
-                    
-                    // Set temporary invulnerability
                     this.isInvulnerable = true;
                     
-                    // Flash effect while invulnerable
                     this.scene.tweens.add({
                         targets: this,
                         alpha: 0.6,
@@ -202,32 +177,27 @@ export default class FirstArea extends Phaser.Scene {
                         repeat: 4
                     });
                     
-                    // Reset invulnerability after delay
                     this.scene.time.delayedCall(500, () => {
                         this.isInvulnerable = false;
                         this.clearTint();
                         this.alpha = 1;
                     });
                     
-                    // Check if player died
                     if (this.health <= 0) {
                         this.die();
                     }
                 };
             }
             
-            // Ensure player has heal method
             if (typeof this.player.heal !== 'function') {
                 this.player.heal = function(amount) {
                     this.health = Math.min(this.health + amount, this.maxHealth);
                     
-                    // Update health bar
                     if (this.scene.healthBar) {
                         this.scene.healthBar.updateHealth(this.health, this.maxHealth);
                         this.scene.healthBar.showHealEffect();
                     }
                     
-                    // Visual feedback - flash green
                     this.setTint(0x00ff00);
                     this.scene.time.delayedCall(200, () => {
                         this.clearTint();
@@ -235,17 +205,13 @@ export default class FirstArea extends Phaser.Scene {
                 };
             }
             
-            // Ensure player has die method
             if (typeof this.player.die !== 'function') {
                 this.player.die = function() {
-                    // Stop movement
                     this.body.velocity.x = 0;
                     this.body.velocity.y = 0;
                     
-                    // Disable input
                     this.scene.input.keyboard.enabled = false;
                     
-                    // Play death animation
                     this.scene.tweens.add({
                         targets: this,
                         angle: 90,
@@ -253,7 +219,6 @@ export default class FirstArea extends Phaser.Scene {
                         duration: 1000
                     });
                     
-                    // Show game over text
                     const screenCenterX = this.scene.cameras.main.worldView.x + this.scene.cameras.main.width / 2;
                     const screenCenterY = this.scene.cameras.main.worldView.y + this.scene.cameras.main.height / 2;
                     
@@ -273,7 +238,6 @@ export default class FirstArea extends Phaser.Scene {
                     gameOverText.setScrollFactor(0);
                     gameOverText.setDepth(1000);
                     
-                    // Add restart text
                     const restartText = this.scene.add.text(
                         screenCenterX,
                         screenCenterY + 60,
@@ -290,14 +254,12 @@ export default class FirstArea extends Phaser.Scene {
                     restartText.setScrollFactor(0);
                     restartText.setDepth(1000);
                     
-                    // Add restart key handler
                     this.scene.input.keyboard.once('keydown-R', () => {
                         this.scene.scene.restart();
                     });
                 };
             }
             
-            // Ensure player has updateHealthBar method
             if (typeof this.player.updateHealthBar !== 'function') {
                 this.player.updateHealthBar = function() {
                     if (this.scene.healthBar) {
@@ -319,17 +281,13 @@ export default class FirstArea extends Phaser.Scene {
 
 	setupHUD() {
 		try {
-			// Create health bar at top-left
-			this.healthBar = new HealthBar(this, 324, 184, 200, 20);
+			this.healthBar = new HealthBar(this, 324, 232, 200, 20);
 			
-			// Setup level system at top-center
-			this.playerLevel = new PlayerLevel(this, 320, 30);
+			this.playerLevel = new PlayerLevel(this, 324, 184);
 			this.add.existing(this.playerLevel);
 			
-			// Create progress bar for experience
-			this.playerLevel.createProgressBar(0, 0, 300, 20);
+			this.playerLevel.createProgressBar(0, 0, 204, 20);
 			
-			// Register level up callback
 			this.playerLevel.onLevelUp((newLevel) => {
 				console.log(`Player reached level ${newLevel}!`);
 				this.showLevelUpOptions();
