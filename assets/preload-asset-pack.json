@@ -2,6 +2,11 @@
     "section1": {
         "files": [
             {
+                "url": "assets/Card/blank cards7.png",
+                "type": "image",
+                "key": "blank cards7"
+            },
+            {
                 "url": "assets/PickUp/Exp.png",
                 "type": "image",
                 "key": "Exp"
@@ -18,6 +23,19 @@
                 },
                 "type": "spritesheet",
                 "key": "playerAsset"
+            },
+            {
+                "url": "assets/Hero/zombie 1/run.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "zombierun"
             }
         ]
     },

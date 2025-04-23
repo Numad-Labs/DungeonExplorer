@@ -11,67 +11,64 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		super(scene, x ?? 24, y ?? 24, texture || "playerAsset", frame ?? 0);
 
 		/* START-USER-CTR-CODE */
-		// Add physics to the player
 		scene.physics.add.existing(this, false);
 		this.body.allowGravity = false;
 		this.body.setSize(24, 24, false);
 		this.body.setOffset(12, 12);
 
-		// Set up camera to follow player
 		const cam = scene.cameras.main;
 		cam.startFollow(this, true, 0.1, 0.1);
 		cam.setZoom(2);
 		cam.fadeIn(1000);
 
-		// Movement properties
 		this.moveSpeed = 150;
 		this.lastDirection = 'down';
 		this.isMovingToTarget = false;
 
-		// Mouse input handlers
+		this.maxHealth = 100;
+		this.health = this.maxHealth;
+		this.isInvulnerable = false;
+		this.invulnerabilityTime = 500;
+		
+		this.damage = 10;
+		this.fireRate = 1;
+		this.attackRange = 100;
+
 		this.scene.input.on('pointerdown', this.handlePointerDown, this);
 		this.scene.input.on('pointerup', this.handlePointerUp, this);
 
-		// Register update cycle
 		scene.events.on('update', this.update, this);
 		/* END-USER-CTR-CODE */
 	}
 
 	/* START-USER-CODE */
 	
-	// Handle left mouse button press
 	handlePointerDown(pointer) {
 		if (pointer.leftButtonDown()) {
 			this.isMovingToTarget = true;
 		}
 	}
 
-	// Handle left mouse button release
 	handlePointerUp(pointer) {
 		if (!pointer.leftButtonDown()) {
 			this.isMovingToTarget = false;
 		}
 	}
 
-	// Main update function
 	update() {
-		// Get keyboard input
 		const keyboard = this.scene.input.keyboard;
 		const up = keyboard.addKey('W').isDown;
 		const down = keyboard.addKey('S').isDown;
 		const left = keyboard.addKey('A').isDown;
 		const right = keyboard.addKey('D').isDown;
 
-		// Reset velocity
 		this.body.velocity.x = 0;
 		this.body.velocity.y = 0;
 
-		// Process keyboard input first (priority)
 		let usingKeyboard = false;
 		let moveX = 0;
 		let moveY = 0;
 
-		// Get movement direction from keyboard
 		if (right) {
 			moveX += 1;
 			usingKeyboard = true;
@@ -89,21 +86,15 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			usingKeyboard = true;
 		}
 
-		// Apply keyboard movement if any keys are pressed
 		if (usingKeyboard) {
-			// Cancel any mouse target movement
 			this.isMovingToTarget = false;
 
-			// Apply movement if we have any direction
 			if (moveX !== 0 || moveY !== 0) {
-				// Normalize for diagonal movement
 				const vector = new Phaser.Math.Vector2(moveX, moveY).normalize();
 				
-				// Apply velocity
 				this.body.velocity.x = vector.x * this.moveSpeed;
 				this.body.velocity.y = vector.y * this.moveSpeed;
 				
-				// Update facing direction
 				if (Math.abs(vector.x) > Math.abs(vector.y)) {
 					this.lastDirection = vector.x > 0 ? 'right' : 'left';
 				} else {
@@ -111,35 +102,27 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 				}
 			}
 		}
-		// If not using keyboard, check for mouse movement
 		else if (this.isMovingToTarget) {
-			// Get current cursor position
 			const pointer = this.scene.input.activePointer;
 			
-			// Convert screen position to world position
 			const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
 			const targetX = worldPoint.x;
 			const targetY = worldPoint.y;
 			
-			// Calculate distance to cursor position
 			const distance = Phaser.Math.Distance.Between(
 				this.x, this.y,
 				targetX, targetY
 			);
 			
-			// Only move if we're not already at the cursor position
 			if (distance > 5) {
-				// Calculate direction to cursor
 				const angle = Phaser.Math.Angle.Between(
 					this.x, this.y,
 					targetX, targetY
 				);
 				
-				// Move towards cursor
 				this.body.velocity.x = Math.cos(angle) * this.moveSpeed;
 				this.body.velocity.y = Math.sin(angle) * this.moveSpeed;
 				
-				// Update facing direction based on movement angle
 				if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
 					this.lastDirection = Math.cos(angle) > 0 ? 'right' : 'left';
 				} else {
@@ -148,26 +131,161 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			}
 		}
 		
-		// Update sprite frame based on direction
 		this.updatePlayerFrame();
+		this.updateHealthBar();
 	}
 
-	// Update the player's sprite frame based on direction
 	updatePlayerFrame() {
 		switch (this.lastDirection) {
 			case 'right':
-				this.setFrame(2); // Right-facing frame
+				this.setFrame(2);
 				break;
 			case 'left':
-				this.setFrame(1); // Left-facing frame
+				this.setFrame(1);
 				break;
 			case 'up':
-				this.setFrame(3); // Up-facing frame
+				this.setFrame(3);
 				break;
 			case 'down':
-				this.setFrame(0); // Down-facing frame
+				this.setFrame(0);
 				break;
 		}
+	}
+	
+	takeDamage(amount) {
+		if (this.isInvulnerable) return;
+		
+		this.health -= amount;
+		this.updateHealthBar();
+		this.setTint(0xff0000);
+		if (this.scene.sound && this.scene.sound.add) {
+			try {
+				if (this.scene.cache.audio.exists('player_hit')) {
+					const hitSound = this.scene.sound.add('player_hit');
+					hitSound.play({ volume: 0.5 });
+				}
+			} catch (error) {
+				console.warn("Could not play hit sound:", error);
+			}
+		}
+		
+		this.isInvulnerable = true;
+		
+		this.scene.tweens.add({
+			targets: this,
+			alpha: 0.6,
+			duration: 100,
+			yoyo: true,
+			repeat: 4
+		});
+		
+		this.scene.time.delayedCall(this.invulnerabilityTime, () => {
+			this.isInvulnerable = false;
+			this.clearTint();
+			this.alpha = 1;
+		});
+		
+		if (this.health <= 0) {
+			this.die();
+		}
+	}
+	
+	die() {
+		if (this.isDead) return;
+		this.isDead = true;
+		this.body.velocity.x = 0;
+		this.body.velocity.y = 0;
+		this.body.enable = false;
+		
+		this.scene.input.keyboard.enabled = false;
+		this.scene.input.off('pointerdown', this.handlePointerDown, this);
+		this.scene.input.off('pointerup', this.handlePointerUp, this);
+		
+		if (this.scene.enemySpawnTimer) this.scene.enemySpawnTimer.paused = true;
+		if (this.scene.orbSpawnTimer) this.scene.orbSpawnTimer.paused = true;
+		if (this.scene.difficultyTimer) this.scene.difficultyTimer.paused = true;
+		
+		if (this.scene.enemies) {
+			this.scene.enemies.getChildren().forEach(enemy => {
+				if (enemy.body) {
+					enemy.body.enable = false;
+				}
+				if (enemy.updateListener) {
+					this.scene.events.off('update', enemy.updateListener);
+				}
+			});
+		}
+		
+		this.scene.tweens.add({
+			targets: this,
+			angle: 90,
+			alpha: 0,
+			duration: 1000
+		});
+		
+		const screenCenterX = 660;
+		const screenCenterY = 340;
+		
+		const gameOverText = this.scene.add.text(
+			screenCenterX, 
+			screenCenterY, 
+			'GAME OVER', 
+			{
+				fontFamily: 'Arial',
+				fontSize: '48px',
+				color: '#ff0000',
+				stroke: '#000000',
+				strokeThickness: 6
+			}
+		);
+		gameOverText.setOrigin(0.5);
+		gameOverText.setScrollFactor(0);
+		gameOverText.setDepth(1000);
+		
+		const restartText = this.scene.add.text(
+			screenCenterX,
+			screenCenterY + 60,
+			'Press R to restart',
+			{
+				fontFamily: 'Arial',
+				fontSize: '24px',
+				color: '#ffffff',
+				stroke: '#000000',
+				strokeThickness: 4
+			}
+		);
+		restartText.setOrigin(0.5);
+		restartText.setScrollFactor(0);
+		restartText.setDepth(1000);
+		
+		this.scene.input.keyboard.once('keydown-R', () => {
+			this.scene.scene.restart();
+		});
+		
+		if (this.scene.update) {
+			const originalUpdate = this.scene.update;
+			this.scene.update = () => {
+				// Empty update function will effectively freeze the game
+				// Only checking for restart input
+			};
+		}
+	}
+	
+	updateHealthBar() {
+		if (this.scene.healthBar) {
+			this.scene.healthBar.updateHealth(this.health, this.maxHealth);
+		}
+	}
+	
+	heal(amount) {
+		this.health = Math.min(this.health + amount, this.maxHealth);
+		
+		this.updateHealthBar();
+		
+		this.setTint(0x00ff00);
+		this.scene.time.delayedCall(200, () => {
+			this.clearTint();
+		});
 	}
 
 	/* END-USER-CODE */
