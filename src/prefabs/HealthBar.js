@@ -121,7 +121,7 @@ export default class HealthBar extends Phaser.GameObjects.Container {
         // Subtle shake effect
         this.scene.tweens.add({
             targets: this,
-            x: this.x + 2,
+            x: this.x + 1,
             duration: 50,
             yoyo: true,
             repeat: 1,
