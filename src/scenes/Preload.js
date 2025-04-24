@@ -96,7 +96,7 @@ export default class Preload extends Phaser.Scene {
 		}
 		
 		// Proceed to next scene
-		this.scene.start("FirstArea");
+		this.scene.start("MainMapScene");
 	}
 	
 	// Create a simple circle texture as fallback

@@ -2,14 +2,167 @@
     "section1": {
         "files": [
             {
+                "url": "assets/Decoration/Atlas-props.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Atlas-props"
+            },
+            {
+                "url": "assets/Decoration/Bed.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Bed"
+            },
+            {
                 "url": "assets/Card/blank cards7.png",
                 "type": "image",
                 "key": "blank cards7"
             },
             {
+                "url": "assets/Decoration/Crystals1-improved refraction_11.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Crystals1-improved refraction_11"
+            },
+            {
+                "url": "assets/Decoration/Crystals1-improved refraction_6.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Crystals1-improved refraction_6"
+            },
+            {
+                "url": "assets/Decoration/Crystals1-improved refraction_8.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Crystals1-improved refraction_8"
+            },
+            {
                 "url": "assets/PickUp/Exp.png",
                 "type": "image",
                 "key": "Exp"
+            },
+            {
+                "url": "assets/Decoration/Fire-candelabrum.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Fire-candelabrum"
+            },
+            {
+                "url": "assets/Decoration/Gold.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Gold"
+            },
+            {
+                "url": "assets/Decoration/golden monument anim-going up-packed sheet.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "golden monument anim-going up-packed sheet"
+            },
+            {
+                "url": "assets/Decoration/lavafal-for Tiled-spritesheet-16frames.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "lavafal-for Tiled-spritesheet-16frames"
+            },
+            {
+                "url": "assets/Map/mainMap.json",
+                "type": "tilemapTiledJSON",
+                "key": "mainMap"
+            },
+            {
+                "url": "assets/Map/MainMap.json",
+                "type": "tilemapTiledJSON",
+                "key": "MainMap"
+            },
+            {
+                "url": "assets/Decoration/platform1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "platform1"
+            },
+            {
+                "url": "assets/Decoration/platform2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "platform2"
             },
             {
                 "url": "assets/Hero/Droid Assassin/Idle.png",
@@ -23,6 +176,227 @@
                 },
                 "type": "spritesheet",
                 "key": "playerAsset"
+            },
+            {
+                "url": "assets/Decoration/rock pillars coming from darkness-bg_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock pillars coming from darkness-bg_0"
+            },
+            {
+                "url": "assets/Decoration/rock pillars coming from darkness-bg_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock pillars coming from darkness-bg_1"
+            },
+            {
+                "url": "assets/Decoration/rock pillars coming from darkness-bg_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock pillars coming from darkness-bg_2"
+            },
+            {
+                "url": "assets/Decoration/rock pillars coming from darkness-bg_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock pillars coming from darkness-bg_3"
+            },
+            {
+                "url": "assets/Decoration/side way-Sheet.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "side way-Sheet"
+            },
+            {
+                "url": "assets/Decoration/statues-far from platforms-bg_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "statues-far from platforms-bg_0"
+            },
+            {
+                "url": "assets/Decoration/statues-far from platforms-bg_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "statues-far from platforms-bg_1"
+            },
+            {
+                "url": "assets/Decoration/statues-far from platforms-bg_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "statues-far from platforms-bg_2"
+            },
+            {
+                "url": "assets/Decoration/statues-far from platforms-bg_4.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "statues-far from platforms-bg_4"
+            },
+            {
+                "url": "assets/Decoration/statues-far from platforms-bg_5.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "statues-far from platforms-bg_5"
+            },
+            {
+                "url": "assets/Decoration/Survive_Zone.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Survive_Zone"
+            },
+            {
+                "url": "assets/Decoration/Tileset 3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset 3"
+            },
+            {
+                "url": "assets/Decoration/Wall.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Wall"
+            },
+            {
+                "url": "assets/Decoration/Wall_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Wall_1"
+            },
+            {
+                "url": "assets/Decoration/Wall_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Wall_2"
+            },
+            {
+                "url": "assets/Decoration/Wall_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Wall_3"
+            },
+            {
+                "url": "assets/Decoration/Wall_AC_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Wall_AC_1"
             },
             {
                 "url": "assets/Hero/zombie 1/run.png",
