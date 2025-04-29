@@ -223,12 +223,12 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			duration: 1000
 		});
 		
-		const screenCenterX = 660;
-		const screenCenterY = 340;
+		const screenCenterX = 640; // Fixed center position
+		const screenCenterY = 360; // Fixed center position
 		
 		const gameOverText = this.scene.add.text(
 			screenCenterX, 
-			screenCenterY, 
+			screenCenterY - 50, 
 			'GAME OVER', 
 			{
 				fontFamily: 'Arial',
@@ -242,10 +242,36 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		gameOverText.setScrollFactor(0);
 		gameOverText.setDepth(1000);
 		
+		let timeText = "";
+		if (this.scene.uiManager && this.scene.uiManager.gameTime) {
+			const gameTime = this.scene.uiManager.gameTime;
+			const minutes = Math.floor(gameTime / 60);
+			const seconds = Math.floor(gameTime % 60);
+			timeText = `You survived: ${minutes}m ${seconds}s`;
+		} else {
+			timeText = "Nice try!";
+		}
+		
+		const survivalText = this.scene.add.text(
+			screenCenterX,
+			screenCenterY,
+			timeText,
+			{
+				fontFamily: 'Arial',
+				fontSize: '24px',
+				color: '#ffff00',
+				stroke: '#000000',
+				strokeThickness: 4
+			}
+		);
+		survivalText.setOrigin(0.5);
+		survivalText.setScrollFactor(0);
+		survivalText.setDepth(1000);
+
 		const restartText = this.scene.add.text(
 			screenCenterX,
-			screenCenterY + 60,
-			'Press R to restart',
+			screenCenterY + 50,
+			'Skill issue i suppose?!',
 			{
 				fontFamily: 'Arial',
 				fontSize: '24px',

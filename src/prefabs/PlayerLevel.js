@@ -118,10 +118,10 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 				message,
 				{
 					fontFamily: 'Arial, sans-serif',
-					fontSize: '20px',
+					fontSize: '10px',
 					color: '#FFD700',
 					stroke: '#000000',
-					strokeThickness: 4
+					strokeThickness: 2
 				}
 			);
 			floatingText.setOrigin(0.5);

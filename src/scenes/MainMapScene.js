@@ -5,15 +5,16 @@
 
 import PlayerPrefab from "../prefabs/PlayerPrefab";
 /* START-USER-IMPORTS */
+import BaseGameScene from "./BaseGameScene";
 /* END-USER-IMPORTS */
 
-export default class MainMapScene extends Phaser.Scene {
+export default class MainMapScene extends BaseGameScene {
 
 	constructor() {
 		super("MainMapScene");
 
 		/* START-USER-CTR-CODE */
-		// Write your code here.
+		// BaseGameScene already has manager properties
 		/* END-USER-CTR-CODE */
 	}
 
@@ -169,33 +170,131 @@ export default class MainMapScene extends Phaser.Scene {
 
 	/* START-USER-CODE */
 
-	// Write your code here
-
 	create() {
+		try {
+			// Create editor objects
+			this.editorCreate();
+			
+			// Setup collision layers
+			this.setupCollisions();
+			
+			// Initialize player reference for easier access
+			this.player = this.playerPrefab;
+			
+			// Initialize game managers (from BaseGameScene)
+			this.initializeManagers();
+			
+			// Setup player attack system (from BaseGameScene)
+			this.setupPlayerAttack();
+			
+			// Setup teleportation zones
+			this.setupTeleportation();
+			
+			// Setup test controls for development (from BaseGameScene)
+			this.setupTestControls();
+			
+			console.log("MainMapScene created successfully");
+		} catch (error) {
+			console.error("Error in MainMapScene create:", error);
+		}
+	}
+	
+	// Setup map collisions
+	setupCollisions() {
+		try {
+			// Set collision for main terrain layers
+			this.physics.add.collider(this.playerPrefab, this.hG_1);
+			this.hG_1.setCollisionBetween(0, 10000);
+			
+			this.physics.add.collider(this.playerPrefab, this.map_Col_1);
+			this.map_Col_1.setCollisionBetween(0, 10000);
+			
+			this.physics.add.collider(this.playerPrefab, this.backGround);
+			this.backGround.setCollisionBetween(0, 10000);
+			
+			// Optionally enable debug view for collisions during development
+			if (process.env.NODE_ENV !== 'production') {
+				// Uncomment to show debug collision boxes
+				// this.hG_1.renderDebug(this.add.graphics());
+				// this.map_Col_1.renderDebug(this.add.graphics());
+				// this.backGround.renderDebug(this.add.graphics());
+			}
+			
+			console.log("Collisions setup complete");
+		} catch (error) {
+			console.error("Error setting up collisions:", error);
+		}
+	}
+	
+	// Setup teleportation zones for map transitions
+	setupTeleportation() {
+		try {
+			// Check if there is a teleportation layer to use
+			if (this.teleportation_1) {
+				// Create a physics object for each teleport point
+				// This is a placeholder - you'll need to implement your specific teleportation logic
+				const teleporters = [];
+				
+				// Example: Search for teleport points in the teleportation layer
+				// Note: This depends on how you've set up your teleport tiles in the map
+				this.teleportation_1.forEachTile(tile => {
+					if (tile.index !== -1) { // Not an empty tile
+						// Create a zone at this tile's position
+						const x = tile.x * tile.width + (tile.width / 2);
+						const y = tile.y * tile.height + (tile.height / 2);
+						
+						const teleportZone = this.add.zone(x, y, tile.width, tile.height);
+						this.physics.world.enable(teleportZone);
+						teleporters.push(teleportZone);
+						
+						// Store destination data if available in tile properties
+						// Example: tile.properties.destX, tile.properties.destY, tile.properties.destMap
+					}
+				});
+				
+				// Add collision for all teleport zones
+				if (teleporters.length > 0) {
+					this.physics.add.overlap(this.player, teleporters, this.handleTeleportZone, null, this);
+				}
+				
+				console.log(`${teleporters.length} teleport zones created`);
+			}
+		} catch (error) {
+			console.error("Error setting up teleportation:", error);
+		}
+	}
+	
+	// Handle teleportation when player overlaps a teleport zone
+	handleTeleportZone(player, teleportZone) {
+		// Get destination scene (could be stored in teleportZone.data)
+		const destScene = "FirstArea"; // Default destination
+		
+		// Use the base class teleport handler
+		this.handleTeleport(player, teleportZone, destScene);
+	}
+	
+	setupTestControls() {
+		// Call the base class implementation
+		super.setupTestControls();
+		
+		// Add scene-specific test controls here if needed
+	}
 
-		this.editorCreate();
-
-		this.physics.add.collider(this.playerPrefab, this.hG_1);
-		this.hG_1.setCollisionBetween(0, 10000);
-		// this.hG_1.renderDebug(this.add.graphics());
-
-		this.physics.add.collider(this.playerPrefab, this.map_Col_1);
-		this.map_Col_1.setCollisionBetween(0, 10000);
-		// this.map_Col_1.renderDebug(this.add.graphics());
-
-		// this.physics.add.collider(this.playerPrefab, this.door_1);
-		// this.door_1.setCollisionBetween(0, 10000);
-		// // this.door_1.renderDebug(this.add.graphics());
-
-		this.physics.add.collider(this.playerPrefab, this.backGround);
-		this.backGround.setCollisionBetween(0, 10000);
-		// this.backGround.renderDebug(this.add.graphics());
-
+	update(time, delta) {
+		// Call the base class update method
+		super.update(time, delta);
+		
+		// Add scene-specific update logic here if needed
+	}
+	
+	shutdown() {
+		// Call the base class shutdown method
+		super.shutdown();
+		
+		// Add scene-specific cleanup here if needed
 	}
 
 	/* END-USER-CODE */
 }
 
 /* END OF COMPILED CODE */
-
-// You can write more code here

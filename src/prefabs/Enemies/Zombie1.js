@@ -80,18 +80,43 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
             );
             
             if (distance > this.attackRange) {
+                // Get angle to player
                 const angle = Phaser.Math.Angle.Between(
                     this.x, this.y,
                     player.x, player.y
                 );
                 
-                this.body.velocity.x = Math.cos(angle) * this.speed;
-                this.body.velocity.y = Math.sin(angle) * this.speed;
+                // Use forces instead of direct velocity setting for better physics interaction
+                const forceX = Math.cos(angle) * this.speed * 0.1;
+                const forceY = Math.sin(angle) * this.speed * 0.1;
                 
+                // Apply force instead of setting velocity directly
+                this.body.velocity.x += forceX;
+                this.body.velocity.y += forceY;
+                
+                // Apply drag to prevent excessive speed
+                this.body.velocity.x *= 0.9;
+                this.body.velocity.y *= 0.9;
+                
+                // Cap max speed
+                const maxSpeed = this.speed;
+                const currentSpeed = Math.sqrt(
+                    this.body.velocity.x * this.body.velocity.x + 
+                    this.body.velocity.y * this.body.velocity.y
+                );
+                
+                if (currentSpeed > maxSpeed) {
+                    const scale = maxSpeed / currentSpeed;
+                    this.body.velocity.x *= scale;
+                    this.body.velocity.y *= scale;
+                }
+                
+                // Update animation direction based on movement
                 this.updateDirection(angle);
             } else {
-                this.body.velocity.x = 0;
-                this.body.velocity.y = 0;
+                // When in attack range, slow down
+                this.body.velocity.x *= 0.8;
+                this.body.velocity.y *= 0.8;
                 
                 if (time - this.lastAttackTime > this.attackCooldown) {
                     this.attackPlayer(player);
