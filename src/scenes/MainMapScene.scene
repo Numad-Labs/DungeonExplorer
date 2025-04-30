@@ -6,6 +6,7 @@
         "snapHeight": 32,
         "exportClass": true,
         "autoImport": true,
+        "superClassName": "BaseGameScene",
         "preloadPackFiles": [],
         "createMethodName": "editorCreate",
         "sceneKey": "MainMapScene",
