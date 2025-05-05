@@ -2,6 +2,11 @@
     "section1": {
         "files": [
             {
+                "url": "assets/Animations.json",
+                "type": "animation",
+                "key": "Animations"
+            },
+            {
                 "url": "assets/Decoration/Atlas-props.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -80,7 +85,7 @@
                 "url": "assets/Decoration/Fire-candelabrum.png",
                 "frameConfig": {
                     "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameHeight": 96,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -105,8 +110,8 @@
             {
                 "url": "assets/Decoration/golden monument anim-going up-packed sheet.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 160,
+                    "frameHeight": 160,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -180,8 +185,8 @@
             {
                 "url": "assets/Decoration/rock pillars coming from darkness-bg_0.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 128,
+                    "frameHeight": 192,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -284,8 +289,8 @@
             {
                 "url": "assets/Decoration/statues-far from platforms-bg_4.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 128,
+                    "frameHeight": 160,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,

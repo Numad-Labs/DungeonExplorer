@@ -1,0 +1,56 @@
+{
+    "id": "67b5633e-d96a-4150-9092-e838e17aa141",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "5d2625ae-b755-46f4-a6fe-0740634d4cc1",
+            "label": "container_1",
+            "blendMode": -1,
+            "x": 757,
+            "y": 663,
+            "list": [
+                {
+                    "type": "Image",
+                    "id": "036e2b31-ec1d-45ed-99f7-aebf72290956",
+                    "label": "rock_pillars_coming_from_darkness_bg_00",
+                    "scope": "CLASS",
+                    "texture": {
+                        "key": "rock pillars coming from darkness-bg_0",
+                        "frame": 0
+                    },
+                    "x": 81,
+                    "y": 192
+                },
+                {
+                    "type": "Image",
+                    "id": "7608dd2c-ee19-49b6-81a3-d1547501cf62",
+                    "label": "statues_far_from_platforms_bg_40",
+                    "scope": "CLASS",
+                    "texture": {
+                        "key": "statues-far from platforms-bg_4",
+                        "frame": 0
+                    },
+                    "x": 78,
+                    "y": 48
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}
