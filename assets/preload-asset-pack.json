@@ -2,6 +2,58 @@
     "section1": {
         "files": [
             {
+                "url": "assets/Static prop/AncientScript_V01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AncientScript_V01"
+            },
+            {
+                "url": "assets/Animated prop/AncientScript_V01-Sheet.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AncientScript_V01-Sheet"
+            },
+            {
+                "url": "assets/Animated prop/animated lamp posts-4.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "animated lamp posts-4"
+            },
+            {
+                "url": "assets/Animated prop/animated lamp posts-5.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "animated lamp posts-5"
+            },
+            {
                 "url": "assets/Animations.json",
                 "type": "animation",
                 "key": "Animations"
@@ -36,6 +88,45 @@
                 "url": "assets/Card/blank cards7.png",
                 "type": "image",
                 "key": "blank cards7"
+            },
+            {
+                "url": "assets/Static prop/bone - big - 1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "bone - big - 1"
+            },
+            {
+                "url": "assets/Static prop/bone - big - 2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "bone - big - 2"
+            },
+            {
+                "url": "assets/Static prop/carriage - no tent.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "carriage - no tent"
             },
             {
                 "url": "assets/Decoration/Crystals1-improved refraction_11.png",
@@ -121,6 +212,19 @@
                 "key": "golden monument anim-going up-packed sheet"
             },
             {
+                "url": "assets/Static prop/GroundTileset_V02.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "GroundTileset_V02"
+            },
+            {
                 "url": "assets/Decoration/lavafal-for Tiled-spritesheet-16frames.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -134,6 +238,19 @@
                 "key": "lavafal-for Tiled-spritesheet-16frames"
             },
             {
+                "url": "assets/Animated prop/Lift_Platform.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Lift_Platform"
+            },
+            {
                 "url": "assets/Map/mainMap.json",
                 "type": "tilemapTiledJSON",
                 "key": "mainMap"
@@ -142,6 +259,26 @@
                 "url": "assets/Map/MainMap.json",
                 "type": "tilemapTiledJSON",
                 "key": "MainMap"
+            },
+            {
+                "url": "assets/Map/MiniMapBeachBiom.json",
+                "type": "tilemapTiledJSON",
+                "key": "MiniMapBeachBiom"
+            },
+            {
+                "url": "assets/Map/MiniMapBossFight.json",
+                "type": "tilemapTiledJSON",
+                "key": "MiniMapBossFight"
+            },
+            {
+                "url": "assets/Map/MiniMapDarkForast.json",
+                "type": "tilemapTiledJSON",
+                "key": "MiniMapDarkForast"
+            },
+            {
+                "url": "assets/Map/MiniMapLava.json",
+                "type": "tilemapTiledJSON",
+                "key": "MiniMapLava"
             },
             {
                 "url": "assets/Decoration/platform1.png",
@@ -181,6 +318,19 @@
                 },
                 "type": "spritesheet",
                 "key": "playerAsset"
+            },
+            {
+                "url": "assets/Animated prop/RiverShallowSheet_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "RiverShallowSheet_v01"
             },
             {
                 "url": "assets/Decoration/rock pillars coming from darkness-bg_0.png",
@@ -233,6 +383,19 @@
                 },
                 "type": "spritesheet",
                 "key": "rock pillars coming from darkness-bg_3"
+            },
+            {
+                "url": "assets/Animated prop/shrine-buff available animation-295x311.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "shrine-buff available animation-295x311"
             },
             {
                 "url": "assets/Decoration/side way-Sheet.png",
@@ -313,6 +476,19 @@
                 "key": "statues-far from platforms-bg_5"
             },
             {
+                "url": "assets/Static prop/stronghold - embranchment section.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "stronghold - embranchment section"
+            },
+            {
                 "url": "assets/Decoration/Survive_Zone.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -337,6 +513,84 @@
                 },
                 "type": "spritesheet",
                 "key": "Tileset 3"
+            },
+            {
+                "url": "assets/Static prop/tree - color scheme 1 - 1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tree - color scheme 1 - 1"
+            },
+            {
+                "url": "assets/Static prop/tree - color scheme 1 - 2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tree - color scheme 1 - 2"
+            },
+            {
+                "url": "assets/Static prop/tree - color scheme 4 - 1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tree - color scheme 4 - 1"
+            },
+            {
+                "url": "assets/Static prop/tree - color scheme 5 - 1.png",
+                "frameConfig": {
+                    "frameWidth": 192,
+                    "frameHeight": 160,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tree - color scheme 5 - 1"
+            },
+            {
+                "url": "assets/Static prop/tree - naked 1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tree - naked 1"
+            },
+            {
+                "url": "assets/Static prop/Tree_pattern.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tree_pattern"
             },
             {
                 "url": "assets/Decoration/Wall.png",

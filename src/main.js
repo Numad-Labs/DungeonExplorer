@@ -2,6 +2,7 @@ import Level from "./scenes/Level.js";
 import Preload from "./scenes/Preload.js";
 import FirstArea from "./scenes/FirstArea.js";
 import MainMapScene from "./scenes/MainMapScene.js"
+import MiniMapDarkForastScene from "./scenes/MiniMapDarkForastScene.js"
 
 const config = {
     type: Phaser.AUTO,
@@ -46,6 +47,7 @@ const StartGame = (parent) => {
     game.scene.add("Boot", Boot, true);
     game.scene.add("FirstArea", FirstArea);
     game.scene.add("MainMapScene", MainMapScene)
+    game.scene.add("MiniMapDarkForastScene", MiniMapDarkForastScene)
     
     return game;
 };
