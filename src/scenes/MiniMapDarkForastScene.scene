@@ -41,6 +41,34 @@
         },
         {
             "type": "TilemapLayer",
+            "id": "d1d78f74-43f9-471d-b4c9-d2b8adef3bf2",
+            "label": "road_1",
+            "scope": "CLASS",
+            "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
+            "layerName": "Road",
+            "tilesets": [
+                "Tree_pattern",
+                "GroundTileset_V02",
+                "AncientScript_V01-Sheet",
+                "shrine-buff available animation-295x311",
+                "animated lamp posts-4",
+                "animated lamp posts-5",
+                "stronghold - embranchment section",
+                "Lift_Platform",
+                "golden monument anim-going up-packed sheet",
+                "carriage - no tent",
+                "bone - big - 2",
+                "bone - big - 1",
+                "RiverShallowSheet_v01",
+                "tree - color scheme 1 - 2",
+                "tree - color scheme 1 - 1",
+                "tree - color scheme 4 - 1",
+                "tree - color scheme 5 - 1",
+                "tree - naked 1"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
             "id": "90a6e0aa-5681-4c40-afdb-2b98c2f3f6ba",
             "label": "tall_Grass_1",
             "scope": "CLASS",
@@ -184,6 +212,8 @@
             "id": "c3f21331-5c83-41a1-8a9e-1a4798157a7d",
             "label": "pad_1",
             "scope": "CLASS",
+            "x": 16,
+            "y": 4,
             "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
             "layerName": "Pad",
             "tilesets": [
@@ -356,8 +386,8 @@
             ],
             "label": "playerPrefab",
             "scope": "CLASS",
-            "x": 1302,
-            "y": 1594
+            "x": 1180,
+            "y": 2315
         },
         {
             "type": "Image",
@@ -488,32 +518,18 @@
             "y": 759
         },
         {
-            "type": "TilemapLayer",
-            "id": "bdc2ba34-f9e3-499c-9ab2-ea7208ce6dbc",
-            "label": "decor_1",
+            "type": "Sprite",
+            "id": "df932dd2-f7e6-4293-b217-ef7cbd2acada",
+            "label": "telAnimation",
             "scope": "CLASS",
-            "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
-            "layerName": "Decor",
-            "tilesets": [
-                "Tree_pattern",
-                "GroundTileset_V02",
-                "AncientScript_V01-Sheet",
-                "shrine-buff available animation-295x311",
-                "animated lamp posts-4",
-                "animated lamp posts-5",
-                "stronghold - embranchment section",
-                "Lift_Platform",
-                "golden monument anim-going up-packed sheet",
-                "carriage - no tent",
-                "bone - big - 2",
-                "bone - big - 1",
-                "RiverShallowSheet_v01",
-                "tree - color scheme 1 - 2",
-                "tree - color scheme 1 - 1",
-                "tree - color scheme 4 - 1",
-                "tree - color scheme 5 - 1",
-                "tree - naked 1"
-            ]
+            "texture": {
+                "key": "golden monument anim-going up-packed sheet",
+                "frame": 53
+            },
+            "x": 1281,
+            "y": 368,
+            "animationPlayMethod": 1,
+            "animationKey": "TelAnimation"
         }
     ],
     "plainObjects": [

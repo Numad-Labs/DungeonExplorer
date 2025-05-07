@@ -76,9 +76,6 @@ export default class MainMapScene extends BaseGameScene {
 		// map
 		const map = mainMap.createLayer("Map_", ["platform1","platform2"], 0, 0);
 
-		// teleportation_1
-		const teleportation_1 = mainMap.createLayer("Teleportation", ["golden monument anim-going up-packed sheet"], 0, 0);
-
 		// bed_1
 		const bed_1 = mainMap.createLayer("Bed", ["Bed"], 0, 0);
 
@@ -153,6 +150,22 @@ export default class MainMapScene extends BaseGameScene {
 		const torchAnim_11 = this.add.sprite(1831, 485, "Fire-candelabrum", 0);
 		torchAnim_11.play("TorchAnim");
 
+		// telAnimation
+		const telAnimation = this.add.sprite(72, 57, "golden monument anim-going up-packed sheet", 53);
+		telAnimation.play("TelAnimation");
+
+		// telAnimation_1
+		const telAnimation_1 = this.add.sprite(2482, 57, "golden monument anim-going up-packed sheet", 53);
+		telAnimation_1.play("TelAnimation");
+
+		// telAnimation_2
+		const telAnimation_2 = this.add.sprite(2482, 2420, "golden monument anim-going up-packed sheet", 53);
+		telAnimation_2.play("TelAnimation");
+
+		// telAnimation_3
+		const telAnimation_3 = this.add.sprite(72, 2420, "golden monument anim-going up-packed sheet", 53);
+		telAnimation_3.play("TelAnimation");
+
 		this.backGround_1 = backGround_1;
 		this.map_Col_1 = map_Col_1;
 		this.backGround = backGround;
@@ -163,7 +176,6 @@ export default class MainMapScene extends BaseGameScene {
 		this.wall_RD_1 = wall_RD_1;
 		this.gold_AC_1 = gold_AC_1;
 		this.map = map;
-		this.teleportation_1 = teleportation_1;
 		this.bed_1 = bed_1;
 		this.vase_AC_1 = vase_AC_1;
 		this.playerPrefab = playerPrefab;
@@ -197,8 +209,6 @@ export default class MainMapScene extends BaseGameScene {
 	gold_AC_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	map;
-	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	teleportation_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	bed_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */

@@ -336,37 +336,6 @@
         },
         {
             "type": "TilemapLayer",
-            "id": "97227e96-5e23-423b-b6fa-a1c904c95667",
-            "label": "teleportation_1",
-            "scope": "CLASS",
-            "tilemapId": "d6db6123-787c-4846-af7c-6d8c2a95faf3",
-            "layerName": "Teleportation",
-            "tilesets": [
-                "golden monument anim-going up-packed sheet",
-                "Fire-candelabrum",
-                "side way-Sheet",
-                "Tileset 3",
-                "Wall_3",
-                "rock pillars coming from darkness-bg_2",
-                "Crystals1-improved refraction_11",
-                "Crystals1-improved refraction_6",
-                "Crystals1-improved refraction_8",
-                "Survive_Zone",
-                "statues-far from platforms-bg_4",
-                "statues-far from platforms-bg_2",
-                "statues-far from platforms-bg_1",
-                "statues-far from platforms-bg_0",
-                "statues-far from platforms-bg_5",
-                "Gold",
-                "Bed",
-                "Atlas-props",
-                "platform2",
-                "platform1",
-                "lavafal-for Tiled-spritesheet-16frames"
-            ]
-        },
-        {
-            "type": "TilemapLayer",
             "id": "99aedce9-a536-40e0-9ce9-8d3ce222c564",
             "label": "bed_1",
             "scope": "CLASS",
@@ -643,6 +612,58 @@
             "y": 485,
             "animationPlayMethod": 1,
             "animationKey": "TorchAnim"
+        },
+        {
+            "type": "Sprite",
+            "id": "f76c77e2-b68e-4c4a-befb-ec4b9f53b959",
+            "label": "telAnimation",
+            "texture": {
+                "key": "golden monument anim-going up-packed sheet",
+                "frame": 53
+            },
+            "x": 72,
+            "y": 57,
+            "animationPlayMethod": 1,
+            "animationKey": "TelAnimation"
+        },
+        {
+            "type": "Sprite",
+            "id": "c6dd3cf0-1844-4713-8735-63f302207662",
+            "label": "telAnimation_1",
+            "texture": {
+                "key": "golden monument anim-going up-packed sheet",
+                "frame": 53
+            },
+            "x": 2482,
+            "y": 57,
+            "animationPlayMethod": 1,
+            "animationKey": "TelAnimation"
+        },
+        {
+            "type": "Sprite",
+            "id": "9a45a345-2f34-4dae-956a-0edec54c137f",
+            "label": "telAnimation_2",
+            "texture": {
+                "key": "golden monument anim-going up-packed sheet",
+                "frame": 53
+            },
+            "x": 2482,
+            "y": 2420,
+            "animationPlayMethod": 1,
+            "animationKey": "TelAnimation"
+        },
+        {
+            "type": "Sprite",
+            "id": "7e6d5aae-35f8-41e1-befd-d687f79051f1",
+            "label": "telAnimation_3",
+            "texture": {
+                "key": "golden monument anim-going up-packed sheet",
+                "frame": 53
+            },
+            "x": 72,
+            "y": 2420,
+            "animationPlayMethod": 1,
+            "animationKey": "TelAnimation"
         }
     ],
     "plainObjects": [

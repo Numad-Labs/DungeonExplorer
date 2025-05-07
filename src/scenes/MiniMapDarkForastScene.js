@@ -45,6 +45,9 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 		// tile_Layer
 		const tile_Layer = miniMapDarkForast.createLayer("Tile Layer 2", ["GroundTileset_V02"], 0, 0);
 
+		// road_1
+		const road_1 = miniMapDarkForast.createLayer("Road", ["GroundTileset_V02"], 0, 0);
+
 		// tall_Grass_1
 		const tall_Grass_1 = miniMapDarkForast.createLayer("Tall Grass", ["GroundTileset_V02"], 0, 0);
 
@@ -61,7 +64,7 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 		const shrine_1 = miniMapDarkForast.createLayer("Shrine", ["shrine-buff available animation-295x311"], 0, 0);
 
 		// pad_1
-		const pad_1 = miniMapDarkForast.createLayer("Pad", ["Lift_Platform"], 0, 0);
+		const pad_1 = miniMapDarkForast.createLayer("Pad", ["Lift_Platform"], 16, 4);
 
 		// cliff_1
 		const cliff_1 = miniMapDarkForast.createLayer("Cliff", ["GroundTileset_V02"], 0, 0);
@@ -79,7 +82,7 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 		const river_1 = miniMapDarkForast.createLayer("River", ["RiverShallowSheet_v01"], 0, 0);
 
 		// playerPrefab
-		const playerPrefab = new PlayerPrefab(this, 1302, 1594);
+		const playerPrefab = new PlayerPrefab(this, 1180, 2315);
 		this.add.existing(playerPrefab);
 
 		// tree___color_scheme_5___10
@@ -124,10 +127,12 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 		const lampPrefab_5 = new LampPrefab(this, 1906, 759);
 		this.add.existing(lampPrefab_5);
 
-		// decor_1
-		const decor_1 = miniMapDarkForast.createLayer("Decor", ["bone - big - 1","bone - big - 2"], 0, 0);
+		// telAnimation
+		const telAnimation = this.add.sprite(1281, 368, "golden monument anim-going up-packed sheet", 53);
+		telAnimation.play("TelAnimation");
 
 		this.tile_Layer = tile_Layer;
+		this.road_1 = road_1;
 		this.tall_Grass_1 = tall_Grass_1;
 		this.rampt_1 = rampt_1;
 		this.base_1 = base_1;
@@ -146,7 +151,7 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 		this.lampPrefab_3 = lampPrefab_3;
 		this.lampPrefab_4 = lampPrefab_4;
 		this.lampPrefab_5 = lampPrefab_5;
-		this.decor_1 = decor_1;
+		this.telAnimation = telAnimation;
 		this.miniMapDarkForast = miniMapDarkForast;
 
 		this.events.emit("scene-awake");
@@ -154,6 +159,8 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	tile_Layer;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	road_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	tall_Grass_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
@@ -190,8 +197,8 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 	lampPrefab_4;
 	/** @type {LampPrefab} */
 	lampPrefab_5;
-	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	decor_1;
+	/** @type {Phaser.GameObjects.Sprite} */
+	telAnimation;
 	/** @type {Phaser.Tilemaps.Tilemap} */
 	miniMapDarkForast;
 

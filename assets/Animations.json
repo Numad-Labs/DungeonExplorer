@@ -181,6 +181,34 @@
             "skipMissedFrames": true,
             "repeat": -1,
             "randomFrame": false
+        },
+        {
+            "key": "TelAnimation",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "golden monument anim-going up-packed sheet",
+                    "frame": 53,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "golden monument anim-going up-packed sheet",
+                    "frame": 54,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "golden monument anim-going up-packed sheet",
+                    "frame": 55,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 6,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
         }
     ],
     "globalTimeScale": 1,
