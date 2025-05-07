@@ -96,7 +96,7 @@ export default class Preload extends Phaser.Scene {
 		}
 		
 		// Proceed to next scene
-		this.scene.start("MainMapScene");
+		this.scene.start("MiniMapDarkForastScene");
 	}
 	
 	// Create a simple circle texture as fallback

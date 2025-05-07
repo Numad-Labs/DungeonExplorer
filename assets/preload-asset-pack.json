@@ -30,8 +30,8 @@
             {
                 "url": "assets/Animated prop/animated lamp posts-4.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 64,
+                    "frameHeight": 96,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,

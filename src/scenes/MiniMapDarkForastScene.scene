@@ -97,6 +97,34 @@
         },
         {
             "type": "TilemapLayer",
+            "id": "8f4f649b-e4cb-49cd-9fa0-46ae7c9eafe8",
+            "label": "base_1",
+            "scope": "CLASS",
+            "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
+            "layerName": "Base",
+            "tilesets": [
+                "Tree_pattern",
+                "GroundTileset_V02",
+                "AncientScript_V01-Sheet",
+                "shrine-buff available animation-295x311",
+                "animated lamp posts-4",
+                "animated lamp posts-5",
+                "stronghold - embranchment section",
+                "Lift_Platform",
+                "golden monument anim-going up-packed sheet",
+                "carriage - no tent",
+                "bone - big - 2",
+                "bone - big - 1",
+                "RiverShallowSheet_v01",
+                "tree - color scheme 1 - 2",
+                "tree - color scheme 1 - 1",
+                "tree - color scheme 4 - 1",
+                "tree - color scheme 5 - 1",
+                "tree - naked 1"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
             "id": "39c84984-81c6-4411-b874-951d76bc7636",
             "label": "scrift_1",
             "scope": "CLASS",
@@ -153,67 +181,11 @@
         },
         {
             "type": "TilemapLayer",
-            "id": "ab759f9b-1042-494c-acd1-7ea1486a8191",
-            "label": "lamp_1",
-            "scope": "CLASS",
-            "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
-            "layerName": "Lamp",
-            "tilesets": [
-                "Tree_pattern",
-                "GroundTileset_V02",
-                "AncientScript_V01-Sheet",
-                "shrine-buff available animation-295x311",
-                "animated lamp posts-4",
-                "animated lamp posts-5",
-                "stronghold - embranchment section",
-                "Lift_Platform",
-                "golden monument anim-going up-packed sheet",
-                "carriage - no tent",
-                "bone - big - 2",
-                "bone - big - 1",
-                "RiverShallowSheet_v01",
-                "tree - color scheme 1 - 2",
-                "tree - color scheme 1 - 1",
-                "tree - color scheme 4 - 1",
-                "tree - color scheme 5 - 1",
-                "tree - naked 1"
-            ]
-        },
-        {
-            "type": "TilemapLayer",
             "id": "c3f21331-5c83-41a1-8a9e-1a4798157a7d",
             "label": "pad_1",
             "scope": "CLASS",
             "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
             "layerName": "Pad",
-            "tilesets": [
-                "Tree_pattern",
-                "GroundTileset_V02",
-                "AncientScript_V01-Sheet",
-                "shrine-buff available animation-295x311",
-                "animated lamp posts-4",
-                "animated lamp posts-5",
-                "stronghold - embranchment section",
-                "Lift_Platform",
-                "golden monument anim-going up-packed sheet",
-                "carriage - no tent",
-                "bone - big - 2",
-                "bone - big - 1",
-                "RiverShallowSheet_v01",
-                "tree - color scheme 1 - 2",
-                "tree - color scheme 1 - 1",
-                "tree - color scheme 4 - 1",
-                "tree - color scheme 5 - 1",
-                "tree - naked 1"
-            ]
-        },
-        {
-            "type": "TilemapLayer",
-            "id": "16008e89-db04-44d5-8c96-713c01e634ff",
-            "label": "portal_shrine_1",
-            "scope": "CLASS",
-            "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
-            "layerName": "Portal shrine",
             "tilesets": [
                 "Tree_pattern",
                 "GroundTileset_V02",
@@ -349,34 +321,6 @@
         },
         {
             "type": "TilemapLayer",
-            "id": "bdc2ba34-f9e3-499c-9ab2-ea7208ce6dbc",
-            "label": "decor_1",
-            "scope": "CLASS",
-            "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
-            "layerName": "Decor",
-            "tilesets": [
-                "Tree_pattern",
-                "GroundTileset_V02",
-                "AncientScript_V01-Sheet",
-                "shrine-buff available animation-295x311",
-                "animated lamp posts-4",
-                "animated lamp posts-5",
-                "stronghold - embranchment section",
-                "Lift_Platform",
-                "golden monument anim-going up-packed sheet",
-                "carriage - no tent",
-                "bone - big - 2",
-                "bone - big - 1",
-                "RiverShallowSheet_v01",
-                "tree - color scheme 1 - 2",
-                "tree - color scheme 1 - 1",
-                "tree - color scheme 4 - 1",
-                "tree - color scheme 5 - 1",
-                "tree - naked 1"
-            ]
-        },
-        {
-            "type": "TilemapLayer",
             "id": "2f44ecb6-2c7e-4900-a8a4-9b33f67d716e",
             "label": "river_1",
             "scope": "CLASS",
@@ -412,8 +356,8 @@
             ],
             "label": "playerPrefab",
             "scope": "CLASS",
-            "x": 290,
-            "y": 1145
+            "x": 1302,
+            "y": 1594
         },
         {
             "type": "Image",
@@ -447,6 +391,129 @@
             },
             "x": 72,
             "y": 2066
+        },
+        {
+            "type": "Image",
+            "id": "379e0647-9038-464c-81cb-387d34bb0044",
+            "label": "tree___color_scheme_2",
+            "texture": {
+                "key": "tree - color scheme 5 - 1",
+                "frame": 0
+            },
+            "x": 183,
+            "y": 965
+        },
+        {
+            "prefabId": "cf4d59f2-012d-4e0f-90fc-5f1454669c55",
+            "id": "0b69b1ac-100d-4624-aead-79992aee7753",
+            "unlock": [
+                "x",
+                "y",
+                "flipX",
+                "flipY"
+            ],
+            "label": "lampPrefab",
+            "scope": "CLASS",
+            "x": 654,
+            "y": 758,
+            "flipX": true,
+            "flipY": false
+        },
+        {
+            "prefabId": "cf4d59f2-012d-4e0f-90fc-5f1454669c55",
+            "id": "8f3fdc25-a862-4b4c-8c6e-dcf1e1ad1db5",
+            "unlock": [
+                "x",
+                "y",
+                "flipX",
+                "flipY"
+            ],
+            "label": "lampPrefab_1",
+            "scope": "CLASS",
+            "x": 654,
+            "y": 927,
+            "flipX": true,
+            "flipY": false
+        },
+        {
+            "prefabId": "cf4d59f2-012d-4e0f-90fc-5f1454669c55",
+            "id": "f8d1edf2-bcd6-4c6e-9614-e57e47401b1a",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "lampPrefab_2",
+            "scope": "CLASS",
+            "x": 1404,
+            "y": 1558
+        },
+        {
+            "prefabId": "cf4d59f2-012d-4e0f-90fc-5f1454669c55",
+            "id": "1cb10ed9-4103-456b-9393-3090156d8668",
+            "unlock": [
+                "x",
+                "y",
+                "flipX",
+                "flipY"
+            ],
+            "label": "lampPrefab_3",
+            "scope": "CLASS",
+            "x": 1185,
+            "y": 1558,
+            "flipX": true,
+            "flipY": false
+        },
+        {
+            "prefabId": "cf4d59f2-012d-4e0f-90fc-5f1454669c55",
+            "id": "b7a2cf0d-dcd5-4a44-aefe-ef12b7311c8e",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "lampPrefab_4",
+            "scope": "CLASS",
+            "x": 1906,
+            "y": 896
+        },
+        {
+            "prefabId": "cf4d59f2-012d-4e0f-90fc-5f1454669c55",
+            "id": "8fcc0976-5ba8-4dd6-bf3a-f7f89bca9050",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "lampPrefab_5",
+            "scope": "CLASS",
+            "x": 1906,
+            "y": 759
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "bdc2ba34-f9e3-499c-9ab2-ea7208ce6dbc",
+            "label": "decor_1",
+            "scope": "CLASS",
+            "tilemapId": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
+            "layerName": "Decor",
+            "tilesets": [
+                "Tree_pattern",
+                "GroundTileset_V02",
+                "AncientScript_V01-Sheet",
+                "shrine-buff available animation-295x311",
+                "animated lamp posts-4",
+                "animated lamp posts-5",
+                "stronghold - embranchment section",
+                "Lift_Platform",
+                "golden monument anim-going up-packed sheet",
+                "carriage - no tent",
+                "bone - big - 2",
+                "bone - big - 1",
+                "RiverShallowSheet_v01",
+                "tree - color scheme 1 - 2",
+                "tree - color scheme 1 - 1",
+                "tree - color scheme 4 - 1",
+                "tree - color scheme 5 - 1",
+                "tree - naked 1"
+            ]
         }
     ],
     "plainObjects": [
@@ -454,86 +521,6 @@
             "id": "4623f015-f63e-4e8d-ac6d-b8d83edacd5a",
             "type": "Tilemap",
             "label": "miniMapDarkForast",
-            "key": "MiniMapDarkForast",
-            "tilesets": [
-                {
-                    "name": "Tree_pattern",
-                    "imageKey": "Tree_pattern"
-                },
-                {
-                    "name": "GroundTileset_V02",
-                    "imageKey": "GroundTileset_V02"
-                },
-                {
-                    "name": "AncientScript_V01-Sheet",
-                    "imageKey": "AncientScript_V01-Sheet"
-                },
-                {
-                    "name": "shrine-buff available animation-295x311",
-                    "imageKey": "shrine-buff available animation-295x311"
-                },
-                {
-                    "name": "animated lamp posts-4",
-                    "imageKey": "animated lamp posts-4"
-                },
-                {
-                    "name": "animated lamp posts-5",
-                    "imageKey": "animated lamp posts-5"
-                },
-                {
-                    "name": "stronghold - embranchment section",
-                    "imageKey": "stronghold - embranchment section"
-                },
-                {
-                    "name": "Lift_Platform",
-                    "imageKey": "Lift_Platform"
-                },
-                {
-                    "name": "golden monument anim-going up-packed sheet",
-                    "imageKey": "golden monument anim-going up-packed sheet"
-                },
-                {
-                    "name": "carriage - no tent",
-                    "imageKey": "carriage - no tent"
-                },
-                {
-                    "name": "bone - big - 2",
-                    "imageKey": "bone - big - 2"
-                },
-                {
-                    "name": "bone - big - 1",
-                    "imageKey": "bone - big - 1"
-                },
-                {
-                    "name": "RiverShallowSheet_v01",
-                    "imageKey": "RiverShallowSheet_v01"
-                },
-                {
-                    "name": "tree - color scheme 1 - 2",
-                    "imageKey": "tree - color scheme 1 - 2"
-                },
-                {
-                    "name": "tree - color scheme 1 - 1",
-                    "imageKey": "tree - color scheme 1 - 1"
-                },
-                {
-                    "name": "tree - color scheme 4 - 1",
-                    "imageKey": "tree - color scheme 4 - 1"
-                },
-                {
-                    "name": "tree - color scheme 5 - 1",
-                    "imageKey": "tree - color scheme 5 - 1"
-                },
-                {
-                    "name": "tree - naked 1",
-                    "imageKey": "tree - naked 1"
-                }
-            ]
-        },
-        {
-            "id": "dd4f0d36-385b-4eaa-ba34-bf65a8e3afbe",
-            "type": "Tilemap",
-            "label": "miniMapDarkForast_1",
             "key": "MiniMapDarkForast",
             "tilesets": [
                 {
