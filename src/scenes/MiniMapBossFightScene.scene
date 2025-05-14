@@ -1,0 +1,633 @@
+{
+    "id": "ed65543d-df49-4723-b29b-e385b75f3c06",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "MiniMapBossFightScene",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "TilemapLayer",
+            "id": "86501395-0613-494c-9410-b6c002ec21f0",
+            "label": "floor_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "Floor",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "f43f9240-a709-4f68-a4ca-52a477a43047",
+            "label": "bg_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "bg",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "1f90520c-2d90-4f23-bdad-8221d6d269ec",
+            "label": "lava_floor_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "lava floor",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "b1b03ebe-7cf8-487a-95a7-408d5bdd5a31",
+            "label": "fire_animation_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "fire animation",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "d302b5d1-a660-4d8e-b4ea-5eaafb6882b6",
+            "label": "floating_plat_form_Chain_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "Floating plat form/Chain",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "c2eb0f58-687d-4658-9f7f-bbb3d881b292",
+            "label": "floating_plat_form_Floating_Col_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "Floating plat form/Floating Col",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "99ec0033-deca-43b7-9b45-ceaa9c8264f1",
+            "label": "floating_plat_form_Floatind_platform_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "Floating plat form/Floatind platform",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "71b687e1-170c-4bbe-9350-bec6f0ebdacf",
+            "label": "gate_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "Gate",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "dbb47f67-2f88-4b5a-bb26-0fc13ac22d1f",
+            "label": "wall_wall_bottom_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "wall/wall bottom",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "ecadae9d-0555-43bc-bab1-e699cc803906",
+            "label": "lift_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "lift",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "bf564397-e20e-47d6-adf6-34ea3a54d9df",
+            "label": "floating_plat_form_Chain_shadow_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "Floating plat form/Chain shadow",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "c3572209-1aa2-4d4d-9909-813271513529",
+            "label": "wall_Wall_side_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "wall/Wall side",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "f0c57697-173b-4fb6-adfe-75da38e6b2c0",
+            "label": "pillar_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "pillar",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "6795c7fb-5cb4-4ec6-a00b-3b1263eb88f3",
+            "label": "decoration_1",
+            "scope": "CLASS",
+            "tilemapId": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "layerName": "Decoration",
+            "tilesets": [
+                "Tileset 4 - transp",
+                "Tileset 2",
+                "pillars-bg_5",
+                "pillars-bg_0",
+                "floor",
+                "Decor corner",
+                "TorchBowlRegular_V01-Sheet",
+                "side way-Sheet",
+                "Lift_Platform",
+                "Floading_flat_form",
+                "animated lava river spritesheet",
+                "floor_Lava_Crack",
+                "static idle",
+                "golden monument anim-going up-packed sheet",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals2-improved refraction_25",
+                "Crystals2-improved refraction_3",
+                "Crystals2-improved refraction_9",
+                "Crystals2-improved refraction_19",
+                "AncientScript_V01"
+            ]
+        },
+        {
+            "prefabId": "67b5633e-d96a-4150-9092-e838e17aa141",
+            "id": "0aedb803-ca31-4e87-b196-5275c7e8ce85",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "stoneStatuePrefab_1",
+            "scope": "CLASS",
+            "x": 1610,
+            "y": 1451
+        },
+        {
+            "prefabId": "67b5633e-d96a-4150-9092-e838e17aa141",
+            "id": "207f6af2-060e-4c06-94e2-6c5781a6bf45",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "stoneStatuePrefab",
+            "scope": "CLASS",
+            "x": 856,
+            "y": 1451
+        },
+        {
+            "type": "Sprite",
+            "id": "1fe93564-0905-49a0-b4ae-9c30a3755ade",
+            "label": "telAnimation",
+            "scope": "CLASS",
+            "texture": {
+                "key": "golden monument anim-going up-packed sheet",
+                "frame": 53
+            },
+            "x": 1280,
+            "y": 844,
+            "animationPlayMethod": 1,
+            "animationKey": "TelAnimation"
+        },
+        {
+            "prefabId": "fba49a7a-3752-48b8-b135-35e7c9eb4e29",
+            "id": "e57a9543-4c3a-4b98-b958-4ab39887a2e7",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "playerPrefab",
+            "scope": "CLASS",
+            "x": 978,
+            "y": 1191
+        },
+        {
+            "type": "Sprite",
+            "id": "51882ea8-dc88-4e7e-9909-779067fc672e",
+            "label": "torch1Anim",
+            "texture": {
+                "key": "TorchBowlRegular_V01-Sheet",
+                "frame": 0
+            },
+            "x": 618,
+            "y": 1797,
+            "animationPlayMethod": 1,
+            "animationKey": "Torch1Anim"
+        },
+        {
+            "type": "Sprite",
+            "id": "02b46ea6-1c7a-478f-a350-b3652bac9786",
+            "label": "torch1Anim_1",
+            "texture": {
+                "key": "TorchBowlRegular_V01-Sheet",
+                "frame": 0
+            },
+            "x": 1935,
+            "y": 1797,
+            "animationPlayMethod": 1,
+            "animationKey": "Torch1Anim"
+        },
+        {
+            "type": "Sprite",
+            "id": "d75f08a8-a970-4651-8e80-9c22a1ad8beb",
+            "label": "torch1Anim_2",
+            "texture": {
+                "key": "TorchBowlRegular_V01-Sheet",
+                "frame": 0
+            },
+            "x": 1935,
+            "y": 872,
+            "animationPlayMethod": 1,
+            "animationKey": "Torch1Anim"
+        },
+        {
+            "type": "Sprite",
+            "id": "d4ba2ff0-0107-479f-88ad-a530350aaf7a",
+            "label": "torch1Anim_3",
+            "texture": {
+                "key": "TorchBowlRegular_V01-Sheet",
+                "frame": 0
+            },
+            "x": 618,
+            "y": 872,
+            "animationPlayMethod": 1,
+            "animationKey": "Torch1Anim"
+        }
+    ],
+    "plainObjects": [
+        {
+            "id": "475b10c0-d39a-4410-8de9-d5f041c41622",
+            "type": "Tilemap",
+            "label": "miniMapBossFight",
+            "key": "MiniMapBossFight",
+            "tilesets": [
+                {
+                    "name": "Tileset 4 - transp",
+                    "imageKey": "Tileset 4"
+                },
+                {
+                    "name": "Tileset 2",
+                    "imageKey": "Tileset 2"
+                },
+                {
+                    "name": "pillars-bg_5",
+                    "imageKey": "pillars-bg_5"
+                },
+                {
+                    "name": "pillars-bg_0",
+                    "imageKey": "pillars-bg_0"
+                },
+                {
+                    "name": "floor",
+                    "imageKey": "floor"
+                },
+                {
+                    "name": "Decor corner",
+                    "imageKey": "Decor corner"
+                },
+                {
+                    "name": "TorchBowlRegular_V01-Sheet",
+                    "imageKey": "TorchBowlRegular_V01-Sheet"
+                },
+                {
+                    "name": "side way-Sheet",
+                    "imageKey": "side way-Sheet"
+                },
+                {
+                    "name": "Lift_Platform",
+                    "imageKey": "Lift_Platform"
+                },
+                {
+                    "name": "Floading_flat_form",
+                    "imageKey": "Floading_flat_form"
+                },
+                {
+                    "name": "animated lava river spritesheet",
+                    "imageKey": "animated lava river spritesheet"
+                },
+                {
+                    "name": "floor_Lava_Crack",
+                    "imageKey": "floor_Lava_Crack"
+                },
+                {
+                    "name": "static idle",
+                    "imageKey": "static idle"
+                },
+                {
+                    "name": "golden monument anim-going up-packed sheet",
+                    "imageKey": "golden monument anim-going up-packed sheet"
+                },
+                {
+                    "name": "rock pillars coming from darkness-bg_2",
+                    "imageKey": "rock pillars coming from darkness-bg_2"
+                },
+                {
+                    "name": "Crystals2-improved refraction_25",
+                    "imageKey": "Crystals2-improved refraction_25"
+                },
+                {
+                    "name": "Crystals2-improved refraction_3",
+                    "imageKey": "Crystals2-improved refraction_3"
+                },
+                {
+                    "name": "Crystals2-improved refraction_9",
+                    "imageKey": "Crystals2-improved refraction_9"
+                },
+                {
+                    "name": "Crystals2-improved refraction_19",
+                    "imageKey": "Crystals2-improved refraction_19"
+                },
+                {
+                    "name": "AncientScript_V01",
+                    "imageKey": "AncientScript_V01"
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

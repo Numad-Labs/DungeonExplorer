@@ -54,6 +54,32 @@
                 "key": "animated lamp posts-5"
             },
             {
+                "url": "assets/Animated prop/animated lava river spritesheet.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "animated lava river spritesheet"
+            },
+            {
+                "url": "assets/Animated prop/Animated water tiles (full tile).png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Animated water tiles (full tile)"
+            },
+            {
                 "url": "assets/Animations.json",
                 "type": "animation",
                 "key": "Animations"
@@ -168,6 +194,97 @@
                 "key": "Crystals1-improved refraction_8"
             },
             {
+                "url": "assets/Static prop/Crystals2-improved refraction_19.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Crystals2-improved refraction_19"
+            },
+            {
+                "url": "assets/Static prop/Crystals2-improved refraction_25.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Crystals2-improved refraction_25"
+            },
+            {
+                "url": "assets/Static prop/Crystals2-improved refraction_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Crystals2-improved refraction_3"
+            },
+            {
+                "url": "assets/Static prop/Crystals2-improved refraction_9.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Crystals2-improved refraction_9"
+            },
+            {
+                "url": "assets/Decoration/DARK Edition Tileset No background.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "DARK Edition Tileset No background"
+            },
+            {
+                "url": "assets/Decoration/DARK Edition Tileset with background.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "DARK Edition Tileset with background"
+            },
+            {
+                "url": "assets/Static prop/Decor corner.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Decor corner"
+            },
+            {
                 "url": "assets/PickUp/Exp.png",
                 "type": "image",
                 "key": "Exp"
@@ -184,6 +301,45 @@
                 },
                 "type": "spritesheet",
                 "key": "Fire-candelabrum"
+            },
+            {
+                "url": "assets/Static prop/Floading_flat_form.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Floading_flat_form"
+            },
+            {
+                "url": "assets/Static prop/floor.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "floor"
+            },
+            {
+                "url": "assets/Static prop/floor_Lava_Crack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "floor_Lava_Crack"
             },
             {
                 "url": "assets/Decoration/Gold.png",
@@ -281,6 +437,32 @@
                 "key": "MiniMapLava"
             },
             {
+                "url": "assets/Decoration/pillars-bg_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "pillars-bg_0"
+            },
+            {
+                "url": "assets/Decoration/pillars-bg_5.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "pillars-bg_5"
+            },
+            {
                 "url": "assets/Decoration/platform1.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -331,6 +513,19 @@
                 },
                 "type": "spritesheet",
                 "key": "RiverShallowSheet_v01"
+            },
+            {
+                "url": "assets/Static prop/rock pillars coming from darkness-bg_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock pillars coming from darkness-bg"
             },
             {
                 "url": "assets/Decoration/rock pillars coming from darkness-bg_0.png",
@@ -409,6 +604,19 @@
                 },
                 "type": "spritesheet",
                 "key": "side way-Sheet"
+            },
+            {
+                "url": "assets/Hero/static idle.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "static idle"
             },
             {
                 "url": "assets/Decoration/statues-far from platforms-bg_0.png",
@@ -502,6 +710,58 @@
                 "key": "Survive_Zone"
             },
             {
+                "url": "assets/Static prop/tileset.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tileset"
+            },
+            {
+                "url": "assets/Decoration/Tileset.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset"
+            },
+            {
+                "url": "assets/Decoration/tileset 16x16.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tileset 16x16"
+            },
+            {
+                "url": "assets/Decoration/Tileset 2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset 2"
+            },
+            {
                 "url": "assets/Decoration/Tileset 3.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -513,6 +773,84 @@
                 },
                 "type": "spritesheet",
                 "key": "Tileset 3"
+            },
+            {
+                "url": "assets/Decoration/Tileset 4.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset 4"
+            },
+            {
+                "url": "assets/Decoration/Tileset Add on.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset Add on"
+            },
+            {
+                "url": "assets/Decoration/Tileset Add on2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset Add on2"
+            },
+            {
+                "url": "assets/Decoration/Tileset Add on3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset Add on3"
+            },
+            {
+                "url": "assets/Decoration/Tileset Perfect isometric Revision.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Tileset Perfect isometric Revision"
+            },
+            {
+                "url": "assets/Animated prop/TorchBowlRegular_V01-Sheet.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 96,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "TorchBowlRegular_V01-Sheet"
             },
             {
                 "url": "assets/Static prop/tree - color scheme 1 - 1.png",
