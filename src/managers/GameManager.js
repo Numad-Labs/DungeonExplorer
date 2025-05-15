@@ -32,15 +32,17 @@ export default class GameManager {
         this.gameProgress = {
             gameTime: 0,
             currentDifficulty: 1,
-            maxEnemies: 30,  // Reduced from 1000 to a more reasonable number
+            maxEnemies: 30,
             enemySpawnDelay: 3000,
             orbMagnetRange: 50
         };
 
         this.events = new Phaser.Events.EventEmitter();
         
+        this.directlyApplyMenuUpgrades();
         console.log("GameManager initialized");
     }
+    
     static get() {
         if (!GameManager.instance) {
             new GameManager();
@@ -210,5 +212,55 @@ export default class GameManager {
         };
         
         this.events.emit('gameStateReset');
+    }
+    
+    directlyApplyMenuUpgrades() {
+        try {
+            const storageData = localStorage.getItem('survivor_game_save');
+            if (!storageData) {
+                console.log("No saved data found in local storage");
+                return;
+            }
+            
+            const savedData = JSON.parse(storageData);
+            
+            if (savedData && savedData.passiveUpgrades) {
+                console.log("Found passive upgrades in localStorage:", savedData.passiveUpgrades);
+                
+                this.passiveUpgrades = savedData.passiveUpgrades;
+                
+                const upgrades = savedData.passiveUpgrades;
+                
+                if (upgrades.maxHealth) {
+                    this.playerStats.maxHealth = upgrades.maxHealth.value;
+                    this.playerStats.health = upgrades.maxHealth.value;
+                    console.log("Set maxHealth:", this.playerStats.maxHealth);
+                }
+                
+                if (upgrades.baseDamage) {
+                    this.playerStats.damage = upgrades.baseDamage.value;
+                    console.log("Set damage:", this.playerStats.damage);
+                }
+                
+                if (upgrades.moveSpeed) {
+                    this.playerStats.moveSpeed = upgrades.moveSpeed.value;
+                    console.log("Set moveSpeed:", this.playerStats.moveSpeed);
+                }
+                
+                if (upgrades.expMultiplier) {
+                    this.playerStats.expMultiplier = upgrades.expMultiplier.value;
+                    console.log("Set expMultiplier:", this.playerStats.expMultiplier);
+                }
+                
+                if (upgrades.goldMultiplier) {
+                    this.goldMultiplier = upgrades.goldMultiplier.value;
+                    console.log("Set goldMultiplier:", this.goldMultiplier);
+                }
+                
+                console.log("Updated playerStats with menu upgrades:", this.playerStats);
+            }
+        } catch (error) {
+            console.error("Error applying menu upgrades:", error);
+        }
     }
 }

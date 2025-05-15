@@ -12,6 +12,14 @@ export default class PowerUpManager {
             magnet: 0
         };
         
+        this.gameManager = scene.gameManager || 
+            (scene.game && scene.game.registry ? scene.game.registry.get('gameManager') : null);
+        
+        if (this.gameManager && this.gameManager.passiveUpgrades) {
+            console.log("Syncing PowerUpManager with GameManager passive upgrades");
+            this.syncWithPassiveUpgrades();
+        }
+        
         this.selectionContainer = null;
         this.overlay = null;
         this.gameWasPaused = false;
@@ -23,8 +31,27 @@ export default class PowerUpManager {
         console.log("PowerUpManager initialized");
     }
     
+    syncWithPassiveUpgrades() {
+        if (!this.gameManager || !this.gameManager.passiveUpgrades) return;
+        
+        const upgradeToTypeMap = {
+            moveSpeed: 'speed',
+            baseDamage: 'damage',
+            maxHealth: 'health'
+        };
+        
+        Object.entries(this.gameManager.passiveUpgrades).forEach(([upgradeType, upgradeData]) => {
+            const powerUpType = upgradeToTypeMap[upgradeType];
+            if (powerUpType && this.powerUps.hasOwnProperty(powerUpType)) {
+                this.powerUps[powerUpType] = upgradeData.level || 0;
+                console.log(`Synced ${upgradeType} passive upgrade (level ${upgradeData.level}) to ${powerUpType} power-up`);
+            }
+        });
+    }
+    
     initialize() {
         this.createPlaceholderTextures();
+        console.log("PowerUpManager initialized with levels:", { ...this.powerUps });
     }
     
     createPlaceholderTextures() {
@@ -163,9 +190,9 @@ export default class PowerUpManager {
         const options = this.getRandomPowerUpOptions(3);
         
         const positions = [
-            { x: cameraWidth / 2 - 200, y: cameraHeight / 2 },
+            { x: cameraWidth / 2 - 220, y: cameraHeight / 2 },
             { x: cameraWidth / 2, y: cameraHeight / 2 },
-            { x: cameraWidth / 2 + 200, y: cameraHeight / 2 }
+            { x: cameraWidth / 2 + 220, y: cameraHeight / 2 }
         ];
         
         this.powerUpCards = [];
@@ -291,6 +318,9 @@ export default class PowerUpManager {
                 if (player.moveSpeed) {
                     player.moveSpeed *= (1 + scaledBoost / 100);
                 }
+                if (this.gameManager) {
+                    this.updatePassiveUpgrade('moveSpeed', player.moveSpeed);
+                }
                 break;
                 
             case 'damage':
@@ -299,6 +329,9 @@ export default class PowerUpManager {
                 }
                 if (this.scene.playerAttack) {
                     this.scene.playerAttack.updateStats();
+                }
+                if (this.gameManager) {
+                    this.updatePassiveUpgrade('baseDamage', player.damage);
                 }
                 break;
                 
@@ -310,6 +343,9 @@ export default class PowerUpManager {
                         player.health += (player.maxHealth - oldMax);
                     }
                     player.updateHealthBar();
+                }
+                if (this.gameManager) {
+                    this.updatePassiveUpgrade('maxHealth', player.maxHealth);
                 }
                 break;
                 
@@ -339,6 +375,26 @@ export default class PowerUpManager {
         }
         
         this.showPowerUpFeedback(type, scaledBoost);
+    }
+    
+    /**
+     * Update the corresponding passive upgrade in the GameManager
+     * @param {string} upgradeType - Type of passive upgrade to update
+     * @param {number} newValue - New value for the upgrade
+     */
+    updatePassiveUpgrade(upgradeType, newValue) {
+        if (!this.gameManager || !this.gameManager.passiveUpgrades) return;
+        
+        if (!this.gameManager.passiveUpgrades[upgradeType]) {
+            this.gameManager.passiveUpgrades[upgradeType] = { level: 0, value: 0 };
+        }
+        
+        this.gameManager.passiveUpgrades[upgradeType].value = newValue;
+        this.gameManager.passiveUpgrades[upgradeType].level += 1;
+        
+        if (this.gameManager.saveGame) {
+            this.gameManager.saveGame();
+        }
     }
     
     showPowerUpFeedback(type, value) {
@@ -393,9 +449,7 @@ export default class PowerUpManager {
         return shuffled.slice(0, count);
     }
     
-    // Clean up when scene is shut down
     shutdown() {
-        // Make sure selection interface is destroyed
         if (this.selectionContainer) {
             this.selectionContainer.destroy();
             this.selectionContainer = null;

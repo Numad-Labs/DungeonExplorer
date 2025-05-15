@@ -1,10 +1,9 @@
-// BaseGameScene.js - Base scene class for game scenes to extend
-
 import GameManager from "../managers/GameManager";
 import UIManager from "../managers/UIManager";
 import GameplayManager from "../managers/GameplayManager";
 import PowerUpManager from "../managers/PowerUpManager";
 import PlayerAttack from "../prefabs/PlayerAttack";
+import { createUpgradeDebugDisplay } from "../UpgradeIntegration";
 
 export default class BaseGameScene extends Phaser.Scene {
     constructor(sceneKey) {
@@ -22,13 +21,24 @@ export default class BaseGameScene extends Phaser.Scene {
         
         // Scene state
         this.isTeleporting = false;
+        // Debug mode
+        this.debugMode = false;
+    }
+    
+    create() {
+        this.gameManager = GameManager.get();
+        console.log("BaseGameScene create: GameManager available =", !!this.gameManager);
     }
     
     // Initialize all game managers
     initializeManagers() {
         try {
-            // Get the game manager instance
-            this.gameManager = GameManager.get();
+            // Get the game manager instance (should already be set in create())
+            if (!this.gameManager) {
+                this.gameManager = GameManager.get();
+            }
+            
+            console.log("Initializing managers with GameManager:", !!this.gameManager);
             
             // Create UI manager
             this.uiManager = new UIManager(this);
@@ -43,7 +53,17 @@ export default class BaseGameScene extends Phaser.Scene {
             this.powerUpManager.initialize();
             
             // Apply saved player stats from game manager
-            this.gameManager.applyPlayerStats(this.player);
+            if (this.player) {
+                console.log("Applying player stats from GameManager to player");
+                this.gameManager.applyPlayerStats(this.player);
+                
+                // Create debug display if in debug mode
+                if (this.gameManager.debugMode) {
+                    createUpgradeDebugDisplay(this, this.player);
+                }
+            } else {
+                console.warn("Player not available when initializing managers");
+            }
             
             console.log("Game managers initialized");
         } catch (error) {
@@ -57,6 +77,9 @@ export default class BaseGameScene extends Phaser.Scene {
             // Initialize player attack system
             this.playerAttackSystem = new PlayerAttack(this, this.player);
             
+            if (this.playerAttackSystem.updateStats) {
+                this.playerAttackSystem.updateStats();
+            }
             console.log("Player attack system initialized");
         } catch (error) {
             console.error("Error setting up player attack:", error);
@@ -78,7 +101,9 @@ export default class BaseGameScene extends Phaser.Scene {
         this.createTeleportEffect(player.x, player.y);
         
         // Save game state before transition
-        this.gameManager.handleSceneTransition(this, targetScene);
+        if (this.gameManager) {
+            this.gameManager.handleSceneTransition(this, targetScene);
+        }
         
         // Transition to the new scene after a short delay
         this.time.delayedCall(500, () => {
@@ -111,46 +136,72 @@ export default class BaseGameScene extends Phaser.Scene {
     // Setup test controls for development
     setupTestControls() {
         try {
-            // These controls will only be available in development mode
-            if (process.env.NODE_ENV !== 'production') {
-                // T key to test teleportation
-                this.input.keyboard.on('keydown-T', () => {
-                    // Test teleport to FirstArea (default)
-                    const destScene = this.scene.key === "FirstArea" ? "MainMapScene" : "FirstArea";
-                    this.handleTeleport(this.player, null, destScene);
-                });
-                
-                // H key to heal player
-                this.input.keyboard.on('keydown-H', () => {
-                    if (this.player && this.player.heal) {
-                        this.player.heal(10);
+            // Debug toggle key (Backtick/Tilde key)
+            this.input.keyboard.on('keydown-BACKTICK', () => {
+                if (this.gameManager) {
+                    const isDebug = this.gameManager.toggleDebugMode();
+                    
+                    if (isDebug) {
+                        // Create debug display
+                        if (this.player) {
+                            createUpgradeDebugDisplay(this, this.player);
+                        }
+                    } else {
+                        // Remove debug display
+                        if (this.upgradeDebugText) {
+                            this.upgradeDebugText.destroy();
+                            this.upgradeDebugText = null;
+                        }
                     }
-                });
-                
-                // D key to damage player
-                this.input.keyboard.on('keydown-D', () => {
-                    if (this.player && this.player.takeDamage) {
-                        this.player.takeDamage(10);
-                    }
-                });
-                
-                // L key to add a level (for testing)
-                this.input.keyboard.on('keydown-L', () => {
-                    if (this.gameManager) {
-                        // Add enough XP to level up immediately
-                        this.gameManager.addExperience(this.gameManager.playerStats.nextLevelExp);
-                    }
-                });
-                
-                // P key to show power-up selection (for testing)
-                this.input.keyboard.on('keydown-P', () => {
-                    if (this.powerUpManager) {
-                        this.powerUpManager.showPowerUpSelection();
-                    }
-                });
-                
-                console.log("Test controls enabled");
-            }
+                }
+            });
+            
+            // These controls will be available in all builds but only shown in debug mode
+            // T key to test teleportation
+            this.input.keyboard.on('keydown-T', () => {
+                // Test teleport to FirstArea (default)
+                const destScene = this.scene.key === "FirstArea" ? "MainMapScene" : "FirstArea";
+                this.handleTeleport(this.player, null, destScene);
+            });
+            
+            // H key to heal player
+            this.input.keyboard.on('keydown-H', () => {
+                if (this.player && this.player.heal) {
+                    this.player.heal(10);
+                }
+            });
+            
+            // D key to damage player
+            this.input.keyboard.on('keydown-D', () => {
+                if (this.player && this.player.takeDamage) {
+                    this.player.takeDamage(10);
+                }
+            });
+            
+            // L key to add a level (for testing)
+            this.input.keyboard.on('keydown-L', () => {
+                if (this.gameManager) {
+                    // Add enough XP to level up immediately
+                    this.gameManager.addExperience(this.gameManager.playerStats.nextLevelExp);
+                }
+            });
+            
+            // P key to show power-up selection (for testing)
+            this.input.keyboard.on('keydown-P', () => {
+                if (this.powerUpManager) {
+                    this.powerUpManager.showPowerUpSelection();
+                }
+            });
+            
+            // G key to add gold (for testing)
+            this.input.keyboard.on('keydown-G', () => {
+                if (this.gameManager) {
+                    this.gameManager.addGold(100);
+                    console.log(`Added 100 gold, total: ${this.gameManager.gold}`);
+                }
+            });
+            
+            console.log("Test controls enabled");
         } catch (error) {
             console.error("Error setting up test controls:", error);
         }
@@ -169,7 +220,7 @@ export default class BaseGameScene extends Phaser.Scene {
             }
             
             // Update player attack system
-            if (this.playerAttackSystem) {
+            if (this.playerAttackSystem && this.playerAttackSystem.updateStats) {
                 this.playerAttackSystem.updateStats();
             }
         } catch (error) {
@@ -195,6 +246,14 @@ export default class BaseGameScene extends Phaser.Scene {
         // Remove all input listeners
         this.input.keyboard.removeAllListeners();
         
+        if (this.gameManager) {
+            this.gameManager.saveGame();
+        }
+        
+        if (this.upgradeDebugText) {
+            this.upgradeDebugText.destroy();
+            this.upgradeDebugText = null;
+        }
         console.log(`${this.scene.key} shut down`);
     }
 }

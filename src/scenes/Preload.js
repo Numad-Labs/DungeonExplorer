@@ -1,8 +1,7 @@
-// You can write more code here
-
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { initializeMenu } from "../GameIntegration";
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -17,13 +16,11 @@ export default class Preload extends Phaser.Scene {
 
 	/** @returns {void} */
 	editorPreload() {
-
 		this.load.pack("asset-pack", "assets/asset-pack.json");
 	}
 
 	/** @returns {void} */
 	editorCreate() {
-
 		// guapen
 		const guapen = this.add.image(505.0120544433594, 360, "guapen");
 		guapen.scaleX = 0.32715486817515643;
@@ -95,8 +92,51 @@ export default class Preload extends Phaser.Scene {
 			this.createFallbackTexture();
 		}
 		
-		// Proceed to next scene
-		this.scene.start("MiniMapBossFightScene");
+		// Initialize the game menu
+		try {
+			// Initialize the menu (React component)
+			console.log("Initializing game menu from Preload scene");
+			this.menuControls = initializeMenu();
+			
+			// Store menu controls in game registry for global access
+			this.game.registry.set('menuControls', this.menuControls);
+			
+			// Initialize game manager if not already done
+			if (!this.game.registry.get('gameManager')) {
+				console.log("GameManager not found, creating a new one");
+				
+				// Create a minimal GameManager if not available
+				const gameManager = {
+					gold: 500,
+					passiveUpgrades: {},
+					gameStats: {
+						totalGoldEarned: 0,
+						totalEnemiesKilled: 0,
+						totalExperienceGained: 0,
+						highestLevel: 1,
+						longestSurvivalTime: 0
+					},
+					applyPassiveUpgrades: function() {
+						console.log("Applied passive upgrades (placeholder)");
+					},
+					saveGame: function() {
+						console.log("Game saved (placeholder)");
+					}
+				};
+				
+				this.game.registry.set('gameManager', gameManager);
+			}
+			
+			console.log("Menu initialization complete");
+		} catch (error) {
+			console.error("Error initializing game menu:", error);
+		}
+		
+		// Wait a moment for everything to initialize before proceeding
+		this.time.delayedCall(100, () => {
+			// Don't start MainMapScene automatically - let the menu handle it
+			console.log("Preload complete - menu should be visible");
+		});
 	}
 	
 	// Create a simple circle texture as fallback
@@ -121,5 +161,3 @@ export default class Preload extends Phaser.Scene {
 }
 
 /* END OF COMPILED CODE */
-
-// You can write more code here
