@@ -4,7 +4,7 @@ import FirstArea from "./scenes/FirstArea.js";
 import MainMapScene from "./scenes/MainMapScene.js";
 import MiniMapDarkForastScene from "./scenes/MiniMapDarkForastScene.js";
 import MiniMapBossFightScene from "./scenes/MiniMapBossFightScene.js";
-import { initializeMenu } from "./MenuIntegration.jsx";
+import { initializeMenu } from "./MenuIntegration.jsx";ew
 import MiniMapBeachScene from "./scenes/MiniMapBeachScene.js"
 
 const config = {
