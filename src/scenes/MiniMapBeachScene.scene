@@ -1,0 +1,151 @@
+{
+    "id": "35473dfa-3b95-4d87-9eff-1b8d15cf2f61",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "MiniMapBeachScene",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "TilemapLayer",
+            "id": "858394db-0664-42a7-86a5-b1891636f8d8",
+            "label": "water_1",
+            "scope": "CLASS",
+            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "layerName": "water",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "7f8fd35b-ed0a-415e-b2df-9f5dd385e302",
+            "label": "ground_1",
+            "scope": "CLASS",
+            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "layerName": "Ground",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "b176c0af-2c8a-4650-9f30-bf03526e95c4",
+            "label": "respawn_point_1",
+            "scope": "CLASS",
+            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "layerName": "respawn point",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "e88e1ea1-f210-41b8-833a-5345bda545c4",
+            "label": "skull_stone_1",
+            "scope": "CLASS",
+            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "layerName": "Skull stone",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02"
+            ]
+        },
+        {
+            "prefabId": "fba49a7a-3752-48b8-b135-35e7c9eb4e29",
+            "id": "cc1aff14-6e25-46bf-9424-058301d28763",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "playerPrefab",
+            "scope": "CLASS",
+            "x": 846,
+            "y": 1110
+        },
+        {
+            "prefabId": "d776a1c6-208a-4303-ae98-73792f0841ae",
+            "id": "8e475a81-1875-431b-be1f-abf0193a89ee",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "beachTree1Prefab",
+            "scope": "CLASS",
+            "x": 992,
+            "y": 1112
+        }
+    ],
+    "plainObjects": [
+        {
+            "id": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "type": "Tilemap",
+            "label": "miniMapBeachBiom",
+            "key": "MiniMapBeachBiom",
+            "tilesets": [
+                {
+                    "name": "beach - standard - with thick foam - spritesheet",
+                    "imageKey": "beach - standard - with thick foam - spritesheet"
+                },
+                {
+                    "name": "golden monument anim-going up-packed sheet",
+                    "imageKey": "golden monument anim-going up-packed sheet"
+                },
+                {
+                    "name": "rocky skull structure-sand",
+                    "imageKey": "rocky skull structure-sand"
+                },
+                {
+                    "name": "stranded ship-sand",
+                    "imageKey": "stranded ship-sand"
+                },
+                {
+                    "name": "TreePalmSheet_03",
+                    "imageKey": "TreePalmSheet_03"
+                },
+                {
+                    "name": "TreePalmSheet_01",
+                    "imageKey": "TreePalmSheet_01"
+                },
+                {
+                    "name": "TreePalmSheet_02",
+                    "imageKey": "TreePalmSheet_02"
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

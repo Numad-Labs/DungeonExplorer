@@ -137,6 +137,8 @@ export default class Preload extends Phaser.Scene {
 			// Don't start MainMapScene automatically - let the menu handle it
 			console.log("Preload complete - menu should be visible");
 		});
+		// Proceed to next scene
+		this.scene.start("MiniMapBeachScene");
 	}
 	
 	// Create a simple circle texture as fallback

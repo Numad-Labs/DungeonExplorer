@@ -5,6 +5,7 @@ import MainMapScene from "./scenes/MainMapScene.js";
 import MiniMapDarkForastScene from "./scenes/MiniMapDarkForastScene.js";
 import MiniMapBossFightScene from "./scenes/MiniMapBossFightScene.js";
 import { initializeMenu } from "./MenuIntegration.jsx";
+import MiniMapBeachScene from "./scenes/MiniMapBeachScene.js"
 
 const config = {
     type: Phaser.AUTO,
@@ -93,6 +94,8 @@ const StartGame = (parent) => {
             menuControls.show();
         }
     });
+    game.scene.add("MiniMapBossFightScene", MiniMapBossFightScene)
+    game.scene.add("MiniMapBeachScene", MiniMapBeachScene)
     
     return game;
 };

@@ -3765,6 +3765,1774 @@
             "skipMissedFrames": true,
             "repeat": -1,
             "randomFrame": false
+        },
+        {
+            "key": "Water0",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 226,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 227,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 228,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 229,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 230,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 231,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 232,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 233,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 14,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water.r",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 442,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 443,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 444,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 445,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 446,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 447,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 448,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 449,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 450,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 451,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 452,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 453,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 454,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 455,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 456,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water.r.d",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 40,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 41,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 42,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 43,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 44,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 45,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 46,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 47,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 48,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 49,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 50,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 51,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 52,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 53,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 54,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water.r.u",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 374,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 375,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 376,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 377,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 378,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 379,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 380,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 381,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 382,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 383,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 384,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 385,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 386,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 387,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 388,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water12",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 340,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 341,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 342,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 343,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 344,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 345,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 346,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 347,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 348,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 349,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 350,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 351,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 352,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 353,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 354,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water11",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 306,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 307,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 308,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 309,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 310,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 311,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 312,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 313,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 314,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 315,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 316,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 317,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 318,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 319,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 320,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water13",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 340,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 341,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 342,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 343,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 344,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 345,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 346,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 347,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 348,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 349,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 350,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 351,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 352,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 353,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 354,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water1",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 142,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 143,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 144,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 145,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 146,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 147,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 148,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 149,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 150,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 151,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 152,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 153,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 154,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 155,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 156,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water2",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 289,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 290,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 291,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 292,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 293,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 294,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 295,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 296,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 297,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 298,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 299,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 300,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 301,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 302,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 303,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water3",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 323,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 324,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 325,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 326,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 327,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 328,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 329,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 330,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 331,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 332,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 333,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 334,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 335,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 336,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 337,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water4",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 176,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 177,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 178,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 179,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 180,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 181,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 182,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 183,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 184,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 185,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 186,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 187,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 188,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 189,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 190,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water5",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 210,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 211,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 212,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 213,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 214,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 215,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 216,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 217,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 218,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 219,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 220,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 221,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 222,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 223,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 224,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water6",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 391,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 392,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 393,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 394,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 395,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 396,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 397,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 398,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 399,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 400,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 401,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 402,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 403,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 404,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 405,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water7",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 40,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 41,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 42,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 43,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 44,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 45,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 46,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 47,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 48,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 49,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 50,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 51,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 52,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 53,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 54,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water8",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 74,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 75,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 76,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 77,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 78,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 79,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 80,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 81,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 82,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 83,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 84,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 85,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 86,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 87,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 88,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "water9",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 289,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 290,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 291,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 292,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 293,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 294,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 295,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 296,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 297,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 298,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 299,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 300,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 301,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 302,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "beach - standard - with thick foam - spritesheet",
+                    "frame": 303,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "Tree1",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 6,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 7,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 8,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_01",
+                    "frame": 9,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "Tree2",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 6,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 7,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 8,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_02",
+                    "frame": 9,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "Tree3",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 6,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 7,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 8,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "TreePalmSheet_03",
+                    "frame": 9,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
         }
     ],
     "globalTimeScale": 1,

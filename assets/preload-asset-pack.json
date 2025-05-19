@@ -98,6 +98,19 @@
                 "key": "Atlas-props"
             },
             {
+                "url": "assets/Animated prop/beach - standard - with thick foam - spritesheet.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "beach - standard - with thick foam - spritesheet"
+            },
+            {
                 "url": "assets/Decoration/Bed.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -580,6 +593,32 @@
                 "key": "rock pillars coming from darkness-bg_3"
             },
             {
+                "url": "assets/Static prop/rocky skull structure-sand.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocky skull structure-sand"
+            },
+            {
+                "url": "assets/Static prop/rocky structure_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocky structure_0"
+            },
+            {
                 "url": "assets/Animated prop/shrine-buff available animation-295x311.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -682,6 +721,19 @@
                 },
                 "type": "spritesheet",
                 "key": "statues-far from platforms-bg_5"
+            },
+            {
+                "url": "assets/Static prop/stranded ship-sand.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "stranded ship-sand"
             },
             {
                 "url": "assets/Static prop/stronghold - embranchment section.png",
@@ -929,6 +981,45 @@
                 },
                 "type": "spritesheet",
                 "key": "Tree_pattern"
+            },
+            {
+                "url": "assets/Animated prop/TreePalmSheet_01.png",
+                "frameConfig": {
+                    "frameWidth": 128,
+                    "frameHeight": 192,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "TreePalmSheet_01"
+            },
+            {
+                "url": "assets/Animated prop/TreePalmSheet_02.png",
+                "frameConfig": {
+                    "frameWidth": 96,
+                    "frameHeight": 160,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "TreePalmSheet_02"
+            },
+            {
+                "url": "assets/Animated prop/TreePalmSheet_03.png",
+                "frameConfig": {
+                    "frameWidth": 96,
+                    "frameHeight": 160,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "TreePalmSheet_03"
             },
             {
                 "url": "assets/Decoration/Wall.png",

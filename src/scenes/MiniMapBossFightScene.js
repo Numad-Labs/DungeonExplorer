@@ -254,7 +254,6 @@ export default class MiniMapBossFightScene extends Phaser.Scene {
 
 		this.physics.add.collider(this.playerPrefab, this.floating_plat_form_Floating_Col_1);
 		this.floating_plat_form_Floating_Col_1.setCollisionBetween(0, 10000);
-		console.log(`Created ${this.lavaSprites.length} lava sprites`);
 	}
 
 	/* END-USER-CODE */
