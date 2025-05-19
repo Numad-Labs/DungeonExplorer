@@ -129,10 +129,7 @@ export function initializeMenu() {
       });
       
       if (window.game.scene.getScene('MainMapScene')) {
-        window.game.scene.stop('MainMapScene');
-        window.game.scene.start('MainMapScene');
-      } else {
-        window.game.scene.start('MainMapScene');
+        window.game.scene.start('MiniMapDarkForastScene');
       }
     } else {
       console.error("Game or scene not available!");
