@@ -16,7 +16,7 @@ const config = {
     physics: {
         default: "arcade",
         arcade: {
-            debug: false,
+            debug: true,
             tileBias: 32,
         }
     },
@@ -66,6 +66,7 @@ const StartGame = (parent) => {
     game.scene.add("MainMapScene", MainMapScene);
     game.scene.add("MiniMapDarkForastScene", MiniMapDarkForastScene);
     game.scene.add("MiniMapBossFightScene", MiniMapBossFightScene);
+    game.scene.add("MiniMapBossFightScene", MiniMapBeachScene);
     
     // Make game globally accessible
     window.game = game;

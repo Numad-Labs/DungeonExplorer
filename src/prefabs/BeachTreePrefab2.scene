@@ -1,5 +1,5 @@
 {
-    "id": "d776a1c6-208a-4303-ae98-73792f0841ae",
+    "id": "5b419c11-5fa5-450e-aa13-d2819eb0f312",
     "sceneType": "PREFAB",
     "settings": {
         "exportClass": true,
@@ -13,16 +13,16 @@
     "displayList": [
         {
             "type": "Sprite",
-            "id": "dea29f86-2267-40fd-b23a-60c528e4c789",
-            "label": "tree2",
+            "id": "dba99db9-0cc9-4c95-a5ac-f186068fc8a4",
+            "label": "tree3",
             "texture": {
-                "key": "TreePalmSheet_02",
+                "key": "TreePalmSheet_03",
                 "frame": 0
             },
-            "x": 669,
-            "y": 803,
+            "x": 960,
+            "y": 971,
             "animationPlayMethod": 1,
-            "animationKey": "Tree2"
+            "animationKey": "Tree3"
         }
     ],
     "plainObjects": [],

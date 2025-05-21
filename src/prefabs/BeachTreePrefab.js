@@ -8,9 +8,9 @@
 export default class BeachTree1Prefab extends Phaser.GameObjects.Sprite {
 
 	constructor(scene, x, y, texture, frame) {
-		super(scene, x ?? 669, y ?? 803, texture || "TreePalmSheet_02", frame ?? 0);
+		super(scene, x ?? 65, y ?? 105, texture || "TreePalmSheet_01", frame ?? 0);
 
-		this.play("Tree2");
+		this.play("Tree1");
 
 		/* START-USER-CTR-CODE */
         // Setup physics
@@ -18,22 +18,22 @@ export default class BeachTree1Prefab extends Phaser.GameObjects.Sprite {
         scene.physics.add.existing(this, false);
 
         this.body.allowGravity = false;
-        this.body.setSize(20, 15);  
-        this.body.setOffset(50, 105); 
+        this.body.setSize(30, 15);  
+        this.body.setOffset(70, 135); 
         this.body.immovable = true;
 
-
+   
         this.isTreeInvisible = false;
         this.isPlayerInvisible = false;
 
-
+     
         this.treeTop = this.y - 125;  
         this.treeBottom = this.y + 55; 
 
         scene.events.on('update', () => {
             if (!this.player) return;
 
-            const playerNearTreeX = Math.abs(this.player.x - (this.x + this.body.offset.x - 55)) < 45;
+            const playerNearTreeX = Math.abs(this.player.x - (this.x + this.body.offset.x - 85)) < 45;
 
 
             const playerBehindTree = this.player.y > this.treeTop && 
@@ -63,7 +63,7 @@ export default class BeachTree1Prefab extends Phaser.GameObjects.Sprite {
                     });
                 }
             } else {
-
+           
                 if (this.isTreeInvisible) {
                     scene.tweens.add({
                         targets: this,

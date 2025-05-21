@@ -30,6 +30,23 @@
         },
         {
             "type": "TilemapLayer",
+            "id": "b176c0af-2c8a-4650-9f30-bf03526e95c4",
+            "label": "respawn_point_1",
+            "scope": "CLASS",
+            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "layerName": "respawn point",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
             "id": "7f8fd35b-ed0a-415e-b2df-9f5dd385e302",
             "label": "ground_1",
             "scope": "CLASS",
@@ -46,21 +63,44 @@
             ]
         },
         {
-            "type": "TilemapLayer",
-            "id": "b176c0af-2c8a-4650-9f30-bf03526e95c4",
-            "label": "respawn_point_1",
+            "prefabId": "c1d38780-c2b8-44b4-9d18-3b084f848c55",
+            "id": "1d7c66f9-f62c-4a95-bc0d-67ae48272ba0",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "BeachTreePrefab",
             "scope": "CLASS",
-            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
-            "layerName": "respawn point",
-            "tilesets": [
-                "beach - standard - with thick foam - spritesheet",
-                "golden monument anim-going up-packed sheet",
-                "rocky skull structure-sand",
-                "stranded ship-sand",
-                "TreePalmSheet_03",
-                "TreePalmSheet_01",
-                "TreePalmSheet_02"
-            ]
+            "x": 1402,
+            "y": 842
+        },
+        {
+            "prefabId": "d776a1c6-208a-4303-ae98-73792f0841ae",
+            "id": "24b5f3ed-f472-49c0-923e-2f71052a79aa",
+            "unlock": [
+                "x",
+                "y",
+                "flipX",
+                "flipY"
+            ],
+            "label": "beachTree1Prefab",
+            "scope": "CLASS",
+            "x": 1081,
+            "y": 870,
+            "flipX": true,
+            "flipY": false
+        },
+        {
+            "prefabId": "5b419c11-5fa5-450e-aa13-d2819eb0f312",
+            "id": "4ee15b43-c332-4960-9974-f2de575da52d",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "beachTreePrefab2",
+            "scope": "CLASS",
+            "x": 1201,
+            "y": 816
         },
         {
             "type": "TilemapLayer",
@@ -90,18 +130,6 @@
             "scope": "CLASS",
             "x": 846,
             "y": 1110
-        },
-        {
-            "prefabId": "d776a1c6-208a-4303-ae98-73792f0841ae",
-            "id": "8e475a81-1875-431b-be1f-abf0193a89ee",
-            "unlock": [
-                "x",
-                "y"
-            ],
-            "label": "beachTree1Prefab",
-            "scope": "CLASS",
-            "x": 992,
-            "y": 1112
         }
     ],
     "plainObjects": [
