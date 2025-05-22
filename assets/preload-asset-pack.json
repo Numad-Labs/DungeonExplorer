@@ -124,6 +124,71 @@
                 "key": "Bed"
             },
             {
+                "url": "assets/Animated prop/big eye-loop.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "big eye-loop"
+            },
+            {
+                "url": "assets/Static prop/big rocks_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "big rocks_1"
+            },
+            {
+                "url": "assets/Static prop/big rocks_11.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "big rocks_11"
+            },
+            {
+                "url": "assets/Decoration/Big_Map_Border.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Big_Map_Border"
+            },
+            {
+                "url": "assets/Decoration/Big_Map_Route.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Big_Map_Route"
+            },
+            {
                 "url": "assets/Card/blank cards7.png",
                 "type": "image",
                 "key": "blank cards7"
@@ -166,6 +231,97 @@
                 },
                 "type": "spritesheet",
                 "key": "carriage - no tent"
+            },
+            {
+                "url": "assets/Static prop/chest_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "chest_3"
+            },
+            {
+                "url": "assets/Static prop/chest-anims-shaking.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "chest-anims-shaking"
+            },
+            {
+                "url": "assets/Animated prop/crusher-retreat-pentagram FX.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crusher-retreat-pentagram FX"
+            },
+            {
+                "url": "assets/Animated prop/crusher-retreat-v2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crusher-retreat-v2"
+            },
+            {
+                "url": "assets/Animated prop/crusher-smash-pentagram FX.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crusher-smash-pentagram FX"
+            },
+            {
+                "url": "assets/Animated prop/crusher-smash-v2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crusher-smash-v2"
+            },
+            {
+                "url": "assets/Animated prop/crusher-stand-retreat-v2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crusher-stand-retreat-v2"
             },
             {
                 "url": "assets/Decoration/Crystals1-improved refraction_11.png",
@@ -298,6 +454,45 @@
                 "key": "Decor corner"
             },
             {
+                "url": "assets/Animated prop/egg-ish prop-after_explosion.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "egg-ish prop-after_explosion"
+            },
+            {
+                "url": "assets/Animated prop/egg-ish prop-explosion.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "egg-ish prop-explosion"
+            },
+            {
+                "url": "assets/Animated prop/egg-ish prop-standby.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "egg-ish prop-standby"
+            },
+            {
                 "url": "assets/PickUp/Exp.png",
                 "type": "image",
                 "key": "Exp"
@@ -394,6 +589,45 @@
                 "key": "GroundTileset_V02"
             },
             {
+                "url": "assets/Animated prop/lava ball-falling.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "lava ball-falling"
+            },
+            {
+                "url": "assets/Animated prop/lava ball-flying.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "lava ball-flying"
+            },
+            {
+                "url": "assets/Animated prop/lava ball-impact.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "lava ball-impact"
+            },
+            {
                 "url": "assets/Decoration/lavafal-for Tiled-spritesheet-16frames.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -448,6 +682,19 @@
                 "url": "assets/Map/MiniMapLava.json",
                 "type": "tilemapTiledJSON",
                 "key": "MiniMapLava"
+            },
+            {
+                "url": "assets/Static prop/nasty structure_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "nasty structure_0"
             },
             {
                 "url": "assets/Decoration/pillars-bg_0.png",
@@ -593,6 +840,188 @@
                 "key": "rock pillars coming from darkness-bg_3"
             },
             {
+                "url": "assets/Static prop/rock-formation-_48.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock-formation-_48"
+            },
+            {
+                "url": "assets/Static prop/rock-formations on lava-_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock-formations on lava-_0"
+            },
+            {
+                "url": "assets/Static prop/rock-formations on lava-_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock-formations on lava-_1"
+            },
+            {
+                "url": "assets/Static prop/rock-formations on lava-_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock-formations on lava-_2"
+            },
+            {
+                "url": "assets/Static prop/rock-formations on lava-_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock-formations on lava-_3"
+            },
+            {
+                "url": "assets/Static prop/rock-formations on lava-_4.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rock-formations on lava-_4"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_0"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_1"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_2"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_3"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_4.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_4"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_5.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_5"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_6.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_6"
+            },
+            {
+                "url": "assets/Static prop/rocks1-_7.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "rocks1-_7"
+            },
+            {
                 "url": "assets/Static prop/rocky skull structure-sand.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -617,6 +1046,71 @@
                 },
                 "type": "spritesheet",
                 "key": "rocky structure_0"
+            },
+            {
+                "url": "assets/Static prop/sharp rocks_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "sharp rocks_0"
+            },
+            {
+                "url": "assets/Static prop/sharp rocks_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "sharp rocks_1"
+            },
+            {
+                "url": "assets/Static prop/sharp rocks_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "sharp rocks_2"
+            },
+            {
+                "url": "assets/Static prop/sharp rocks_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "sharp rocks_3"
+            },
+            {
+                "url": "assets/Static prop/sharp rocks_4.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "sharp rocks_4"
             },
             {
                 "url": "assets/Animated prop/shrine-buff available animation-295x311.png",
@@ -645,6 +1139,396 @@
                 "key": "side way-Sheet"
             },
             {
+                "url": "assets/Static prop/spears with dead bodies_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spears with dead bodies_0"
+            },
+            {
+                "url": "assets/Static prop/spears with dead bodies_1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spears with dead bodies_1"
+            },
+            {
+                "url": "assets/Static prop/spears with dead bodies_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spears with dead bodies_2"
+            },
+            {
+                "url": "assets/Static prop/spears with dead bodies_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spears with dead bodies_3"
+            },
+            {
+                "url": "assets/Static prop/spears with dead bodies_4.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spears with dead bodies_4"
+            },
+            {
+                "url": "assets/Static prop/spears with dead bodies_5.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spears with dead bodies_5"
+            },
+            {
+                "url": "assets/Animated prop/spike-1-attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-1-attack"
+            },
+            {
+                "url": "assets/Animated prop/spike-1-retreat.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-1-retreat"
+            },
+            {
+                "url": "assets/Animated prop/spike-2-attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-2-attack"
+            },
+            {
+                "url": "assets/Animated prop/spike-2-retreat.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-2-retreat"
+            },
+            {
+                "url": "assets/Animated prop/spike-3-attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-3-attack"
+            },
+            {
+                "url": "assets/Animated prop/spike-3-retreat.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-3-retreat"
+            },
+            {
+                "url": "assets/Animated prop/spike-4-attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-4-attack"
+            },
+            {
+                "url": "assets/Animated prop/spike-4-retreat.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-4-retreat"
+            },
+            {
+                "url": "assets/Animated prop/spike-pack-horizontal-attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-pack-horizontal-attack"
+            },
+            {
+                "url": "assets/Animated prop/spike-pack-horizontal-retreat.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-pack-horizontal-retreat"
+            },
+            {
+                "url": "assets/Animated prop/spike-pack-vertical-attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-pack-vertical-attack"
+            },
+            {
+                "url": "assets/Animated prop/spike-pack-vertical-retreat.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spike-pack-vertical-retreat"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-diagonal-extinguishing-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-diagonal-extinguishing-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-diagonal-firing-loop-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-diagonal-firing-loop-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-diagonal-starting-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-diagonal-starting-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-horizontal-extinguishing-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-horizontal-extinguishing-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-horizontal-firing-loop-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-horizontal-firing-loop-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-horizontal-starting.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-horizontal-starting"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-horizontal-starting-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-horizontal-starting-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-multidirectional-firing-loop-8frames.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-multidirectional-firing-loop-8frames"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-vertical-extinguishing-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-vertical-extinguishing-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-vertical-firing-loop-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-vertical-firing-loop-flame"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-vertical-starting.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-vertical-starting"
+            },
+            {
+                "url": "assets/Animated prop/spitfire device-vertical-starting-flame.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "spitfire device-vertical-starting-flame"
+            },
+            {
                 "url": "assets/Hero/static idle.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -656,6 +1540,32 @@
                 },
                 "type": "spritesheet",
                 "key": "static idle"
+            },
+            {
+                "url": "assets/Static prop/statues_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "statues_0"
+            },
+            {
+                "url": "assets/Static prop/statues_3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "statues_3"
             },
             {
                 "url": "assets/Decoration/statues-far from platforms-bg_0.png",
@@ -892,6 +1802,19 @@
                 "key": "Tileset Perfect isometric Revision"
             },
             {
+                "url": "assets/Static prop/tiny volcanos_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tiny volcanos_0"
+            },
+            {
                 "url": "assets/Animated prop/TorchBowlRegular_V01-Sheet.png",
                 "frameConfig": {
                     "frameWidth": 64,
@@ -903,6 +1826,84 @@
                 },
                 "type": "spritesheet",
                 "key": "TorchBowlRegular_V01-Sheet"
+            },
+            {
+                "url": "assets/Animated prop/tormented souls Manu hand.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tormented souls Manu hand"
+            },
+            {
+                "url": "assets/Animated prop/tormented souls tile-7-hand1.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tormented souls tile-7-hand1"
+            },
+            {
+                "url": "assets/Animated prop/tormented souls tile-8-hand2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tormented souls tile-8-hand2"
+            },
+            {
+                "url": "assets/Animated prop/tormented souls tile-9-hand3.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tormented souls tile-9-hand3"
+            },
+            {
+                "url": "assets/Static prop/towers_0.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "towers_0"
+            },
+            {
+                "url": "assets/Static prop/towers_2.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "towers_2"
             },
             {
                 "url": "assets/Static prop/tree - color scheme 1 - 1.png",
@@ -1020,6 +2021,19 @@
                 },
                 "type": "spritesheet",
                 "key": "TreePalmSheet_03"
+            },
+            {
+                "url": "assets/Decoration/tumor-destroy.png",
+                "frameConfig": {
+                    "frameWidth": 224,
+                    "frameHeight": 192,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "tumor-destroy"
             },
             {
                 "url": "assets/Decoration/Wall.png",

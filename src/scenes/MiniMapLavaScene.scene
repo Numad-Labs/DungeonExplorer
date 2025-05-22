@@ -1,0 +1,831 @@
+{
+    "id": "13686612-a187-4765-96fb-ba4fefe9c417",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "MiniMapLavaScene",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "TilemapLayer",
+            "id": "4f4557e4-f490-46ad-a9b3-7e290406b23f",
+            "label": "bG_lava_1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "BG/lava",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "0012a577-f45f-4bf2-9107-a93b1858a4fd",
+            "label": "bG_Platform_1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "BG/Platform",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "68ea6171-b997-4228-9e0a-8311cfc5dd3e",
+            "label": "bG_Platform_L__1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "BG/Platform L@",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "d5dce6a3-006f-4e1a-a460-9ae638a9971e",
+            "label": "bG_Stairs_1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "BG/Stairs",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "718303e4-bceb-4a25-9eb7-7ef45835c1e4",
+            "label": "bG_Totem_platform_1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "BG/Totem platform",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "d2c9e1c3-ff48-4341-9e0c-45e553b696f7",
+            "label": "decor_Shard_rocks_1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "decor/Shard rocks",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "9658db61-6106-4d2b-9aef-870d5e34a746",
+            "label": "decor_Decor_1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "decor/Decor",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "884c0050-2d5d-4dee-997c-b9bce48f6f65",
+            "label": "traps_Statue_1",
+            "scope": "CLASS",
+            "tilemapId": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "layerName": "Traps/Statue",
+            "tilesets": [
+                "platform1",
+                "animated lava river spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "tileset",
+                "spike-pack-horizontal-attack",
+                "spike-pack-horizontal-retreat",
+                "spike-pack-vertical-attack",
+                "spike-pack-vertical-retreat",
+                "tumor-destroy",
+                "egg-ish prop-explosion",
+                "lava ball-falling",
+                "nasty structure_0",
+                "big eye-loop",
+                "crusher-stand-retreat-v2",
+                "crusher-retreat-v2",
+                "crusher-smash-pentagram FX",
+                "spitfire device-vertical-starting",
+                "spitfire device-multidirectional-firing-loop-8frames",
+                "spitfire device-horizontal-starting",
+                "spitfire device-vertical-firing-loop-flame",
+                "spitfire device-diagonal-firing-loop-flame",
+                "tormented souls tile-9-hand3",
+                "tormented souls tile-7-hand1",
+                "tormented souls tile-8-hand2",
+                "tiny volcanos_0",
+                "spears with dead bodies_0",
+                "spears with dead bodies_1",
+                "spears with dead bodies_2",
+                "spears with dead bodies_3",
+                "spears with dead bodies_4",
+                "spears with dead bodies_5",
+                "statues_0",
+                "statues_3",
+                "towers_0",
+                "sharp rocks_0",
+                "sharp rocks_1",
+                "sharp rocks_2",
+                "sharp rocks_3",
+                "sharp rocks_4",
+                "rock-formations on lava-_0",
+                "rock-formations on lava-_1",
+                "rock-formations on lava-_2",
+                "rock-formations on lava-_3",
+                "rock-formations on lava-_4",
+                "rocks1-_0",
+                "rocks1-_1",
+                "rocks1-_2",
+                "rocks1-_3",
+                "rocks1-_4",
+                "rocks1-_5",
+                "rocks1-_6",
+                "rocks1-_7",
+                "tormented souls Manu hand",
+                "spike-1-attack",
+                "spike-3-retreat",
+                "big rocks_1",
+                "big rocks_11",
+                "towers_2",
+                "chest-anims-shaking"
+            ]
+        },
+        {
+            "prefabId": "fba49a7a-3752-48b8-b135-35e7c9eb4e29",
+            "id": "25be60a6-664a-4fb5-855c-9b92ed4755c0",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "playerPrefab",
+            "scope": "CLASS",
+            "x": 645,
+            "y": 2600
+        }
+    ],
+    "plainObjects": [
+        {
+            "id": "7b36e99a-3397-463b-9554-0a04e5a5626a",
+            "type": "Tilemap",
+            "label": "miniMapLava",
+            "key": "MiniMapLava",
+            "tilesets": [
+                {
+                    "name": "platform1",
+                    "imageKey": "platform1"
+                },
+                {
+                    "name": "animated lava river spritesheet",
+                    "imageKey": "animated lava river spritesheet"
+                },
+                {
+                    "name": "golden monument anim-going up-packed sheet",
+                    "imageKey": "golden monument anim-going up-packed sheet"
+                },
+                {
+                    "name": "tileset",
+                    "imageKey": "tileset"
+                },
+                {
+                    "name": "spike-pack-horizontal-attack",
+                    "imageKey": "spike-pack-horizontal-attack"
+                },
+                {
+                    "name": "spike-pack-horizontal-retreat",
+                    "imageKey": "spike-pack-horizontal-retreat"
+                },
+                {
+                    "name": "spike-pack-vertical-attack",
+                    "imageKey": "spike-pack-vertical-attack"
+                },
+                {
+                    "name": "spike-pack-vertical-retreat",
+                    "imageKey": "spike-pack-vertical-retreat"
+                },
+                {
+                    "name": "tumor-destroy",
+                    "imageKey": "tumor-destroy"
+                },
+                {
+                    "name": "egg-ish prop-explosion",
+                    "imageKey": "egg-ish prop-explosion"
+                },
+                {
+                    "name": "lava ball-falling",
+                    "imageKey": "lava ball-falling"
+                },
+                {
+                    "name": "nasty structure_0",
+                    "imageKey": "nasty structure_0"
+                },
+                {
+                    "name": "big eye-loop",
+                    "imageKey": "big eye-loop"
+                },
+                {
+                    "name": "crusher-stand-retreat-v2",
+                    "imageKey": "crusher-stand-retreat-v2"
+                },
+                {
+                    "name": "crusher-retreat-v2",
+                    "imageKey": "crusher-retreat-v2"
+                },
+                {
+                    "name": "crusher-smash-pentagram FX",
+                    "imageKey": "crusher-smash-pentagram FX"
+                },
+                {
+                    "name": "spitfire device-vertical-starting",
+                    "imageKey": "spitfire device-vertical-starting"
+                },
+                {
+                    "name": "spitfire device-multidirectional-firing-loop-8frames",
+                    "imageKey": "spitfire device-multidirectional-firing-loop-8frames"
+                },
+                {
+                    "name": "spitfire device-horizontal-starting",
+                    "imageKey": "spitfire device-horizontal-starting"
+                },
+                {
+                    "name": "spitfire device-vertical-firing-loop-flame",
+                    "imageKey": "spitfire device-vertical-firing-loop-flame"
+                },
+                {
+                    "name": "spitfire device-diagonal-firing-loop-flame",
+                    "imageKey": "spitfire device-diagonal-firing-loop-flame"
+                },
+                {
+                    "name": "tormented souls tile-9-hand3",
+                    "imageKey": "tormented souls tile-9-hand3"
+                },
+                {
+                    "name": "tormented souls tile-7-hand1",
+                    "imageKey": "tormented souls tile-7-hand1"
+                },
+                {
+                    "name": "tormented souls tile-8-hand2",
+                    "imageKey": "tormented souls tile-8-hand2"
+                },
+                {
+                    "name": "tiny volcanos_0",
+                    "imageKey": "tiny volcanos_0"
+                },
+                {
+                    "name": "spears with dead bodies_0",
+                    "imageKey": "spears with dead bodies_0"
+                },
+                {
+                    "name": "spears with dead bodies_1",
+                    "imageKey": "spears with dead bodies_1"
+                },
+                {
+                    "name": "spears with dead bodies_2",
+                    "imageKey": "spears with dead bodies_2"
+                },
+                {
+                    "name": "spears with dead bodies_3",
+                    "imageKey": "spears with dead bodies_3"
+                },
+                {
+                    "name": "spears with dead bodies_4",
+                    "imageKey": "spears with dead bodies_4"
+                },
+                {
+                    "name": "spears with dead bodies_5",
+                    "imageKey": "spears with dead bodies_5"
+                },
+                {
+                    "name": "statues_0",
+                    "imageKey": "statues_0"
+                },
+                {
+                    "name": "statues_3",
+                    "imageKey": "statues_3"
+                },
+                {
+                    "name": "towers_0",
+                    "imageKey": "towers_0"
+                },
+                {
+                    "name": "sharp rocks_0",
+                    "imageKey": "sharp rocks_0"
+                },
+                {
+                    "name": "sharp rocks_1",
+                    "imageKey": "sharp rocks_1"
+                },
+                {
+                    "name": "sharp rocks_2",
+                    "imageKey": "sharp rocks_2"
+                },
+                {
+                    "name": "sharp rocks_3",
+                    "imageKey": "sharp rocks_3"
+                },
+                {
+                    "name": "sharp rocks_4",
+                    "imageKey": "sharp rocks_4"
+                },
+                {
+                    "name": "rock-formations on lava-_0",
+                    "imageKey": "rock-formations on lava-_0"
+                },
+                {
+                    "name": "rock-formations on lava-_1",
+                    "imageKey": "rock-formations on lava-_1"
+                },
+                {
+                    "name": "rock-formations on lava-_2",
+                    "imageKey": "rock-formations on lava-_2"
+                },
+                {
+                    "name": "rock-formations on lava-_3",
+                    "imageKey": "rock-formations on lava-_3"
+                },
+                {
+                    "name": "rock-formations on lava-_4",
+                    "imageKey": "rock-formations on lava-_4"
+                },
+                {
+                    "name": "rocks1-_0",
+                    "imageKey": "rocks1-_0"
+                },
+                {
+                    "name": "rocks1-_1",
+                    "imageKey": "rocks1-_1"
+                },
+                {
+                    "name": "rocks1-_2",
+                    "imageKey": "rocks1-_2"
+                },
+                {
+                    "name": "rocks1-_3",
+                    "imageKey": "rocks1-_3"
+                },
+                {
+                    "name": "rocks1-_4",
+                    "imageKey": "rocks1-_4"
+                },
+                {
+                    "name": "rocks1-_5",
+                    "imageKey": "rocks1-_5"
+                },
+                {
+                    "name": "rocks1-_6",
+                    "imageKey": "rocks1-_6"
+                },
+                {
+                    "name": "rocks1-_7",
+                    "imageKey": "rocks1-_7"
+                },
+                {
+                    "name": "tormented souls Manu hand",
+                    "imageKey": "tormented souls Manu hand"
+                },
+                {
+                    "name": "spike-1-attack",
+                    "imageKey": "spike-1-attack"
+                },
+                {
+                    "name": "spike-3-retreat",
+                    "imageKey": "spike-3-retreat"
+                },
+                {
+                    "name": "big rocks_1",
+                    "imageKey": "big rocks_1"
+                },
+                {
+                    "name": "big rocks_11",
+                    "imageKey": "big rocks_11"
+                },
+                {
+                    "name": "towers_2",
+                    "imageKey": "towers_2"
+                },
+                {
+                    "name": "chest-anims-shaking",
+                    "imageKey": "chest-anims-shaking"
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

@@ -6,6 +6,7 @@ import MiniMapDarkForastScene from "./scenes/MiniMapDarkForastScene.js";
 import MiniMapBossFightScene from "./scenes/MiniMapBossFightScene.js";
 import { initializeMenu } from "./MenuIntegration.jsx";
 import MiniMapBeachScene from "./scenes/MiniMapBeachScene.js"
+import MiniMapLavaScene from "./scenes/MiniMapLavaScene.js"
 
 const config = {
     type: Phaser.AUTO,
@@ -67,6 +68,7 @@ const StartGame = (parent) => {
     game.scene.add("MiniMapDarkForastScene", MiniMapDarkForastScene);
     game.scene.add("MiniMapBossFightScene", MiniMapBossFightScene);
     game.scene.add("MiniMapBossFightScene", MiniMapBeachScene);
+    game.scene.add("MiniMapLavaScene", MiniMapLavaScene);
     
     // Make game globally accessible
     window.game = game;
