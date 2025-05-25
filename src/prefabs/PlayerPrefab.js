@@ -27,7 +27,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		this.maxHealth = 100;
 		this.health = this.maxHealth;
 		this.isInvulnerable = false;
-		this.invulnerabilityTime = 100; 
+		this.invulnerabilityTime = 500; 
 		this.isDead = false;
 		this.damage = 10;
 		this.armor = 0;
@@ -258,10 +258,8 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		}
 	}
 
-	die(causeOfDeath = "Unknown") {
+	die(causeOfDeath = "Skill Issue") {
 		if (this.isDead) return;
-		
-		console.log(`Player died from: ${causeOfDeath}`);
 		
 		this.isDead = true;
 		this.health = 0;
@@ -296,10 +294,10 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			targets: this,
 			angle: 90,
 			alpha: 0.3,
-			duration: 1000
+			duration: 100
 		});
 		
-		this.scene.time.delayedCall(4000, () => {
+		this.scene.time.delayedCall(1000, () => {
 			if (window.returnToMenu) {
 				window.returnToMenu();
 			}

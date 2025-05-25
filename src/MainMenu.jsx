@@ -343,7 +343,8 @@ const MainMenu = ({ gameManager, onStartGame }) => {
             
             {gameState.lastRunStats.causeOfDeath && (
               <div style={{ marginTop: '15px', color: '#ff9999' }}>
-                <strong>☠️ Cause of Death:</strong> {gameState.lastRunStats.causeOfDeath}
+                <strong>☠️ Cause of Death: Skill Issue</strong> 
+                {/* {gameState.lastRunStats.causeOfDeath} */}
               </div>
             )}
           </div>
