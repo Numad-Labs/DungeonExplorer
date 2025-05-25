@@ -24,15 +24,31 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		this.moveSpeed = 150;
 		this.lastDirection = 'down';
 		this.isMovingToTarget = false;
-
 		this.maxHealth = 100;
 		this.health = this.maxHealth;
 		this.isInvulnerable = false;
-		this.invulnerabilityTime = 500;
-		
+		this.invulnerabilityTime = 100; 
+		this.isDead = false;
 		this.damage = 10;
+		this.armor = 0;
+		this.critChance = 0.05;
+		this.critDamage = 1.5;
 		this.fireRate = 1;
 		this.attackRange = 100;
+		this.pickupRange = 50;
+
+		this.gameManager = scene.game.registry.get('gameManager');
+		
+		if (this.gameManager) {
+			console.log("Applying fresh player stats for new run");
+			this.gameManager.applyPlayerStats(this);
+			console.log("Player stats after applying menu upgrades:", {
+				maxHealth: this.maxHealth,
+				damage: this.damage,
+				moveSpeed: this.moveSpeed,
+				armor: this.armor
+			});
+		}
 
 		this.scene.input.on('pointerdown', this.handlePointerDown, this);
 		this.scene.input.on('pointerup', this.handlePointerUp, this);
@@ -44,7 +60,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 	/* START-USER-CODE */
 	
 	handlePointerDown(pointer) {
-		if (pointer.leftButtonDown()) {
+		if (pointer.leftButtonDown() && !this.isDead) {
 			this.isMovingToTarget = true;
 		}
 	}
@@ -54,8 +70,11 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			this.isMovingToTarget = false;
 		}
 	}
-
 	update() {
+		if (this.isDead) {
+			return;
+		}
+		
 		const keyboard = this.scene.input.keyboard;
 		const up = keyboard.addKey('W').isDown;
 		const down = keyboard.addKey('S').isDown;
@@ -132,10 +151,10 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		}
 		
 		this.updatePlayerFrame();
-		this.updateHealthBar();
 	}
 
 	updatePlayerFrame() {
+		if (this.isDead) return;
 		switch (this.lastDirection) {
 			case 'right':
 				this.setFrame(2);
@@ -151,13 +170,21 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 				break;
 		}
 	}
-	
-	takeDamage(amount) {
-		if (this.isInvulnerable) return;
+	takeDamage(amount, source = "Unknown") {
+		if (this.isInvulnerable || this.isDead) return;
 		
-		this.health -= amount;
-		this.updateHealthBar();
+		const actualDamage = Math.max(1, amount - (this.armor || 0));
+		
+		this.health -= actualDamage;
+		if (this.gameManager && this.gameManager.isGameRunning) {
+			this.gameManager.currentRunStats.damageTaken += actualDamage;
+		}
+		
+		console.log(`Player took ${actualDamage} damage from ${source}. Health: ${this.health}/${this.maxHealth}`);
+		
+		this.showDamageEffect(actualDamage);
 		this.setTint(0xff0000);
+		
 		if (this.scene.sound && this.scene.sound.add) {
 			try {
 				if (this.scene.cache.audio.exists('player_hit')) {
@@ -169,6 +196,16 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			}
 		}
 		
+		this.makeInvulnerable();
+		
+		if (this.health <= 0) {
+			this.die(source);
+		}
+	}
+
+	makeInvulnerable() {
+		if (this.isInvulnerable) return;
+		
 		this.isInvulnerable = true;
 		
 		this.scene.tweens.add({
@@ -176,23 +213,58 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			alpha: 0.6,
 			duration: 100,
 			yoyo: true,
-			repeat: 4
+			repeat: 5,
+			onComplete: () => {
+				this.alpha = 1;
+				this.clearTint();
+			}
 		});
 		
 		this.scene.time.delayedCall(this.invulnerabilityTime, () => {
 			this.isInvulnerable = false;
-			this.clearTint();
-			this.alpha = 1;
 		});
-		
-		if (this.health <= 0) {
-			this.die();
+	}
+
+	showDamageEffect(damage) {
+		try {
+			const damageText = this.scene.add.text(this.x, this.y - 30, `-${damage}`, {
+				fontFamily: 'Arial',
+				fontSize: '18px',
+				color: '#ff4444',
+				stroke: '#000000',
+				strokeThickness: 2,
+				fontStyle: 'bold'
+			});
+			damageText.setOrigin(0.5);
+			damageText.setDepth(1000);
+			
+			this.scene.tweens.add({
+				targets: damageText,
+				y: damageText.y - 50,
+				alpha: 0,
+				duration: 1500,
+				ease: 'Power2',
+				onComplete: () => {
+					damageText.destroy();
+				}
+			});
+			
+			if (damage > 20) {
+				this.scene.cameras.main.shake(200, 0.01);
+			}
+			
+		} catch (error) {
+			console.error("Error showing damage effect:", error);
 		}
 	}
-	
-	die() {
+
+	die(causeOfDeath = "Unknown") {
 		if (this.isDead) return;
+		
+		console.log(`Player died from: ${causeOfDeath}`);
+		
 		this.isDead = true;
+		this.health = 0;
 		this.body.velocity.x = 0;
 		this.body.velocity.y = 0;
 		this.body.enable = false;
@@ -216,102 +288,68 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			});
 		}
 		
+		if (this.gameManager) {
+			this.gameManager.handlePlayerDeath(causeOfDeath);
+		}
+		
 		this.scene.tweens.add({
 			targets: this,
 			angle: 90,
-			alpha: 0,
+			alpha: 0.3,
 			duration: 1000
 		});
 		
-		const screenCenterX = 640; // Fixed center position
-		const screenCenterY = 360; // Fixed center position
-		
-		const gameOverText = this.scene.add.text(
-			screenCenterX, 
-			screenCenterY - 50, 
-			'GAME OVER', 
-			{
-				fontFamily: 'Arial',
-				fontSize: '48px',
-				color: '#ff0000',
-				stroke: '#000000',
-				strokeThickness: 6
+		this.scene.time.delayedCall(4000, () => {
+			if (window.returnToMenu) {
+				window.returnToMenu();
 			}
-		);
-		gameOverText.setOrigin(0.5);
-		gameOverText.setScrollFactor(0);
-		gameOverText.setDepth(1000);
-		
-		let timeText = "";
-		if (this.scene.uiManager && this.scene.uiManager.gameTime) {
-			const gameTime = this.scene.uiManager.gameTime;
-			const minutes = Math.floor(gameTime / 60);
-			const seconds = Math.floor(gameTime % 60);
-			timeText = `You survived: ${minutes}m ${seconds}s`;
-		} else {
-			timeText = "Nice try!";
-		}
-		
-		const survivalText = this.scene.add.text(
-			screenCenterX,
-			screenCenterY,
-			timeText,
-			{
-				fontFamily: 'Arial',
-				fontSize: '24px',
-				color: '#ffff00',
-				stroke: '#000000',
-				strokeThickness: 4
-			}
-		);
-		survivalText.setOrigin(0.5);
-		survivalText.setScrollFactor(0);
-		survivalText.setDepth(1000);
-
-		const restartText = this.scene.add.text(
-			screenCenterX,
-			screenCenterY + 50,
-			'Skill issue i suppose?!',
-			{
-				fontFamily: 'Arial',
-				fontSize: '24px',
-				color: '#ffffff',
-				stroke: '#000000',
-				strokeThickness: 4
-			}
-		);
-		restartText.setOrigin(0.5);
-		restartText.setScrollFactor(0);
-		restartText.setDepth(1000);
-		
-		this.scene.input.keyboard.once('keydown-R', () => {
-			this.scene.scene.restart();
 		});
-		
-		if (this.scene.update) {
-			const originalUpdate = this.scene.update;
-			this.scene.update = () => {
-				// Empty update function will effectively freeze the game
-				// Only checking for restart input
-			};
-		}
-	}
-	
-	updateHealthBar() {
-		if (this.scene.healthBar) {
-			this.scene.healthBar.updateHealth(this.health, this.maxHealth);
-		}
 	}
 	
 	heal(amount) {
+		if (this.isDead) return;
+		
+		const oldHealth = this.health;
 		this.health = Math.min(this.health + amount, this.maxHealth);
 		
-		this.updateHealthBar();
+		const actualHeal = this.health - oldHealth;
 		
-		this.setTint(0x00ff00);
-		this.scene.time.delayedCall(200, () => {
-			this.clearTint();
-		});
+		if (actualHeal > 0) {
+			console.log(`Player healed for ${actualHeal}. Health: ${this.health}/${this.maxHealth}`);
+			this.showHealEffect(actualHeal);
+			this.setTint(0x00ff00);
+			this.scene.time.delayedCall(200, () => {
+				this.clearTint();
+			});
+		}
+	}
+	showHealEffect(healAmount) {
+		try {
+			const healText = this.scene.add.text(this.x, this.y - 30, `+${healAmount}`, {
+				fontFamily: 'Arial',
+				fontSize: '16px',
+				color: '#44ff44',
+				stroke: '#000000',
+				strokeThickness: 2,
+				fontStyle: 'bold'
+			});
+			healText.setOrigin(0.5);
+			healText.setDepth(1000);
+			
+			this.scene.tweens.add({
+				targets: healText,
+				y: healText.y - 40,
+				alpha: 0,
+				duration: 1200,
+				ease: 'Power2',
+				onComplete: () => {
+					healText.destroy();
+				}
+			});
+			
+		} catch (error) {
+			console.error("Error showing heal effect:", error);
+		}
 	}
 
 	/* END-USER-CODE */

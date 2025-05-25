@@ -129,7 +129,7 @@ export function initializeMenu() {
       });
       
       if (window.game.scene.getScene('MainMapScene')) {
-        window.game.scene.start('MiniMapLavaScene');
+        window.game.scene.start('MainMapScene');
       }
     } else {
       console.error("Game or scene not available!");

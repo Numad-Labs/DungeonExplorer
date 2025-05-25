@@ -5,8 +5,9 @@ import MainMapScene from "./scenes/MainMapScene.js";
 import MiniMapDarkForastScene from "./scenes/MiniMapDarkForastScene.js";
 import MiniMapBossFightScene from "./scenes/MiniMapBossFightScene.js";
 import { initializeMenu } from "./MenuIntegration.jsx";
-import MiniMapBeachScene from "./scenes/MiniMapBeachScene.js"
-import MiniMapLavaScene from "./scenes/MiniMapLavaScene.js"
+import MiniMapBeachScene from "./scenes/MiniMapBeachScene.js";
+import MiniMapLavaScene from "./scenes/MiniMapLavaScene.js";
+import GameManager from "./managers/GameManager.js";
 
 const config = {
     type: Phaser.AUTO,
@@ -17,7 +18,7 @@ const config = {
     physics: {
         default: "arcade",
         arcade: {
-            debug: true,
+            debug: false,
             tileBias: 32,
         }
     },
@@ -43,9 +44,11 @@ class Boot extends Phaser.Scene {
 let menuControls = null;
 
 const StartGame = (parent) => {
+    const gameManager = new GameManager();
+    
     try {
-        menuControls = initializeMenu();
-        console.log("React menu initialized successfully");
+        menuControls = initializeMenu(gameManager);
+        console.log("React menu initialized successfully with GameManager");
     } catch (error) {
         console.error("Error initializing React menu:", error);
     }
@@ -60,6 +63,9 @@ const StartGame = (parent) => {
     const gameConfig = parent ? { ...config, parent } : config;
     const game = new Phaser.Game(gameConfig);
     
+    game.registry.set('gameManager', gameManager);
+    console.log("GameManager initialized and registered");
+    
     game.scene.add("Boot", Boot, true);
     game.scene.add("Preload", Preload);
     game.scene.add("Level", Level);
@@ -67,38 +73,52 @@ const StartGame = (parent) => {
     game.scene.add("MainMapScene", MainMapScene);
     game.scene.add("MiniMapDarkForastScene", MiniMapDarkForastScene);
     game.scene.add("MiniMapBossFightScene", MiniMapBossFightScene);
-    game.scene.add("MiniMapBossFightScene", MiniMapBeachScene);
+    game.scene.add("MiniMapBeachScene", MiniMapBeachScene);
     game.scene.add("MiniMapLavaScene", MiniMapLavaScene);
     
-    // Make game globally accessible
     window.game = game;
     
-    // Override the startGame function to ensure it works correctly
+    window.returnToMenu = function() {
+        console.log("Returning to menu from game");
+        
+        const gameManager = game.registry.get('gameManager');
+        if (gameManager && gameManager.isRunActive) {
+            gameManager.endRun("Manual Exit");
+        }
+        
+        if (menuContainer && gameContainer) {
+            menuContainer.style.display = 'block';
+            gameContainer.style.display = 'none';
+        }
+        
+        window.dispatchEvent(new CustomEvent('gameStateUpdated'));
+    };
+    
     window.startGame = function() {
         console.log("Start game button clicked");
+        console.log("Current GameManager upgrades:", gameManager.passiveUpgrades);
         
-        // Hide menu container, show game container
         if (menuContainer) menuContainer.style.display = 'none';
         if (gameContainer) gameContainer.style.display = 'block';
         
-        // Get GameManager if available
-        const gameManager = game.registry.get('gameManager');
-        if (gameManager && gameManager.applyPassiveUpgrades) {
-            gameManager.applyPassiveUpgrades();
+        if (gameManager) {
+            if (!gameManager.isRunActive) {
+                gameManager.startNewRun();
+            }
+            console.log("New run started with upgrades:", gameManager.passiveUpgrades);
         }
         
-        // Start the main game scene
         game.scene.start('MainMapScene');
     };
     
-    // Add ESC key handler to return to menu
-    game.input.keyboard.on('keydown-ESC', function() {
-        if (menuControls) {
-            menuControls.show();
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const gameContainer = document.getElementById('game-container');
+            if (gameContainer && gameContainer.style.display !== 'none') {
+                window.returnToMenu();
+            }
         }
     });
-    game.scene.add("MiniMapBossFightScene", MiniMapBossFightScene)
-    game.scene.add("MiniMapBeachScene", MiniMapBeachScene)
     
     return game;
 };

@@ -1,3 +1,5 @@
+import { saveToLocalStorage, loadFromLocalStorage, resetProgress as resetLocalStorage } from '../GameStorage';
+
 export default class GameManager {
     static instance = null;
 
@@ -37,9 +39,41 @@ export default class GameManager {
             orbMagnetRange: 50
         };
 
+        this.gold = 500;
+        this.passiveUpgrades = {};
+        this.currentRunStats = {
+            survivalTime: 0,
+            maxLevel: 1,
+            enemiesKilled: 0,
+            goldEarned: 0,
+            experienceGained: 0,
+            damageDealt: 0,
+            damageTaken: 0,
+            causeOfDeath: null
+        };
+        this.lastRunStats = null;
+        this.allTimeStats = {
+            totalRuns: 0,
+            totalGoldEarned: 0,
+            totalEnemiesKilled: 0,
+            totalExperienceGained: 0,
+            totalDamageDealt: 0,
+            highestLevel: 1,
+            longestSurvivalTime: 0,
+            averageSurvivalTime: 0
+        };
+        
+        this.isGameRunning = false;
+        this.gameStartTime = 0;
+        this.currentScene = null;
+        
+        this.debugMode = false;
+
         this.events = new Phaser.Events.EventEmitter();
         
+        this.loadGame();
         this.directlyApplyMenuUpgrades();
+        
         console.log("GameManager initialized");
     }
     
@@ -48,6 +82,299 @@ export default class GameManager {
             new GameManager();
         }
         return GameManager.instance;
+    }
+
+    purchaseUpgrade(upgradeId, cost) {
+        try {
+            console.log(`Attempting to purchase upgrade: ${upgradeId} for ${cost} gold`);
+            
+            if (this.gold < cost) {
+                console.log("Not enough gold for purchase");
+                return false;
+            }
+            
+            const passiveUpgrades = [
+                {
+                    id: 'maxHealth',
+                    name: 'Max Health',
+                    baseValue: 100,
+                    valuePerLevel: 20,
+                    baseCost: 100,
+                    costMultiplier: 1.5,
+                    maxLevel: 15
+                },
+                {
+                    id: 'baseDamage',
+                    name: 'Base Damage',
+                    baseValue: 10,
+                    valuePerLevel: 2,
+                    baseCost: 150,
+                    costMultiplier: 1.6,
+                    maxLevel: 15
+                },
+                {
+                    id: 'moveSpeed',
+                    name: 'Move Speed',
+                    baseValue: 200,
+                    valuePerLevel: 15,
+                    baseCost: 125,
+                    costMultiplier: 1.4,
+                    maxLevel: 12
+                },
+                {
+                    id: 'attackSpeed',
+                    name: 'Attack Speed',
+                    baseValue: 1,
+                    valuePerLevel: 0.1,
+                    baseCost: 175,
+                    costMultiplier: 1.7,
+                    maxLevel: 10
+                },
+                {
+                    id: 'critChance',
+                    name: 'Critical Chance',
+                    baseValue: 5,
+                    valuePerLevel: 2,
+                    baseCost: 200,
+                    costMultiplier: 1.8,
+                    maxLevel: 10
+                },
+                {
+                    id: 'critDamage',
+                    name: 'Critical Damage',
+                    baseValue: 150,
+                    valuePerLevel: 25,
+                    baseCost: 250,
+                    costMultiplier: 1.9,
+                    maxLevel: 8
+                },
+                {
+                    id: 'pickupRange',
+                    name: 'Pickup Range',
+                    baseValue: 50,
+                    valuePerLevel: 10,
+                    baseCost: 120,
+                    costMultiplier: 1.3,
+                    maxLevel: 12
+                },
+                {
+                    id: 'armor',
+                    name: 'Armor',
+                    baseValue: 0,
+                    valuePerLevel: 2,
+                    baseCost: 180,
+                    costMultiplier: 1.6,
+                    maxLevel: 10
+                },
+                {
+                    id: 'expMultiplier',
+                    name: 'EXP Gain',
+                    baseValue: 100,
+                    valuePerLevel: 10,
+                    baseCost: 300,
+                    costMultiplier: 2.0,
+                    maxLevel: 8
+                },
+                {
+                    id: 'goldMultiplier',
+                    name: 'Gold Gain',
+                    baseValue: 100,
+                    valuePerLevel: 20,
+                    baseCost: 350,
+                    costMultiplier: 2.2,
+                    maxLevel: 8
+                }
+            ];
+            
+            const upgrade = passiveUpgrades.find(u => u.id === upgradeId);
+            if (!upgrade) {
+                console.error(`Upgrade ${upgradeId} not found`);
+                return false;
+            }
+            
+            const currentLevel = this.passiveUpgrades[upgradeId]?.level || 0;
+            
+            if (currentLevel >= upgrade.maxLevel) {
+                console.log(`Upgrade ${upgradeId} already at max level`);
+                return false;
+            }
+            
+            this.gold -= cost;
+            
+            const newLevel = currentLevel + 1;
+            const newValue = upgrade.baseValue + (upgrade.valuePerLevel * newLevel);
+            
+            this.passiveUpgrades[upgradeId] = {
+                level: newLevel,
+                value: newValue
+            };
+            
+            console.log(`Purchase successful: ${upgradeId} level ${newLevel}, value ${newValue}`);
+            
+            this.saveGame();
+            
+            window.dispatchEvent(new CustomEvent('gameStateUpdated', {
+                detail: {
+                    gold: this.gold,
+                    passiveUpgrades: this.passiveUpgrades,
+                    allTimeStats: this.allTimeStats,
+                    lastRunStats: this.lastRunStats,
+                    currentRunStats: this.currentRunStats
+                }
+            }));
+            
+            return true;
+        } catch (error) {
+            console.error("Error purchasing upgrade:", error);
+            return false;
+        }
+    }
+
+    // Reset progress method
+    resetProgress() {
+        try {
+            console.log("Resetting all progress...");
+            
+            this.gold = 25000;
+            this.passiveUpgrades = {};
+            this.currentRunStats = {
+                survivalTime: 0,
+                maxLevel: 1,
+                enemiesKilled: 0,
+                goldEarned: 0,
+                experienceGained: 0,
+                damageDealt: 0,
+                damageTaken: 0,
+                causeOfDeath: null
+            };
+            this.lastRunStats = null;
+            this.allTimeStats = {
+                totalRuns: 0,
+                totalGoldEarned: 0,
+                totalEnemiesKilled: 0,
+                totalExperienceGained: 0,
+                totalDamageDealt: 0,
+                highestLevel: 1,
+                longestSurvivalTime: 0,
+                averageSurvivalTime: 0
+            };
+            
+            this.playerStats = {
+                level: 1,
+                experience: 0,
+                nextLevelExp: 100,
+                maxHealth: 100,
+                health: 100,
+                damage: 10,
+                moveSpeed: 200,
+                fireRate: 1,
+                attackRange: 100
+            };
+            
+            resetLocalStorage(25000);
+            
+            window.dispatchEvent(new CustomEvent('gameStateUpdated', {
+                detail: {
+                    gold: this.gold,
+                    passiveUpgrades: this.passiveUpgrades,
+                    allTimeStats: this.allTimeStats,
+                    lastRunStats: this.lastRunStats,
+                    currentRunStats: this.currentRunStats
+                }
+            }));
+            
+            console.log("Progress reset complete");
+            return true;
+        } catch (error) {
+            console.error("Error resetting progress:", error);
+            return false;
+        }
+    }
+
+    startNewRun() {
+        console.log("Starting completely new run...");
+        
+        this.isGameRunning = true;
+        this.gameStartTime = Date.now();
+        
+        this.currentRunStats = {
+            survivalTime: 0,
+            maxLevel: 1,
+            enemiesKilled: 0,
+            goldEarned: 0,
+            experienceGained: 0,
+            damageDealt: 0,
+            damageTaken: 0,
+            causeOfDeath: null
+        };
+        
+        this.resetPlayerStatsToBase();
+        this.applyPassiveUpgradesToPlayerStats();
+        this.resetGameProgression();
+    }
+
+    resetGameProgression() {
+        this.gameProgress = {
+            gameTime: 0,
+            currentDifficulty: 1,
+            maxEnemies: 30,
+            enemySpawnDelay: 3000,
+            orbMagnetRange: 50
+        };
+        
+        this.powerUps = {
+            speed: 0,
+            damage: 0,
+            health: 0,
+            fireRate: 0,
+            range: 0,
+            magnet: 0
+        };
+        
+        console.log("Game progression reset to starting difficulty");
+    }
+
+    handlePlayerDeath(causeOfDeath = "Unknown") {
+        console.log("Player died:", causeOfDeath);
+        
+        if (!this.isGameRunning) return;
+        
+        this.isGameRunning = false;
+        
+        const currentTime = Date.now();
+        const survivalTime = Math.floor((currentTime - this.gameStartTime) / 1000);
+        
+        this.currentRunStats.survivalTime = survivalTime;
+        this.currentRunStats.causeOfDeath = causeOfDeath;
+        
+        this.lastRunStats = { ...this.currentRunStats };
+        
+        this.allTimeStats.totalRuns++;
+        this.allTimeStats.totalGoldEarned += this.currentRunStats.goldEarned;
+        this.allTimeStats.totalEnemiesKilled += this.currentRunStats.enemiesKilled;
+        this.allTimeStats.totalExperienceGained += this.currentRunStats.experienceGained;
+        this.allTimeStats.totalDamageDealt += this.currentRunStats.damageDealt;
+        
+        if (this.currentRunStats.maxLevel > this.allTimeStats.highestLevel) {
+            this.allTimeStats.highestLevel = this.currentRunStats.maxLevel;
+        }
+        
+        if (survivalTime > this.allTimeStats.longestSurvivalTime) {
+            this.allTimeStats.longestSurvivalTime = survivalTime;
+        }
+        
+        if (this.allTimeStats.totalRuns > 0) {
+            this.allTimeStats.averageSurvivalTime = Math.floor(
+                (this.allTimeStats.longestSurvivalTime + survivalTime) / this.allTimeStats.totalRuns
+            );
+        }
+        
+        this.gold += this.currentRunStats.goldEarned;
+        this.saveGame();
+        
+        window.dispatchEvent(new CustomEvent('playerDeath', {
+            detail: this.lastRunStats
+        }));
     }
     
     applyPlayerStats(playerPrefab) {
@@ -60,8 +387,84 @@ export default class GameManager {
         playerPrefab.fireRate = this.playerStats.fireRate;
         playerPrefab.attackRange = this.playerStats.attackRange;
         
-        console.log("Applied player stats to prefab:", this.playerStats);
+        Object.keys(this.passiveUpgrades).forEach(upgradeId => {
+            const upgrade = this.passiveUpgrades[upgradeId];
+            
+            switch (upgradeId) {
+                case 'maxHealth':
+                    playerPrefab.maxHealth = upgrade.value;
+                    playerPrefab.health = upgrade.value;
+                    break;
+                case 'baseDamage':
+                    playerPrefab.damage = upgrade.value;
+                    break;
+                case 'moveSpeed':
+                    playerPrefab.moveSpeed = upgrade.value;
+                    break;
+                case 'attackSpeed':
+                    playerPrefab.fireRate = upgrade.value;
+                    break;
+                case 'armor':
+                    playerPrefab.armor = upgrade.value;
+                    break;
+                case 'critChance':
+                    playerPrefab.critChance = upgrade.value / 100;
+                    break;
+                case 'critDamage':
+                    playerPrefab.critDamage = upgrade.value / 100;
+                    break;
+                case 'pickupRange':
+                    playerPrefab.pickupRange = upgrade.value;
+                    break;
+            }
+        });
+        
+        console.log("Applied player stats to prefab:", {
+            maxHealth: playerPrefab.maxHealth,
+            damage: playerPrefab.damage,
+            moveSpeed: playerPrefab.moveSpeed,
+            armor: playerPrefab.armor
+        });
+        
         return playerPrefab;
+    }
+
+    applyPassiveUpgradesToPlayerStats() {
+        Object.keys(this.passiveUpgrades).forEach(upgradeId => {
+            const upgrade = this.passiveUpgrades[upgradeId];
+            
+            switch (upgradeId) {
+                case 'maxHealth':
+                    this.playerStats.maxHealth = upgrade.value;
+                    this.playerStats.health = upgrade.value;
+                    break;
+                case 'baseDamage':
+                    this.playerStats.damage = upgrade.value;
+                    break;
+                case 'moveSpeed':
+                    this.playerStats.moveSpeed = upgrade.value;
+                    break;
+                case 'attackSpeed':
+                    this.playerStats.fireRate = upgrade.value;
+                    break;
+            }
+        });
+    }
+
+    resetPlayerStatsToBase() {
+        this.playerStats = {
+            level: 1,
+            experience: 0,
+            nextLevelExp: 100,
+            maxHealth: 100,
+            health: 100,
+            damage: 10,
+            moveSpeed: 200,
+            fireRate: 1,
+            attackRange: 100
+        };
+        
+        console.log("Player stats reset to base values for new run");
     }
     
     savePlayerStats(playerPrefab) {
@@ -78,7 +481,14 @@ export default class GameManager {
     }
     
     addExperience(amount) {
-        this.playerStats.experience += amount;
+        const multiplier = this.passiveUpgrades.expMultiplier ? this.passiveUpgrades.expMultiplier.value / 100 : 1;
+        const actualAmount = Math.floor(amount * multiplier);
+        
+        this.playerStats.experience += actualAmount;
+        
+        if (this.isGameRunning) {
+            this.currentRunStats.experienceGained += actualAmount;
+        }
         
         if (this.playerStats.experience >= this.playerStats.nextLevelExp) {
             this.levelUp();
@@ -91,6 +501,10 @@ export default class GameManager {
     
     levelUp() {
         this.playerStats.level++;
+        
+        if (this.isGameRunning) {
+            this.currentRunStats.maxLevel = Math.max(this.currentRunStats.maxLevel, this.playerStats.level);
+        }
         
         const expOverflow = this.playerStats.experience - this.playerStats.nextLevelExp;
         this.playerStats.nextLevelExp = Math.floor(this.playerStats.nextLevelExp * 1.2);
@@ -152,7 +566,6 @@ export default class GameManager {
         if (newDifficultyLevel !== this.gameProgress.currentDifficulty) {
             this.gameProgress.currentDifficulty = newDifficultyLevel;
             
-            // More gradual enemy scaling with a reasonable cap
             const baseMaxEnemies = 30;
             const enemiesPerLevel = 3;
             const maxEnemyCap = 60;
@@ -181,6 +594,7 @@ export default class GameManager {
         
         console.log(`Transitioning from ${fromScene.scene.key} to ${toScene}`);
     }
+
     resetGameState() {
         this.playerStats = {
             level: 1,
@@ -212,6 +626,86 @@ export default class GameManager {
         };
         
         this.events.emit('gameStateReset');
+    }
+    getCurrentSurvivalTime() {
+        if (!this.isGameRunning) return 0;
+        return Math.floor((Date.now() - this.gameStartTime) / 1000);
+    }
+
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    addEnemyKill() {
+        if (this.isGameRunning) {
+            this.currentRunStats.enemiesKilled++;
+        }
+    }
+
+    addGold(amount) {
+        const multiplier = this.passiveUpgrades.goldMultiplier ? this.passiveUpgrades.goldMultiplier.value / 100 : 1;
+        const actualAmount = Math.floor(amount * multiplier);
+        
+        if (this.isGameRunning) {
+            this.currentRunStats.goldEarned += actualAmount;
+        }
+    }
+
+    addDamageDealt(damage) {
+        if (this.isGameRunning) {
+            this.currentRunStats.damageDealt += damage;
+        }
+    }
+
+    saveGame() {
+        const gameData = {
+            gold: this.gold,
+            passiveUpgrades: this.passiveUpgrades,
+            allTimeStats: this.allTimeStats,
+            lastRunStats: this.lastRunStats,
+            gameStats: this.allTimeStats // For backward compatibility
+        };
+        
+        saveToLocalStorage(gameData);
+    }
+
+    loadGame() {
+        const savedData = loadFromLocalStorage();
+        if (savedData) {
+            this.gold = savedData.gold || 500;
+            this.passiveUpgrades = savedData.passiveUpgrades || {};
+            this.allTimeStats = savedData.allTimeStats || {
+                totalRuns: 0,
+                totalGoldEarned: 0,
+                totalEnemiesKilled: 0,
+                totalExperienceGained: 0,
+                totalDamageDealt: 0,
+                highestLevel: 1,
+                longestSurvivalTime: 0,
+                averageSurvivalTime: 0
+            };
+            this.lastRunStats = savedData.lastRunStats || null;
+            
+            console.log("Game loaded from save data");
+        }
+    }
+
+    setCurrentScene(scene) {
+        this.currentScene = scene;
+    }
+
+    toggleDebugMode() {
+        this.debugMode = !this.debugMode;
+        console.log("Debug mode:", this.debugMode ? "ON" : "OFF");
+        return this.debugMode;
     }
     
     directlyApplyMenuUpgrades() {

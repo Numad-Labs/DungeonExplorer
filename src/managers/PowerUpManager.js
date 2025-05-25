@@ -15,11 +15,6 @@ export default class PowerUpManager {
         this.gameManager = scene.gameManager || 
             (scene.game && scene.game.registry ? scene.game.registry.get('gameManager') : null);
         
-        if (this.gameManager && this.gameManager.passiveUpgrades) {
-            console.log("Syncing PowerUpManager with GameManager passive upgrades");
-            this.syncWithPassiveUpgrades();
-        }
-        
         this.selectionContainer = null;
         this.overlay = null;
         this.gameWasPaused = false;
@@ -28,30 +23,11 @@ export default class PowerUpManager {
         this.pendingLevelUps = 0;
         
         scene.powerUpManager = this;
-        console.log("PowerUpManager initialized");
-    }
-    
-    syncWithPassiveUpgrades() {
-        if (!this.gameManager || !this.gameManager.passiveUpgrades) return;
-        
-        const upgradeToTypeMap = {
-            moveSpeed: 'speed',
-            baseDamage: 'damage',
-            maxHealth: 'health'
-        };
-        
-        Object.entries(this.gameManager.passiveUpgrades).forEach(([upgradeType, upgradeData]) => {
-            const powerUpType = upgradeToTypeMap[upgradeType];
-            if (powerUpType && this.powerUps.hasOwnProperty(powerUpType)) {
-                this.powerUps[powerUpType] = upgradeData.level || 0;
-                console.log(`Synced ${upgradeType} passive upgrade (level ${upgradeData.level}) to ${powerUpType} power-up`);
-            }
-        });
     }
     
     initialize() {
         this.createPlaceholderTextures();
-        console.log("PowerUpManager initialized with levels:", { ...this.powerUps });
+        console.log("PowerUpManager initialized - starting fresh with no power-ups:", { ...this.powerUps });
     }
     
     createPlaceholderTextures() {
@@ -302,7 +278,7 @@ export default class PowerUpManager {
     }
     
     applyPowerUp(type, level) {
-        console.log(`Applying power-up: ${type} at level ${level}`);
+        console.log(`Applying in-game power-up: ${type} at level ${level} (separate from menu upgrades)`);
         
         const player = this.scene.player;
         if (!player) {
@@ -316,60 +292,60 @@ export default class PowerUpManager {
         switch (type) {
             case 'speed':
                 if (player.moveSpeed) {
+                    const oldSpeed = player.moveSpeed;
                     player.moveSpeed *= (1 + scaledBoost / 100);
-                }
-                if (this.gameManager) {
-                    this.updatePassiveUpgrade('moveSpeed', player.moveSpeed);
+                    console.log(`Speed increased from ${oldSpeed.toFixed(1)} to ${player.moveSpeed.toFixed(1)}`);
                 }
                 break;
                 
             case 'damage':
                 if (player.damage) {
+                    const oldDamage = player.damage;
                     player.damage *= (1 + scaledBoost / 100);
+                    console.log(`Damage increased from ${oldDamage.toFixed(1)} to ${player.damage.toFixed(1)}`);
                 }
-                if (this.scene.playerAttack) {
-                    this.scene.playerAttack.updateStats();
-                }
-                if (this.gameManager) {
-                    this.updatePassiveUpgrade('baseDamage', player.damage);
+                if (this.scene.playerAttackSystem && this.scene.playerAttackSystem.updateStats) {
+                    this.scene.playerAttackSystem.updateStats();
                 }
                 break;
                 
             case 'health':
                 if (player.maxHealth) {
                     const oldMax = player.maxHealth;
+                    const oldCurrent = player.health;
                     player.maxHealth += 50;
-                    if (player.health) {
-                        player.health += (player.maxHealth - oldMax);
-                    }
-                    player.updateHealthBar();
-                }
-                if (this.gameManager) {
-                    this.updatePassiveUpgrade('maxHealth', player.maxHealth);
+                    player.health += 50; // Give immediate health boost
+                    console.log(`Health increased from ${oldCurrent}/${oldMax} to ${player.health}/${player.maxHealth}`);
                 }
                 break;
                 
             case 'fireRate':
                 if (player.fireRate) {
+                    const oldRate = player.fireRate;
                     player.fireRate *= (1 + scaledBoost / 100);
+                    console.log(`Fire rate increased from ${oldRate.toFixed(2)} to ${player.fireRate.toFixed(2)}`);
                 }
-                if (this.scene.playerAttack) {
-                    this.scene.playerAttack.updateStats();
+                if (this.scene.playerAttackSystem && this.scene.playerAttackSystem.updateStats) {
+                    this.scene.playerAttackSystem.updateStats();
                 }
                 break;
                 
             case 'range':
                 if (player.attackRange) {
+                    const oldRange = player.attackRange;
                     player.attackRange *= (1 + scaledBoost / 100);
+                    console.log(`Attack range increased from ${oldRange.toFixed(1)} to ${player.attackRange.toFixed(1)}`);
                 }
-                if (this.scene.playerAttack) {
-                    this.scene.playerAttack.updateStats();
+                if (this.scene.playerAttackSystem && this.scene.playerAttackSystem.updateStats) {
+                    this.scene.playerAttackSystem.updateStats();
                 }
                 break;
                 
             case 'magnet':
-                if (this.scene.orbMagnetRange) {
-                    this.scene.orbMagnetRange *= (1 + scaledBoost / 100);
+                if (player.pickupRange) {
+                    const oldRange = player.pickupRange;
+                    player.pickupRange *= (1 + scaledBoost / 100);
+                    console.log(`Pickup range increased from ${oldRange.toFixed(1)} to ${player.pickupRange.toFixed(1)}`);
                 }
                 break;
         }
@@ -377,31 +353,19 @@ export default class PowerUpManager {
         this.showPowerUpFeedback(type, scaledBoost);
     }
     
-    /**
-     * Update the corresponding passive upgrade in the GameManager
-     * @param {string} upgradeType - Type of passive upgrade to update
-     * @param {number} newValue - New value for the upgrade
-     */
-    updatePassiveUpgrade(upgradeType, newValue) {
-        if (!this.gameManager || !this.gameManager.passiveUpgrades) return;
-        
-        if (!this.gameManager.passiveUpgrades[upgradeType]) {
-            this.gameManager.passiveUpgrades[upgradeType] = { level: 0, value: 0 };
-        }
-        
-        this.gameManager.passiveUpgrades[upgradeType].value = newValue;
-        this.gameManager.passiveUpgrades[upgradeType].level += 1;
-        
-        if (this.gameManager.saveGame) {
-            this.gameManager.saveGame();
-        }
-    }
-    
     showPowerUpFeedback(type, value) {
         const player = this.scene.player;
         if (!player) return;
         
-        const message = `${type.charAt(0).toUpperCase() + type.slice(1)} +${value.toFixed(0)}%`;
+        let message;
+        switch (type) {
+            case 'health':
+                message = `Max Health +50`;
+                break;
+            default:
+                message = `${type.charAt(0).toUpperCase() + type.slice(1)} +${value.toFixed(0)}%`;
+                break;
+        }
         
         const feedbackText = this.scene.add.text(
             player.x,

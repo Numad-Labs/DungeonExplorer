@@ -148,7 +148,7 @@ export function initializeMenu() {
   
   console.log("Rendering React menu component");
   
-  try {
+   try {
     ReactDOM.render(
       React.createElement(MainMenu, {
         gameManager: gameManager,
@@ -156,7 +156,7 @@ export function initializeMenu() {
       }), 
       menuContainer
     );
-    console.log("React menu rendered successfully");
+    console.log("React menu rendered successfully with GameManager");
   } catch (error) {
     console.error("Error rendering React menu:", error);
   }

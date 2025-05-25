@@ -1,9 +1,4 @@
 /**
- * This utility connects the upgrades from the MainMenu component with the in-game
- * player stats and ensures they're properly applied when the game starts.
- */
-
-/**
  * Apply all passive upgrades from the GameManager to the player
  * @param {Object} player - The player object to apply upgrades to
  * @param {Object} gameManager - The GameManager instance with upgrade data
@@ -107,7 +102,6 @@ export function initializePlayerWithUpgrades(player, gameManager) {
   }
   
   try {
-    // First set base stats
     player.maxHealth = 100;
     player.health = 100;
     player.damage = 10;
@@ -115,7 +109,6 @@ export function initializePlayerWithUpgrades(player, gameManager) {
     player.fireRate = 1;
     player.attackRange = 100;
     
-    // Then apply upgrades on top
     if (gameManager) {
       applyPassiveUpgrades(player, gameManager);
     }

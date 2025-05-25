@@ -1,4 +1,4 @@
-// UIManager.js - Complete version with timer
+// UIManager.js - Complete version with persistent UI and health bar
 
 import GameManager from "./GameManager";
 import HealthBar from "../prefabs/HealthBar";
@@ -12,30 +12,38 @@ export default class UIManager {
         this.healthBar = null;
         this.playerLevel = null;
         this.timerText = null;
-        
+        this.timerBg = null;
+        this.timerLabel = null;
         this.gameTime = 0;
-        
         this.uiContainer = null;
+        this.isInitialized = false;
     }
     
     initialize() {
         try {
-            this.uiContainer = this.scene.add.container(0, 0);
+            console.log("Initializing UIManager...");
             
-            if (!this.scene.healthBar) {
+            if (!this.uiContainer || !this.uiContainer.active) {
+                this.uiContainer = this.scene.add.container(0, 0);
+                this.uiContainer.setScrollFactor(0);
+                this.uiContainer.setDepth(1000);
+            }
+            
+            if (!this.scene.healthBar || !this.scene.healthBar.active) {
+                console.log("Creating new HealthBar...");
                 this.healthBar = new HealthBar(this.scene, 320, 230, 200, 20);
-                this.scene.healthBar = this.healthBar; 
+                this.scene.healthBar = this.healthBar;
             } else {
+                console.log("Using existing HealthBar...");
                 this.healthBar = this.scene.healthBar;
             }
             
-            if (!this.scene.playerLevelSystem) {
+            if (!this.scene.playerLevelSystem || !this.scene.playerLevelSystem.active) {
                 this.playerLevel = new PlayerLevel(this.scene, 320, 180);
                 this.scene.add.existing(this.playerLevel);
                 this.playerLevel.createProgressBar(0, 0, 204, 20);
                 
                 this.playerLevel.onLevelUp((newLevel) => {
-                    console.log(`Player reached level ${newLevel}!`);
                     
                     if (this.gameManager) {
                         this.gameManager.playerStats.level = newLevel;
@@ -51,40 +59,81 @@ export default class UIManager {
                 this.scene.playerLevelSystem = this.playerLevel;
             } else {
                 this.playerLevel = this.scene.playerLevelSystem;
+                if (this.playerLevel.updateText) {
+                    this.playerLevel.updateText();
+                }
             }
             
             this.createGameTimer();
             
             if (this.gameManager && this.gameManager.events) {
+                this.gameManager.events.off('experienceUpdated');
+                this.gameManager.events.off('levelUp');
+                
                 this.gameManager.events.on('experienceUpdated', (exp, nextLevel) => {
-                    if (this.playerLevel) {
-                        this.playerLevel.setExperience(exp, nextLevel);
+                    if (this.playerLevel && this.playerLevel.active) {
+                        this.syncExperienceFromGameManager();
                     }
                 });
                 
                 this.gameManager.events.on('levelUp', (newLevel) => {
-                    if (this.playerLevel) {
-                        this.playerLevel.setLevel(newLevel);
+                    if (this.playerLevel && this.playerLevel.active) {
+                        this.playerLevel.level = newLevel;
+                        if (this.playerLevel.updateText) {
+                            this.playerLevel.updateText();
+                        }
                     }
                 });
             }
             
-            this.patchExpOrbCollect();
+            this.syncExperienceFromGameManager();
             
-            console.log("UI elements created");
+            this.isInitialized = true;
+            console.log("UI elements created and synced");
         } catch (error) {
             console.error("Error setting up UI:", error);
         }
     }
     
+    syncExperienceFromGameManager() {
+        if (!this.gameManager || !this.playerLevel) return;
+        
+        try {
+            const { level, experience, nextLevelExp } = this.gameManager.playerStats;
+            
+            this.playerLevel.level = level;
+            this.playerLevel.experience = experience;
+            this.playerLevel.nextLevelExp = nextLevelExp;
+            
+            if (this.playerLevel.updateText) {
+                this.playerLevel.updateText();
+            }
+            if (this.playerLevel.updateProgressBar) {
+                this.playerLevel.updateProgressBar();
+            }
+            
+            console.log(`Synced UI - Level: ${level}, Exp: ${experience}/${nextLevelExp}`);
+        } catch (error) {
+            console.error("Error syncing experience from GameManager:", error);
+        }
+    }
+    
     createGameTimer() {
         try {
-            const screenWidth = this.scene.cameras.main.width;
+            if (this.timerText) {
+                this.timerText.destroy();
+            }
+            if (this.timerBg) {
+                this.timerBg.destroy();
+            }
+            if (this.timerLabel) {
+                this.timerLabel.destroy();
+            }
             
             const timerX = 890;
             const timerY = 210;
             
-            const timerBg = this.scene.add.rectangle(
+            this.timerBg = this.scene.add.rectangle(
                 timerX,
                 timerY,
                 120,
@@ -92,12 +141,11 @@ export default class UIManager {
                 0x000000,
                 0.7
             );
-            timerBg.setStrokeStyle(2, 0xffffff);
-            timerBg.setScrollFactor(0);
-            timerBg.setDepth(900);
-            this.uiContainer.add(timerBg);
+            this.timerBg.setStrokeStyle(2, 0xffffff);
+            this.timerBg.setScrollFactor(0);
+            this.timerBg.setDepth(900);
             
-            const timerLabel = this.scene.add.text(
+            this.timerLabel = this.scene.add.text(
                 timerX,
                 timerY - 20,
                 "TIME",
@@ -109,10 +157,9 @@ export default class UIManager {
                     strokeThickness: 2
                 }
             );
-            timerLabel.setOrigin(0.5);
-            timerLabel.setScrollFactor(0);
-            timerLabel.setDepth(901);
-            this.uiContainer.add(timerLabel);
+            this.timerLabel.setOrigin(0.5);
+            this.timerLabel.setScrollFactor(0);
+            this.timerLabel.setDepth(901);
             
             this.timerText = this.scene.add.text(
                 timerX,
@@ -130,15 +177,12 @@ export default class UIManager {
             this.timerText.setOrigin(0.5);
             this.timerText.setScrollFactor(0);
             this.timerText.setDepth(901);
-            this.uiContainer.add(this.timerText);
             
-            this.gameTime = 0;
-            
-            if (this.gameManager && this.gameManager.gameProgress && 
-                typeof this.gameManager.gameProgress.gameTime !== 'undefined') {
-                this.gameTime = this.gameManager.gameProgress.gameTime;
+            if (this.uiContainer) {
+                this.uiContainer.add([this.timerBg, this.timerLabel, this.timerText]);
             }
             
+            this.gameTime = 0;
             this.updateTimer(0);
             
             console.log("Game timer created successfully");
@@ -148,11 +192,10 @@ export default class UIManager {
     }
     
     updateTimer(delta) {
-        if (!this.timerText) return;
+        if (!this.timerText || !this.timerText.active) return;
         
         try {
             const deltaSeconds = delta / 1000;
-            
             this.gameTime += deltaSeconds;
             
             if (this.gameManager && this.gameManager.gameProgress) {
@@ -175,39 +218,21 @@ export default class UIManager {
                     ease: 'Power2',
                     repeat: 1
                 });
-                
             }
         } catch (error) {
             console.error("Error updating timer:", error);
         }
     }
     
-    patchExpOrbCollect() {
-        try {
-            const ExpOrb = this.scene.spawnExperienceOrb?.constructor;
-            
-            if (!ExpOrb || !ExpOrb.prototype) {
-                console.log("Cannot patch ExpOrb.collect: prototype not found");
-                return;
+    handleExperienceCollection(amount) {
+        if (this.playerLevel && this.playerLevel.active) {
+            if (this.gameManager) {
+                this.gameManager.addExperience(amount);
             }
             
-            const originalCollect = ExpOrb.prototype.collect;
-            
-            ExpOrb.prototype.collect = function() {
-                if (originalCollect) {
-                    originalCollect.call(this);
-                }
-                
-                const scene = this.scene;
-                if (scene.playerLevelSystem && typeof scene.playerLevelSystem.addExperience === 'function') {
-                    console.log(`Adding ${this.expValue} experience to playerLevelSystem`);
-                    scene.playerLevelSystem.addExperience(this.expValue);
-                }
-            };
-            
-            console.log("ExpOrb.collect patched for experience tracking");
-        } catch (error) {
-            console.error("Error patching ExpOrb.collect:", error);
+            if (this.playerLevel.addExperience) {
+                this.playerLevel.addExperience(amount);
+            }
         }
     }
     
@@ -215,6 +240,18 @@ export default class UIManager {
         if (this.healthBar && this.scene.player) {
             const { health, maxHealth } = this.scene.player;
             this.healthBar.updateHealth(health, maxHealth);
+        }
+    }
+    
+    showDamageEffect() {
+        if (this.healthBar && typeof this.healthBar.showDamageFlash === 'function') {
+            this.healthBar.showDamageFlash();
+        }
+    }
+    
+    showHealEffect() {
+        if (this.healthBar && typeof this.healthBar.showHealEffect === 'function') {
+            this.healthBar.showHealEffect();
         }
     }
     
@@ -237,18 +274,6 @@ export default class UIManager {
         }
     }
     
-    showDamageEffect() {
-        if (this.healthBar && typeof this.healthBar.showDamageFlash === 'function') {
-            this.healthBar.showDamageFlash();
-        }
-    }
-    
-    showHealEffect() {
-        if (this.healthBar && typeof this.healthBar.showHealEffect === 'function') {
-            this.healthBar.showHealEffect();
-        }
-    }
-    
     showMessage(text, duration = 2000) {
         try {
             const screenCenterX = this.scene.cameras.main.worldView.x + this.scene.cameras.main.width / 2;
@@ -268,7 +293,7 @@ export default class UIManager {
             );
             messageText.setOrigin(0.5);
             messageText.setScrollFactor(0);
-            messageText.setDepth(1000);
+            messageText.setDepth(2000);
             
             this.scene.tweens.add({
                 targets: messageText,
@@ -287,116 +312,16 @@ export default class UIManager {
             return null;
         }
     }
-
-    showGameOver() {
+    refreshUI() {
         try {
-            const cam = this.scene.cameras.main;
-            const screenCenterX = cam.worldView.x + cam.width / 2;
-            const screenCenterY = cam.worldView.y + cam.height / 2;
-
-            console.log(`Showing game over at center: ${screenCenterX}, ${screenCenterY}`);
-
-            const gameOverContainer = this.scene.add.container(screenCenterX, screenCenterY);
-            gameOverContainer.setDepth(9000);
-            gameOverContainer.setScrollFactor(0);
-
-            const gameOverBg = this.scene.add.rectangle(
-                0, 0,
-                400, 300,
-                0x000000,
-                0.8
-            );
-            gameOverBg.setStrokeStyle(4, 0xff0000);
-            gameOverContainer.add(gameOverBg);
-
-            const gameOverText = this.scene.add.text(
-                0, -80,
-                'GAME OVER', 
-                {
-                    fontFamily: 'Arial',
-                    fontSize: '48px',
-                    color: '#ff0000',
-                    stroke: '#000000',
-                    strokeThickness: 6
-                }
-            );
-            gameOverText.setOrigin(0.5);
-            gameOverContainer.add(gameOverText);
-
-            const minutes = Math.floor(this.gameTime / 60);
-            const seconds = Math.floor(this.gameTime % 60);
-
-            const survivedLabel = this.scene.add.text(
-                0, -10,
-                "YOU SURVIVED",
-                {
-                    fontFamily: 'Arial',
-                    fontSize: '24px',
-                    color: '#ffffff',
-                    stroke: '#000000',
-                    strokeThickness: 3
-                }
-            );
-            survivedLabel.setOrigin(0.5);
-            gameOverContainer.add(survivedLabel);
-
-            const timeText = this.scene.add.text(
-                0, 30,
-                `${minutes}m ${seconds}s`,
-                {
-                    fontFamily: 'Arial',
-                    fontSize: '36px',
-                    color: '#ffff00',
-                    stroke: '#000000',
-                    strokeThickness: 5,
-                    fontStyle: 'bold'
-                }
-            );
-            timeText.setOrigin(0.5);
-            gameOverContainer.add(timeText);
-
-            const restartText = this.scene.add.text(
-                0, 90,
-                'Press R to restart',
-                {
-                    fontFamily: 'Arial',
-                    fontSize: '24px',
-                    color: '#ffffff',
-                    stroke: '#000000',
-                    strokeThickness: 4
-                }
-            );
-            restartText.setOrigin(0.5);
-            gameOverContainer.add(restartText);
-
-            this.uiContainer.add(gameOverContainer);
-
-            this.scene.tweens.add({
-                targets: timeText,
-                scale: 1.2,
-                duration: 500,
-                yoyo: true,
-                repeat: -1
-            });
-
-            const centerDot = this.scene.add.circle(screenCenterX, screenCenterY, 10, 0xff0000);
-            centerDot.setDepth(9001);
-            centerDot.setScrollFactor(0);
-
-            this.scene.input.keyboard.once('keydown-R', () => {
-                gameOverContainer.destroy();
-                centerDot.destroy();
-
-                if (this.gameManager) {
-                    this.gameManager.resetGameState();
-                }
-
-                this.scene.scene.restart();
-            });
-
-            console.log("Game Over screen created successfully");
+            this.syncExperienceFromGameManager();
+            
+            this.gameTime = 0;
+            if (this.timerText && this.timerText.active) {
+                this.updateTimer(0);
+            }
         } catch (error) {
-            console.error("Error showing game over screen:", error);
+            console.error("Error refreshing UI:", error);
         }
     }
     
@@ -405,6 +330,10 @@ export default class UIManager {
             this.healthBar.updateHealth(this.scene.player.health, this.scene.player.maxHealth);
         }
         this.updateTimer(delta);
+        
+        if (this.playerLevel && !this.playerLevel.active) {
+            this.initialize();
+        }
     }
     
     shutdown() {
@@ -412,5 +341,6 @@ export default class UIManager {
             this.gameManager.events.off('experienceUpdated');
             this.gameManager.events.off('levelUp');
         }
+        this.isInitialized = false;
     }
 }

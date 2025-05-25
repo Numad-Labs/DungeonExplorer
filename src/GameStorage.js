@@ -1,4 +1,3 @@
-// GameStorage.js - Local storage utilities
 /**
  * Game storage utilities for saving and loading game data
  */
@@ -13,10 +12,19 @@ const STORAGE_KEY = 'survivor_game_save';
  */
 export function saveToLocalStorage(gameData) {
   try {
-    // Format the data for storage
     const saveData = {
       gold: gameData.gold || 0,
       passiveUpgrades: gameData.passiveUpgrades || {},
+      allTimeStats: gameData.allTimeStats || {
+        totalRuns: 0,
+        totalGoldEarned: 0,
+        totalEnemiesKilled: 0,
+        totalExperienceGained: 0,
+        totalDamageDealt: 0,
+        highestLevel: 1,
+        longestSurvivalTime: 0,
+        averageSurvivalTime: 0
+      },
       gameStats: gameData.gameStats || {
         totalGoldEarned: 0,
         totalEnemiesKilled: 0,
@@ -24,11 +32,11 @@ export function saveToLocalStorage(gameData) {
         highestLevel: 1,
         longestSurvivalTime: 0
       },
-      // You can add additional data to save here
-      savedAt: new Date().toISOString()
+      lastRunStats: gameData.lastRunStats || null,
+      savedAt: new Date().toISOString(),
+      version: "1.0"
     };
     
-    // Save to local storage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
     console.log("Game data saved to local storage");
     return true;
@@ -44,7 +52,6 @@ export function saveToLocalStorage(gameData) {
  */
 export function loadFromLocalStorage() {
   try {
-    // Get data from local storage
     const savedData = localStorage.getItem(STORAGE_KEY);
     
     if (!savedData) {
@@ -52,9 +59,8 @@ export function loadFromLocalStorage() {
       return null;
     }
     
-    // Parse the saved data
     const gameData = JSON.parse(savedData);
-    console.log("Game data loaded from local storage");
+    console.log("Game data loaded from local storage:", gameData);
     
     return gameData;
   } catch (error) {
@@ -84,4 +90,45 @@ export function clearLocalStorage() {
  */
 export function hasSavedData() {
   return localStorage.getItem(STORAGE_KEY) !== null;
+}
+
+/**
+ * Reset all progress and give starting gold
+ * @param {number} startingGold - Amount of gold to give after reset
+ * @returns {boolean} - Success or failure
+ */
+export function resetProgress(startingGold = 500) {
+  try {
+    const resetData = {
+      gold: startingGold,
+      passiveUpgrades: {},
+      allTimeStats: {
+        totalRuns: 0,
+        totalGoldEarned: 0,
+        totalEnemiesKilled: 0,
+        totalExperienceGained: 0,
+        totalDamageDealt: 0,
+        highestLevel: 1,
+        longestSurvivalTime: 0,
+        averageSurvivalTime: 0
+      },
+      gameStats: {
+        totalGoldEarned: 0,
+        totalEnemiesKilled: 0,
+        totalExperienceGained: 0,
+        highestLevel: 1,
+        longestSurvivalTime: 0
+      },
+      lastRunStats: null,
+      savedAt: new Date().toISOString(),
+      version: "1.0"
+    };
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(resetData));
+    console.log("Progress reset successfully with", startingGold, "starting gold");
+    return true;
+  } catch (error) {
+    console.error("Error resetting progress:", error);
+    return false;
+  }
 }
