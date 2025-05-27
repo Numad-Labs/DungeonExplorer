@@ -591,8 +591,8 @@
             {
                 "url": "assets/Animated prop/lava ball-falling.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 96,
+                    "frameHeight": 192,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,

@@ -130,6 +130,10 @@ export function initializeMenu() {
       
       if (window.game.scene.getScene('MainMapScene')) {
         window.game.scene.start('MainMapScene');
+        //  window.game.scene.start('MiniMapBeachScene');
+          // window.game.scene.start('MiniMapBossFightScene');
+          //  window.game.scene.start('MiniMapDarkForastScene');
+            // window.game.scene.start('MiniMapLavaScene');
       }
     } else {
       console.error("Game or scene not available!");
