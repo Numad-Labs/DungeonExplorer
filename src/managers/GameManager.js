@@ -34,8 +34,8 @@ export default class GameManager {
         this.gameProgress = {
             gameTime: 0,
             currentDifficulty: 1,
-            maxEnemies: 30,
-            enemySpawnDelay: 3000,
+            maxEnemies: 1000,
+            enemySpawnDelay: 100,
             orbMagnetRange: 50
         };
 
@@ -317,8 +317,8 @@ export default class GameManager {
         this.gameProgress = {
             gameTime: 0,
             currentDifficulty: 1,
-            maxEnemies: 30,
-            enemySpawnDelay: 3000,
+            maxEnemies: 1000,
+            enemySpawnDelay: 100,
             orbMagnetRange: 50
         };
         
@@ -575,7 +575,7 @@ export default class GameManager {
                 baseMaxEnemies + (this.gameProgress.currentDifficulty - 1) * enemiesPerLevel
             );
             
-            const minSpawnDelay = 500;
+            const minSpawnDelay = 100;
             this.gameProgress.enemySpawnDelay = Math.max(
                 minSpawnDelay,
                 3000 - (this.gameProgress.currentDifficulty - 1) * 300
