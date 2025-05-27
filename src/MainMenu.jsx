@@ -405,7 +405,7 @@ const MainMenu = ({ gameManager, onStartGame }) => {
         alignItems: 'center',
         marginBottom: '20px'
       }}>
-        <h1 style={{ margin: 0 }}>🎮 SURVIVOR GAME</h1>
+        <h1 style={{ margin: 0 }}>Insomnus</h1>
         
         <div style={{
           backgroundColor: '#333333',
