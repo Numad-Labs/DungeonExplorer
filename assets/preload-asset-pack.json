@@ -98,6 +98,19 @@
                 "key": "Atlas-props"
             },
             {
+                "url": "assets/Hero/Droid Assassin/attack 1.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "attack 1"
+            },
+            {
                 "url": "assets/Animated prop/beach - standard - with thick foam - spritesheet.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -439,6 +452,19 @@
                 },
                 "type": "spritesheet",
                 "key": "DARK Edition Tileset with background"
+            },
+            {
+                "url": "assets/Hero/Droid Assassin/death hit.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 46,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "death hit"
             },
             {
                 "url": "assets/Static prop/Decor corner.png",
@@ -1046,6 +1072,19 @@
                 },
                 "type": "spritesheet",
                 "key": "rocky structure_0"
+            },
+            {
+                "url": "assets/Hero/Droid Assassin/Run.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Run"
             },
             {
                 "url": "assets/Static prop/sharp rocks_0.png",

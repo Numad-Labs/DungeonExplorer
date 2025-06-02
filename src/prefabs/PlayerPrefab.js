@@ -5,7 +5,8 @@
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class PlayerPrefab extends Phaser.GameObjects.Image {
+// Changed from Image to Sprite to support animations
+export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 	constructor(scene, x, y, texture, frame) {
 		super(scene, x ?? 24, y ?? 24, texture || "playerAsset", frame ?? 0);
@@ -36,6 +37,10 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		this.fireRate = 1;
 		this.attackRange = 100;
 		this.pickupRange = 50;
+		this.isMoving = false;
+		this.animationSpeed = 200;
+		this.currentAnimFrame = 0;
+		this.animationTimer = 0;
 
 		this.gameManager = scene.game.registry.get('gameManager');
 		
@@ -49,16 +54,42 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 				armor: this.armor
 			});
 		}
+		this.createAnimations();
 
 		this.scene.input.on('pointerdown', this.handlePointerDown, this);
 		this.scene.input.on('pointerup', this.handlePointerUp, this);
 
 		scene.events.on('update', this.update, this);
+		
+		// Add the sprite to the scene
+		scene.add.existing(this);
 		/* END-USER-CTR-CODE */
 	}
 
 	/* START-USER-CODE */
 	
+	createAnimations() {
+	
+		if (!this.scene.anims.exists('playerRunAnimation')) {
+
+			this.scene.anims.create({
+				key: 'playerRunAnimation',
+				frames: this.scene.anims.generateFrameNumbers('playerAsset', { start: 0, end: 7 }), // Adjust frame range as needed
+				frameRate: 8,
+				repeat: -1
+			}); 
+		}
+
+		if (!this.scene.anims.exists('playerIdleAnimation')) {
+			this.scene.anims.create({
+				key: 'playerIdleAnimation',
+				frames: [{ key: 'playerAsset', frame: 0 }],
+				frameRate: 1,
+				repeat: 0
+			});
+		}
+	}
+
 	handlePointerDown(pointer) {
 		if (pointer.leftButtonDown() && !this.isDead) {
 			this.isMovingToTarget = true;
@@ -70,7 +101,8 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			this.isMovingToTarget = false;
 		}
 	}
-	update() {
+
+	update(time, delta) {
 		if (this.isDead) {
 			return;
 		}
@@ -84,36 +116,26 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		this.body.velocity.x = 0;
 		this.body.velocity.y = 0;
 
-		let usingKeyboard = false;
+		let usingKeyboard = up || down || left || right;
 		let moveX = 0;
 		let moveY = 0;
-
-		if (right) {
-			moveX += 1;
-			usingKeyboard = true;
-		}
-		if (left) {
-			moveX -= 1;
-			usingKeyboard = true;
-		}
-		if (down) {
-			moveY += 1;
-			usingKeyboard = true;
-		}
-		if (up) {
-			moveY -= 1;
-			usingKeyboard = true;
-		}
+		let wasMoving = this.isMoving;
+		this.isMoving = false;
 
 		if (usingKeyboard) {
 			this.isMovingToTarget = false;
 
+			if (left) moveX -= 1;
+			if (right) moveX += 1;
+			if (up) moveY -= 1;
+			if (down) moveY += 1;
+
 			if (moveX !== 0 || moveY !== 0) {
+				this.isMoving = true;
 				const vector = new Phaser.Math.Vector2(moveX, moveY).normalize();
 				
 				this.body.velocity.x = vector.x * this.moveSpeed;
 				this.body.velocity.y = vector.y * this.moveSpeed;
-				
 				if (Math.abs(vector.x) > Math.abs(vector.y)) {
 					this.lastDirection = vector.x > 0 ? 'right' : 'left';
 				} else {
@@ -134,6 +156,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			);
 			
 			if (distance > 5) {
+				this.isMoving = true;
 				const angle = Phaser.Math.Angle.Between(
 					this.x, this.y,
 					targetX, targetY
@@ -149,27 +172,62 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 				}
 			}
 		}
-		
-		this.updatePlayerFrame();
+
+		this.updatePlayerAnimation(time, delta);
+
+		if (wasMoving !== this.isMoving) {
+			this.updatePlayerFrame();
+		}
+	}
+
+	updatePlayerAnimation(time, delta) {
+		if (this.isDead) return;
+
+		if (this.isMoving) {
+			this.setFlipX(this.lastDirection === 'left');
+			if (this.scene.anims.exists('playerRunAnimation')) {
+				if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'playerRunAnimation') {
+					this.anims.play('playerRunAnimation');
+				}
+			}
+		} else {
+	
+			if (this.scene.anims.exists('playerIdleAnimation')) {
+				if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'playerIdleAnimation') {
+					this.anims.play('playerIdleAnimation');
+				}
+			} else {
+				if (this.anims.isPlaying) {
+					this.anims.stop();
+				}
+				this.setFrame(0);
+			}
+			this.setFlipX(this.lastDirection === 'left');
+		}
 	}
 
 	updatePlayerFrame() {
 		if (this.isDead) return;
-		switch (this.lastDirection) {
-			case 'right':
-				this.setFrame(2);
-				break;
-			case 'left':
-				this.setFrame(1);
-				break;
-			case 'up':
-				this.setFrame(3);
-				break;
-			case 'down':
-				this.setFrame(0);
-				break;
+		if (!this.anims.isPlaying) {
+			let frameOffset = this.isMoving ? this.currentAnimFrame : 0;
+			
+			switch (this.lastDirection) {
+				case 'right':
+					this.setFrame(2 + frameOffset);
+					break;
+				case 'left':
+					this.setFrame(1 + frameOffset);
+					break;
+				case 'up':
+					this.setFrame(3 + frameOffset);
+					break;
+				case 'down':
+					this.setFrame(0 + frameOffset);
+					break;
+			}
 		}
 	}
+
 	takeDamage(amount, source = "Unknown") {
 		if (this.isInvulnerable || this.isDead) return;
 		
@@ -184,6 +242,19 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		
 		this.showDamageEffect(actualDamage);
 		this.setTint(0xff0000);
+		const knockbackForce = 0;
+		const knockbackDirection = this.lastDirection === 'up' ? 0	 : 
+								 this.lastDirection === 'down' ? 0 :
+								 this.lastDirection === 'left' ? 0 : 0;
+		
+		this.scene.tweens.add({
+			targets: this,
+			x: this.x + (this.lastDirection === 'left' || this.lastDirection === 'right' ? knockbackForce * knockbackDirection : 0),
+			y: this.y + (this.lastDirection === 'up' || this.lastDirection === 'down' ? knockbackForce * knockbackDirection : 0),
+			duration: 100,
+			yoyo: true,
+			ease: 'Power2'
+		});
 		
 		if (this.scene.sound && this.scene.sound.add) {
 			try {
@@ -207,13 +278,14 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		if (this.isInvulnerable) return;
 		
 		this.isInvulnerable = true;
-		
+
 		this.scene.tweens.add({
 			targets: this,
-			alpha: 0.6,
+			alpha: 0.3,
 			duration: 100,
 			yoyo: true,
-			repeat: 5,
+			repeat: 9,
+			ease: 'Power2',
 			onComplete: () => {
 				this.alpha = 1;
 				this.clearTint();
@@ -237,11 +309,13 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			});
 			damageText.setOrigin(0.5);
 			damageText.setDepth(1000);
-			
+
 			this.scene.tweens.add({
 				targets: damageText,
 				y: damageText.y - 50,
+				x: damageText.x + Phaser.Math.Between(-10, 10),
 				alpha: 0,
+				scale: { from: 1, to: 1.5 },
 				duration: 1500,
 				ease: 'Power2',
 				onComplete: () => {
@@ -289,13 +363,18 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 		if (this.gameManager) {
 			this.gameManager.handlePlayerDeath(causeOfDeath);
 		}
-		
 		this.scene.tweens.add({
 			targets: this,
 			angle: 90,
 			alpha: 0.3,
-			duration: 100
+			scaleX: 0.8,
+			scaleY: 0.8,
+			duration: 500,
+			ease: 'Power2'
 		});
+		if (this.anims && this.anims.stop) {
+			this.anims.stop();
+		}
 		
 		this.scene.time.delayedCall(1000, () => {
 			if (window.returnToMenu) {
@@ -316,11 +395,21 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 			console.log(`Player healed for ${actualHeal}. Health: ${this.health}/${this.maxHealth}`);
 			this.showHealEffect(actualHeal);
 			this.setTint(0x00ff00);
+			this.scene.tweens.add({
+				targets: this,
+				scaleX: 1.1,
+				scaleY: 1.1,
+				duration: 150,
+				yoyo: true,
+				ease: 'Power2'
+			});
+			
 			this.scene.time.delayedCall(200, () => {
 				this.clearTint();
 			});
 		}
 	}
+
 	showHealEffect(healAmount) {
 		try {
 			const healText = this.scene.add.text(this.x, this.y - 30, `+${healAmount}`, {
@@ -338,6 +427,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Image {
 				targets: healText,
 				y: healText.y - 40,
 				alpha: 0,
+				scale: { from: 1, to: 1.2 },
 				duration: 1200,
 				ease: 'Power2',
 				onComplete: () => {
