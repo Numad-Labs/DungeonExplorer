@@ -55,13 +55,12 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			});
 		}
 		this.createAnimations();
+		this.setupMouseTracking();
 
 		this.scene.input.on('pointerdown', this.handlePointerDown, this);
 		this.scene.input.on('pointerup', this.handlePointerUp, this);
 
 		scene.events.on('update', this.update, this);
-		
-		// Add the sprite to the scene
 		scene.add.existing(this);
 		/* END-USER-CTR-CODE */
 	}
@@ -74,7 +73,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 			this.scene.anims.create({
 				key: 'playerRunAnimation',
-				frames: this.scene.anims.generateFrameNumbers('playerAsset', { start: 0, end: 7 }), // Adjust frame range as needed
+				frames: this.scene.anims.generateFrameNumbers('playerAsset', { start: 0, end: 7 }),
 				frameRate: 8,
 				repeat: -1
 			}); 
@@ -88,11 +87,51 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 				repeat: 0
 			});
 		}
+
+		if (!this.scene.anims.exists('playerDeath')) {
+			this.scene.anims.create({
+				key: 'playerDeath',
+				frames: this.scene.anims.generateFrameNumbers('playerAsset', { start: 8, end: 15 }),
+				frameRate: 6,
+				repeat: 0
+			});
+		}
+	}
+
+	setupMouseTracking() {
+		this.scene.input.on('pointermove', (pointer) => {
+			if (!this.isDead && this.isMovingToTarget) {
+				const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+				const deltaX = worldPoint.x - this.x;
+				const deltaY = worldPoint.y - this.y;
+				if (Math.abs(deltaX) > Math.abs(deltaY)) {
+					this.lastDirection = window.screen.width/2 ? 'right' : 'left';
+				} else {
+					this.lastDirection = window.screen.height/2 ? 'down' : 'up';
+				}
+			}
+		});
 	}
 
 	handlePointerDown(pointer) {
 		if (pointer.leftButtonDown() && !this.isDead) {
-			this.isMovingToTarget = true;
+			const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+			const targetX = worldPoint.x;
+			const targetY = worldPoint.y;
+			
+			const distance = Phaser.Math.Distance.Between(this.x, this.y, targetX, targetY);
+			if (distance > 10) {
+				this.isMovingToTarget = true;
+				
+				const deltaX = targetX - this.x;
+				const deltaY = targetY - this.y;
+				if (Math.abs(deltaX) > Math.abs(deltaY)) {
+					this.lastDirection = deltaX > 0 ? 'right' : 'left';
+				} else {
+					this.lastDirection = deltaY > 0 ? 'down' : 'up';
+				}
+				this.updatePlayerAnimation();
+			}
 		}
 	}
 
@@ -164,11 +203,13 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 				
 				this.body.velocity.x = Math.cos(angle) * this.moveSpeed;
 				this.body.velocity.y = Math.sin(angle) * this.moveSpeed;
+				const deltaX = targetX - this.x;
+				const deltaY = targetY - this.y;
 				
-				if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
-					this.lastDirection = Math.cos(angle) > 0 ? 'right' : 'left';
+				if (Math.abs(deltaX) > Math.abs(deltaY)) {
+					this.lastDirection = deltaX > 0 ? 'right' : 'left';
 				} else {
-					this.lastDirection = Math.sin(angle) > 0 ? 'down' : 'up';
+					this.lastDirection = deltaY > 0 ? 'down' : 'up';
 				}
 			}
 		}
@@ -246,7 +287,6 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		const knockbackDirection = this.lastDirection === 'up' ? 0	 : 
 								 this.lastDirection === 'down' ? 0 :
 								 this.lastDirection === 'left' ? 0 : 0;
-		
 		this.scene.tweens.add({
 			targets: this,
 			x: this.x + (this.lastDirection === 'left' || this.lastDirection === 'right' ? knockbackForce * knockbackDirection : 0),
@@ -363,6 +403,19 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		if (this.gameManager) {
 			this.gameManager.handlePlayerDeath(causeOfDeath);
 		}
+		if (this.scene.anims.exists('playerDeath')) {
+			this.anims.play('playerDeath');
+			this.on('animationcomplete', (animation) => {
+				if (animation.key === 'playerDeath') {
+					this.applyDeathEffects();
+				}
+			});
+		} else {
+			this.applyDeathEffects();
+		}
+	}
+
+	applyDeathEffects() {
 		this.scene.tweens.add({
 			targets: this,
 			angle: 90,
@@ -372,9 +425,6 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			duration: 500,
 			ease: 'Power2'
 		});
-		if (this.anims && this.anims.stop) {
-			this.anims.stop();
-		}
 		
 		this.scene.time.delayedCall(1000, () => {
 			if (window.returnToMenu) {
@@ -422,7 +472,6 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			});
 			healText.setOrigin(0.5);
 			healText.setDepth(1000);
-			
 			this.scene.tweens.add({
 				targets: healText,
 				y: healText.y - 40,

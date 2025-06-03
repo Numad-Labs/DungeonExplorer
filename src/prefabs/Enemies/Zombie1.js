@@ -23,9 +23,11 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         this.attackCooldown = 1000;
         this.lastAttackTime = 0;
         this.isDead = false;
+        this.isMoving = false;
         
         this.lastDirection = 'down';
         this.createHealthBar();
+        this.createAnimations();
         
         this.updateListener = this.update.bind(this);
         scene.events.on('update', this.updateListener);
@@ -33,6 +35,25 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
     }
 
     /* START-USER-CODE */
+    
+    createAnimations() {
+        if (!this.scene.anims.exists('zombieRunAni')) {
+            this.scene.anims.create({
+                key: 'zombieRunAni',
+                frames: this.scene.anims.generateFrameNumbers('zombierun', { start: 0, end: 6}),
+                frameRate: 8,
+                repeat: -1
+            });
+        }
+        if (!this.scene.anims.exists('zombieIdle')) {
+            this.scene.anims.create({
+                key: 'zombieIdle',
+                frames: [{ key: 'zombierun', frame: 0 }],
+                frameRate: 1,
+                repeat: 0
+            });
+        }
+    }
     
     createHealthBar() {
         this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 20, 30, 4, 0xff0000);
@@ -80,25 +101,16 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
             );
             
             if (distance > this.attackRange) {
-                // Get angle to player
                 const angle = Phaser.Math.Angle.Between(
                     this.x, this.y,
                     player.x, player.y
                 );
-                
-                // Use forces instead of direct velocity setting for better physics interaction
                 const forceX = Math.cos(angle) * this.speed * 0.1;
                 const forceY = Math.sin(angle) * this.speed * 0.1;
-                
-                // Apply force instead of setting velocity directly
                 this.body.velocity.x += forceX;
                 this.body.velocity.y += forceY;
-                
-                // Apply drag to prevent excessive speed
                 this.body.velocity.x *= 0.9;
                 this.body.velocity.y *= 0.9;
-                
-                // Cap max speed
                 const maxSpeed = this.speed;
                 const currentSpeed = Math.sqrt(
                     this.body.velocity.x * this.body.velocity.x + 
@@ -110,13 +122,16 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
                     this.body.velocity.x *= scale;
                     this.body.velocity.y *= scale;
                 }
-                
-                // Update animation direction based on movement
+                this.isMoving = true;
                 this.updateDirection(angle);
             } else {
-                // When in attack range, slow down
                 this.body.velocity.x *= 0.8;
                 this.body.velocity.y *= 0.8;
+                const currentSpeed = Math.sqrt(
+                    this.body.velocity.x * this.body.velocity.x + 
+                    this.body.velocity.y * this.body.velocity.y
+                );
+                this.isMoving = currentSpeed > 5; 
                 
                 if (time - this.lastAttackTime > this.attackCooldown) {
                     this.attackPlayer(player);
@@ -124,7 +139,7 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
                 }
             }
             
-            this.updateFrame();
+            this.updateAnimation();
         } catch (error) {
             console.error("Error in Zombie update:", error);
         }
@@ -144,20 +159,20 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         }
     }
     
-    updateFrame() {
-        switch (this.lastDirection) {
-            case 'right':
-                this.setFrame(2);
-                break;
-            case 'left':
-                this.setFrame(1);
-                break;
-            case 'up':
-                this.setFrame(3);
-                break;
-            case 'down':
-                this.setFrame(0);
-                break;
+    updateAnimation() {
+        if (this.isMoving) {
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'zombieRunAni') {
+                this.play('zombieRunAni');
+            }
+            if (this.lastDirection === 'right') {
+                this.setFlipX(false);
+            } else if (this.lastDirection === 'left') {
+                this.setFlipX(true);
+            }
+        } else {
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'zombieIdle') {
+                this.play('zombieIdle');
+            }
         }
     }
     
@@ -195,8 +210,8 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
-        
         this.body.enable = false;
+        this.stop();
         
         this.scene.tweens.add({
             targets: this,

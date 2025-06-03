@@ -2142,7 +2142,7 @@
             {
                 "url": "assets/Hero/zombie 1/run.png",
                 "frameConfig": {
-                    "frameWidth": 64,
+                    "frameWidth": 46,
                     "frameHeight": 64,
                     "startFrame": 0,
                     "endFrame": -1,
