@@ -12,11 +12,11 @@
     },
     "displayList": [
         {
-            "type": "Image",
+            "type": "Sprite",
             "id": "8c448b51-52e9-4fb3-ba86-1eb62bd4e498",
             "label": "image_1",
             "texture": {
-                "key": "playerAsset",
+                "key": "Player_Character_Idle_Animation_v01",
                 "frame": 0
             },
             "x": 24,
