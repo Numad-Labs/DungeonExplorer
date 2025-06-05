@@ -4,12 +4,10 @@
 
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
-
-// Changed from Image to Sprite to support animations
 export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 	constructor(scene, x, y, texture, frame) {
-		super(scene, x ?? 24, y ?? 24, texture || "playerAsset", frame ?? 0);
+		super(scene, x ?? 24, y ?? 24, texture || "heroAsset", frame ?? 0);
 
 		/* START-USER-CTR-CODE */
 		scene.physics.add.existing(this, false);
@@ -69,29 +67,29 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 	
 	createAnimations() {
 	
-		if (!this.scene.anims.exists('playerRunAnimation')) {
+		if (!this.scene.anims.exists('PlayerRunningAni')) {
 
 			this.scene.anims.create({
-				key: 'playerRunAnimation',
-				frames: this.scene.anims.generateFrameNumbers('playerAsset', { start: 0, end: 7 }),
+				key: 'PlayerRunningAni',
+				frames: this.scene.anims.generateFrameNumbers('heroAsset', { start: 0, end: 7 }),
 				frameRate: 8,
 				repeat: -1
 			}); 
 		}
 
-		if (!this.scene.anims.exists('playerIdleAnimation')) {
+		if (!this.scene.anims.exists('PlayerIdleAni')) {
 			this.scene.anims.create({
-				key: 'playerIdleAnimation',
-				frames: [{ key: 'playerAsset', frame: 0 }],
+				key: 'PlayerIdleAni',
+				frames: [{ key: 'heroAsset', frame: 0 }],
 				frameRate: 1,
 				repeat: 0
 			});
 		}
 
-		if (!this.scene.anims.exists('playerDeath')) {
+		if (!this.scene.anims.exists('PlayerDeathAni')) {
 			this.scene.anims.create({
-				key: 'playerDeath',
-				frames: this.scene.anims.generateFrameNumbers('playerAsset', { start: 8, end: 15 }),
+				key: 'PlayerDeathAni',
+				frames: this.scene.anims.generateFrameNumbers('heroAsset', { start: 8, end: 15 }),
 				frameRate: 6,
 				repeat: 0
 			});
@@ -105,9 +103,9 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 				const deltaX = worldPoint.x - this.x;
 				const deltaY = worldPoint.y - this.y;
 				if (Math.abs(deltaX) > Math.abs(deltaY)) {
-					this.lastDirection = window.screen.width/2 ? 'right' : 'left';
+					this.lastDirection = deltaX > 0 ? 'right' : 'left';
 				} else {
-					this.lastDirection = window.screen.height/2 ? 'down' : 'up';
+					this.lastDirection = deltaY > 0 ? 'down' : 'up';
 				}
 			}
 		});
@@ -226,16 +224,16 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		if (this.isMoving) {
 			this.setFlipX(this.lastDirection === 'left');
-			if (this.scene.anims.exists('playerRunAnimation')) {
-				if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'playerRunAnimation') {
-					this.anims.play('playerRunAnimation');
+			if (this.scene.anims.exists('PlayerRunningAni')) {
+				if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'PlayerRunningAni') {
+					this.anims.play('PlayerRunningAni');
 				}
 			}
 		} else {
 	
-			if (this.scene.anims.exists('playerIdleAnimation')) {
-				if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'playerIdleAnimation') {
-					this.anims.play('playerIdleAnimation');
+			if (this.scene.anims.exists('PlayerIdleAni')) {
+				if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'PlayerIdleAni') {
+					this.anims.play('PlayerIdleAni');
 				}
 			} else {
 				if (this.anims.isPlaying) {
@@ -403,10 +401,10 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		if (this.gameManager) {
 			this.gameManager.handlePlayerDeath(causeOfDeath);
 		}
-		if (this.scene.anims.exists('playerDeath')) {
-			this.anims.play('playerDeath');
+		if (this.scene.anims.exists('PlayerDeathAni')) {
+			this.anims.play('PlayerDeathAni');
 			this.on('animationcomplete', (animation) => {
-				if (animation.key === 'playerDeath') {
+				if (animation.key === 'PlayerDeathAni') {
 					this.applyDeathEffects();
 				}
 			});
@@ -420,8 +418,8 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			targets: this,
 			angle: 90,
 			alpha: 0.3,
-			scaleX: 0.8,
-			scaleY: 0.8,
+			scaleX: 0,
+			scaleY: 0,
 			duration: 500,
 			ease: 'Power2'
 		});

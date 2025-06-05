@@ -98,6 +98,19 @@
                 "key": "Atlas-props"
             },
             {
+                "url": "assets/Hero/zombie 1/attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "attack"
+            },
+            {
                 "url": "assets/Hero/Droid Assassin/attack 1.png",
                 "frameConfig": {
                     "frameWidth": 48,
@@ -773,6 +786,71 @@
                 },
                 "type": "spritesheet",
                 "key": "platform2"
+            },
+            {
+                "url": "assets/Hero/Sword Master/Player_Character_Death_Animation_v01.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Player_Character_Death_Animation_v01"
+            },
+            {
+                "url": "assets/Hero/Sword Master/Player_Character_Idle_Animation_v01.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Player_Character_Idle_Animation_v01"
+            },
+            {
+                "url": "assets/Hero/Sword Master/Player_Character_Running_Animation_v01.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Player_Character_Running_Animation_v01"
+            },
+            {
+                "url": "assets/Hero/Sword Master/Player_Character_Slash_Animation_v01.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Player_Character_Slash_Animation_v01"
+            },
+            {
+                "url": "assets/Hero/Sword Master/Player_Character_Slash_Animation_v02.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Player_Character_Slash_Animation_v02"
             },
             {
                 "url": "assets/Hero/Droid Assassin/Idle.png",
@@ -1709,6 +1787,19 @@
                 },
                 "type": "spritesheet",
                 "key": "Survive_Zone"
+            },
+            {
+                "url": "assets/Hero/Sword Master/Sword Master Sprite Sheet 90x37 without VFX.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Sword Master Sprite Sheet 90x37 without VFX"
             },
             {
                 "url": "assets/Static prop/tileset.png",
