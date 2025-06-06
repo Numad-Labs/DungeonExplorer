@@ -27,6 +27,11 @@ export default class BaseGameScene extends Phaser.Scene {
         this.enemies = null;
         this.experienceOrbs = null;
         
+        // Collision groups - Universal for all scenes
+        this.zombieGroup = null;
+        this.staticObstacles = null;
+        this.collisionLayers = [];
+        
         // Timers
         this.enemySpawnTimer = null;
         this.orbSpawnTimer = null;
@@ -38,8 +43,6 @@ export default class BaseGameScene extends Phaser.Scene {
     }
     
     create() {
-        console.log(`Creating BaseGameScene: ${this.scene.key} - FRESH START`);
-        
         this.gameManager = this.game.registry.get('gameManager');
         if (!this.gameManager) {
             this.gameManager = new GameManager();
@@ -55,9 +58,174 @@ export default class BaseGameScene extends Phaser.Scene {
         this.enemies = this.physics.add.group();
         this.experienceOrbs = this.physics.add.group();
         
+        this.initializeCollisionSystem();
+        
         if (this.gameManager) {
             this.gameManager.startNewRun();
-            console.log("Started fresh new run - all temporary progress reset");
+        }
+    }
+    
+    initializeCollisionSystem() {
+        try {
+            this.zombieGroup = this.physics.add.group();
+            this.staticObstacles = this.physics.add.staticGroup();
+            this.physics.add.collider(this.zombieGroup, this.zombieGroup, 
+            this.handleZombieCollision, null, this);
+            this.collisionLayers = [];
+            
+            console.log("Universal collision system initialized");
+        } catch (error) {
+            console.error("Error initializing collision system:", error);
+        }
+    }
+    
+    registerCollisionLayer(layer, name = 'Unknown Layer') {
+        if (!layer) return;
+        
+        try {
+            layer.setCollisionBetween(0, 10000);
+            this.physics.add.collider(this.zombieGroup, layer);
+            this.collisionLayers.push({ layer, name });
+            
+            console.log(`Registered collision layer: ${name}`);
+        } catch (error) {
+            console.error(`Error registering collision layer ${name}:`, error);
+        }
+    }
+    registerStaticObstacle(gameObject, name = 'Unknown Object') {
+        if (!gameObject) return;
+        
+        try {
+            if (!gameObject.body) {
+                this.physics.add.existing(gameObject, true);
+            }
+            
+            this.staticObstacles.add(gameObject);
+        } catch (error) {
+            console.error(`Error registering static obstacle ${name}:`, error);
+        }
+    }
+    
+    autoRegisterCollisions() {
+        try {
+            const commonCollisionLayerNames = [
+                'collision', 'walls', 'wall', 'obstacles', 'solid',
+                'Map_Col', 'BackGround', 'Wall_Upper', 'Wall_down', 'Wall_RU', 'Wall_RD',
+                'Bed', 'Vase_AC', 'Map_', 'platform', 'ground'
+            ];
+            
+            this.children.list.forEach(child => {
+                if (child instanceof Phaser.Tilemaps.TilemapLayer) {
+                    const layerName = child.layer?.name || 'Unknown';
+                    
+                    const shouldHaveCollision = commonCollisionLayerNames.some(name => 
+                        layerName.toLowerCase().includes(name.toLowerCase())
+                    );
+                    
+                    if (shouldHaveCollision) {
+                        this.registerCollisionLayer(child, layerName);
+                    }
+                }
+            });
+            
+            // Auto-register common static objects
+            this.autoRegisterStaticObjects();
+            
+        } catch (error) {
+            console.error("Error in auto-registration:", error);
+        }
+    }
+    
+    autoRegisterStaticObjects() {
+        try {
+            const commonObstacleNames = [
+                'torch', 'statue', 'pillar', 'column', 'tree', 'rock', 'stone',
+                'barrel', 'crate', 'wall', 'fence', 'door'
+            ];
+            
+            this.children.list.forEach(child => {
+                if (child instanceof Phaser.GameObjects.Sprite || 
+                    child instanceof Phaser.GameObjects.Image) {
+                    
+                    const texture = child.texture?.key || '';
+                    const childName = child.name || '';
+                    
+                    const shouldBeObstacle = commonObstacleNames.some(name => 
+                        texture.toLowerCase().includes(name) || 
+                        childName.toLowerCase().includes(name)
+                    );
+                    
+                    if (shouldBeObstacle) {
+                        this.registerStaticObstacle(child, childName || texture);
+                    }
+                }
+            });
+            
+        } catch (error) {
+            console.error("Error auto-registering static objects:", error);
+        }
+    }
+    
+    setupZombieObstacleCollisions() {
+        try {
+            if (this.staticObstacles && this.zombieGroup) {
+                this.physics.add.collider(this.zombieGroup, this.staticObstacles, 
+                this.handleZombieObstacleCollision, null, this);
+            }
+        } catch (error) {
+            console.error("Error setting up zombie-obstacle collisions:", error);
+        }
+    }
+    
+    handleZombieCollision(zombie1, zombie2) {
+        try {
+            const distance = Phaser.Math.Distance.Between(
+                zombie1.x, zombie1.y, zombie2.x, zombie2.y
+            );
+            
+            if (distance < 20) {
+                const angle = Phaser.Math.Angle.Between(
+                    zombie1.x, zombie1.y, zombie2.x, zombie2.y
+                );
+                
+                const separationForce = 30;
+                const pushX = Math.cos(angle) * separationForce;
+                const pushY = Math.sin(angle) * separationForce;
+                
+                zombie2.body.velocity.x += pushX;
+                zombie2.body.velocity.y += pushY;
+                zombie1.body.velocity.x -= pushX;
+                zombie1.body.velocity.y -= pushY;
+            }
+        } catch (error) {
+            console.error("Error in zombie collision handler:", error);
+        }
+    }
+    
+    handleZombieObstacleCollision(zombie, obstacle) {
+        try {
+            const angle = Phaser.Math.Angle.Between(
+                obstacle.x, obstacle.y, zombie.x, zombie.y
+            );
+            
+            const bounceForce = 50;
+            zombie.body.velocity.x += Math.cos(angle) * bounceForce;
+            zombie.body.velocity.y += Math.sin(angle) * bounceForce;
+        } catch (error) {
+            console.error("Error in zombie-obstacle collision handler:", error);
+        }
+    }
+    
+    // Method to add a zombie to the collision system
+    addZombie(zombie) {
+        if (this.zombieGroup && zombie) {
+            this.zombieGroup.add(zombie);
+        }
+    }
+    
+    removeZombie(zombie) {
+        if (this.zombieGroup && zombie) {
+            this.zombieGroup.remove(zombie);
         }
     }
     
@@ -90,11 +258,7 @@ export default class BaseGameScene extends Phaser.Scene {
                 if (this.gameManager.debugMode) {
                     this.createUpgradeDebugDisplay();
                 }
-            } else {
-                console.warn("Player not available when initializing managers");
             }
-            
-            console.log("Game managers initialized");
         } catch (error) {
             console.error("Error initializing managers:", error);
         }
@@ -105,9 +269,6 @@ export default class BaseGameScene extends Phaser.Scene {
             console.warn("No player to initialize");
             return;
         }
-        
-        console.log("Initializing player with GameManager upgrades");
-        
         if (this.gameManager) {
             this.gameManager.applyPlayerStats(this.player);
         }
@@ -142,8 +303,6 @@ export default class BaseGameScene extends Phaser.Scene {
     }
     
     startEnemySpawning() {
-        console.log("Starting enemy spawning with fresh difficulty");
-        
         if (this.enemySpawnTimer) {
             this.enemySpawnTimer.destroy();
             this.enemySpawnTimer = null;
@@ -176,12 +335,120 @@ export default class BaseGameScene extends Phaser.Scene {
             const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
             const spawnX = this.player.x + Math.cos(angle) * spawnDistance;
             const spawnY = this.player.y + Math.sin(angle) * spawnDistance;
+            const testTextures = ['zombierun', 'zombie', 'player', 'enemy'];
+            testTextures.forEach(tex => {
+                const exists = this.textures.exists(tex);
+                console.log(`- ${tex}: ${exists}`);
+                if (exists) {
+                    const texture = this.textures.get(tex);
+                    console.log(`  Frames: ${texture.frameTotal}`);
+                }
+            });
             
-            const zombie = new Zombie(this, spawnX, spawnY);
+            let zombieTexture = 'zombierun';
+            if (!this.textures.exists('zombierun')) {
+                zombieTexture = this.findValidTexture();
+            }
+            
+            const zombie = new Zombie(this, spawnX, spawnY, zombieTexture, 0);
+            this.validateZombieImmediately(zombie);
+            
             this.enemies.add(zombie);
+            this.addZombie(zombie);
         } catch (error) {
             console.error("Error spawning enemy:", error);
         }
+    }
+    
+    findValidTexture() {
+        const fallbackTextures = ['player', 'zombie', 'enemy', 'sprite'];
+        
+        for (const texture of fallbackTextures) {
+            if (this.textures.exists(texture)) {
+                console.log(`Found valid fallback texture: ${texture}`);
+                return texture;
+            }
+        }
+        
+        this.createEmergencyTexture();
+        return 'emergency_zombie';
+    }
+    
+    createEmergencyTexture() {
+        if (!this.textures.exists('emergency_zombie')) {
+            const canvas = this.textures.createCanvas('emergency_zombie', 32, 32);
+            const context = canvas.getContext();
+            context.fillStyle = '#ff0000';
+            context.fillRect(0, 0, 32, 32);
+            context.fillStyle = '#ffffff';
+            context.fillRect(8, 8, 16, 16);
+            canvas.refresh();
+        }
+    }
+    
+    validateZombieImmediately(zombie) {
+        try {
+            if (!zombie.texture || zombie.texture.key === '__MISSING') {
+                this.createEmergencyTexture();
+                zombie.setTexture('emergency_zombie');
+            }
+            
+            zombie.setVisible(true);
+            zombie.setAlpha(1);
+            zombie.setScale(1, 1);
+            zombie.setDepth(5);
+            
+            if (!this.children.exists(zombie)) {
+                this.add.existing(zombie);
+                console.log("Added zombie to display list");
+            }
+            
+            zombie.setPosition(zombie.x, zombie.y);
+        } catch (error) {
+            console.error("Error in immediate validation:", error);
+        }
+    }
+    
+    fixZombieAssets(zombie) {
+        try {
+            if (!zombie.texture || zombie.texture.key === '__MISSING' || zombie.texture.key === 'null') {
+                if (this.textures.exists('zombierun')) {
+                    zombie.setTexture('zombierun', 0);
+                } else {
+                    this.createFallbackTexture();
+                    zombie.setTexture('zombie_fallback');
+                }
+            }
+            
+            zombie.setVisible(true);
+            zombie.setAlpha(1);
+            zombie.setScale(1, 1);
+            zombie.setDepth(10);
+            
+            if (!this.children.exists(zombie)) {
+                this.add.existing(zombie);
+                console.log("Added zombie to display list");
+            }
+            
+            zombie.setPosition(zombie.x, zombie.y);
+        } catch (error) {
+            console.error("Error fixing zombie assets:", error);
+        }
+    }
+    
+    createFallbackTexture() {
+        if (!this.textures.exists('zombie_fallback')) {
+            const graphics = this.add.graphics();
+            graphics.fillStyle(0xff0000); // Red color
+            graphics.fillRect(0, 0, 32, 32);
+            graphics.generateTexture('zombie_fallback', 32, 32);
+            graphics.destroy();
+            console.log("Created zombie_fallback texture");
+        }
+    }
+    
+    validateZombieAssets(zombie) {
+        return this.fixZombieAssets(zombie);
     }
     
     increaseDifficulty() {
@@ -325,6 +592,7 @@ export default class BaseGameScene extends Phaser.Scene {
         }
         
         this.enemiesKilled++;
+        this.removeZombie(enemy);
     }
     
     showRewardEffect(x, y, exp, gold) {
@@ -402,10 +670,12 @@ export default class BaseGameScene extends Phaser.Scene {
                 }
             });
             
-            // Z key to spawn zombie (debug)
+            // Z key to spawn zombie (debug) - this one works correctly
             this.input.keyboard.on('keydown-Z', () => {
                 if (this.gameManager && this.gameManager.debugMode) {
-                    console.log("Debug: Spawning zombie");
+                    console.log("Debug: Spawning zombie manually");
+                    
+                    // Use the SAME method as natural spawning to test
                     this.spawnRandomEnemy();
                 }
             });
@@ -415,6 +685,15 @@ export default class BaseGameScene extends Phaser.Scene {
                 if (this.gameManager && this.gameManager.debugMode) {
                     console.log("Debug: Spawning XP orb");
                     this.spawnExperienceOrb(this.player.x + 50, this.player.y, 25);
+                }
+            });
+            
+            // C key to auto-register collisions (debug)
+            this.input.keyboard.on('keydown-C', () => {
+                if (this.gameManager && this.gameManager.debugMode) {
+                    console.log("Debug: Auto-registering collisions");
+                    this.autoRegisterCollisions();
+                    this.setupZombieObstacleCollisions();
                 }
             });
             
@@ -503,7 +782,6 @@ export default class BaseGameScene extends Phaser.Scene {
             this.input.keyboard.on('keydown-ESC', () => {
                 console.log("ESC pressed - returning to menu and resetting for next run");
                 if (window.returnToMenu) {
-                    // Ensure clean shutdown before returning to menu
                     this.shutdown();
                     window.returnToMenu();
                 }
@@ -568,12 +846,18 @@ export default class BaseGameScene extends Phaser.Scene {
                 `Damage Dealt: ${this.gameManager.formatNumber(this.gameManager.currentRunStats.damageDealt)}`,
                 `Damage Taken: ${this.gameManager.formatNumber(this.gameManager.currentRunStats.damageTaken)}`,
                 ``,
+                `Collision System:`,
+                `Zombies: ${this.zombieGroup ? this.zombieGroup.children.size : 0}`,
+                `Obstacles: ${this.staticObstacles ? this.staticObstacles.children.size : 0}`,
+                `Layers: ${this.collisionLayers.length}`,
+                ``,
                 `Difficulty:`,
                 `Current Level: ${this.gameManager.gameProgress.currentDifficulty}`,
                 `Spawn Delay: ${this.enemySpawnTimer ? this.enemySpawnTimer.delay : 'N/A'}ms`,
                 ``,
                 `Controls:`,
                 `Z - Spawn Zombie | X - Spawn XP`,
+                `C - Auto-Register Collisions`,
                 `H - Heal | D - Damage | K - Kill`,
                 `L - Level Up | G - Add Gold`,
                 `U - Reapply Upgrades | R - Restart`
@@ -586,8 +870,6 @@ export default class BaseGameScene extends Phaser.Scene {
     }
     
     shutdown() {
-        console.log(`Shutting down ${this.scene.key} - preparing for fresh restart`);
-        
         if (this.enemySpawnTimer) {
             this.enemySpawnTimer.destroy();
             this.enemySpawnTimer = null;
@@ -610,6 +892,18 @@ export default class BaseGameScene extends Phaser.Scene {
         if (this.experienceOrbs) {
             this.experienceOrbs.clear(true, true);
         }
+        
+        if (this.zombieGroup) {
+            this.zombieGroup.clear(true, true);
+            this.zombieGroup = null;
+        }
+        
+        if (this.staticObstacles) {
+            this.staticObstacles.clear(true, true);
+            this.staticObstacles = null;
+        }
+        
+        this.collisionLayers = [];
         
         if (this.gameplayManager) {
             this.gameplayManager.shutdown();

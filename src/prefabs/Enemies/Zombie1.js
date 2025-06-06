@@ -28,13 +28,43 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         this.lastDirection = 'down';
         this.createHealthBar();
         this.createAnimations();
-        
+        this.addToZombieGroup(scene);
         this.updateListener = this.update.bind(this);
         scene.events.on('update', this.updateListener);
         /* END-USER-CTR-CODE */
     }
 
     /* START-USER-CODE */
+    
+    addToZombieGroup(scene) {
+        if (!scene.zombieGroup) {
+            scene.zombieGroup = scene.physics.add.group();
+            scene.physics.add.collider(scene.zombieGroup, scene.zombieGroup, 
+                this.handleZombieCollision, null, scene);
+        }
+        scene.zombieGroup.add(this);
+    }
+    
+    handleZombieCollision(zombie1, zombie2) {
+        const distance = Phaser.Math.Distance.Between(
+            zombie1.x, zombie1.y, zombie2.x, zombie2.y
+        );
+        
+        if (distance < 20) {
+            const angle = Phaser.Math.Angle.Between(
+                zombie1.x, zombie1.y, zombie2.x, zombie2.y
+            );
+            
+            const separationForce = 30;
+            const pushX = Math.cos(angle) * separationForce;
+            const pushY = Math.sin(angle) * separationForce;
+            
+            zombie2.body.velocity.x += pushX;
+            zombie2.body.velocity.y += pushY;
+            zombie1.body.velocity.x -= pushX;
+            zombie1.body.velocity.y -= pushY;
+        }
+    }
     
     createAnimations() {
         if (!this.scene.anims.exists('zombieRunAni')) {
@@ -111,6 +141,8 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
                 this.body.velocity.y += forceY;
                 this.body.velocity.x *= 0.9;
                 this.body.velocity.y *= 0.9;
+                this.applyZombieAvoidance();
+                
                 const maxSpeed = this.speed;
                 const currentSpeed = Math.sqrt(
                     this.body.velocity.x * this.body.velocity.x + 
@@ -142,6 +174,40 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
             this.updateAnimation();
         } catch (error) {
             console.error("Error in Zombie update:", error);
+        }
+    }
+    
+    applyZombieAvoidance() {
+        if (!this.scene.zombieGroup) return;
+        
+        const avoidanceRadius = 25;
+        const avoidanceForce = 15;
+        let totalAvoidanceX = 0;
+        let totalAvoidanceY = 0;
+        let nearbyZombies = 0;
+        
+        this.scene.zombieGroup.children.entries.forEach(otherZombie => {
+            if (otherZombie === this || otherZombie.isDead) return;
+            
+            const distance = Phaser.Math.Distance.Between(
+                this.x, this.y, otherZombie.x, otherZombie.y
+            );
+            
+            if (distance < avoidanceRadius && distance > 0) {
+                const angle = Phaser.Math.Angle.Between(
+                    otherZombie.x, otherZombie.y, this.x, this.y
+                );
+                
+                const force = avoidanceForce * (1 - distance / avoidanceRadius);
+                totalAvoidanceX += Math.cos(angle) * force;
+                totalAvoidanceY += Math.sin(angle) * force;
+                nearbyZombies++;
+            }
+        });
+        
+        if (nearbyZombies > 0) {
+            this.body.velocity.x += totalAvoidanceX * 0.1;
+            this.body.velocity.y += totalAvoidanceY * 0.1;
         }
     }
     
@@ -213,6 +279,10 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         this.body.enable = false;
         this.stop();
         
+        if (this.scene.zombieGroup) {
+            this.scene.zombieGroup.remove(this);
+        }
+        
         this.scene.tweens.add({
             targets: this,
             alpha: 0,
@@ -263,6 +333,9 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
             if (this.scene && this.updateListener) {
                 this.scene.events.off('update', this.updateListener);
                 this.updateListener = null;
+            }
+            if (this.scene.zombieGroup) {
+                this.scene.zombieGroup.remove(this);
             }
         } catch (error) {
             console.error("Error in destroy method:", error);

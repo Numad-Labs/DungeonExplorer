@@ -15,7 +15,7 @@ export default class MainMapScene extends BaseGameScene {
 		super("MainMapScene");
 
 		/* START-USER-CTR-CODE */
-		// BaseGameScene already has manager properties
+		// BaseGameScene already has manager properties and collision system
 		/* END-USER-CTR-CODE */
 	}
 
@@ -184,6 +184,21 @@ export default class MainMapScene extends BaseGameScene {
 		this.stoneStatuePrefab_2 = stoneStatuePrefab_2;
 		this.stoneStatuePrefab_3 = stoneStatuePrefab_3;
 		this.torchAnim = torchAnim;
+		this.torchAnim_1 = torchAnim_1;
+		this.torchAnim_2 = torchAnim_2;
+		this.torchAnim_3 = torchAnim_3;
+		this.torchAnim_4 = torchAnim_4;
+		this.torchAnim_5 = torchAnim_5;
+		this.torchAnim_6 = torchAnim_6;
+		this.torchAnim_7 = torchAnim_7;
+		this.torchAnim_8 = torchAnim_8;
+		this.torchAnim_9 = torchAnim_9;
+		this.torchAnim_10 = torchAnim_10;
+		this.torchAnim_11 = torchAnim_11;
+		this.telAnimation = telAnimation;
+		this.telAnimation_1 = telAnimation_1;
+		this.telAnimation_2 = telAnimation_2;
+		this.telAnimation_3 = telAnimation_3;
 		this.mainMap = mainMap;
 
 		this.events.emit("scene-awake");
@@ -225,6 +240,36 @@ export default class MainMapScene extends BaseGameScene {
 	stoneStatuePrefab_3;
 	/** @type {Phaser.GameObjects.Sprite} */
 	torchAnim;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_1;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_2;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_3;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_4;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_5;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_6;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_7;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_8;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_9;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_10;
+	/** @type {Phaser.GameObjects.Sprite} */
+	torchAnim_11;
+	/** @type {Phaser.GameObjects.Sprite} */
+	telAnimation;
+	/** @type {Phaser.GameObjects.Sprite} */
+	telAnimation_1;
+	/** @type {Phaser.GameObjects.Sprite} */
+	telAnimation_2;
+	/** @type {Phaser.GameObjects.Sprite} */
+	telAnimation_3;
 	/** @type {Phaser.Tilemaps.Tilemap} */
 	mainMap;
 
@@ -232,10 +277,12 @@ export default class MainMapScene extends BaseGameScene {
 
 	create() {
         this.cameras.main.setBounds(0, 0, 2560, 2560);
-		this.physics.world.bounds.width = 1000;
-		this.physics.world.bounds.height = 800;
+		this.physics.world.bounds.width = 2560;
+		this.physics.world.bounds.height = 2560;
 
 		try {
+			super.create();
+			
 			this.editorCreate();
 			this.setupCollisions();
 			this.player = this.playerPrefab;
@@ -243,38 +290,49 @@ export default class MainMapScene extends BaseGameScene {
 			this.setupPlayerAttack();
 			this.setupTeleportation();
 			this.setupTestControls();
-			console.log("MainMapScene created successfully");
+			this.setupZombieCollisionSystem();
+			this.startEnemySpawning();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
 		}
-		this.stoneStatuePrefab.setupCollision(this.playerPrefab)
-		this.stoneStatuePrefab_1.setupCollision(this.playerPrefab)
-		this.stoneStatuePrefab_2.setupCollision(this.playerPrefab)
-		this.stoneStatuePrefab_3.setupCollision(this.playerPrefab)
-
-		this.physics.add.collider(this.playerPrefab, this.map_Col_1);
-		this.map_Col_1.setCollisionBetween(0, 10000);
-
-		this.physics.add.collider(this.playerPrefab, this.backGround);
-		this.backGround.setCollisionBetween(0, 10000);
 	}
+
+	setupZombieCollisionSystem() {
+		try {
+			this.registerCollisionLayer(this.map_Col_1, "Map Collision");
+			this.registerCollisionLayer(this.backGround, "Background Collision");
+			
+			const statues = [
+				this.stoneStatuePrefab, this.stoneStatuePrefab_1, 
+				this.stoneStatuePrefab_2, this.stoneStatuePrefab_3
+			];
+			
+			statues.forEach((statue, index) => {
+				if (statue) {
+					this.registerStaticObstacle(statue, `Stone Statue ${index + 1}`);
+				}
+			});
+			
+			this.setupZombieObstacleCollisions();
+		} catch (error) {
+			console.error("Error setting up zombie collision system:", error);
+		}
+	}
+
 	setupCollisions() {
 		try {
-			this.physics.add.collider(this.playerPrefab, this.hG_1);
-			this.hG_1.setCollisionBetween(0, 10000);
+			this.stoneStatuePrefab.setupCollision(this.playerPrefab);
+			this.stoneStatuePrefab_1.setupCollision(this.playerPrefab);
+			this.stoneStatuePrefab_2.setupCollision(this.playerPrefab);
+			this.stoneStatuePrefab_3.setupCollision(this.playerPrefab);
+
+			this.physics.add.collider(this.playerPrefab, this.map_Col_1);
+			this.map_Col_1.setCollisionBetween(0, 10000);
 
 			this.physics.add.collider(this.playerPrefab, this.backGround);
 			this.backGround.setCollisionBetween(0, 10000);
-			if (process.env.NODE_ENV !== 'production') {
-				// Uncomment to show debug collision boxes
-				// this.hG_1.renderDebug(this.add.graphics());
-				// this.map_Col_1.renderDebug(this.add.graphics());
-				// this.backGround.renderDebug(this.add.graphics());
-			}
-
-			console.log("Collisions setup complete");
 		} catch (error) {
-			console.error("Error setting up collisions:", error);
+			console.error("Error setting up player collisions:", error);
 		}
 	}
 
@@ -295,8 +353,6 @@ export default class MainMapScene extends BaseGameScene {
 				if (teleporters.length > 0) {
 					this.physics.add.overlap(this.player, teleporters, this.handleTeleportZone, null, this);
 				}
-
-				console.log(`${teleporters.length} teleport zones created`);
 			}
 		} catch (error) {
 			console.error("Error setting up teleportation:", error);
@@ -307,12 +363,24 @@ export default class MainMapScene extends BaseGameScene {
 		const destScene = "FirstArea";
 		this.handleTeleport(player, teleportZone, destScene);
 	}
-	setupTestControls() {
-		super.setupTestControls();
+
+	trackEnemyKill(enemy) {
+		this.removeZombie(enemy);
+		super.trackEnemyKill(enemy);
 	}
+
 	update(time, delta) {
 		super.update(time, delta);
+		
+		try {
+			if (this.player && !this.player.isDead) {
+				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+			}
+		} catch (error) {
+			console.error("Error in MainMapScene update:", error);
+		}
 	}
+
 	shutdown() {
 		super.shutdown();
 	}
