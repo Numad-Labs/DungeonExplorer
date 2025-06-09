@@ -176,6 +176,19 @@
                 "key": "attack 1"
             },
             {
+                "url": "assets/Hero/zombie 2/attack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "attack_1"
+            },
+            {
                 "url": "assets/Animated prop/beach - standard - with thick foam - spritesheet.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -589,6 +602,19 @@
                 "key": "Exp"
             },
             {
+                "url": "assets/Hero/zombie 2/explodedeath.png",
+                "frameConfig": {
+                    "frameWidth": 52,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "explodedeath"
+            },
+            {
                 "url": "assets/Decoration/Fire-candelabrum.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -678,6 +704,19 @@
                 },
                 "type": "spritesheet",
                 "key": "GroundTileset_V02"
+            },
+            {
+                "url": "assets/Hero/zombie 2/idle.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "idle"
             },
             {
                 "url": "assets/Animated prop/lava ball-falling.png",
@@ -1202,6 +1241,19 @@
                 },
                 "type": "spritesheet",
                 "key": "rocky structure_0"
+            },
+            {
+                "url": "assets/Hero/zombie 2/run.png",
+                "frameConfig": {
+                    "frameWidth": 52,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "run"
             },
             {
                 "url": "assets/Hero/Droid Assassin/Run.png",

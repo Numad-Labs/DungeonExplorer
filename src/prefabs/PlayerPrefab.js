@@ -73,7 +73,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			this.scene.anims.create({
 				key: 'PlayerRunningAni',
 				frames: this.scene.anims.generateFrameNumbers('heroAsset', { start: 0, end: 7 }),
-				frameRate: 8,
+				frameRate: 10,
 				repeat: -1
 			}); 
 		}

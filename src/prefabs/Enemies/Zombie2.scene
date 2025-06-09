@@ -1,0 +1,34 @@
+{
+    "id": "e6166ffd-b8ff-4fa9-8ee7-797ee7c47a8b",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Zombie2",
+        "borderWidth": 1280,
+        "borderHeight": 720
+    },
+    "displayList": [
+        {
+            "type": "Image",
+            "id": "0257e39f-fbd2-4054-a0a7-8b33fa9ee18a",
+            "label": "idle0",
+            "scope": "CLASS",
+            "texture": {
+                "key": "idle",
+                "frame": 0
+            },
+            "x": 290,
+            "y": 182
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

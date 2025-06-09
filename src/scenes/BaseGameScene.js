@@ -4,6 +4,7 @@ import GameplayManager from "../managers/GameplayManager";
 import PowerUpManager from "../managers/PowerUpManager";
 import PlayerAttack from "../prefabs/PlayerAttack";
 import Zombie from "../prefabs/Enemies/Zombie1";
+import ZombieBig from "../prefabs/Enemies/Zombie2";
 
 export default class BaseGameScene extends Phaser.Scene {
     constructor(sceneKey) {
@@ -222,6 +223,12 @@ export default class BaseGameScene extends Phaser.Scene {
             this.zombieGroup.add(zombie);
         }
     }
+
+    addZombie2(zombieBig) {
+        if (this.zombieGroup && zombieBig) {
+            this.zombieGroup.add(zombieBig);
+        }
+    }
     
     removeZombie(zombie) {
         if (this.zombieGroup && zombie) {
@@ -355,6 +362,7 @@ export default class BaseGameScene extends Phaser.Scene {
             
             this.enemies.add(zombie);
             this.addZombie(zombie);
+            this.addZombie2(ZombieBig)
         } catch (error) {
             console.error("Error spawning enemy:", error);
         }

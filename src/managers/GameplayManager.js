@@ -1,6 +1,7 @@
 import GameManager from "./GameManager";
 import ExpOrb from "../prefabs/ExpOrb";
 import Zombie from "../prefabs/Enemies/Zombie1";
+import Zombie2 from "../prefabs/Enemies/Zombie2";
 
 export default class GameplayManager {
     constructor(scene) {
@@ -233,37 +234,76 @@ export default class GameplayManager {
         });
     }
     
-    spawnEnemy(x, y) {
-        try {
-            const maxEnemies = this.gameManager.gameProgress.maxEnemies;
-            if (this.enemies && this.enemies.getChildren().length >= maxEnemies) {
-                return null;
-            }
-            
-            const difficultyLevel = this.gameManager.gameProgress.currentDifficulty;
-            
-            const zombie = new Zombie(this.scene, x, y);
-            this.scene.add.existing(zombie);
-            
-            if (zombie.body) {
-                zombie.body.setBounce(0.1, 0.1);
-                zombie.body.setCollideWorldBounds(false); // Allow enemies to move beyond world bounds
-                zombie.body.immovable = false;
-                zombie.body.pushable = true;
-            }
-            this.enemies.add(zombie);
-            
-            zombie.maxHealth = 30 * (1 + (difficultyLevel - 1) * 0.2);
-            zombie.health = zombie.maxHealth;
-            zombie.damage = 10 * (1 + (difficultyLevel - 1) * 0.1);
-            zombie.speed = 50 * (1 + (difficultyLevel - 1) * 0.05);
-            
-            return zombie;
-        } catch (error) {
-            console.error("Error spawning enemy:", error);
+    spawnEnemy(x, y, enemyType = 'random') {
+    try {
+        console.log(`Attempting to spawn enemy at (${x}, ${y}) of type: ${enemyType}`);
+        
+        const maxEnemies = this.gameManager.gameProgress.maxEnemies;
+        const currentEnemyCount = this.enemies ? this.enemies.getChildren().length : 0;
+        
+        console.log(`Current enemies: ${currentEnemyCount}, Max enemies: ${maxEnemies}`);
+        
+        if (this.enemies && currentEnemyCount >= maxEnemies) {
+            console.log("Max enemy limit reached, cannot spawn more enemies");
             return null;
         }
+        
+        const difficultyLevel = this.gameManager.gameProgress.currentDifficulty;
+        console.log(`Difficulty level: ${difficultyLevel}`);
+        
+        // Determine which enemy type to spawn
+        let spawnType = enemyType;
+        if (enemyType === 'random') {
+            const roll = Math.random();
+            spawnType = roll < 0.7 ? 'zombie' : 'zombieBig';
+            console.log(`Random roll: ${roll}, spawning: ${spawnType}`);
+        }
+        
+        let enemy;
+        
+        if (spawnType === 'zombieBig') {
+            console.log("Creating Zombie2 (big zombie)...");
+            enemy = new Zombie2(this.scene, x, y);
+            enemy.maxHealth = 50 * (1 + (difficultyLevel - 1) * 0.2);
+            enemy.health = enemy.maxHealth;
+            enemy.damage = 20 * (1 + (difficultyLevel - 1) * 0.1);
+            enemy.speed = 40 * (1 + (difficultyLevel - 1) * 0.05);
+            enemy.enemyType = 'zombieBig'; // Add identifier
+        } else {
+            console.log("Creating Zombie (regular zombie)...");
+            enemy = new Zombie(this.scene, x, y);
+            enemy.maxHealth = 30 * (1 + (difficultyLevel - 1) * 0.2);
+            enemy.health = enemy.maxHealth;
+            enemy.damage = 10 * (1 + (difficultyLevel - 1) * 0.1);
+            enemy.speed = 50 * (1 + (difficultyLevel - 1) * 0.05);
+            enemy.enemyType = 'zombie'; // Add identifier
+        }
+        
+        console.log(`Enemy created: ${enemy.enemyType}, Health: ${enemy.health}, Damage: ${enemy.damage}, Speed: ${enemy.speed}`);
+        
+        this.scene.add.existing(enemy);
+        
+        if (enemy.body) {
+            enemy.body.setBounce(0.1, 0.1);
+            enemy.body.setCollideWorldBounds(false);
+            enemy.body.immovable = false;
+            enemy.body.pushable = true;
+            console.log("Enemy physics body configured");
+        } else {
+            console.warn("Enemy has no physics body!");
+        }
+        
+        this.enemies.add(enemy);
+        console.log(`Enemy added to group. Total enemies: ${this.enemies.getChildren().length}`);
+        
+        return enemy;
+        
+    } catch (error) {
+        console.error("Error spawning enemy:", error);
+        console.error("Stack trace:", error.stack);
+        return null;
     }
+}
     
     spawnRandomEnemy() {
         try {
@@ -374,7 +414,7 @@ export default class GameplayManager {
     
     createPlaceholderTextures() {
         try {
-            if (!this.scene.textures.exists('zombierun')) {
+            if (!this.scene.textures.exists('zombierun', 'Zombie2RunAni')) {
                 this.createZombiePlaceholder();
             }
             
@@ -414,6 +454,18 @@ export default class GameplayManager {
         
             zombieGraphics.generateTexture('zombierun', 32, 32);
             zombieGraphics.destroy();
+
+            const zombieGraphics2 = this.scene.add.graphics();
+            
+            zombieGraphics2.fillStyle(0x336633, 1);
+            zombieGraphics2.fillRect(8, 8, 16, 16);
+            
+            zombieGraphics2.fillStyle(0x336633, 1);
+            zombieGraphics2.fillRect(4, 12, 4, 8);
+            zombieGraphics2.fillRect(24, 12, 4, 8);
+        
+            zombieGraphics2.generateTexture('Zombie2RunAni', 32, 32);
+            zombieGraphics2.destroy();
             
             console.log("Created zombie placeholder texture");
         } catch (error) {
@@ -421,43 +473,78 @@ export default class GameplayManager {
         }
     }
     
-    setupTestControls() {
-        try {
-            // Press E to spawn an orb at cursor position
-            this.scene.input.keyboard.on('keydown-E', () => {
-                const pointer = this.scene.input.activePointer;
-                const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-                this.spawnExperienceOrb(worldPoint.x, worldPoint.y, 1);
-            });
+   setupTestControls() {
+    try {
+        // Press E to spawn an orb at cursor position
+        this.scene.input.keyboard.on('keydown-E', () => {
+            const pointer = this.scene.input.activePointer;
+            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            this.spawnExperienceOrb(worldPoint.x, worldPoint.y, 1);
+        });
 
-            // Press Z to spawn a zombie at cursor position
-            this.scene.input.keyboard.on('keydown-Z', () => {
-                const pointer = this.scene.input.activePointer;
-                const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-                this.spawnEnemy(worldPoint.x, worldPoint.y);
-            });
-            
-            // Press K to kill all enemies
-            this.scene.input.keyboard.on('keydown-K', () => {
-                if (this.enemies) {
-                    this.enemies.getChildren().forEach(enemy => {
-                        if (enemy.takeDamage) {
-                            enemy.takeDamage(1000); 
-                        }
-                    });
-                }
-            });
-            
-            // Press O to spawn 10 orbs around the player
-            this.scene.input.keyboard.on('keydown-O', () => {
-                for (let i = 0; i < 10; i++) {
-                    this.spawnRandomExperienceOrb();
-                }
-            });
-        } catch (error) {
-            console.error("Error setting up test controls:", error);
-        }
+        // Press Z to spawn a regular zombie at cursor position
+        this.scene.input.keyboard.on('keydown-Z', () => {
+            const pointer = this.scene.input.activePointer;
+            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            console.log("Z pressed - spawning regular zombie");
+            this.spawnEnemy(worldPoint.x, worldPoint.y, 'zombie');
+        });
+        
+        // Press X to spawn a big zombie at cursor position
+        this.scene.input.keyboard.on('keydown-X', () => {
+            const pointer = this.scene.input.activePointer;
+            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            console.log("X pressed - spawning big zombie");
+            this.spawnEnemy(worldPoint.x, worldPoint.y, 'zombieBig');
+        });
+        
+        // Press C to spawn random zombie type
+        this.scene.input.keyboard.on('keydown-C', () => {
+            const pointer = this.scene.input.activePointer;
+            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            console.log("C pressed - spawning random zombie");
+            this.spawnEnemy(worldPoint.x, worldPoint.y, 'random');
+        });
+        
+        // Press K to kill all enemies
+        this.scene.input.keyboard.on('keydown-K', () => {
+            if (this.enemies) {
+                console.log(`Killing ${this.enemies.getChildren().length} enemies`);
+                this.enemies.getChildren().forEach(enemy => {
+                    console.log(`Killing enemy: ${enemy.enemyType || 'unknown'}`);
+                    if (enemy.takeDamage) {
+                        enemy.takeDamage(1000); 
+                    }
+                });
+            }
+        });
+        
+        // Press O to spawn 10 orbs around the player
+        this.scene.input.keyboard.on('keydown-O', () => {
+            for (let i = 0; i < 10; i++) {
+                this.spawnRandomExperienceOrb();
+            }
+        });
+        
+        // Press L to list all current enemies
+        this.scene.input.keyboard.on('keydown-L', () => {
+            if (this.enemies) {
+                const enemyList = this.enemies.getChildren();
+                console.log(`Current enemies (${enemyList.length}):`);
+                enemyList.forEach((enemy, index) => {
+                    console.log(`${index + 1}. Type: ${enemy.enemyType || 'unknown'}, Health: ${enemy.health}, Position: (${Math.round(enemy.x)}, ${Math.round(enemy.y)})`);
+                });
+            }
+        });
+        
+        console.log("Test controls setup complete:");
+        console.log("Z = Spawn regular zombie, X = Spawn big zombie, C = Spawn random zombie");
+        console.log("K = Kill all enemies, L = List all enemies");
+        
+    } catch (error) {
+        console.error("Error setting up test controls:", error);
     }
+}
     
     update(time, delta) {
         this.checkEnemyBounds();
