@@ -7,9 +7,13 @@ export default class GameplayManager {
     constructor(scene) {
         this.scene = scene;
         this.gameManager = GameManager.get();
+        
+        // Game objects
         this.player = null;
         this.enemies = null;
         this.expOrbs = null;
+        
+        // Timers
         this.enemySpawnTimer = null;
         this.orbSpawnTimer = null;
         this.difficultyTimer = null;
@@ -20,531 +24,323 @@ export default class GameplayManager {
     initialize(player) {
         this.player = player;
         
+        // Create groups
         this.enemies = this.scene.add.group();
         this.expOrbs = this.scene.add.group();
-        
         this.scene.enemies = this.enemies;
-
-        this.createPlaceholderTextures();
-        this.setupCollisions();
-        this.setupEnemyCollisions();
-        this.setupTimers();
         
-        this.setupTestControls();
-        this.scene.spawnExperienceOrb = this.spawnExperienceOrb.bind(this);
+        // Setup systems
+        this.createTextures();
+        this.setupCollisions();
+        this.setupTimers();
+        this.setupControls();
+        
+        // Expose spawn method to scene
+        this.scene.spawnExperienceOrb = (x, y, value) => this.spawnExperienceOrb(x, y, value);
         
         console.log("GameplayManager setup complete");
     }
     
+    createTextures() {
+        // Create zombie textures if missing
+        if (!this.scene.textures.exists('zombierun')) {
+            this.createZombieTexture('zombierun');
+        }
+        if (!this.scene.textures.exists('Zombie2RunAni')) {
+            this.createZombieTexture('Zombie2RunAni');
+        }
+        
+        // Create exp orb texture if missing
+        if (!this.scene.textures.exists('Exp')) {
+            const graphics = this.scene.add.graphics();
+            graphics.fillStyle(0x00ffff, 1);
+            graphics.fillCircle(8, 8, 8);
+            graphics.lineStyle(1, 0xffffff, 1);
+            graphics.strokeCircle(8, 8, 8);
+            graphics.generateTexture('Exp', 16, 16);
+            graphics.destroy();
+        }
+    }
+    
+    createZombieTexture(textureName) {
+        const graphics = this.scene.add.graphics();
+        graphics.fillStyle(0x336633, 1);
+        graphics.fillRect(8, 8, 16, 16);
+        graphics.fillStyle(0x336633, 1);
+        graphics.fillRect(4, 12, 4, 8);
+        graphics.fillRect(24, 12, 4, 8);
+        graphics.generateTexture(textureName, 32, 32);
+        graphics.destroy();
+    }
+    
+    setupCollisions() {
+        if (!this.player) return;
+        
+        // Player-enemy collision
+        this.scene.physics.add.overlap(
+            this.player,
+            this.enemies,
+            (player, enemy) => enemy.attackPlayer?.(player)
+        );
+        
+        // Player-orb collision
+        this.scene.physics.add.overlap(
+            this.player,
+            this.expOrbs,
+            (player, orb) => orb.collect?.()
+        );
+    }
+    
     setupTimers() {
-        const { enemySpawnDelay } = this.gameManager.gameProgress;
+        // Enemy spawning
+        this.enemySpawnTimer = this.scene.time.addEvent({
+            delay: this.gameManager.gameProgress.enemySpawnDelay,
+            callback: () => this.spawnRandomEnemy(),
+            loop: true
+        });
+        
+        // Orb spawning
         this.orbSpawnTimer = this.scene.time.addEvent({
             delay: 2000,
-            callback: this.spawnRandomExperienceOrb,
-            callbackScope: this,
-            loop: true
-        });
-        this.scene.orbSpawnTimer = this.orbSpawnTimer;
-        this.enemySpawnTimer = this.scene.time.addEvent({
-            delay: enemySpawnDelay,
-            callback: this.spawnRandomEnemy,
-            callbackScope: this,
+            callback: () => this.spawnRandomExperienceOrb(),
             loop: true
         });
         
-        this.scene.enemySpawnTimer = this.enemySpawnTimer;
-        
+        // Difficulty updates
         this.difficultyTimer = this.scene.time.addEvent({
             delay: 1000,
             callback: () => {
                 this.gameManager.updateDifficulty(1000);
-                this.updateSpawnTimers();
+                this.updateSpawnRates();
             },
-            callbackScope: this,
             loop: true
         });
         
+        // Store timers on scene for external access
+        this.scene.enemySpawnTimer = this.enemySpawnTimer;
+        this.scene.orbSpawnTimer = this.orbSpawnTimer;
         this.scene.difficultyTimer = this.difficultyTimer;
     }
     
-    updateSpawnTimers() {
-        if (this.enemySpawnTimer && this.enemySpawnTimer.delay !== this.gameManager.gameProgress.enemySpawnDelay) {
+    updateSpawnRates() {
+        // Update enemy spawn rate based on difficulty
+        if (this.enemySpawnTimer) {
             this.enemySpawnTimer.delay = this.gameManager.gameProgress.enemySpawnDelay;
         }
         
+        // Update orb spawn rate based on game time
         if (this.orbSpawnTimer) {
             const gameTime = this.gameManager.gameProgress.gameTime;
-            const initialDelay = 2000;
-            const minDelay = 500;
-            const timeToReachMin = 300;
-
-            if (gameTime < timeToReachMin) {
-                const factor = 1 - (gameTime / timeToReachMin);
-                const newDelay = minDelay + (initialDelay - minDelay) * factor;
-
-                if (Math.abs(this.orbSpawnTimer.delay - newDelay) > 50) {
-                    this.orbSpawnTimer.delay = newDelay;
-                }
+            const newDelay = Math.max(500, 2000 - (gameTime / 300) * 1500);
+            this.orbSpawnTimer.delay = newDelay;
+        }
+    }
+    
+    // Enemy spawning
+    spawnRandomEnemy() {
+        if (!this.player) return;
+        
+        const maxEnemies = this.gameManager.gameProgress.maxEnemies;
+        if (this.enemies.getChildren().length >= maxEnemies) return;
+        
+        // Random position around player
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 800;
+        const x = this.player.x + Math.cos(angle) * distance;
+        const y = this.player.y + Math.sin(angle) * distance;
+        
+        // Choose enemy type based on difficulty
+        const enemyType = Math.random() < 0.7 ? 'zombie' : 'zombieBig';
+        
+        return this.spawnEnemy(x, y, enemyType);
+    }
+    
+    spawnEnemy(x, y, enemyType = 'zombie') {
+        try {
+            const difficulty = this.gameManager.gameProgress.currentDifficulty;
+            let enemy;
+            
+            if (enemyType === 'zombieBig') {
+                enemy = new Zombie2(this.scene, x, y);
+                enemy.maxHealth = 50 * (1 + (difficulty - 1) * 0.2);
+                enemy.damage = 20 * (1 + (difficulty - 1) * 0.1);
+                enemy.speed = 40 * (1 + (difficulty - 1) * 0.05);
+            } else {
+                enemy = new Zombie(this.scene, x, y);
+                enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
+                enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
+                enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
             }
+            
+            enemy.health = enemy.maxHealth;
+            enemy.enemyType = enemyType;
+            
+            this.scene.add.existing(enemy);
+            this.enemies.add(enemy);
+            
+            // Configure physics
+            if (enemy.body) {
+                enemy.body.setBounce(0.1, 0.1);
+                enemy.body.setCollideWorldBounds(false);
+            }
+            
+            console.log(`Spawned ${enemyType} at (${Math.round(x)}, ${Math.round(y)})`);
+            return enemy;
+            
+        } catch (error) {
+            console.error("Error spawning enemy:", error);
+            return null;
         }
     }
     
-    setupCollisions() {
-        if (!this.scene.physics || !this.player) return;
-        
-        this.scene.physics.add.overlap(
-            this.player,
-            this.enemies,
-            this.handlePlayerEnemyCollision,
-            null,
-            this
-        );
-        
-        this.scene.physics.add.overlap(
-            this.player,
-            this.expOrbs,
-            this.handlePlayerOrbCollision,
-            null,
-            this
-        );
-    }
-    
-    handlePlayerEnemyCollision(player, enemy) {
-        if (enemy.attackPlayer) {
-            enemy.attackPlayer(player);
-        }
-    }
-    
-    handlePlayerOrbCollision(player, orb) {
-        if (orb.collect) {
-            orb.collect();
-        }
-    }
-    
+    // Experience orb spawning
     spawnExperienceOrb(x, y, value = 1) {
         try {
             const expOrb = new ExpOrb(this.scene, x, y);
             this.scene.add.existing(expOrb);
+            this.expOrbs.add(expOrb);
             
-            if (this.expOrbs) {
-                this.expOrbs.add(expOrb);
-            }
-
             expOrb.setExpValue(value);
-
-            const magnetRange = this.gameManager.gameProgress.orbMagnetRange;
-            if (magnetRange) {
-                expOrb.magneticRange = magnetRange;
-            }
             
-            // Add some initial velocity
+            // Add initial velocity
             if (expOrb.body) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Phaser.Math.Between(20, 50);
                 expOrb.body.velocity.x = Math.cos(angle) * speed;
                 expOrb.body.velocity.y = Math.sin(angle) * speed;
             }
-
+            
             return expOrb;
         } catch (error) {
             console.error("Error spawning experience orb:", error);
             return null;
         }
     }
-
+    
     spawnRandomExperienceOrb() {
-        try {
-            if (!this.player) return;
-            
-            // Use the player as the center reference
-            const playerX = this.player.x;
-            const playerY = this.player.y;
-            
-            // Define a large spawn radius around the player
-            const minSpawnDistance = 200;
-            const maxSpawnDistance = 800;
-            
-            // Generate a random angle
-            const angle = Math.random() * Math.PI * 2;
-            
-            // Random distance between min and max
-            const distance = minSpawnDistance + Math.random() * (maxSpawnDistance - minSpawnDistance);
-            
-            // Calculate the spawn position
-            const x = playerX + Math.cos(angle) * distance;
-            const y = playerY + Math.sin(angle) * distance;
-    
-            // Determine orb value
-            let value = 1;
-            const roll = Math.random();
-            if (roll > 0.95) {
-                value = 10;
-            } else if (roll > 0.8) {
-                value = 5;
-            } else if (roll > 0.5) {
-                value = 2;
-            }
-    
-            return this.spawnExperienceOrb(x, y, value);
-        } catch (error) {
-            console.error("Error spawning random experience orb:", error);
-            return null;
-        }
+        if (!this.player) return;
+        
+        // Random position around player
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Phaser.Math.Between(200, 800);
+        const x = this.player.x + Math.cos(angle) * distance;
+        const y = this.player.y + Math.sin(angle) * distance;
+        
+        // Random value with weighted distribution
+        let value = 1;
+        const roll = Math.random();
+        if (roll > 0.95) value = 10;
+        else if (roll > 0.8) value = 5;
+        else if (roll > 0.5) value = 2;
+        
+        return this.spawnExperienceOrb(x, y, value);
     }
     
-    setupEnemyCollisions() {
-        if (!this.scene || !this.enemies) return;
-        
-        const collidableLayers = [];
-        
-        if (this.scene.map_Col_1 && this.scene.map_Col_1.collisionWidth > 0) {
-            collidableLayers.push(this.scene.map_Col_1);
-        }
-        
-        if (this.scene.hG_1 && this.scene.hG_1.collisionWidth > 0) {
-            collidableLayers.push(this.scene.hG_1);
-        }
-        
-        if (this.scene.backGround && this.scene.backGround.collisionWidth > 0) {
-            collidableLayers.push(this.scene.backGround);
-        }
-        
-        if (this.scene.wall_Upper_1 && this.scene.wall_Upper_1.collisionWidth > 0) {
-            collidableLayers.push(this.scene.wall_Upper_1);
-        }
-        
-        if (this.scene.wall_down_1 && this.scene.wall_down_1.collisionWidth > 0) {
-            collidableLayers.push(this.scene.wall_down_1);
-        }
-        
-        collidableLayers.forEach(layer => {
-            this.scene.physics.add.collider(this.enemies, layer);
-            console.log(`Added enemy collision with layer: ${layer.layer?.name || 'unnamed layer'}`);
-        });
-        
-        this.enemies.on('addchild', (enemy) => {
-            if (enemy.body) {
-                if (!enemy.bodyWidthSet) {
-                    enemy.body.setSize(16, 16);
-                    enemy.bodyWidthSet = true;
-                }
-                enemy.body.immovable = false;
-                enemy.body.pushable = true;
-            }
-        });
-    }
-    
-    spawnEnemy(x, y, enemyType = 'random') {
-    try {
-        console.log(`Attempting to spawn enemy at (${x}, ${y}) of type: ${enemyType}`);
-        
-        const maxEnemies = this.gameManager.gameProgress.maxEnemies;
-        const currentEnemyCount = this.enemies ? this.enemies.getChildren().length : 0;
-        
-        console.log(`Current enemies: ${currentEnemyCount}, Max enemies: ${maxEnemies}`);
-        
-        if (this.enemies && currentEnemyCount >= maxEnemies) {
-            console.log("Max enemy limit reached, cannot spawn more enemies");
-            return null;
-        }
-        
-        const difficultyLevel = this.gameManager.gameProgress.currentDifficulty;
-        console.log(`Difficulty level: ${difficultyLevel}`);
-        
-        // Determine which enemy type to spawn
-        let spawnType = enemyType;
-        if (enemyType === 'random') {
-            const roll = Math.random();
-            spawnType = roll < 0.7 ? 'zombie' : 'zombieBig';
-            console.log(`Random roll: ${roll}, spawning: ${spawnType}`);
-        }
-        
-        let enemy;
-        
-        if (spawnType === 'zombieBig') {
-            console.log("Creating Zombie2 (big zombie)...");
-            enemy = new Zombie2(this.scene, x, y);
-            enemy.maxHealth = 50 * (1 + (difficultyLevel - 1) * 0.2);
-            enemy.health = enemy.maxHealth;
-            enemy.damage = 20 * (1 + (difficultyLevel - 1) * 0.1);
-            enemy.speed = 40 * (1 + (difficultyLevel - 1) * 0.05);
-            enemy.enemyType = 'zombieBig'; // Add identifier
-        } else {
-            console.log("Creating Zombie (regular zombie)...");
-            enemy = new Zombie(this.scene, x, y);
-            enemy.maxHealth = 30 * (1 + (difficultyLevel - 1) * 0.2);
-            enemy.health = enemy.maxHealth;
-            enemy.damage = 10 * (1 + (difficultyLevel - 1) * 0.1);
-            enemy.speed = 50 * (1 + (difficultyLevel - 1) * 0.05);
-            enemy.enemyType = 'zombie'; // Add identifier
-        }
-        
-        console.log(`Enemy created: ${enemy.enemyType}, Health: ${enemy.health}, Damage: ${enemy.damage}, Speed: ${enemy.speed}`);
-        
-        this.scene.add.existing(enemy);
-        
-        if (enemy.body) {
-            enemy.body.setBounce(0.1, 0.1);
-            enemy.body.setCollideWorldBounds(false);
-            enemy.body.immovable = false;
-            enemy.body.pushable = true;
-            console.log("Enemy physics body configured");
-        } else {
-            console.warn("Enemy has no physics body!");
-        }
-        
-        this.enemies.add(enemy);
-        console.log(`Enemy added to group. Total enemies: ${this.enemies.getChildren().length}`);
-        
-        return enemy;
-        
-    } catch (error) {
-        console.error("Error spawning enemy:", error);
-        console.error("Stack trace:", error.stack);
-        return null;
-    }
-}
-    
-    spawnRandomEnemy() {
-        try {
-            if (!this.player) return;
-            
-            // Use the player's position as a center reference
-            const playerX = this.player.x;
-            const playerY = this.player.y;
-            
-            // Spawn outside camera view but close enough to be relevant
-            const spawnDistance = 800; // Distance from player
-            
-            // Random angle for spawn position
-            const angle = Math.random() * Math.PI * 2;
-            
-            // Calculate spawn coordinates
-            const x = playerX + Math.cos(angle) * spawnDistance;
-            const y = playerY + Math.sin(angle) * spawnDistance;
-            
-            return this.spawnEnemy(x, y);
-        } catch (error) {
-            console.error("Error spawning random enemy:", error);
-            return null;
-        }
-    }
-    
+    // Cleanup methods
     checkEnemyBounds() {
         if (!this.enemies || !this.player) return;
         
-        // Define a larger boundary around the player, beyond which enemies should teleport
-        const maxDistanceFromPlayer = 1500;
+        const maxDistance = 1500;
         
         this.enemies.getChildren().forEach(enemy => {
-            if (!enemy.active || enemy.isDead) return;
+            if (!enemy.active) return;
             
-            const distanceToPlayer = Phaser.Math.Distance.Between(
-                enemy.x, enemy.y,
-                this.player.x, this.player.y
+            const distance = Phaser.Math.Distance.Between(
+                enemy.x, enemy.y, this.player.x, this.player.y
             );
             
-            if (distanceToPlayer > maxDistanceFromPlayer) {
-                this.teleportEnemyNearPlayer(enemy);
+            if (distance > maxDistance) {
+                this.teleportEnemyToPlayer(enemy);
             }
         });
     }
     
-    // Check and remove orbs that are too far from the player
     checkOrbBounds() {
         if (!this.expOrbs || !this.player) return;
         
-        const maxOrbDistance = 2000; // Orbs further than this will be removed
+        const maxDistance = 2000;
         
         this.expOrbs.getChildren().forEach(orb => {
             if (!orb.active) return;
             
-            const distanceToPlayer = Phaser.Math.Distance.Between(
-                orb.x, orb.y,
-                this.player.x, this.player.y
+            const distance = Phaser.Math.Distance.Between(
+                orb.x, orb.y, this.player.x, this.player.y
             );
             
-            if (distanceToPlayer > maxOrbDistance) {
-                orb.destroy(); // Remove orbs that are too far away
+            if (distance > maxDistance) {
+                orb.destroy();
             }
         });
     }
     
-    teleportEnemyNearPlayer(enemy) {
-        try {
-            if (!this.player) return;
-            
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 300 + Math.random() * 200;
-            
-            const newX = this.player.x + Math.cos(angle) * distance;
-            const newY = this.player.y + Math.sin(angle) * distance;
-            
-            enemy.x = newX;
-            enemy.y = newY;
-            
-            if (enemy.body) {
-                enemy.body.velocity.x = 0;
-                enemy.body.velocity.y = 0;
-            }
-            
-            this.createTeleportEffect(newX, newY);
-        } catch (error) {
-            console.error("Error teleporting enemy:", error);
+    teleportEnemyToPlayer(enemy) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Phaser.Math.Between(300, 500);
+        
+        enemy.x = this.player.x + Math.cos(angle) * distance;
+        enemy.y = this.player.y + Math.sin(angle) * distance;
+        
+        if (enemy.body) {
+            enemy.body.velocity.setTo(0, 0);
         }
+        
+        // Visual effect
+        const circle = this.scene.add.circle(enemy.x, enemy.y, 30, 0x33ff33, 0.7);
+        this.scene.tweens.add({
+            targets: circle,
+            scale: 0,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => circle.destroy()
+        });
     }
     
-    createTeleportEffect(x, y) {
-        try {
-            const circle = this.scene.add.circle(x, y, 30, 0x33ff33, 0.7);
-            
-            this.scene.tweens.add({
-                targets: circle,
-                scale: 0,
-                alpha: 0,
-                duration: 500,
-                onComplete: () => {
-                    circle.destroy();
-                }
+    // Debug controls - always available for testing
+    setupControls() {
+        const keyboard = this.scene.input.keyboard;
+        
+        // Spawn controls
+        keyboard.on('keydown-Z', () => {
+            const pointer = this.scene.input.activePointer;
+            const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            this.spawnEnemy(world.x, world.y, 'zombie');
+        });
+        
+        keyboard.on('keydown-X', () => {
+            const pointer = this.scene.input.activePointer;
+            const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            this.spawnEnemy(world.x, world.y, 'zombieBig');
+        });
+        
+        keyboard.on('keydown-E', () => {
+            const pointer = this.scene.input.activePointer;
+            const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            this.spawnExperienceOrb(world.x, world.y, 1);
+        });
+        
+        // Utility controls
+        keyboard.on('keydown-K', () => {
+            this.enemies.getChildren().forEach(enemy => {
+                if (enemy.takeDamage) enemy.takeDamage(1000);
             });
-        } catch (error) {
-            console.error("Error creating teleport effect:", error);
-        }
-    }
-    
-    createPlaceholderTextures() {
-        try {
-            if (!this.scene.textures.exists('zombierun', 'Zombie2RunAni')) {
-                this.createZombiePlaceholder();
-            }
-            
-            if (!this.scene.textures.exists('particle')) {
-                const graphics = this.scene.add.graphics();
-                graphics.fillStyle(0xffffff, 1);
-                graphics.fillCircle(8, 8, 8);
-                graphics.generateTexture('particle', 16, 16);
-                graphics.destroy();
-            }
-            
-            // Create a placeholder texture for Exp orbs if needed
-            if (!this.scene.textures.exists('Exp')) {
-                const graphics = this.scene.add.graphics();
-                graphics.fillStyle(0x00ffff, 1);
-                graphics.fillCircle(8, 8, 8);
-                graphics.lineStyle(1, 0xffffff, 1);
-                graphics.strokeCircle(8, 8, 8);
-                graphics.generateTexture('Exp', 16, 16);
-                graphics.destroy();
-            }
-        } catch (error) {
-            console.error("Error creating placeholder textures:", error);
-        }
-    }
-    
-    createZombiePlaceholder() {
-        try {
-            const zombieGraphics = this.scene.add.graphics();
-            
-            zombieGraphics.fillStyle(0x336633, 1);
-            zombieGraphics.fillRect(8, 8, 16, 16);
-            
-            zombieGraphics.fillStyle(0x336633, 1);
-            zombieGraphics.fillRect(4, 12, 4, 8);
-            zombieGraphics.fillRect(24, 12, 4, 8);
-        
-            zombieGraphics.generateTexture('zombierun', 32, 32);
-            zombieGraphics.destroy();
-
-            const zombieGraphics2 = this.scene.add.graphics();
-            
-            zombieGraphics2.fillStyle(0x336633, 1);
-            zombieGraphics2.fillRect(8, 8, 16, 16);
-            
-            zombieGraphics2.fillStyle(0x336633, 1);
-            zombieGraphics2.fillRect(4, 12, 4, 8);
-            zombieGraphics2.fillRect(24, 12, 4, 8);
-        
-            zombieGraphics2.generateTexture('Zombie2RunAni', 32, 32);
-            zombieGraphics2.destroy();
-            
-            console.log("Created zombie placeholder texture");
-        } catch (error) {
-            console.error("Error creating zombie placeholder:", error);
-        }
-    }
-    
-   setupTestControls() {
-    try {
-        // Press E to spawn an orb at cursor position
-        this.scene.input.keyboard.on('keydown-E', () => {
-            const pointer = this.scene.input.activePointer;
-            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-            this.spawnExperienceOrb(worldPoint.x, worldPoint.y, 1);
-        });
-
-        // Press Z to spawn a regular zombie at cursor position
-        this.scene.input.keyboard.on('keydown-Z', () => {
-            const pointer = this.scene.input.activePointer;
-            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-            console.log("Z pressed - spawning regular zombie");
-            this.spawnEnemy(worldPoint.x, worldPoint.y, 'zombie');
         });
         
-        // Press X to spawn a big zombie at cursor position
-        this.scene.input.keyboard.on('keydown-X', () => {
-            const pointer = this.scene.input.activePointer;
-            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-            console.log("X pressed - spawning big zombie");
-            this.spawnEnemy(worldPoint.x, worldPoint.y, 'zombieBig');
-        });
-        
-        // Press C to spawn random zombie type
-        this.scene.input.keyboard.on('keydown-C', () => {
-            const pointer = this.scene.input.activePointer;
-            const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-            console.log("C pressed - spawning random zombie");
-            this.spawnEnemy(worldPoint.x, worldPoint.y, 'random');
-        });
-        
-        // Press K to kill all enemies
-        this.scene.input.keyboard.on('keydown-K', () => {
-            if (this.enemies) {
-                console.log(`Killing ${this.enemies.getChildren().length} enemies`);
-                this.enemies.getChildren().forEach(enemy => {
-                    console.log(`Killing enemy: ${enemy.enemyType || 'unknown'}`);
-                    if (enemy.takeDamage) {
-                        enemy.takeDamage(1000); 
-                    }
-                });
-            }
-        });
-        
-        // Press O to spawn 10 orbs around the player
-        this.scene.input.keyboard.on('keydown-O', () => {
+        keyboard.on('keydown-O', () => {
             for (let i = 0; i < 10; i++) {
                 this.spawnRandomExperienceOrb();
             }
         });
         
-        // Press L to list all current enemies
-        this.scene.input.keyboard.on('keydown-L', () => {
-            if (this.enemies) {
-                const enemyList = this.enemies.getChildren();
-                console.log(`Current enemies (${enemyList.length}):`);
-                enemyList.forEach((enemy, index) => {
-                    console.log(`${index + 1}. Type: ${enemy.enemyType || 'unknown'}, Health: ${enemy.health}, Position: (${Math.round(enemy.x)}, ${Math.round(enemy.y)})`);
-                });
-            }
+        keyboard.on('keydown-L', () => {
+            const enemyList = this.enemies.getChildren();
+            console.log(`Enemies (${enemyList.length}):`);
+            enemyList.forEach((enemy, i) => {
+                console.log(`${i + 1}. ${enemy.enemyType} - Health: ${enemy.health} - Pos: (${Math.round(enemy.x)}, ${Math.round(enemy.y)})`);
+            });
         });
         
-        console.log("Test controls setup complete:");
-        console.log("Z = Spawn regular zombie, X = Spawn big zombie, C = Spawn random zombie");
-        console.log("K = Kill all enemies, L = List all enemies");
-        
-    } catch (error) {
-        console.error("Error setting up test controls:", error);
+        console.log("Debug controls: Z=Zombie, X=BigZombie, E=Orb, K=KillAll, O=10Orbs, L=ListEnemies");
     }
-}
     
     update(time, delta) {
         this.checkEnemyBounds();
@@ -552,15 +348,18 @@ export default class GameplayManager {
     }
     
     shutdown() {
-        if (this.enemySpawnTimer) this.enemySpawnTimer.remove();
-        if (this.orbSpawnTimer) this.orbSpawnTimer.remove();
-        if (this.difficultyTimer) this.difficultyTimer.remove();
+        // Clean up timers
+        [this.enemySpawnTimer, this.orbSpawnTimer, this.difficultyTimer].forEach(timer => {
+            if (timer) timer.remove();
+        });
         
-        if (this.scene && this.scene.input) {
-            this.scene.input.keyboard.removeAllListeners('keydown-E');
-            this.scene.input.keyboard.removeAllListeners('keydown-Z');
-            this.scene.input.keyboard.removeAllListeners('keydown-K');
-            this.scene.input.keyboard.removeAllListeners('keydown-O');
+        // Clean up controls
+        if (this.scene.input?.keyboard) {
+            ['keydown-E', 'keydown-Z', 'keydown-X', 'keydown-K', 'keydown-O', 'keydown-L'].forEach(event => {
+                this.scene.input.keyboard.removeAllListeners(event);
+            });
         }
+        
+        console.log("GameplayManager shutdown complete");
     }
 }
