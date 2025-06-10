@@ -17,12 +17,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         
         this.damage = player.damage || 10;
         this.fireRate = player.fireRate || 1;
-        this.attackRange = player.attackRange || 100;
+        this.attackRange = player.attackRange || 50;
         this.attackCooldown = 1000 / this.fireRate;
         this.lastAttackTime = 0;
         this.attacking = false;
         
         this.setupWeaponVisuals();
+        this.createAttackAnimations();
         this.startAttackTimer();
         
         scene.playerAttack = this;
@@ -36,16 +37,37 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.weaponVisual.setVisible(false);
         this.add(this.weaponVisual);
         
-        if (this.scene.particles) {
-            this.attackEffect = this.scene.particles.createEmitter({
-                x: 0,
-                y: 0,
-                speed: { min: 50, max: 100 },
-                scale: { start: 0.5, end: 0 },
-                lifespan: 300,
-                blendMode: 'ADD',
-                on: false
+        this.attackSprite = this.scene.add.sprite(0, 0, 'AOE_Basic_Slash_Attack_V01');
+        this.attackSprite.setVisible(false);
+        this.attackSprite.setOrigin(0.5, 0.5);
+        this.add(this.attackSprite);
+    }
+    
+    createAttackAnimations() {
+        if (!this.scene.anims.exists('slash_attack_v01')) {
+            this.scene.anims.create({
+                key: 'slash_attack_v01',
+                frames: this.scene.anims.generateFrameNumbers('AOE_Basic_Slash_Attack_V01', { 
+                    start: 0, 
+                    end: -1
+                }),
+                frameRate: 15,
+                repeat: 0
             });
+        }
+        
+        if (this.scene.textures.exists('AOE_Basic_Slash_Attack_V02')) {
+            if (!this.scene.anims.exists('slash_attack_v02')) {
+                this.scene.anims.create({
+                    key: 'slash_attack_v02',
+                    frames: this.scene.anims.generateFrameNumbers('AOE_Basic_Slash_Attack_V02', { 
+                        start: 0, 
+                        end: -1
+                    }),
+                    frameRate: 15,
+                    repeat: 0
+                });
+            }
         }
     }
     
@@ -65,21 +87,19 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             return;
         }
         
-        const target = this.findNearestEnemyInRange();
+        const enemiesInRange = this.findEnemiesInRange();
         
-        if (target) {
-            this.attack(target);
+        if (enemiesInRange.length > 0) {
+            this.attackAOE(enemiesInRange);
         }
     }
     
-    findNearestEnemyInRange() {
+    findEnemiesInRange() {
         if (!this.scene.enemies || !this.player) {
-            return null;
+            return [];
         }
         
-        let nearestEnemy = null;
-        let nearestDistance = this.attackRange;
-        
+        const enemiesInRange = [];
         const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
         
         enemies.forEach(enemy => {
@@ -88,34 +108,81 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 enemy.x, enemy.y
             );
             
-            if (distance <= this.attackRange && distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestEnemy = enemy;
+            if (distance <= this.attackRange) {
+                enemiesInRange.push({
+                    enemy: enemy,
+                    distance: distance
+                });
             }
         });
         
-        return nearestEnemy;
+        enemiesInRange.sort((a, b) => a.distance - b.distance);
+        
+        return enemiesInRange;
     }
     
-    attack(target) {
+    attackAOE(enemiesInRange) {
         this.lastAttackTime = this.scene.time.now;
         this.attacking = true;
         
-        const angle = Phaser.Math.Angle.Between(
-            this.player.x, this.player.y,
-            target.x, target.y
-        );
-        
         this.x = this.player.x;
         this.y = this.player.y;
+        
+        this.attackSprite.setPosition(0, 0);
+        this.attackSprite.setRotation(0);
+        this.attackSprite.setVisible(true);
+        this.attackSprite.setScale(1.2);
+        
+        const animKey = this.getAttackAnimation();
+        this.attackSprite.play(animKey);
+        
+        this.attackSprite.once('animationcomplete', () => {
+            this.attackSprite.setVisible(false);
+            this.attackSprite.setScale(1);
+            this.attacking = false;
+        });
 
-        if (target.takeDamage) {
-            target.takeDamage(this.damage);
-            
-            this.createHitEffect(target.x, target.y);
-        }
+        enemiesInRange.forEach((enemyData) => {
+            if (enemyData.enemy.takeDamage && enemyData.enemy.active && !enemyData.enemy.isDead) {
+                enemyData.enemy.takeDamage(this.damage);
+                this.createHitEffect(enemyData.enemy.x, enemyData.enemy.y);
+            }
+        });
+        
+        this.show360AOEIndicator();
         
         this.playAttackSound();
+    }
+    
+    getAttackAnimation() {
+        if (this.scene.anims.exists('slash_attack_v02')) {
+            this.lastAttackAnim = this.lastAttackAnim === 'slash_attack_v01' ? 'slash_attack_v02' : 'slash_attack_v01';
+            return this.lastAttackAnim;
+        }
+        return 'slash_attack_v01';
+    }
+    
+    show360AOEIndicator() {
+        this.weaponVisual.setVisible(true);
+        this.weaponVisual.setAlpha(0.5);
+        
+        const ringEffect = this.scene.add.circle(this.player.x, this.player.y, 10, 0xff0000, 0);
+        ringEffect.setStrokeStyle(1, 0xffff00, 0.4);
+        
+        this.scene.tweens.add({
+            targets: ringEffect,
+            radius: this.attackRange,
+            alpha: 0,
+            duration: 400,
+            ease: 'Power2',
+            onComplete: () => {
+                ringEffect.destroy();
+            }
+        });
+        
+        this.scene.time.delayedCall(300, () => {
+            this.weaponVisual.setVisible(false);
+        });
     }
     
     createHitEffect(x, y) {

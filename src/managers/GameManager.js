@@ -65,7 +65,7 @@ export default class GameManager {
             damage: 10,
             moveSpeed: 100,
             fireRate: 1,
-            attackRange: 100
+            attackRange: 80
         };
     }
     
