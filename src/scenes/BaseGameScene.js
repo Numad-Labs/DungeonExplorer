@@ -43,6 +43,26 @@ export default class BaseGameScene extends Phaser.Scene {
         this.gameStartTime = 0;
     }
     
+    preload() {
+        // Add projectile sprite loading here
+        this.load.spritesheet('AOE_Fire_Ball_Projectile_VFX_V01', 'assets/Hero/AttackPatterns/fire_ball.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        });
+        
+        this.load.spritesheet('AOE_Fire_Blast_Attack_VFX_V01', 'assets/Hero/AttackPatterns/fire_blast.png', {
+            frameWidth: 48,
+            frameHeight: 48
+        });
+        
+        this.load.spritesheet('AOE_Ice_Shard_Projectile_VFX_V01', 'assets/Hero/AttackPatterns/ice_shard.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        });
+        
+        // Your existing sprite loading should be here too
+    }
+    
     create() {
         this.gameManager = this.game.registry.get('gameManager');
         if (!this.gameManager) {
@@ -811,6 +831,11 @@ export default class BaseGameScene extends Phaser.Scene {
             
             if (this.uiManager) {
                 this.uiManager.update(time, delta);
+            }
+            
+            // FIXED: Call playerAttackSystem.update() for projectile collision detection
+            if (this.playerAttackSystem && this.playerAttackSystem.update) {
+                this.playerAttackSystem.update();
             }
             
             if (this.playerAttackSystem && this.playerAttackSystem.updateStats) {

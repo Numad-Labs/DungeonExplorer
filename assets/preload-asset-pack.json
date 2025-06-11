@@ -137,6 +137,32 @@
                 "key": "AOE_Fire_Blast_Attack_VFX_V01"
             },
             {
+                "url": "assets/Hero/AttackPatterns/Ice/AOE_Ice_Shard_Projectile_VFX_V01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AOE_Ice_Shard_Projectile_VFX_V01"
+            },
+            {
+                "url": "assets/Hero/AttackPatterns/Ice/AOE_Ice_Shard_v01.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 48,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AOE_Ice_Shard_v01"
+            },
+            {
                 "url": "assets/Decoration/Atlas-props.png",
                 "frameConfig": {
                     "frameWidth": 32,
