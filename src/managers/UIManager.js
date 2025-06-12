@@ -17,6 +17,14 @@ export default class UIManager {
             elapsed: 0
         };
         
+        // Attack Cooldown UI
+        this.attackCooldowns = {
+            container: null,
+            slash: { icon: null, cooldownBar: null, background: null },
+            fire: { icon: null, cooldownBar: null, background: null },
+            ice: { icon: null, cooldownBar: null, background: null }
+        };
+        
         // Container for UI elements
         this.uiContainer = null;
         this.isInitialized = false;
@@ -30,6 +38,7 @@ export default class UIManager {
             this.createHealthBar();
             this.createLevelSystem();
             this.createTimer();
+            this.createAttackCooldownUI();
             this.setupEventListeners();
             
             this.isInitialized = true;
@@ -60,7 +69,6 @@ export default class UIManager {
             this.scene.add.existing(this.playerLevel);
             this.playerLevel.createProgressBar(0, 0, 204, 20);
             
-            // Set up level up callback
             this.playerLevel.onLevelUp((newLevel) => {
                 this.handleLevelUp(newLevel);
             });
@@ -98,21 +106,114 @@ export default class UIManager {
             fontStyle: 'bold'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(901);
         
-        // Add to container
         this.uiContainer.add([this.timer.background, this.timer.label, this.timer.text]);
         
         this.timer.elapsed = 0;
         console.log("Timer created");
     }
     
+    createAttackCooldownUI() {
+        this.attackCooldowns.container = this.scene.add.container(80, this.scene.cameras.main.height - 80);
+        this.attackCooldowns.container.setScrollFactor(0).setDepth(950);
+        
+        const attacks = [
+            { key: 'slash', color: 0x00ff00, x: 270, label: 'SLASH' },
+            { key: 'fire', color: 0xff4400, x: 300, label: 'FIRE' },
+            { key: 'ice', color: 0x00aaff, x: 330, label: 'ICE' }
+        ];
+        
+        attacks.forEach(attack => {
+            this.attackCooldowns[attack.key].background = this.scene.add.circle(
+                attack.x, -120, 10, 0x000000, 0.8
+            );
+            this.attackCooldowns[attack.key].background.setStrokeStyle(2, attack.color, 1);
+            
+            this.attackCooldowns[attack.key].icon = this.scene.add.circle(
+                attack.x, -120, 10, attack.color, 0.7
+            );
+            
+            this.attackCooldowns[attack.key].cooldownBar = this.scene.add.graphics();
+            
+            const label = this.scene.add.text(attack.x, 35, attack.label, {
+                fontFamily: 'Arial',
+                fontSize: '10px',
+                color: '#ffffff',
+                stroke: '#000000',
+                strokeThickness: 1
+            }).setOrigin(0.5);
+            
+            this.attackCooldowns.container.add([
+                this.attackCooldowns[attack.key].background,
+                this.attackCooldowns[attack.key].icon,
+                this.attackCooldowns[attack.key].cooldownBar,
+                label
+            ]);
+        });
+        
+        console.log("Attack cooldown UI created");
+    }
+    
+    updateAttackCooldowns() {
+        if (!this.scene.playerAttackSystem || !this.attackCooldowns.container) return;
+        
+        const attackSystem = this.scene.playerAttackSystem;
+        const currentTime = this.scene.time.now;
+        
+        const attacks = [
+            {
+                key: 'slash',
+                lastTime: attackSystem.lastSlashTime,
+                cooldown: attackSystem.slashCooldown,
+                color: 0x00ff00,
+                x: 270
+            },
+            {
+                key: 'fire',
+                lastTime: attackSystem.lastFireTime,
+                cooldown: attackSystem.fireCooldown,
+                color: 0xff4400,
+                x: 300
+            },
+            {
+                key: 'ice',
+                lastTime: attackSystem.lastIceTime,
+                cooldown: attackSystem.iceCooldown,
+                color: 0x00aaff,
+                x: 330
+            }
+        ];
+        
+        attacks.forEach(attack => {
+            const timeSinceLastAttack = currentTime - attack.lastTime;
+            const cooldownProgress = Math.min(timeSinceLastAttack / attack.cooldown, 1);
+            
+            this.attackCooldowns[attack.key].cooldownBar.clear();
+            
+            if (cooldownProgress < 1) {
+                const fillAngle = cooldownProgress * Math.PI * 2;
+                
+                this.attackCooldowns[attack.key].cooldownBar.fillStyle(0x000000, 0.6);
+                this.attackCooldowns[attack.key].cooldownBar.fillCircle(attack.x, -120, 11);
+                this.attackCooldowns[attack.key].cooldownBar.fillStyle(attack.color, 0.8);
+                this.attackCooldowns[attack.key].cooldownBar.beginPath();
+                this.attackCooldowns[attack.key].cooldownBar.moveTo(attack.x, -120);
+                this.attackCooldowns[attack.key].cooldownBar.arc(attack.x, -120, 11, -Math.PI / 2, -Math.PI / 2 + fillAngle, false);
+                this.attackCooldowns[attack.key].cooldownBar.closePath();
+                this.attackCooldowns[attack.key].cooldownBar.fillPath();
+                
+                this.attackCooldowns[attack.key].icon.setAlpha(0.3);
+            } else {
+                this.attackCooldowns[attack.key].icon.setAlpha(1);
+            }
+        });
+    }
+    
     setupEventListeners() {
         if (!this.gameManager?.events) return;
         
-        // Clean up existing listeners
         this.gameManager.events.off('experienceUpdated');
         this.gameManager.events.off('levelUp');
         
-        // Set up new listeners
         this.gameManager.events.on('experienceUpdated', () => {
             this.syncWithGameManager();
         });
@@ -125,18 +226,15 @@ export default class UIManager {
     handleLevelUp(newLevel) {
         console.log(`Level up: ${newLevel}`);
         
-        // Update GameManager
         if (this.gameManager) {
             this.gameManager.playerStats.level = newLevel;
         }
         
-        // Update level display
         if (this.playerLevel) {
             this.playerLevel.level = newLevel;
             this.playerLevel.updateText?.();
         }
         
-        // Show power-up selection
         if (this.scene.powerUpManager) {
             this.scene.powerUpManager.showPowerUpSelection();
         }
@@ -148,10 +246,8 @@ export default class UIManager {
         try {
             const { level, experience, nextLevelExp } = this.gameManager.playerStats;
             
-            // Update level system
             Object.assign(this.playerLevel, { level, experience, nextLevelExp });
             
-            // Update displays
             this.playerLevel.updateText?.();
             this.playerLevel.updateProgressBar?.();
             
@@ -165,19 +261,16 @@ export default class UIManager {
         
         this.timer.elapsed += delta / 1000;
         
-        // Update GameManager if available
         if (this.gameManager?.gameProgress) {
             this.gameManager.gameProgress.gameTime = this.timer.elapsed;
         }
         
-        // Format and display time
         const minutes = Math.floor(this.timer.elapsed / 60);
         const seconds = Math.floor(this.timer.elapsed % 60);
         const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         
         this.timer.text.setText(timeString);
         
-        // Pulse effect every minute
         if (Math.floor(this.timer.elapsed) % 60 === 0 && delta > 0 && minutes > 0) {
             this.pulseTimer();
         }
@@ -201,7 +294,6 @@ export default class UIManager {
         }
     }
     
-    // Simplified effect methods
     showDamageEffect() {
         this.healthBar?.showDamageFlash?.();
     }
@@ -227,7 +319,7 @@ export default class UIManager {
                 fontSize: '24px',
                 color: '#ffffff',
                 stroke: '#000000',
-                strokeThickness: 4
+                strokeThickness: 2
             }).setOrigin(0.5).setScrollFactor(0).setDepth(2000);
             
             this.scene.tweens.add({
@@ -256,8 +348,8 @@ export default class UIManager {
         try {
             this.updateHealthBar();
             this.updateTimer(delta);
+            this.updateAttackCooldowns();
             
-            // Reinitialize if components became inactive
             if (this.playerLevel && !this.playerLevel.active) {
                 this.createLevelSystem();
             }
@@ -269,17 +361,16 @@ export default class UIManager {
     shutdown() {
         console.log("Shutting down UIManager");
         
-        // Remove event listeners
         if (this.gameManager?.events) {
             this.gameManager.events.off('experienceUpdated');
             this.gameManager.events.off('levelUp');
         }
         
-        // Clean up components
         [
             this.timer.background,
             this.timer.label, 
             this.timer.text,
+            this.attackCooldowns.container,
             this.uiContainer
         ].forEach(component => {
             if (component?.destroy) {
@@ -287,8 +378,13 @@ export default class UIManager {
             }
         });
         
-        // Reset state
         this.isInitialized = false;
         this.timer = { text: null, background: null, label: null, elapsed: 0 };
+        this.attackCooldowns = {
+            container: null,
+            slash: { icon: null, cooldownBar: null, background: null },
+            fire: { icon: null, cooldownBar: null, background: null },
+            ice: { icon: null, cooldownBar: null, background: null }
+        };
     }
 }
