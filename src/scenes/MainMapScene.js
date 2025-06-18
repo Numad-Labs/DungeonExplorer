@@ -62,13 +62,13 @@ export default class MainMapScene extends BaseGameScene {
 		const wall_down_1 = mainMap.createLayer("Wall_down", ["Tileset 3"], -16, 13);
 
 		// wall_RU_1
-		const wall_RU_1 = mainMap.createLayer("Wall_RU", ["Tileset 3"], -15, -19);
+		const wall_RU_1 = mainMap.createLayer("Wall_RU", ["Tileset 3"], -16, -19);
 
 		// survive_Zone_1
 		const survive_Zone_1 = mainMap.createLayer("Survive_Zone", ["Survive_Zone"], 0, 0);
 
 		// wall_RD_1
-		const wall_RD_1 = mainMap.createLayer("Wall_RD", ["Tileset 3"], -15, -19);
+		const wall_RD_1 = mainMap.createLayer("Wall_RD", ["Tileset 3"], -16, -19);
 
 		// gold_AC_1
 		const gold_AC_1 = mainMap.createLayer("Gold_AC", ["Gold"], -14, -19);
@@ -184,21 +184,6 @@ export default class MainMapScene extends BaseGameScene {
 		this.stoneStatuePrefab_2 = stoneStatuePrefab_2;
 		this.stoneStatuePrefab_3 = stoneStatuePrefab_3;
 		this.torchAnim = torchAnim;
-		this.torchAnim_1 = torchAnim_1;
-		this.torchAnim_2 = torchAnim_2;
-		this.torchAnim_3 = torchAnim_3;
-		this.torchAnim_4 = torchAnim_4;
-		this.torchAnim_5 = torchAnim_5;
-		this.torchAnim_6 = torchAnim_6;
-		this.torchAnim_7 = torchAnim_7;
-		this.torchAnim_8 = torchAnim_8;
-		this.torchAnim_9 = torchAnim_9;
-		this.torchAnim_10 = torchAnim_10;
-		this.torchAnim_11 = torchAnim_11;
-		this.telAnimation = telAnimation;
-		this.telAnimation_1 = telAnimation_1;
-		this.telAnimation_2 = telAnimation_2;
-		this.telAnimation_3 = telAnimation_3;
 		this.mainMap = mainMap;
 
 		this.events.emit("scene-awake");
@@ -240,36 +225,6 @@ export default class MainMapScene extends BaseGameScene {
 	stoneStatuePrefab_3;
 	/** @type {Phaser.GameObjects.Sprite} */
 	torchAnim;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_1;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_2;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_3;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_4;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_5;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_6;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_7;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_8;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_9;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_10;
-	/** @type {Phaser.GameObjects.Sprite} */
-	torchAnim_11;
-	/** @type {Phaser.GameObjects.Sprite} */
-	telAnimation;
-	/** @type {Phaser.GameObjects.Sprite} */
-	telAnimation_1;
-	/** @type {Phaser.GameObjects.Sprite} */
-	telAnimation_2;
-	/** @type {Phaser.GameObjects.Sprite} */
-	telAnimation_3;
 	/** @type {Phaser.Tilemaps.Tilemap} */
 	mainMap;
 
@@ -282,7 +237,7 @@ export default class MainMapScene extends BaseGameScene {
 
 		try {
 			super.create();
-			
+
 			this.editorCreate();
 			this.setupCollisions();
 			this.player = this.playerPrefab;
@@ -301,18 +256,18 @@ export default class MainMapScene extends BaseGameScene {
 		try {
 			this.registerCollisionLayer(this.map_Col_1, "Map Collision");
 			this.registerCollisionLayer(this.backGround, "Background Collision");
-			
+
 			const statues = [
 				this.stoneStatuePrefab, this.stoneStatuePrefab_1, 
 				this.stoneStatuePrefab_2, this.stoneStatuePrefab_3
 			];
-			
+
 			statues.forEach((statue, index) => {
 				if (statue) {
 					this.registerStaticObstacle(statue, `Stone Statue ${index + 1}`);
 				}
 			});
-			
+
 			this.setupZombieObstacleCollisions();
 		} catch (error) {
 			console.error("Error setting up zombie collision system:", error);
@@ -371,7 +326,7 @@ export default class MainMapScene extends BaseGameScene {
 
 	update(time, delta) {
 		super.update(time, delta);
-		
+
 		try {
 			if (this.player && !this.player.isDead) {
 				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
