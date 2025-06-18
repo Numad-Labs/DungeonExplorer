@@ -983,6 +983,45 @@
                 "key": "playerAsset"
             },
             {
+                "url": "assets/Hero/Police Droid/Police Death.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Police Death"
+            },
+            {
+                "url": "assets/Hero/Police Droid/Police run.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Police run"
+            },
+            {
+                "url": "assets/Hero/Police Droid/Police shooter.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Police shooter"
+            },
+            {
                 "url": "assets/Animated prop/RiverShallowSheet_v01.png",
                 "frameConfig": {
                     "frameWidth": 32,

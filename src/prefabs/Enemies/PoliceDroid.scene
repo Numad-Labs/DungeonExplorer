@@ -1,0 +1,35 @@
+{
+    "id": "f40a74b6-4876-47ce-8806-f6efc4be3bd9",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1280,
+        "borderHeight": 720
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "0e28a0d6-888c-41cb-969f-a6abd5c149ee",
+            "label": "policeDroidRun",
+            "texture": {
+                "key": "Police run",
+                "frame": 0
+            },
+            "x": 191,
+            "y": 94,
+            "animationPlayMethod": 1,
+            "animationKey": "PoliceDroidRun"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

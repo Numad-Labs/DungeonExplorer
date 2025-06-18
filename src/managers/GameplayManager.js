@@ -2,6 +2,7 @@ import GameManager from "./GameManager";
 import ExpOrb from "../prefabs/ExpOrb";
 import Zombie from "../prefabs/Enemies/Zombie1";
 import Zombie2 from "../prefabs/Enemies/Zombie2";
+import PoliceDroid from "../prefabs/Enemies/PoliceDroid";
 
 export default class GameplayManager {
     constructor(scene) {
@@ -48,6 +49,9 @@ export default class GameplayManager {
         }
         if (!this.scene.textures.exists('Zombie2RunAni')) {
             this.createZombieTexture('Zombie2RunAni');
+        }
+        if (!this.scene.textures.exists('Police run')){
+            this.createZombieTexture('Police run')
         }
         
         // Create exp orb texture if missing
@@ -137,61 +141,73 @@ export default class GameplayManager {
     }
     
     // Enemy spawning
-    spawnRandomEnemy() {
-        if (!this.player) return;
-        
-        const maxEnemies = this.gameManager.gameProgress.maxEnemies;
-        if (this.enemies.getChildren().length >= maxEnemies) return;
-        
-        // Random position around player
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 800;
-        const x = this.player.x + Math.cos(angle) * distance;
-        const y = this.player.y + Math.sin(angle) * distance;
-        
-        // Choose enemy type based on difficulty
-        const enemyType = Math.random() < 0.7 ? 'zombie' : 'zombieBig';
-        
-        return this.spawnEnemy(x, y, enemyType);
+spawnRandomEnemy() {
+    if (!this.player) return;
+    
+    const maxEnemies = this.gameManager.gameProgress.maxEnemies;
+    if (this.enemies.getChildren().length >= maxEnemies) return;
+    
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 800;
+    const x = this.player.x + Math.cos(angle) * distance;
+    const y = this.player.y + Math.sin(angle) * distance;
+
+    let enemyType;
+    const roll = Math.random();
+    
+    if (roll < 0.5) {
+        enemyType = 'zombie';
+    } else if (roll < 0.8) {
+        enemyType = 'zombieBig';
+    } else {
+        enemyType = 'policeDroid'; 
     }
     
-    spawnEnemy(x, y, enemyType = 'zombie') {
-        try {
-            const difficulty = this.gameManager.gameProgress.currentDifficulty;
-            let enemy;
-            
-            if (enemyType === 'zombieBig') {
-                enemy = new Zombie2(this.scene, x, y);
-                enemy.maxHealth = 50 * (1 + (difficulty - 1) * 0.2);
-                enemy.damage = 20 * (1 + (difficulty - 1) * 0.1);
-                enemy.speed = 40 * (1 + (difficulty - 1) * 0.05);
-            } else {
-                enemy = new Zombie(this.scene, x, y);
-                enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
-                enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
-                enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
-            }
-            
-            enemy.health = enemy.maxHealth;
-            enemy.enemyType = enemyType;
-            
-            this.scene.add.existing(enemy);
-            this.enemies.add(enemy);
-            
-            // Configure physics
-            if (enemy.body) {
-                enemy.body.setBounce(0.1, 0.1);
-                enemy.body.setCollideWorldBounds(false);
-            }
-            
-            console.log(`Spawned ${enemyType} at (${Math.round(x)}, ${Math.round(y)})`);
-            return enemy;
-            
-        } catch (error) {
-            console.error("Error spawning enemy:", error);
-            return null;
+    return this.spawnEnemy(x, y, enemyType);
+}
+    
+spawnEnemy(x, y, enemyType = 'zombie') {
+    try {
+        const difficulty = this.gameManager.gameProgress.currentDifficulty;
+        let enemy;
+        
+        if (enemyType === 'zombieBig') {
+            enemy = new Zombie2(this.scene, x, y);
+            enemy.maxHealth = 50 * (1 + (difficulty - 1) * 0.2);
+            enemy.damage = 20 * (1 + (difficulty - 1) * 0.1);
+            enemy.speed = 40 * (1 + (difficulty - 1) * 0.05);
+        } else if (enemyType === 'policeDroid') {
+            enemy = new PoliceDroid(this.scene, x, y);
+            enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
+            enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
+            enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
+        } else {
+            enemy = new Zombie(this.scene, x, y);
+            enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
+            enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
+            enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
         }
+        
+        enemy.health = enemy.maxHealth;
+        enemy.enemyType = enemyType;
+        
+        this.scene.add.existing(enemy);
+        this.enemies.add(enemy);
+        
+        // Configure physics
+        if (enemy.body) {
+            enemy.body.setBounce(0.1, 0.1);
+            enemy.body.setCollideWorldBounds(false);
+        }
+        
+        console.log(`Spawned ${enemyType} at (${Math.round(x)}, ${Math.round(y)})`);
+        return enemy;
+        
+    } catch (error) {
+        console.error("Error spawning enemy:", error);
+        return null;
     }
+}
     
     // Experience orb spawning
     spawnExperienceOrb(x, y, value = 1) {
@@ -311,6 +327,12 @@ export default class GameplayManager {
             const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
             this.spawnEnemy(world.x, world.y, 'zombieBig');
         });
+
+        keyboard.on('keydown-V', () => {
+            const pointer = this.scene.input.activePointer;
+            const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            this.spawnEnemy(world.x, world.y, 'policeDroid');
+        });
         
         keyboard.on('keydown-E', () => {
             const pointer = this.scene.input.activePointer;
@@ -339,7 +361,7 @@ export default class GameplayManager {
             });
         });
         
-        console.log("Debug controls: Z=Zombie, X=BigZombie, E=Orb, K=KillAll, O=10Orbs, L=ListEnemies");
+        console.log("Debug controls: Z=Zombie, X=BigZombie, V=PoliceDroid, E=Orb, K=KillAll, O=10Orbs, L=ListEnemies");
     }
     
     update(time, delta) {
@@ -355,7 +377,7 @@ export default class GameplayManager {
         
         // Clean up controls
         if (this.scene.input?.keyboard) {
-            ['keydown-E', 'keydown-Z', 'keydown-X', 'keydown-K', 'keydown-O', 'keydown-L'].forEach(event => {
+            ['keydown-E', 'keydown-Z', 'keydown-V', 'keydown-X', 'keydown-K', 'keydown-O', 'keydown-L'].forEach(event => {
                 this.scene.input.keyboard.removeAllListeners(event);
             });
         }
