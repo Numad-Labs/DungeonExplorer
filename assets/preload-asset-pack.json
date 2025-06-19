@@ -163,6 +163,45 @@
                 "key": "AOE_Ice_Shard_v01"
             },
             {
+                "url": "assets/Hero/assasin archer/Archer Bandit-Attack_85x112.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Attack_85x112"
+            },
+            {
+                "url": "assets/Hero/assasin archer/Archer Bandit-Death_85x32.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Death_85x32"
+            },
+            {
+                "url": "assets/Hero/assasin archer/Archer Bandit-Run_85x32.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Run_85x32"
+            },
+            {
                 "url": "assets/Decoration/Atlas-props.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -213,6 +252,19 @@
                 },
                 "type": "spritesheet",
                 "key": "attack_1"
+            },
+            {
+                "url": "assets/Hero/assasin tank/attacks.png",
+                "frameConfig": {
+                    "frameWidth": 144,
+                    "frameHeight": 80,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "attacks"
             },
             {
                 "url": "assets/Animated prop/beach - standard - with thick foam - spritesheet.png",
@@ -584,6 +636,58 @@
                 "key": "Crystals2-improved refraction_9"
             },
             {
+                "url": "assets/Hero/Assasin/Dagger Bandit-Attack.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Dagger Bandit-Attack"
+            },
+            {
+                "url": "assets/Hero/Assasin/Dagger Bandit-Death.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Dagger Bandit-Death"
+            },
+            {
+                "url": "assets/Hero/Assasin/Dagger Bandit-Run.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Dagger Bandit-Run"
+            },
+            {
+                "url": "assets/Hero/assasin tank/damaged.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "damaged"
+            },
+            {
                 "url": "assets/Decoration/DARK Edition Tileset No background.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -608,6 +712,19 @@
                 },
                 "type": "spritesheet",
                 "key": "DARK Edition Tileset with background"
+            },
+            {
+                "url": "assets/Hero/assasin tank/death.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 80,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "death"
             },
             {
                 "url": "assets/Hero/Droid Assassin/death hit.png",
@@ -1384,6 +1501,19 @@
                 },
                 "type": "spritesheet",
                 "key": "Run"
+            },
+            {
+                "url": "assets/Hero/assasin tank/run.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 80,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "run_1"
             },
             {
                 "url": "assets/Static prop/sharp rocks_0.png",
@@ -2385,6 +2515,19 @@
                 },
                 "type": "spritesheet",
                 "key": "tumor-destroy"
+            },
+            {
+                "url": "assets/Hero/assasin archer/Volley VFX 74x111.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Volley VFX 74x111"
             },
             {
                 "url": "assets/Decoration/Wall.png",
