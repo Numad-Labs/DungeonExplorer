@@ -228,6 +228,19 @@
                 "key": "beach - standard - with thick foam - spritesheet"
             },
             {
+                "url": "assets/Static prop/BeachDeckSheet.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "BeachDeckSheet"
+            },
+            {
                 "url": "assets/Decoration/Bed.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -335,6 +348,45 @@
                 },
                 "type": "spritesheet",
                 "key": "bone - big - 2"
+            },
+            {
+                "url": "assets/Static prop/bones_15.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "bones_15"
+            },
+            {
+                "url": "assets/Static prop/bones_16.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "bones_16"
+            },
+            {
+                "url": "assets/Static prop/bones_17.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "bones_17"
             },
             {
                 "url": "assets/Static prop/carriage - no tent.png",

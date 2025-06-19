@@ -14,6 +14,7 @@ const CONFIG = {
     GAME: '1'
   },
   SCENES: {
+    // MAIN: 'MainMapScene'
     MAIN: 'MainMapScene'
   }
 };

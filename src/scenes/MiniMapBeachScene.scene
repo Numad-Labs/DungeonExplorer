@@ -12,57 +12,6 @@
     },
     "displayList": [
         {
-            "type": "TilemapLayer",
-            "id": "858394db-0664-42a7-86a5-b1891636f8d8",
-            "label": "water_1",
-            "scope": "CLASS",
-            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
-            "layerName": "water",
-            "tilesets": [
-                "beach - standard - with thick foam - spritesheet",
-                "golden monument anim-going up-packed sheet",
-                "rocky skull structure-sand",
-                "stranded ship-sand",
-                "TreePalmSheet_03",
-                "TreePalmSheet_01",
-                "TreePalmSheet_02"
-            ]
-        },
-        {
-            "type": "TilemapLayer",
-            "id": "b176c0af-2c8a-4650-9f30-bf03526e95c4",
-            "label": "respawn_point_1",
-            "scope": "CLASS",
-            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
-            "layerName": "respawn point",
-            "tilesets": [
-                "beach - standard - with thick foam - spritesheet",
-                "golden monument anim-going up-packed sheet",
-                "rocky skull structure-sand",
-                "stranded ship-sand",
-                "TreePalmSheet_03",
-                "TreePalmSheet_01",
-                "TreePalmSheet_02"
-            ]
-        },
-        {
-            "type": "TilemapLayer",
-            "id": "7f8fd35b-ed0a-415e-b2df-9f5dd385e302",
-            "label": "ground_1",
-            "scope": "CLASS",
-            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
-            "layerName": "Ground",
-            "tilesets": [
-                "beach - standard - with thick foam - spritesheet",
-                "golden monument anim-going up-packed sheet",
-                "rocky skull structure-sand",
-                "stranded ship-sand",
-                "TreePalmSheet_03",
-                "TreePalmSheet_01",
-                "TreePalmSheet_02"
-            ]
-        },
-        {
             "prefabId": "c1d38780-c2b8-44b4-9d18-3b084f848c55",
             "id": "1d7c66f9-f62c-4a95-bc0d-67ae48272ba0",
             "unlock": [
@@ -104,10 +53,189 @@
         },
         {
             "type": "TilemapLayer",
-            "id": "e88e1ea1-f210-41b8-833a-5345bda545c4",
+            "id": "c29d5406-4eca-4817-b22a-123754422bb6",
+            "label": "water_1",
+            "scope": "CLASS",
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "water",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "d2db21b5-c616-45cb-bc00-8c834f3eca81",
+            "label": "ground_1",
+            "scope": "CLASS",
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "Ground",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "be78ff5a-a12c-48ea-9bad-023fcb64cd8a",
+            "label": "bridge_1",
+            "scope": "CLASS",
+            "y": -9,
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "bridge",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "386ec7eb-bc53-45b7-80a1-44149ca86a6a",
+            "label": "respawn_point_1",
+            "scope": "CLASS",
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "respawn point",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "a82adadf-67c9-49b2-b111-842b96adf6cc",
+            "label": "block_1",
+            "scope": "CLASS",
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "Block",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "356cb3d8-95bb-4f75-8e90-abe43d7759f3",
+            "label": "recked_ship_1",
+            "scope": "CLASS",
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "Recked ship",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "624cf354-6c16-455a-9afb-48c58912ad84",
+            "label": "decor_1",
+            "scope": "CLASS",
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "decor",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "d87dde70-11db-4995-8b04-a827d149f317",
+            "label": "block",
+            "scope": "CLASS",
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
+            "layerName": "Block",
+            "tilesets": [
+                "beach - standard - with thick foam - spritesheet",
+                "golden monument anim-going up-packed sheet",
+                "rocky skull structure-sand",
+                "stranded ship-sand",
+                "TreePalmSheet_03",
+                "TreePalmSheet_01",
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
+            ]
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "8e78e754-df55-4855-9d49-ddf94f996010",
             "label": "skull_stone_1",
             "scope": "CLASS",
-            "tilemapId": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "x": 4,
+            "y": 5,
+            "tilemapId": "4ac39b00-9e7f-4621-9182-18eba59ede66",
             "layerName": "Skull stone",
             "tilesets": [
                 "beach - standard - with thick foam - spritesheet",
@@ -116,7 +244,12 @@
                 "stranded ship-sand",
                 "TreePalmSheet_03",
                 "TreePalmSheet_01",
-                "TreePalmSheet_02"
+                "TreePalmSheet_02",
+                "bones_17",
+                "bones_15",
+                "bones_16",
+                "TreePalmSheet_02",
+                "BeachDeckSheet"
             ]
         },
         {
@@ -134,7 +267,7 @@
     ],
     "plainObjects": [
         {
-            "id": "d61cad6e-41a7-4d2b-8b1b-5340aef69bcf",
+            "id": "4ac39b00-9e7f-4621-9182-18eba59ede66",
             "type": "Tilemap",
             "label": "miniMapBeachBiom",
             "key": "MiniMapBeachBiom",
@@ -166,6 +299,26 @@
                 {
                     "name": "TreePalmSheet_02",
                     "imageKey": "TreePalmSheet_02"
+                },
+                {
+                    "name": "bones_17",
+                    "imageKey": "bones_17"
+                },
+                {
+                    "name": "bones_15",
+                    "imageKey": "bones_15"
+                },
+                {
+                    "name": "bones_16",
+                    "imageKey": "bones_16"
+                },
+                {
+                    "name": "TreePalmSheet_02",
+                    "imageKey": "TreePalmSheet_02"
+                },
+                {
+                    "name": "BeachDeckSheet",
+                    "imageKey": "BeachDeckSheet"
                 }
             ]
         }

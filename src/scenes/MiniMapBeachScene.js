@@ -32,15 +32,11 @@ export default class MiniMapBeachScene extends Phaser.Scene {
 		miniMapBeachBiom.addTilesetImage("TreePalmSheet_03", "TreePalmSheet_03");
 		miniMapBeachBiom.addTilesetImage("TreePalmSheet_01", "TreePalmSheet_01");
 		miniMapBeachBiom.addTilesetImage("TreePalmSheet_02", "TreePalmSheet_02");
-
-		// water_1
-		const water_1 = miniMapBeachBiom.createLayer("water", ["beach - standard - with thick foam - spritesheet"], 0, 0);
-
-		// respawn_point_1
-		const respawn_point_1 = miniMapBeachBiom.createLayer("respawn point", [], 0, 0);
-
-		// ground_1
-		const ground_1 = miniMapBeachBiom.createLayer("Ground", ["beach - standard - with thick foam - spritesheet"], 0, 0);
+		miniMapBeachBiom.addTilesetImage("bones_17", "bones_17");
+		miniMapBeachBiom.addTilesetImage("bones_15", "bones_15");
+		miniMapBeachBiom.addTilesetImage("bones_16", "bones_16");
+		miniMapBeachBiom.addTilesetImage("TreePalmSheet_02", "TreePalmSheet_02");
+		miniMapBeachBiom.addTilesetImage("BeachDeckSheet", "BeachDeckSheet");
 
 		// BeachTreePrefab
 		const beachTreePrefab = new BeachTreePrefab(this, 1402, 842);
@@ -56,19 +52,48 @@ export default class MiniMapBeachScene extends Phaser.Scene {
 		const beachTreePrefab2 = new BeachTreePrefab2(this, 1201, 816);
 		this.add.existing(beachTreePrefab2);
 
+		// water_1
+		const water_1 = miniMapBeachBiom.createLayer("water", ["beach - standard - with thick foam - spritesheet"], 0, 0);
+
+		// ground_1
+		const ground_1 = miniMapBeachBiom.createLayer("Ground", ["beach - standard - with thick foam - spritesheet"], 0, 0);
+
+		// bridge_1
+		const bridge_1 = miniMapBeachBiom.createLayer("bridge", ["BeachDeckSheet"], 0, -9);
+
+		// respawn_point_1
+		const respawn_point_1 = miniMapBeachBiom.createLayer("respawn point", [], 0, 0);
+
+		// block_1
+		const block_1 = miniMapBeachBiom.createLayer("Block", ["BeachDeckSheet"], 0, 0);
+
+		// recked_ship_1
+		const recked_ship_1 = miniMapBeachBiom.createLayer("Recked ship", ["stranded ship-sand","golden monument anim-going up-packed sheet"], 0, 0);
+
+		// decor_1
+		const decor_1 = miniMapBeachBiom.createLayer("decor", ["bones_15","bones_16","bones_17"], 0, 0);
+
+		// block
+		const block = miniMapBeachBiom.createLayer("Block", ["BeachDeckSheet"], 0, 0);
+
 		// skull_stone_1
-		const skull_stone_1 = miniMapBeachBiom.createLayer("Skull stone", ["rocky skull structure-sand"], 0, 0);
+		const skull_stone_1 = miniMapBeachBiom.createLayer("Skull stone", ["rocky skull structure-sand"], 4, 5);
 
 		// playerPrefab
 		const playerPrefab = new PlayerPrefab(this, 846, 1110);
 		this.add.existing(playerPrefab);
 
-		this.water_1 = water_1;
-		this.respawn_point_1 = respawn_point_1;
-		this.ground_1 = ground_1;
 		this.beachTreePrefab = beachTreePrefab;
 		this.beachTree1Prefab = beachTree1Prefab;
 		this.beachTreePrefab2 = beachTreePrefab2;
+		this.water_1 = water_1;
+		this.ground_1 = ground_1;
+		this.bridge_1 = bridge_1;
+		this.respawn_point_1 = respawn_point_1;
+		this.block_1 = block_1;
+		this.recked_ship_1 = recked_ship_1;
+		this.decor_1 = decor_1;
+		this.block = block;
 		this.skull_stone_1 = skull_stone_1;
 		this.playerPrefab = playerPrefab;
 		this.miniMapBeachBiom = miniMapBeachBiom;
@@ -76,18 +101,28 @@ export default class MiniMapBeachScene extends Phaser.Scene {
 		this.events.emit("scene-awake");
 	}
 
-	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	water_1;
-	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	respawn_point_1;
-	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	ground_1;
 	/** @type {BeachTreePrefab} */
 	beachTreePrefab;
 	/** @type {BeachTree1Prefab} */
 	beachTree1Prefab;
 	/** @type {BeachTreePrefab2} */
 	beachTreePrefab2;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	water_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	ground_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	bridge_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	respawn_point_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	block_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	recked_ship_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	decor_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	block;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	skull_stone_1;
 	/** @type {PlayerPrefab} */
@@ -101,16 +136,22 @@ export default class MiniMapBeachScene extends Phaser.Scene {
 
 	create() {
 
+		this.cameras.main.setBounds(0, 0, 2560, 2560);
+		this.physics.world.bounds.width = 2560;
+		this.physics.world.bounds.height = 2560;
+
+
 		this.editorCreate();
-		this.playerPrefab.setDepth(1)
+		this.playerPrefab.setDepth(2)
+		this.bridge_1.setDepth(1)
 	    const waterTiles = this.water_1.getTilesWithin();
 
 		this.beachTreePrefab.setupCollision(this.playerPrefab)
 		this.beachTree1Prefab.setupCollision(this.playerPrefab)
 		this.beachTreePrefab2.setupCollision(this.playerPrefab)
 
-		this.physics.add.collider(this.playerPrefab, this.skull_stone_1);
-		this.skull_stone_1.setCollisionBetween(0, 10000);
+		this.physics.add.collider(this.playerPrefab, this.block_1);
+		this.block_1.setCollisionBetween(0, 10000);
 
 	    waterTiles.forEach(tile => {
 	    if (tile && tile.index === 227) {
