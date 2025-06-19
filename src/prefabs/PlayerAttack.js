@@ -18,7 +18,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         // Slash attack (AOE melee)
         this.slashDamage = player.slashDamage || 10;
         this.slashFireRate = player.slashFireRate || 1;
-        this.slashRange = player.slashRange || 50;
+        this.slashRange = player.slashRange || 500;
         this.slashCooldown = 1000 / this.slashFireRate;
         this.lastSlashTime = 0;
         

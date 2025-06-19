@@ -256,7 +256,7 @@ spawnEnemy(x, y, enemyType = 'zombie') {
     checkEnemyBounds() {
         if (!this.enemies || !this.player) return;
         
-        const maxDistance = 1500;
+        const maxDistance = 700;
         
         this.enemies.getChildren().forEach(enemy => {
             if (!enemy.active) return;
