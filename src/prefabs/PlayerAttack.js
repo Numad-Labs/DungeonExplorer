@@ -14,11 +14,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.player = player;
         
         scene.add.existing(this);
+        this.setDepth(18);
         
         // Slash attack (AOE melee)
         this.slashDamage = player.slashDamage || 10;
         this.slashFireRate = player.slashFireRate || 1;
-        this.slashRange = player.slashRange || 500;
+        this.slashRange = player.slashRange || 50;
         this.slashCooldown = 1000 / this.slashFireRate;
         this.lastSlashTime = 0;
         
@@ -57,15 +58,16 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     /* START-USER-CODE */
     
     setupWeaponVisuals() {
-        // Slash range indicator
         this.slashVisual = this.scene.add.arc(0, 0, this.slashRange, 0, Math.PI / 2, false, 0x00ff00, 0.3);
         this.slashVisual.setVisible(false);
+        this.slashVisual.setDepth(17);
         this.add(this.slashVisual);
         
         // Slash attack sprite
         this.slashSprite = this.scene.add.sprite(0, 0, 'AOE_Basic_Slash_Attack_V01');
         this.slashSprite.setVisible(false);
         this.slashSprite.setOrigin(0.5, 0.5);
+        this.slashSprite.setDepth(18);
         this.add(this.slashSprite);
     }
     
@@ -205,10 +207,10 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.x = this.player.x;
         this.y = this.player.y;
         
-        // Show slash animation
         this.slashSprite.setPosition(0, 0);
         this.slashSprite.setVisible(true);
         this.slashSprite.setScale(1.2);
+        this.slashSprite.setDepth(18);
         this.slashSprite.play('slash_attack_v01');
         
         this.slashSprite.once('animationcomplete', () => {
@@ -216,7 +218,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             this.slashSprite.setScale(1);
         });
 
-        // Damage all enemies in range
         enemiesInRange.forEach((enemyData) => {
             if (enemyData.enemy.takeDamage && enemyData.enemy.active && !enemyData.enemy.isDead) {
                 enemyData.enemy.takeDamage(this.slashDamage);
@@ -244,6 +245,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.scene.physics.add.existing(fireProjectile);
         
         fireProjectile.setScale(0.8);
+        fireProjectile.setDepth(18);
         fireProjectile.play('fire_projectile');
         
         const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
@@ -260,20 +262,21 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         fireProjectile.isFireProjectile = true;
         
         this.fireProjectiles.add(fireProjectile);
+        
+        console.log(`Fire projectile spawned at depth ${fireProjectile.depth}`);
     }
     
     explodeFireProjectile(projectile) {
         if (!projectile.active) return;
         
-        // Create explosion effect
         if (this.scene.anims.exists('fire_explosion')) {
             const explosion = this.scene.add.sprite(projectile.x, projectile.y, 'AOE_Fire_Blast_Attack_VFX_V01');
             explosion.setScale(1.2);
+            explosion.setDepth(19);
             explosion.play('fire_explosion');
             explosion.once('animationcomplete', () => explosion.destroy());
         }
         
-        // Deal damage to nearby enemies
         if (this.scene.enemies) {
             const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
             enemies.forEach(enemy => {
@@ -309,6 +312,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.scene.physics.add.existing(iceProjectile);
         
         iceProjectile.setScale(0.8);
+        iceProjectile.setDepth(18);
         iceProjectile.play('ice_projectile');
         
         const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
@@ -333,6 +337,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             const iceExplosion = this.scene.add.sprite(x, y, 'AOE_Ice_Shard_v01');
             iceExplosion.setScale(0.8);
             iceExplosion.setOrigin(0.5, 0.5);
+            iceExplosion.setDepth(19);
             iceExplosion.play('ice_explosion');
             iceExplosion.once('animationcomplete', () => iceExplosion.destroy());
         }
@@ -386,7 +391,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         
         if (enemy.originalTint !== undefined) {
             enemy.setTint(enemy.originalTint);
-        } else {
+        } else { 
             enemy.clearTint();
         }
     }
@@ -431,7 +436,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         }
     }
     
-    // HELPER METHODS
     findNearestEnemyInRange(range) {
         if (!this.scene.enemies || !this.player) return null;
         
@@ -458,6 +462,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         
         const ringEffect = this.scene.add.circle(this.player.x, this.player.y, 10, 0x00ff00, 0);
         ringEffect.setStrokeStyle(3, 0x00ff00, 0.8);
+        ringEffect.setDepth(17);
         
         this.scene.tweens.add({
             targets: ringEffect,
@@ -473,9 +478,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         });
     }
     
-    // UPDATE METHOD
     update() {
-        // Update fire projectiles
         this.fireProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isFireProjectile) return;
             
@@ -508,7 +511,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             });
         });
         
-        // Update ice projectiles
         this.iceProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isIceProjectile) return;
             

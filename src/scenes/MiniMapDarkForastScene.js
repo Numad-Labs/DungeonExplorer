@@ -1,14 +1,14 @@
-
 // You can write more code here
 
 /* START OF COMPILED CODE */
 
+import BaseGameScene from "./BaseGameScene";
 import PlayerPrefab from "../prefabs/PlayerPrefab";
 import LampPrefab from "../prefabs/LampPrefab";
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class MiniMapDarkForastScene extends Phaser.Scene {
+export default class MiniMapDarkForastScene extends BaseGameScene {
 
 	constructor() {
 		super("MiniMapDarkForastScene");
@@ -203,37 +203,111 @@ export default class MiniMapDarkForastScene extends Phaser.Scene {
 	miniMapDarkForast;
 
 	/* START-USER-CODE */
-
-	// Write your code here
-
+	preload() {
+	    super.preload();
+	}
 	create() {
-
 		this.cameras.main.setBounds(0, 0, 2560, 2560);
-		this.physics.world.bounds.width = 1000;
-		this.physics.world.bounds.height = 800;
+		this.physics.world.bounds.width = 2560;
+		this.physics.world.bounds.height = 2560;
 
-		this.editorCreate();
+		try {
+			// Create tilemap layers FIRST
+			this.editorCreate();
+			
+			// THEN initialize BaseGameScene
+			super.create();
 
-		this.lampPrefab.setupCollision(this.playerPrefab)
-		this.lampPrefab_1.setupCollision(this.playerPrefab)
-		this.lampPrefab_2.setupCollision(this.playerPrefab)
-		this.lampPrefab_3.setupCollision(this.playerPrefab)
-		this.lampPrefab_4.setupCollision(this.playerPrefab)
-		this.lampPrefab_5.setupCollision(this.playerPrefab)
+			this.setupCollisions();
+			this.player = this.playerPrefab;
+			this.initializeManagers();
+			this.setupPlayerAttack();
+			this.setupTestControls();
+			this.setupZombieCollisionSystem();
+			this.startEnemySpawning();
+		} catch (error) {
+			console.error("Error in MiniMapDarkForastScene create:", error);
+		}
+	}
 
-		this.physics.add.collider(this.playerPrefab, this.cliff_1);
-		this.cliff_1.setCollisionBetween(0, 10000);
-		// this.cliff_1.renderDebug(this.add.graphics());
+	setupCollisions() {
+		try {
+			// Check if layers exist before setting up collisions
+			if (this.lampPrefab) this.lampPrefab.setupCollision(this.playerPrefab);
+			if (this.lampPrefab_1) this.lampPrefab_1.setupCollision(this.playerPrefab);
+			if (this.lampPrefab_2) this.lampPrefab_2.setupCollision(this.playerPrefab);
+			if (this.lampPrefab_3) this.lampPrefab_3.setupCollision(this.playerPrefab);
+			if (this.lampPrefab_4) this.lampPrefab_4.setupCollision(this.playerPrefab);
+			if (this.lampPrefab_5) this.lampPrefab_5.setupCollision(this.playerPrefab);
 
-		this.physics.add.collider(this.playerPrefab, this.rampt_1);
-		this.rampt_1.setCollisionBetween(0, 10000);
-		// this.rampt_1.renderDebug(this.add.graphics());
+			if (this.cliff_1) {
+				this.physics.add.collider(this.playerPrefab, this.cliff_1);
+				this.cliff_1.setCollisionBetween(0, 10000);
+			}
 
-		this.physics.add.collider(this.playerPrefab, this.base_1);
-		this.base_1.setCollisionBetween(0, 10000);
-		// this.base_1.renderDebug(this.add.graphics());
+			if (this.rampt_1) {
+				this.physics.add.collider(this.playerPrefab, this.rampt_1);
+				this.rampt_1.setCollisionBetween(0, 10000);
+			}
 
+			if (this.base_1) {
+				this.physics.add.collider(this.playerPrefab, this.base_1);
+				this.base_1.setCollisionBetween(0, 10000);
+			}
+		} catch (error) {
+			console.error("Error setting up dark forest collisions:", error);
+		}
+	}
 
+	setupZombieCollisionSystem() {
+		try {
+			// Register collision layers for zombies (only if they exist)
+			if (this.cliff_1) {
+				this.registerCollisionLayer(this.cliff_1, "Cliff Collision");
+			}
+			if (this.rampt_1) {
+				this.registerCollisionLayer(this.rampt_1, "Ramp Collision");
+			}
+			if (this.base_1) {
+				this.registerCollisionLayer(this.base_1, "Base Collision");
+			}
+
+			// Register lamp obstacles
+			const lamps = [
+				this.lampPrefab, this.lampPrefab_1, this.lampPrefab_2,
+				this.lampPrefab_3, this.lampPrefab_4, this.lampPrefab_5
+			];
+			lamps.forEach((lamp, index) => {
+				if (lamp) {
+					this.registerStaticObstacle(lamp, `Forest Lamp ${index + 1}`);
+				}
+			});
+
+			this.setupZombieObstacleCollisions();
+		} catch (error) {
+			console.error("Error setting up dark forest zombie collision system:", error);
+		}
+	}
+
+	trackEnemyKill(enemy) {
+		this.removeZombie(enemy);
+		super.trackEnemyKill(enemy);
+	}
+
+	update(time, delta) {
+		super.update(time, delta);
+
+		try {
+			if (this.player && !this.player.isDead) {
+				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+			}
+		} catch (error) {
+			console.error("Error in MiniMapDarkForastScene update:", error);
+		}
+	}
+
+	shutdown() {
+		super.shutdown();
 	}
 
 	/* END-USER-CODE */

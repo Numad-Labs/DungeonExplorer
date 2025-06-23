@@ -1,4 +1,3 @@
-
 // You can write more code here
 
 /* START OF COMPILED CODE */
@@ -16,6 +15,12 @@ export default class MainMapScene extends BaseGameScene {
 
 		/* START-USER-CTR-CODE */
 		// BaseGameScene already has manager properties and collision system
+		
+		this.portals = [];
+		this.activePortal = null;
+		this.portalTimer = null;
+		this.portalActivationInterval = 30000;
+		this.availableScenes = ["MiniMapDarkForastScene", "MiniMapBossFightScene", "MiniMapBeachScene", "MiniMapLavaScene"];
 		/* END-USER-CTR-CODE */
 	}
 
@@ -243,12 +248,272 @@ export default class MainMapScene extends BaseGameScene {
 			this.player = this.playerPrefab;
 			this.initializeManagers();
 			this.setupPlayerAttack();
-			this.setupTeleportation();
+			this.setupPortalSystem();
 			this.setupTestControls();
 			this.setupZombieCollisionSystem();
 			this.startEnemySpawning();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
+		}
+	}
+
+	setupPortalSystem() {
+		try {
+			const portalSprites = [
+				this.children.getByName ? this.children.getByName('telAnimation') : null,
+				this.children.getByName ? this.children.getByName('telAnimation_1') : null,
+				this.children.getByName ? this.children.getByName('telAnimation_2') : null,
+				this.children.getByName ? this.children.getByName('telAnimation_3') : null
+			];
+
+			if (!portalSprites[0]) {
+				const allSprites = this.children.list.filter(child => 
+					child instanceof Phaser.GameObjects.Sprite && 
+					child.texture && 
+					child.texture.key === "golden monument anim-going up-packed sheet"
+				);
+
+				portalSprites[0] = allSprites.find(s => Math.abs(s.x - 72) < 10 && Math.abs(s.y - 57) < 10);
+				portalSprites[1] = allSprites.find(s => Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 57) < 10);
+				portalSprites[2] = allSprites.find(s => Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 2420) < 10);
+				portalSprites[3] = allSprites.find(s => Math.abs(s.x - 72) < 10 && Math.abs(s.y - 2420) < 10);
+			}
+
+			const portalPositions = [
+				{ x: 72, y: 57, sprite: portalSprites[0] },
+				{ x: 2482, y: 57, sprite: portalSprites[1] },
+				{ x: 2482, y: 2420, sprite: portalSprites[2] },
+				{ x: 72, y: 2420, sprite: portalSprites[3] }
+			];
+
+			portalPositions.forEach((portalData, index) => {
+				const portalZone = this.add.zone(portalData.x, portalData.y, 100, 100);
+				this.physics.world.enable(portalZone);
+				portalZone.body.setImmovable(true);
+
+				const portal = {
+					id: index,
+					zone: portalZone,
+					sprite: portalData.sprite,
+					x: portalData.x,
+					y: portalData.y,
+					isActive: false,
+					originalTint: 0xffffff,
+					activeTint: 0x00ff00,
+					glowEffect: null
+				};
+
+				this.portals.push(portal);
+				this.deactivatePortal(portal);
+			});
+
+			this.startPortalTimer();
+		} catch (error) {
+			console.error("Error setting up portal system:", error);
+		}
+	}
+
+	startPortalTimer() {
+		this.portalTimer = this.time.addEvent({
+			delay: this.portalActivationInterval,
+			callback: this.activateRandomPortal,
+			callbackScope: this,
+			loop: true
+		});
+	}
+
+	activateRandomPortal() {
+		try {
+			if (this.activePortal) {
+				this.deactivatePortal(this.activePortal);
+			}
+
+			const randomIndex = Math.floor(Math.random() * this.portals.length);
+			const selectedPortal = this.portals[randomIndex];
+			const randomSceneIndex = Math.floor(Math.random() * this.availableScenes.length);
+			const destinationScene = this.availableScenes[randomSceneIndex];
+
+			this.activatePortal(selectedPortal, destinationScene);
+
+			this.showPortalNotification(selectedPortal, destinationScene);
+		} catch (error) {
+			console.error("Error activating random portal:", error);
+		}
+	}
+
+	activatePortal(portal, destinationScene) {
+		try {
+			portal.isActive = true;
+			portal.destinationScene = destinationScene;
+			this.activePortal = portal;
+
+			if (portal.sprite) {
+				portal.sprite.setTint(portal.activeTint);
+			}
+
+			const glow = this.add.circle(portal.x, portal.y, 60, 0x00ff00, 0.3);
+			if (portal.sprite) {
+				glow.setDepth(portal.sprite.depth - 1);
+			}
+			portal.glowEffect = glow;
+
+			const targets = portal.sprite ? [portal.sprite, glow] : [glow];
+			this.tweens.add({
+				targets: targets,
+				alpha: { from: 1, to: 0.7 },
+				duration: 1000,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut'
+			});
+
+			this.physics.add.overlap(this.player, portal.zone, (player, zone) => {
+				this.handlePortalCollision(portal);
+			});
+
+		} catch (error) {
+			console.error("Error activating portal:", error);
+		}
+	}
+
+	deactivatePortal(portal) {
+		try {
+			portal.isActive = false;
+			portal.destinationScene = null;
+
+			if (portal.sprite) {
+				portal.sprite.setTint(portal.originalTint);
+				portal.sprite.setScale(1);
+				portal.sprite.setAlpha(1);
+			}
+
+			if (portal.glowEffect) {
+				portal.glowEffect.destroy();
+				portal.glowEffect = null;
+			}
+
+			const targets = portal.sprite ? [portal.sprite] : [];
+			this.tweens.killTweensOf(targets);
+
+		} catch (error) {
+			console.error("Error deactivating portal:", error);
+		}
+	}
+
+	handlePortalCollision(portal) {
+		if (!portal.isActive || this.isTeleporting || !portal.destinationScene) {
+			return;
+		}
+
+		const destinationScene = portal.destinationScene;
+		this.isTeleporting = true;
+		this.createTeleportEffect(this.player.x, this.player.y);
+		
+		if (this.gameManager) {
+			this.gameManager.saveGame();
+		}
+		
+		this.cleanupBeforePortalTeleport();
+		
+		this.time.delayedCall(500, () => {
+			if (destinationScene && this.scene.manager.keys[destinationScene]) {
+				this.scene.start(destinationScene);
+			} else {
+				this.scene.start("MainMapScene");
+			}
+			this.isTeleporting = false;
+		});
+
+		this.deactivatePortal(portal);
+		this.activePortal = null;
+	}
+
+	cleanupBeforePortalTeleport() {
+		try {
+			if (this.enemySpawnTimer) {
+				this.enemySpawnTimer.destroy();
+				this.enemySpawnTimer = null;
+			}
+			
+			if (this.waveTimer) {
+				this.waveTimer.destroy();
+				this.waveTimer = null;
+			}
+			
+			if (this.difficultyTimer) {
+				this.difficultyTimer.destroy();
+				this.difficultyTimer = null;
+			}
+			
+			if (this.gameplayManager && this.gameplayManager.enemies) {
+				this.gameplayManager.enemies.clear(true, true);
+			}
+			
+			if (this.enemies) {
+				this.enemies.clear(true, true);
+			}
+			
+			if (this.zombieGroup) {
+				this.zombieGroup.clear(true, true);
+			}
+			
+			if (this.experienceOrbs) {
+				this.experienceOrbs.clear(true, true);
+			}
+			
+			if (this.gameplayManager && this.gameplayManager.expOrbs) {
+				this.gameplayManager.expOrbs.clear(true, true);
+			}
+			
+			this.currentWave = 0;
+			this.isWaveActive = false;
+			this.waveEnemiesRemaining = 0;
+			this.enemiesKilled = 0;
+			
+		} catch (error) {
+			console.error("Error during portal teleport cleanup:", error);
+		}
+	}
+
+	showPortalNotification(portal, destinationScene) {
+		try {
+			const centerX = this.cameras.main.centerX;
+			const centerY = this.cameras.main.centerY;
+
+			const notification = this.add.text(centerX, centerY, 'PORTAL ACTIVATED!', {
+				fontFamily: 'Arial',
+				fontSize: '32px',
+				color: '#00ff00',
+				stroke: '#000000',
+				strokeThickness: 3,
+				fontStyle: 'bold'
+			});
+			notification.setOrigin(0.5);
+			notification.setScrollFactor(0);
+			notification.setDepth(1000);
+
+			this.tweens.add({
+				targets: notification,
+				scale: { from: 0, to: 1 },
+				alpha: { from: 0, to: 1 },
+				duration: 500,
+				ease: 'Back.easeOut',
+				onComplete: () => {
+					this.time.delayedCall(2000, () => {
+						this.tweens.add({
+							targets: notification,
+							alpha: 0,
+							duration: 800,
+							onComplete: () => {
+								notification.destroy();
+							}
+						});
+					});
+				}
+			});
+
+		} catch (error) {
+			console.error("Error showing portal notification:", error);
 		}
 	}
 
@@ -291,32 +556,27 @@ export default class MainMapScene extends BaseGameScene {
 		}
 	}
 
-	setupTeleportation() {
+	setupTestControls() {
 		try {
-			if (this.teleportation_1) {
-				const teleporters = [];
-				this.teleportation_1.forEachTile(tile => {
-					if (tile.index !== -1) { 
-						const x = tile.x * tile.width + (tile.width / 2);
-						const y = tile.y * tile.height + (tile.height / 2);
+			super.setupTestControls();
 
-						const teleportZone = this.add.zone(x, y, tile.width, tile.height);
-						this.physics.world.enable(teleportZone);
-						teleporters.push(teleportZone);
-					}
-				});
-				if (teleporters.length > 0) {
-					this.physics.add.overlap(this.player, teleporters, this.handleTeleportZone, null, this);
+			this.input.keyboard.on('keydown-P', () => {
+				if (this.gameManager && this.gameManager.debugMode) {
+					this.activateRandomPortal();
 				}
-			}
-		} catch (error) {
-			console.error("Error setting up teleportation:", error);
-		}
-	}
+			});
 
-	handleTeleportZone(player, teleportZone) {
-		const destScene = "FirstArea";
-		this.handleTeleport(player, teleportZone, destScene);
+			this.input.keyboard.on('keydown-O', () => {
+				if (this.gameManager && this.gameManager.debugMode) {
+					this.portals.forEach((portal, index) => {
+						console.log(`Portal ${index}: Active = ${portal.isActive}, Destination = ${portal.destinationScene || "None"}`);
+					});
+				}
+			});
+
+		} catch (error) {
+			console.error("Error setting up portal test controls:", error);
+		}
 	}
 
 	trackEnemyKill(enemy) {
@@ -337,6 +597,18 @@ export default class MainMapScene extends BaseGameScene {
 	}
 
 	shutdown() {
+		if (this.portalTimer) {
+			this.portalTimer.destroy();
+			this.portalTimer = null;
+		}
+
+		this.portals.forEach(portal => {
+			this.deactivatePortal(portal);
+		});
+
+		this.portals = [];
+		this.activePortal = null;
+
 		super.shutdown();
 	}
 

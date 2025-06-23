@@ -98,7 +98,7 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
             this.x - 15, this.y - 20, 30, 4, 0x00ff00
         );
         this.healthBarFg.setOrigin(0, 0.5);
-        this.healthBarFg.setDepth(1);
+        this.healthBarFg.setDepth(20);
 
         this.on('destroy', () => {
             if (this.healthBarBg) this.healthBarBg.destroy();

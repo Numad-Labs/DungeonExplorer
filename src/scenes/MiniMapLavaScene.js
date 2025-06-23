@@ -2,11 +2,12 @@
 
 /* START OF COMPILED CODE */
 
+import BaseGameScene from "./BaseGameScene";
 import PlayerPrefab from "../prefabs/PlayerPrefab";
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class MiniMapLavaScene extends Phaser.Scene {
+export default class MiniMapLavaScene extends BaseGameScene {
 
 	constructor() {
 		super("MiniMapLavaScene");
@@ -165,59 +166,114 @@ export default class MiniMapLavaScene extends Phaser.Scene {
 	miniMapLava;
 
 	/* START-USER-CODE */
-
-	// Write your code here
-
+	preload() {
+	    super.preload();
+	}
 	create() {
-
-		this.editorCreate();
-
-		this.bG_lava_1.setDepth(1);
-		this.bG_Platform_1.setDepth(2)
-		this.playerPrefab.setDepth(2)
-		this.bG_Stairs_1.setDepth(2)
-		this.bG_Totem_platform_1.setDepth(2)
-		this.decor_Decor_1.setDepth(2)
-		this.traps_Statue_1.setDepth(2)
-		this.bG_Platform_L__1.setDepth(2)
-
-
 		this.cameras.main.setBounds(0, 0, 3200, 3200);
-		this.physics.world.bounds.width = 1000;
-		this.physics.world.bounds.height = 800;
+		this.physics.world.bounds.width = 3200;
+		this.physics.world.bounds.height = 3200;
 
-		this.physics.add.collider(this.playerPrefab, this.bG_lava_1);
-		this.bG_lava_1.setCollisionBetween(0, 10000);
-		this.lavaContainer = this.add.container(0, 0);
+		try {
+			super.create();
 
-		const lavaTileset = this.bG_lava_1.getTilesWithin();
+			this.editorCreate();
+			this.setupCollisions();
+			this.player = this.playerPrefab;
+			this.initializeManagers();
+			this.setupPlayerAttack();
+			this.setupTestControls();
+			this.setupZombieCollisionSystem();
+			this.startEnemySpawning();
+			this.setupLavaAnimations();
+		} catch (error) {
+			console.error("Error in MiniMapLavaScene create:", error);
+		}
+	}
 
-		this.lavaSprites = [];
-		lavaTileset.forEach(tile => {
-			if (tile && tile.index !== -1) { 
-				let animationKey = null;
-				switch(tile.index) {
-					case 391:
-						animationKey = 'lava0';
-						break;
-					default:
-						break;
+	setupCollisions() {
+		try {
+			this.bG_lava_1.setDepth(1);
+			this.bG_Platform_1.setDepth(2);
+			this.playerPrefab.setDepth(2);
+			this.bG_Stairs_1.setDepth(2);
+			this.bG_Totem_platform_1.setDepth(2);
+			this.decor_Decor_1.setDepth(2);
+			this.traps_Statue_1.setDepth(2);
+			this.bG_Platform_L__1.setDepth(2);
+
+			this.physics.add.collider(this.playerPrefab, this.bG_lava_1);
+			this.bG_lava_1.setCollisionBetween(0, 10000);
+		} catch (error) {
+			console.error("Error setting up lava scene collisions:", error);
+		}
+	}
+
+	setupZombieCollisionSystem() {
+		try {
+			this.registerCollisionLayer(this.bG_lava_1, "Lava Collision");
+
+			this.setupZombieObstacleCollisions();
+		} catch (error) {
+			console.error("Error setting up lava scene zombie collision system:", error);
+		}
+	}
+
+	setupLavaAnimations() {
+		try {
+			this.lavaContainer = this.add.container(0, 0);
+			const lavaTileset = this.bG_lava_1.getTilesWithin();
+			this.lavaSprites = [];
+
+			lavaTileset.forEach(tile => {
+				if (tile && tile.index !== -1) { 
+					let animationKey = null;
+					switch(tile.index) {
+						case 391:
+							animationKey = 'lava0';
+							break;
+						default:
+							break;
+					}
+
+					if (animationKey) {
+						const sprite = this.add.sprite(
+							tile.pixelX + tile.width/2, 
+							tile.pixelY + tile.height/2, 
+							'animated lava river spritesheet'
+						);
+
+						sprite.play(animationKey);
+						this.lavaContainer.add(sprite);
+						this.lavaSprites.push(sprite);
+						tile.visible = false;
+					}
 				}
+			});
+		} catch (error) {
+			console.error("Error setting up lava animations:", error);
+		}
+	}
 
-				if (animationKey) {
-					const sprite = this.add.sprite(
-						tile.pixelX + tile.width/2, 
-						tile.pixelY + tile.height/2, 
-						'animated lava river spritesheet'
-					);
+	trackEnemyKill(enemy) {
+		this.removeZombie(enemy);
+		super.trackEnemyKill(enemy);
+	}
 
-					sprite.play(animationKey);
-					this.lavaContainer.add(sprite);
-					this.lavaSprites.push(sprite);
-					tile.visible = false;
-				}
+	update(time, delta) {
+		super.update(time, delta);
+
+		try {
+			if (this.player && !this.player.isDead) {
+				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 			}
-		});
+		} catch (error) {
+			console.error("Error in MiniMapLavaScene update:", error);
+		}
+	}
+
+	shutdown() {
+		super.shutdown();
 	}
 
 	/* END-USER-CODE */

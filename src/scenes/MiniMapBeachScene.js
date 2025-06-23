@@ -1,8 +1,8 @@
-
 // You can write more code here
 
 /* START OF COMPILED CODE */
 
+import BaseGameScene from "./BaseGameScene";
 import BeachTreePrefab from "../prefabs/BeachTreePrefab";
 import BeachTree1Prefab from "../prefabs/BeachTree1Prefab";
 import BeachTreePrefab2 from "../prefabs/BeachTreePrefab2";
@@ -10,7 +10,7 @@ import PlayerPrefab from "../prefabs/PlayerPrefab";
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class MiniMapBeachScene extends Phaser.Scene {
+export default class MiniMapBeachScene extends BaseGameScene {
 
 	constructor() {
 		super("MiniMapBeachScene");
@@ -131,100 +131,165 @@ export default class MiniMapBeachScene extends Phaser.Scene {
 	miniMapBeachBiom;
 
 	/* START-USER-CODE */
-
-	// Write your code here
-
+	preload() {
+	    super.preload();
+	}
 	create() {
-
 		this.cameras.main.setBounds(0, 0, 2560, 2560);
 		this.physics.world.bounds.width = 2560;
 		this.physics.world.bounds.height = 2560;
 
+		try {
+			super.create();
 
-		this.editorCreate();
-		this.playerPrefab.setDepth(2)
-		this.bridge_1.setDepth(1)
-	    const waterTiles = this.water_1.getTilesWithin();
+			this.editorCreate();
+			this.setupCollisions();
+			this.player = this.playerPrefab;
+			this.initializeManagers();
+			this.setupPlayerAttack();
+			this.setupTestControls();
+			this.setupZombieCollisionSystem();
+			this.startEnemySpawning();
+			this.setupWaterAnimations();
+		} catch (error) {
+			console.error("Error in MiniMapBeachScene create:", error);
+		}
+	}
 
-		this.beachTreePrefab.setupCollision(this.playerPrefab)
-		this.beachTree1Prefab.setupCollision(this.playerPrefab)
-		this.beachTreePrefab2.setupCollision(this.playerPrefab)
+	setupCollisions() {
+		try {
+			this.playerPrefab.setDepth(2);
+			this.bridge_1.setDepth(1);
 
-		this.physics.add.collider(this.playerPrefab, this.block_1);
-		this.block_1.setCollisionBetween(0, 10000);
+			this.beachTreePrefab.setupCollision(this.playerPrefab);
+			this.beachTree1Prefab.setupCollision(this.playerPrefab);
+			this.beachTreePrefab2.setupCollision(this.playerPrefab);
 
-	    waterTiles.forEach(tile => {
-	    if (tile && tile.index === 227) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water_1');
-	    	sprite.play('Water0');
-	    }})
+			this.physics.add.collider(this.playerPrefab, this.block_1);
+			this.block_1.setCollisionBetween(0, 10000);
 
-		const waterTiles_1 = this.ground_1.getTilesWithin();
-	    waterTiles_1.forEach(tile => {
-	    if (tile && tile.index === 103) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.1');
-	    	sprite.play('water.r');
-	    }
-		if (tile && tile.index === 174) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.2');
-	    	sprite.play('water.r.d');
-	    }
-		if (tile && tile.index === 70) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.3');
-	    	sprite.play('water.r.u');
-	    }
-		if (tile && tile.index === 69) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.4');
-	    	sprite.play('water12');
-	    }
-		if (tile && tile.index === 37) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.5');
-	    	sprite.play('water11');
-	    }
-		if (tile && tile.index === 36) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.6');
-	    	sprite.play('water13');
-	    }
-		if (tile && tile.index === 107) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.7');
-	    	sprite.play('water1');
-	    }
-		if (tile && tile.index === 137) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.8');
-	    	sprite.play('water2');
-	    }
-		if (tile && tile.index === 138) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.9');
-	    	sprite.play('water3');
-	    }
-		if (tile && tile.index === 73) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.10');
-	    	sprite.play('water4');
-	    }
-		if (tile && tile.index === 72) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.11');
-	    	sprite.play('water5');
-	    }
-		if (tile && tile.index === 173) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.12');
-	    	sprite.play('water6');
-	    }
-		if (tile && tile.index === 141) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.13');
-	    	sprite.play('water7');
-	    }
-		if (tile && tile.index === 140) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.14');
-	    	sprite.play('water8');
-	    }
-		if (tile && tile.index === 172) {
-	    	const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.15');
-	    	sprite.play('water9');
-	    }
-		})
+			this.physics.add.collider(this.playerPrefab, this.water_1);
+			this.water_1.setCollisionBetween(0, 10000);
+		} catch (error) {
+			console.error("Error setting up beach collisions:", error);
+		}
+	}
 
-		this.physics.add.collider(this.playerPrefab, this.water_1);
-		this.water_1.setCollisionBetween(0, 10000);
+	setupZombieCollisionSystem() {
+		try {
+			this.registerCollisionLayer(this.block_1, "Beach Blocks");
+			this.registerCollisionLayer(this.water_1, "Water Collision");
+
+			const trees = [this.beachTreePrefab, this.beachTree1Prefab, this.beachTreePrefab2];
+			trees.forEach((tree, index) => {
+				if (tree) {
+					this.registerStaticObstacle(tree, `Beach Tree ${index + 1}`);
+				}
+			});
+
+			this.setupZombieObstacleCollisions();
+		} catch (error) {
+			console.error("Error setting up beach zombie collision system:", error);
+		}
+	}
+
+	setupWaterAnimations() {
+		try {
+			const waterTiles = this.water_1.getTilesWithin();
+			waterTiles.forEach(tile => {
+				if (tile && tile.index === 227) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water_1');
+					sprite.play('Water0');
+				}
+			});
+
+			const waterTiles_1 = this.ground_1.getTilesWithin();
+			waterTiles_1.forEach(tile => {
+				if (tile && tile.index === 103) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.1');
+					sprite.play('water.r');
+				}
+				if (tile && tile.index === 174) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.2');
+					sprite.play('water.r.d');
+				}
+				if (tile && tile.index === 70) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.3');
+					sprite.play('water.r.u');
+				}
+				if (tile && tile.index === 69) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.4');
+					sprite.play('water12');
+				}
+				if (tile && tile.index === 37) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.5');
+					sprite.play('water11');
+				}
+				if (tile && tile.index === 36) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.6');
+					sprite.play('water13');
+				}
+				if (tile && tile.index === 107) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.7');
+					sprite.play('water1');
+				}
+				if (tile && tile.index === 137) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.8');
+					sprite.play('water2');
+				}
+				if (tile && tile.index === 138) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.9');
+					sprite.play('water3');
+				}
+				if (tile && tile.index === 73) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.10');
+					sprite.play('water4');
+				}
+				if (tile && tile.index === 72) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.11');
+					sprite.play('water5');
+				}
+				if (tile && tile.index === 173) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.12');
+					sprite.play('water6');
+				}
+				if (tile && tile.index === 141) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.13');
+					sprite.play('water7');
+				}
+				if (tile && tile.index === 140) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.14');
+					sprite.play('water8');
+				}
+				if (tile && tile.index === 172) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'water.15');
+					sprite.play('water9');
+				}
+			});
+		} catch (error) {
+			console.error("Error setting up water animations:", error);
+		}
+	}
+
+	trackEnemyKill(enemy) {
+		this.removeZombie(enemy);
+		super.trackEnemyKill(enemy);
+	}
+
+	update(time, delta) {
+		super.update(time, delta);
+
+		try {
+			if (this.player && !this.player.isDead) {
+				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+			}
+		} catch (error) {
+			console.error("Error in MiniMapBeachScene update:", error);
+		}
+	}
+
+	shutdown() {
+		super.shutdown();
 	}
 
 	/* END-USER-CODE */

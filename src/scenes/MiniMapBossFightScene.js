@@ -2,12 +2,13 @@
 
 /* START OF COMPILED CODE */
 
+import BaseGameScene from "./BaseGameScene";
 import StoneStatuePrefab from "../prefabs/StoneStatuePrefab";
 import PlayerPrefab from "../prefabs/PlayerPrefab";
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class MiniMapBossFightScene extends Phaser.Scene {
+export default class MiniMapBossFightScene extends BaseGameScene {
 
 	constructor() {
 		super("MiniMapBossFightScene");
@@ -180,80 +181,151 @@ export default class MiniMapBossFightScene extends Phaser.Scene {
 	miniMapBossFight;
 
 	/* START-USER-CODE */
+	preload() {
+	    super.preload();
+	}
+	create() {
+		this.cameras.main.setBounds(0, 0, 2560, 2560);
+		this.physics.world.bounds.width = 2560;
+		this.physics.world.bounds.height = 2560;
 
-	// Write your code here
+		try {
+			// Call BaseGameScene create first!
+			super.create();
 
-	create() {   
+			this.editorCreate();
+			this.setupCollisions();
+			this.player = this.playerPrefab;
+			this.initializeManagers();
+			this.setupPlayerAttack();
+			this.setupTestControls();
+			this.setupZombieCollisionSystem();
+			this.startEnemySpawning();
+			this.setupLavaAnimations();
+		} catch (error) {
+			console.error("Error in MiniMapBossFightScene create:", error);
+		}
+	}
 
-		this.editorCreate();
-		this.lava_floor_1.setDepth(1);
-		this.floating_plat_form_Floating_Col_1.setDepth(2);
-		this.floating_plat_form_Floatind_platform_1.setDepth(3);
-		this.stoneStatuePrefab.setDepth(4);
-		this.stoneStatuePrefab_1.setDepth(4);
-		this.playerPrefab.setDepth(4);
-		this.decoration_1.setDepth(4);
-		this.telAnimation.setDepth(4);
-		this.floating_plat_form_Chain_1.setDepth(4)
-		this.stoneStatuePrefab_1.setupCollision(this.playerPrefab);
-		this.stoneStatuePrefab.setupCollision(this.playerPrefab);
-		const lavaTileset = this.lava_floor_1.getTilesWithin();
+	setupCollisions() {
+		try {
+			this.lava_floor_1.setDepth(1);
+			this.floating_plat_form_Floating_Col_1.setDepth(2);
+			this.floating_plat_form_Floatind_platform_1.setDepth(3);
+			this.stoneStatuePrefab.setDepth(4);
+			this.stoneStatuePrefab_1.setDepth(4);
+			this.playerPrefab.setDepth(4);
+			this.decoration_1.setDepth(4);
+			this.telAnimation.setDepth(4);
+			this.floating_plat_form_Chain_1.setDepth(4);
 
-		const lavaContainer = this.add.container(0, 0);
-		lavaContainer.setDepth(1);
+			this.stoneStatuePrefab_1.setupCollision(this.playerPrefab);
+			this.stoneStatuePrefab.setupCollision(this.playerPrefab);
 
-		this.lavaSprites = [];
+			this.physics.add.collider(this.playerPrefab, this.floating_plat_form_Floating_Col_1);
+			this.floating_plat_form_Floating_Col_1.setCollisionBetween(0, 10000);
+		} catch (error) {
+			console.error("Error setting up boss fight collisions:", error);
+		}
+	}
 
-		lavaTileset.forEach(tile => {
-			if (tile && tile.index !== -1) { 
-				let animationKey = null;
-				switch(tile.index) {
-					case 2309:
-						animationKey = 'lava0';
-						break;
-					case 2307:
-						animationKey = 'lava9';
-						break;
-					case 2275:
-						animationKey = 'lava6';
-						break;
-					case 2311:
-						animationKey = 'lava3';
-						break;
-					case 2343:
-						animationKey = 'lava12';
-						break;
-					case 2324:
-						animationKey = 'lava10';
-						break;
-					case 2290:
-						animationKey = 'lava7.1';
-						break;
-					case 2276:
-						animationKey = 'lava4.1';
-						break;
-					case 2328:
-						animationKey = 'lava1.1';
-						break;
+	setupZombieCollisionSystem() {
+		try {
+			// Register collision layers for zombies
+			this.registerCollisionLayer(this.floating_plat_form_Floating_Col_1, "Platform Collision");
+
+			// Register statue obstacles
+			const statues = [this.stoneStatuePrefab, this.stoneStatuePrefab_1];
+			statues.forEach((statue, index) => {
+				if (statue) {
+					this.registerStaticObstacle(statue, `Boss Arena Statue ${index + 1}`);
 				}
+			});
 
-				if (animationKey) {
-					const sprite = this.add.sprite(
-						tile.pixelX + tile.width/2, 
-						tile.pixelY + tile.height/2, 
-						'animated lava river spritesheet'
-					);
+			this.setupZombieObstacleCollisions();
+		} catch (error) {
+			console.error("Error setting up boss fight zombie collision system:", error);
+		}
+	}
 
-					sprite.play(animationKey);
-					lavaContainer.add(sprite);
-					this.lavaSprites.push(sprite);
-					tile.visible = false;
+	setupLavaAnimations() {
+		try {
+			const lavaTileset = this.lava_floor_1.getTilesWithin();
+			const lavaContainer = this.add.container(0, 0);
+			lavaContainer.setDepth(1);
+			this.lavaSprites = [];
+
+			lavaTileset.forEach(tile => {
+				if (tile && tile.index !== -1) { 
+					let animationKey = null;
+					switch(tile.index) {
+						case 2309:
+							animationKey = 'lava0';
+							break;
+						case 2307:
+							animationKey = 'lava9';
+							break;
+						case 2275:
+							animationKey = 'lava6';
+							break;
+						case 2311:
+							animationKey = 'lava3';
+							break;
+						case 2343:
+							animationKey = 'lava12';
+							break;
+						case 2324:
+							animationKey = 'lava10';
+							break;
+						case 2290:
+							animationKey = 'lava7.1';
+							break;
+						case 2276:
+							animationKey = 'lava4.1';
+							break;
+						case 2328:
+							animationKey = 'lava1.1';
+							break;
+					}
+
+					if (animationKey) {
+						const sprite = this.add.sprite(
+							tile.pixelX + tile.width/2, 
+							tile.pixelY + tile.height/2, 
+							'animated lava river spritesheet'
+						);
+
+						sprite.play(animationKey);
+						lavaContainer.add(sprite);
+						this.lavaSprites.push(sprite);
+						tile.visible = false;
+					}
 				}
+			});
+		} catch (error) {
+			console.error("Error setting up lava animations:", error);
+		}
+	}
+
+	trackEnemyKill(enemy) {
+		this.removeZombie(enemy);
+		super.trackEnemyKill(enemy);
+	}
+
+	update(time, delta) {
+		super.update(time, delta);
+
+		try {
+			if (this.player && !this.player.isDead) {
+				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 			}
-		});
+		} catch (error) {
+			console.error("Error in MiniMapBossFightScene update:", error);
+		}
+	}
 
-		this.physics.add.collider(this.playerPrefab, this.floating_plat_form_Floating_Col_1);
-		this.floating_plat_form_Floating_Col_1.setCollisionBetween(0, 10000);
+	shutdown() {
+		super.shutdown();
 	}
 
 	/* END-USER-CODE */
