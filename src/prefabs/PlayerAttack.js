@@ -39,11 +39,21 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.lastIceTime = 0;
         this.iceProjectileSpeed = 120;
         
-        // Attack types enabled
+        // Lightning chain attack
+        this.lightningDamage = player.lightningDamage || 20;
+        this.lightningFireRate = player.lightningFireRate || 0.5;
+        this.lightningRange = player.lightningRange || 250;
+        this.lightningCooldown = 1000 / this.lightningFireRate;
+        this.lastLightningTime = 0;
+        this.lightningProjectileSpeed = 200;
+        this.lightningChainCount = player.lightningChainCount || 3;
+        this.lightningChainRange = 100;
+        
         this.attackTypes = {
             slash: true,
             fire: true,
-            ice: true
+            ice: true,
+            lightning: true
         };
         
         this.setupWeaponVisuals();
@@ -74,8 +84,10 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     createProjectileGroups() {
         this.fireProjectiles = this.scene.add.group();
         this.iceProjectiles = this.scene.add.group();
+        this.lightningProjectiles = this.scene.add.group();
         this.scene.physics.world.enable(this.fireProjectiles);
         this.scene.physics.world.enable(this.iceProjectiles);
+        this.scene.physics.world.enable(this.lightningProjectiles);
     }
     
     createAttackAnimations() {
@@ -139,6 +151,29 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 repeat: 0
             });
         }
+        
+        // Lightning animations
+        if (!this.scene.anims.exists('lightning_projectile')) {
+            this.scene.anims.create({
+                key: 'lightning_projectile',
+                frames: this.scene.anims.generateFrameNumbers('lighting_chain_projectile_attack_VFX_128x32_v01', { 
+                    start: 0, end: -1
+                }),
+                frameRate: 24,
+                repeat: -1
+            });
+        }
+        
+        if (!this.scene.anims.exists('lightning_hit')) {
+            this.scene.anims.create({
+                key: 'lightning_hit',
+                frames: this.scene.anims.generateFrameNumbers('lighting_chain_attack_hit_projectile_VFX_72x96_v01', { 
+                    start: 0, end: -1
+                }),
+                frameRate: 30,
+                repeat: 0
+            });
+        }
     }
     
     startAttackTimers() {
@@ -164,6 +199,15 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             this.iceTimer = this.scene.time.addEvent({
                 delay: this.iceCooldown,
                 callback: this.attemptIceAttack,
+                callbackScope: this,
+                loop: true
+            });
+        }
+        
+        if (this.attackTypes.lightning) {
+            this.lightningTimer = this.scene.time.addEvent({
+                delay: this.lightningCooldown,
+                callback: this.attemptLightningAttack,
                 callbackScope: this,
                 loop: true
             });
@@ -262,8 +306,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         fireProjectile.isFireProjectile = true;
         
         this.fireProjectiles.add(fireProjectile);
-        
-        console.log(`Fire projectile spawned at depth ${fireProjectile.depth}`);
     }
     
     explodeFireProjectile(projectile) {
@@ -341,6 +383,152 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             iceExplosion.play('ice_explosion');
             iceExplosion.once('animationcomplete', () => iceExplosion.destroy());
         }
+    }
+    
+    // LIGHTNING CHAIN ATTACK
+    attemptLightningAttack() {
+        const currentTime = this.scene.time.now;
+        if (currentTime - this.lastLightningTime < this.lightningCooldown) return;
+        
+        const target = this.findNearestEnemyInRange(this.lightningRange);
+        if (target) {
+            this.lightningChainAttack(target);
+        }
+    }
+    
+    lightningChainAttack(initialTarget) {
+        this.lastLightningTime = this.scene.time.now;
+        this.performLightningChain(this.player, initialTarget, 0, []);
+    }
+    
+    performLightningChain(fromTarget, toTarget, chainDepth, hitTargets) {
+        if (chainDepth >= this.lightningChainCount || !toTarget || hitTargets.includes(toTarget)) {
+            return;
+        }
+        
+        hitTargets.push(toTarget);
+        
+        const lightningProjectile = this.scene.add.sprite(fromTarget.x, fromTarget.y, 'lighting_chain_projectile_attack_VFX_128x32_v01');
+        this.scene.physics.add.existing(lightningProjectile);
+        
+        lightningProjectile.setScale(0.7);
+        lightningProjectile.setDepth(19);
+        lightningProjectile.play('lightning_projectile');
+        
+        const angle = Phaser.Math.Angle.Between(fromTarget.x, fromTarget.y, toTarget.x, toTarget.y);
+        lightningProjectile.setRotation(angle);
+        
+        lightningProjectile.body.setVelocity(
+            Math.cos(angle) * this.lightningProjectileSpeed,
+            Math.sin(angle) * this.lightningProjectileSpeed
+        );
+        
+        lightningProjectile.damage = this.lightningDamage * (1 - chainDepth * 0.15);
+        lightningProjectile.startX = fromTarget.x;
+        lightningProjectile.startY = fromTarget.y;
+        lightningProjectile.targetEnemy = toTarget;
+        lightningProjectile.chainDepth = chainDepth;
+        lightningProjectile.hitTargets = hitTargets;
+        lightningProjectile.isLightningProjectile = true;
+        
+        this.lightningProjectiles.add(lightningProjectile);
+        
+        console.log(`Lightning projectile fired (chain ${chainDepth + 1})`);
+    }
+    
+    hitLightningTarget(projectile) {
+        if (!projectile.active || !projectile.targetEnemy) return;
+        
+        const target = projectile.targetEnemy;
+        
+        if (target.takeDamage && target.active && !target.isDead) {
+            target.takeDamage(projectile.damage);
+            this.applyStunEffect(target, 1000);
+        }
+        
+        const hitEffect = this.scene.add.sprite(target.x, target.y, 'lighting_chain_attack_hit_projectile_VFX_72x96_v01');
+        hitEffect.setScale(0.8);
+        hitEffect.setDepth(20);
+        hitEffect.play('lightning_hit');
+        hitEffect.once('animationcomplete', () => hitEffect.destroy());
+        
+        if (projectile.chainDepth < this.lightningChainCount - 1) {
+            const nextTarget = this.findNearestEnemyInChainRange(target, projectile.hitTargets);
+            if (nextTarget) {
+                this.scene.time.delayedCall(100, () => {
+                    this.performLightningChain(target, nextTarget, projectile.chainDepth + 1, projectile.hitTargets);
+                });
+            }
+        }
+        
+        projectile.destroy();
+    }
+    
+    findNearestEnemyInChainRange(fromEnemy, excludeTargets) {
+        if (!this.scene.enemies) return null;
+        
+        let nearestEnemy = null;
+        let nearestDistance = this.lightningChainRange;
+        
+        const enemies = this.scene.enemies.getChildren().filter(enemy => 
+            enemy.active && !enemy.isDead && !excludeTargets.includes(enemy)
+        );
+        
+        enemies.forEach(enemy => {
+            const distance = Phaser.Math.Distance.Between(
+                fromEnemy.x, fromEnemy.y, enemy.x, enemy.y
+            );
+            
+            if (distance <= this.lightningChainRange && distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestEnemy = enemy;
+            }
+        });
+        
+        return nearestEnemy;
+    }
+    
+    // LIGHTNING STUN EFFECT
+    applyStunEffect(enemy, duration) {
+        if (!enemy || enemy.isDead) return;
+        
+        if (enemy.stunTimer) enemy.stunTimer.destroy();
+        
+        if (enemy.originalSpeed === undefined) {
+            enemy.originalSpeed = enemy.speed || 50;
+        }
+        if (enemy.originalTint === undefined) {
+            enemy.originalTint = enemy.tint;
+        }
+        
+        enemy.speed = 0;
+        enemy.setTint(0xffff00);
+        enemy.isStunned = true;
+        
+        enemy.stunTimer = this.scene.time.delayedCall(duration, () => {
+            this.clearStunEffect(enemy);
+        });
+    }
+    
+    clearStunEffect(enemy) {
+        if (!enemy) return;
+        
+        if (enemy.originalSpeed !== undefined) {
+            enemy.speed = enemy.originalSpeed;
+        }
+        
+        if (enemy.stunTimer) {
+            enemy.stunTimer.destroy();
+            enemy.stunTimer = null;
+        }
+        
+        if (enemy.originalTint !== undefined) {
+            enemy.setTint(enemy.originalTint);
+        } else {
+            enemy.clearTint();
+        }
+        
+        enemy.isStunned = false;
     }
     
     // FIRE DOT EFFECT
@@ -545,6 +733,30 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 });
             }
         });
+        
+        this.lightningProjectiles.children.entries.forEach(projectile => {
+            if (!projectile.active || !projectile.isLightningProjectile) return;
+            
+            const targetDistance = Phaser.Math.Distance.Between(
+                projectile.x, projectile.y,
+                projectile.targetEnemy.x, projectile.targetEnemy.y
+            );
+            
+            if (targetDistance <= 25) {
+                this.hitLightningTarget(projectile);
+                return;
+            }
+            
+            const distance = Phaser.Math.Distance.Between(
+                projectile.startX, projectile.startY,
+                projectile.x, projectile.y
+            );
+            
+            if (distance >= this.lightningRange) {
+                projectile.destroy();
+                return;
+            }
+        });
     }
     
     updateStats() {
@@ -564,9 +776,16 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             this.iceRange = this.player.iceRange || 180;
             this.iceCooldown = 1000 / this.iceFireRate;
             
+            this.lightningDamage = this.player.lightningDamage || 20;
+            this.lightningFireRate = this.player.lightningFireRate || 0.5;
+            this.lightningRange = this.player.lightningRange || 250;
+            this.lightningCooldown = 1000 / this.lightningFireRate;
+            this.lightningChainCount = this.player.lightningChainCount || 10;
+            
             if (this.slashTimer) this.slashTimer.delay = this.slashCooldown;
             if (this.fireTimer) this.fireTimer.delay = this.fireCooldown;
             if (this.iceTimer) this.iceTimer.delay = this.iceCooldown;
+            if (this.lightningTimer) this.lightningTimer.delay = this.lightningCooldown;
             
             if (this.slashVisual) {
                 this.slashVisual.setRadius(this.slashRange);
@@ -578,16 +797,19 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         if (this.slashTimer) this.slashTimer.destroy();
         if (this.fireTimer) this.fireTimer.destroy();
         if (this.iceTimer) this.iceTimer.destroy();
+        if (this.lightningTimer) this.lightningTimer.destroy();
         
         if (this.scene.enemies) {
             this.scene.enemies.getChildren().forEach(enemy => {
                 this.clearBurnEffect(enemy);
                 this.clearSlowEffect(enemy);
+                this.clearStunEffect(enemy);
             });
         }
         
         this.fireProjectiles.destroy(true);
         this.iceProjectiles.destroy(true);
+        this.lightningProjectiles.destroy(true);
         
         super.destroy();
     }

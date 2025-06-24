@@ -19,8 +19,9 @@ export default class MainMapScene extends BaseGameScene {
 		this.portals = [];
 		this.activePortal = null;
 		this.portalTimer = null;
-		this.portalActivationInterval = 30000;
+		this.portalActivationInterval = 20000;
 		this.availableScenes = ["MiniMapDarkForastScene", "MiniMapBossFightScene", "MiniMapBeachScene", "MiniMapLavaScene"];
+		this.isTeleporting = false;
 		/* END-USER-CTR-CODE */
 	}
 
@@ -268,15 +269,15 @@ export default class MainMapScene extends BaseGameScene {
 
 			if (!portalSprites[0]) {
 				const allSprites = this.children.list.filter(child => 
-					child instanceof Phaser.GameObjects.Sprite && 
+					child && child instanceof Phaser.GameObjects.Sprite && 
 					child.texture && 
 					child.texture.key === "golden monument anim-going up-packed sheet"
 				);
 
-				portalSprites[0] = allSprites.find(s => Math.abs(s.x - 72) < 10 && Math.abs(s.y - 57) < 10);
-				portalSprites[1] = allSprites.find(s => Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 57) < 10);
-				portalSprites[2] = allSprites.find(s => Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 2420) < 10);
-				portalSprites[3] = allSprites.find(s => Math.abs(s.x - 72) < 10 && Math.abs(s.y - 2420) < 10);
+				portalSprites[0] = allSprites.find(s => s && Math.abs(s.x - 72) < 10 && Math.abs(s.y - 57) < 10);
+				portalSprites[1] = allSprites.find(s => s && Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 57) < 10);
+				portalSprites[2] = allSprites.find(s => s && Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 2420) < 10);
+				portalSprites[3] = allSprites.find(s => s && Math.abs(s.x - 72) < 10 && Math.abs(s.y - 2420) < 10);
 			}
 
 			const portalPositions = [
@@ -314,6 +315,10 @@ export default class MainMapScene extends BaseGameScene {
 	}
 
 	startPortalTimer() {
+		if (this.portalTimer) {
+			this.portalTimer.destroy();
+		}
+		
 		this.portalTimer = this.time.addEvent({
 			delay: this.portalActivationInterval,
 			callback: this.activateRandomPortal,
@@ -324,6 +329,9 @@ export default class MainMapScene extends BaseGameScene {
 
 	activateRandomPortal() {
 		try {
+			if (this.scene && !this.scene.isActive()) return;
+			if (this.isTeleporting) return;
+
 			if (this.activePortal) {
 				this.deactivatePortal(this.activePortal);
 			}
@@ -334,7 +342,6 @@ export default class MainMapScene extends BaseGameScene {
 			const destinationScene = this.availableScenes[randomSceneIndex];
 
 			this.activatePortal(selectedPortal, destinationScene);
-
 			this.showPortalNotification(selectedPortal, destinationScene);
 		} catch (error) {
 			console.error("Error activating random portal:", error);
@@ -343,22 +350,25 @@ export default class MainMapScene extends BaseGameScene {
 
 	activatePortal(portal, destinationScene) {
 		try {
+			if (!portal || !this.scene || !this.scene.isActive()) return;
+
 			portal.isActive = true;
 			portal.destinationScene = destinationScene;
 			this.activePortal = portal;
 
-			if (portal.sprite) {
+			if (portal.sprite && portal.sprite.active && portal.sprite.scene) {
 				portal.sprite.setTint(portal.activeTint);
 			}
 
 			const glow = this.add.circle(portal.x, portal.y, 60, 0x00ff00, 0.3);
-			if (portal.sprite) {
+			if (portal.sprite && portal.sprite.active) {
 				glow.setDepth(portal.sprite.depth - 1);
 			}
 			portal.glowEffect = glow;
 
-			const targets = portal.sprite ? [portal.sprite, glow] : [glow];
-			this.tweens.add({
+			const targets = (portal.sprite && portal.sprite.active && portal.sprite.scene) ? [portal.sprite, glow] : [glow];
+			
+			const tween = this.tweens.add({
 				targets: targets,
 				alpha: { from: 1, to: 0.7 },
 				duration: 1000,
@@ -367,9 +377,14 @@ export default class MainMapScene extends BaseGameScene {
 				ease: 'Sine.easeInOut'
 			});
 
-			this.physics.add.overlap(this.player, portal.zone, (player, zone) => {
-				this.handlePortalCollision(portal);
-			});
+			portal.activeTween = tween;
+
+			// Store the overlap handler reference
+			if (this.player && this.player.active) {
+				portal.overlapHandler = this.physics.add.overlap(this.player, portal.zone, (player, zone) => {
+					this.handlePortalCollision(portal);
+				});
+			}
 
 		} catch (error) {
 			console.error("Error activating portal:", error);
@@ -378,22 +393,32 @@ export default class MainMapScene extends BaseGameScene {
 
 	deactivatePortal(portal) {
 		try {
+			if (!portal) return;
+
 			portal.isActive = false;
 			portal.destinationScene = null;
 
-			if (portal.sprite) {
+			if (portal.sprite && portal.sprite.active && portal.sprite.scene) {
 				portal.sprite.setTint(portal.originalTint);
 				portal.sprite.setScale(1);
 				portal.sprite.setAlpha(1);
 			}
 
-			if (portal.glowEffect) {
+			if (portal.glowEffect && portal.glowEffect.active) {
 				portal.glowEffect.destroy();
 				portal.glowEffect = null;
 			}
 
-			const targets = portal.sprite ? [portal.sprite] : [];
-			this.tweens.killTweensOf(targets);
+			if (portal.activeTween && this.tweens) {
+				this.tweens.remove(portal.activeTween);
+				portal.activeTween = null;
+			}
+
+			// Clean up overlap handler
+			if (portal.overlapHandler && this.physics && this.physics.world) {
+				this.physics.world.removeCollider(portal.overlapHandler);
+				portal.overlapHandler = null;
+			}
 
 		} catch (error) {
 			console.error("Error deactivating portal:", error);
@@ -401,27 +426,45 @@ export default class MainMapScene extends BaseGameScene {
 	}
 
 	handlePortalCollision(portal) {
-		if (!portal.isActive || this.isTeleporting || !portal.destinationScene) {
+		if (!portal || !portal.isActive || this.isTeleporting || !portal.destinationScene) {
+			return;
+		}
+
+		if (!this.scene || !this.scene.isActive()) {
 			return;
 		}
 
 		const destinationScene = portal.destinationScene;
 		this.isTeleporting = true;
-		this.createTeleportEffect(this.player.x, this.player.y);
 		
-		if (this.gameManager) {
-			this.gameManager.saveGame();
+		// Add null check for player and createTeleportEffect
+		if (this.player && this.player.active && typeof this.createTeleportEffect === 'function') {
+			this.createTeleportEffect(this.player.x, this.player.y);
+		}
+		
+		if (this.gameManager && typeof this.gameManager.saveGame === 'function') {
+			try {
+				this.gameManager.saveGame();
+			} catch (saveError) {
+				console.warn("Error saving game:", saveError);
+			}
 		}
 		
 		this.cleanupBeforePortalTeleport();
 		
 		this.time.delayedCall(500, () => {
-			if (destinationScene && this.scene.manager.keys[destinationScene]) {
-				this.scene.start(destinationScene);
-			} else {
-				this.scene.start("MainMapScene");
+			if (!this.scene || !this.scene.isActive()) return;
+			
+			try {
+				if (destinationScene && this.scene.manager && this.scene.manager.keys && this.scene.manager.keys[destinationScene]) {
+					this.scene.start(destinationScene);
+				} else {
+					this.scene.start("MainMapScene");
+				}
+			} catch (sceneError) {
+				console.error("Error switching scenes:", sceneError);
+				this.isTeleporting = false;
 			}
-			this.isTeleporting = false;
 		});
 
 		this.deactivatePortal(portal);
@@ -430,41 +473,34 @@ export default class MainMapScene extends BaseGameScene {
 
 	cleanupBeforePortalTeleport() {
 		try {
-			if (this.enemySpawnTimer) {
-				this.enemySpawnTimer.destroy();
-				this.enemySpawnTimer = null;
-			}
+			// Clean up timers with proper checks
+			const timersToClean = [
+				'enemySpawnTimer', 'waveTimer', 'difficultyTimer', 'portalTimer'
+			];
+
+			timersToClean.forEach(timerName => {
+				if (this[timerName] && this[timerName].hasDispatched !== undefined && !this[timerName].hasDispatched) {
+					this[timerName].destroy();
+					this[timerName] = null;
+				}
+			});
 			
-			if (this.waveTimer) {
-				this.waveTimer.destroy();
-				this.waveTimer = null;
-			}
+			// Clean up groups with proper checks
+			const groupsToClean = [
+				{ obj: this.gameplayManager, prop: 'enemies' },
+				{ obj: this.gameplayManager, prop: 'expOrbs' },
+				{ obj: this, prop: 'enemies' },
+				{ obj: this, prop: 'zombieGroup' },
+				{ obj: this, prop: 'experienceOrbs' }
+			];
+
+			groupsToClean.forEach(({ obj, prop }) => {
+				if (obj && obj[prop] && obj[prop].active && typeof obj[prop].clear === 'function') {
+					obj[prop].clear(true, true);
+				}
+			});
 			
-			if (this.difficultyTimer) {
-				this.difficultyTimer.destroy();
-				this.difficultyTimer = null;
-			}
-			
-			if (this.gameplayManager && this.gameplayManager.enemies) {
-				this.gameplayManager.enemies.clear(true, true);
-			}
-			
-			if (this.enemies) {
-				this.enemies.clear(true, true);
-			}
-			
-			if (this.zombieGroup) {
-				this.zombieGroup.clear(true, true);
-			}
-			
-			if (this.experienceOrbs) {
-				this.experienceOrbs.clear(true, true);
-			}
-			
-			if (this.gameplayManager && this.gameplayManager.expOrbs) {
-				this.gameplayManager.expOrbs.clear(true, true);
-			}
-			
+			// Reset counters
 			this.currentWave = 0;
 			this.isWaveActive = false;
 			this.waveEnemiesRemaining = 0;
@@ -477,6 +513,8 @@ export default class MainMapScene extends BaseGameScene {
 
 	showPortalNotification(portal, destinationScene) {
 		try {
+			if (!this.cameras || !this.cameras.main) return;
+
 			const centerX = this.cameras.main.centerX;
 			const centerY = this.cameras.main.centerY;
 
@@ -499,16 +537,22 @@ export default class MainMapScene extends BaseGameScene {
 				duration: 500,
 				ease: 'Back.easeOut',
 				onComplete: () => {
-					this.time.delayedCall(2000, () => {
-						this.tweens.add({
-							targets: notification,
-							alpha: 0,
-							duration: 800,
-							onComplete: () => {
-								notification.destroy();
+					if (this.time && notification.active) {
+						this.time.delayedCall(2000, () => {
+							if (notification.active && this.tweens) {
+								this.tweens.add({
+									targets: notification,
+									alpha: 0,
+									duration: 800,
+									onComplete: () => {
+										if (notification.active) {
+											notification.destroy();
+										}
+									}
+								});
 							}
 						});
-					});
+					}
 				}
 			});
 
@@ -519,8 +563,12 @@ export default class MainMapScene extends BaseGameScene {
 
 	setupZombieCollisionSystem() {
 		try {
-			this.registerCollisionLayer(this.map_Col_1, "Map Collision");
-			this.registerCollisionLayer(this.backGround, "Background Collision");
+			if (this.map_Col_1) {
+				this.registerCollisionLayer(this.map_Col_1, "Map Collision");
+			}
+			if (this.backGround) {
+				this.registerCollisionLayer(this.backGround, "Background Collision");
+			}
 
 			const statues = [
 				this.stoneStatuePrefab, this.stoneStatuePrefab_1, 
@@ -528,12 +576,14 @@ export default class MainMapScene extends BaseGameScene {
 			];
 
 			statues.forEach((statue, index) => {
-				if (statue) {
+				if (statue && statue.active) {
 					this.registerStaticObstacle(statue, `Stone Statue ${index + 1}`);
 				}
 			});
 
-			this.setupZombieObstacleCollisions();
+			if (typeof this.setupZombieObstacleCollisions === 'function') {
+				this.setupZombieObstacleCollisions();
+			}
 		} catch (error) {
 			console.error("Error setting up zombie collision system:", error);
 		}
@@ -541,16 +591,26 @@ export default class MainMapScene extends BaseGameScene {
 
 	setupCollisions() {
 		try {
-			this.stoneStatuePrefab.setupCollision(this.playerPrefab);
-			this.stoneStatuePrefab_1.setupCollision(this.playerPrefab);
-			this.stoneStatuePrefab_2.setupCollision(this.playerPrefab);
-			this.stoneStatuePrefab_3.setupCollision(this.playerPrefab);
+			const statues = [
+				this.stoneStatuePrefab, this.stoneStatuePrefab_1, 
+				this.stoneStatuePrefab_2, this.stoneStatuePrefab_3
+			];
 
-			this.physics.add.collider(this.playerPrefab, this.map_Col_1);
-			this.map_Col_1.setCollisionBetween(0, 10000);
+			statues.forEach(statue => {
+				if (statue && statue.active && typeof statue.setupCollision === 'function' && this.playerPrefab) {
+					statue.setupCollision(this.playerPrefab);
+				}
+			});
 
-			this.physics.add.collider(this.playerPrefab, this.backGround);
-			this.backGround.setCollisionBetween(0, 10000);
+			if (this.playerPrefab && this.map_Col_1) {
+				this.physics.add.collider(this.playerPrefab, this.map_Col_1);
+				this.map_Col_1.setCollisionBetween(0, 10000);
+			}
+
+			if (this.playerPrefab && this.backGround) {
+				this.physics.add.collider(this.playerPrefab, this.backGround);
+				this.backGround.setCollisionBetween(0, 10000);
+			}
 		} catch (error) {
 			console.error("Error setting up player collisions:", error);
 		}
@@ -558,21 +618,25 @@ export default class MainMapScene extends BaseGameScene {
 
 	setupTestControls() {
 		try {
-			super.setupTestControls();
+			if (typeof super.setupTestControls === 'function') {
+				super.setupTestControls();
+			}
 
-			this.input.keyboard.on('keydown-P', () => {
-				if (this.gameManager && this.gameManager.debugMode) {
-					this.activateRandomPortal();
-				}
-			});
+			if (this.input && this.input.keyboard) {
+				this.input.keyboard.on('keydown-P', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						this.activateRandomPortal();
+					}
+				});
 
-			this.input.keyboard.on('keydown-O', () => {
-				if (this.gameManager && this.gameManager.debugMode) {
-					this.portals.forEach((portal, index) => {
-						console.log(`Portal ${index}: Active = ${portal.isActive}, Destination = ${portal.destinationScene || "None"}`);
-					});
-				}
-			});
+				this.input.keyboard.on('keydown-O', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						this.portals.forEach((portal, index) => {
+							console.log(`Portal ${index}: Active = ${portal.isActive}, Destination = ${portal.destinationScene || "None"}`);
+						});
+					}
+				});
+			}
 
 		} catch (error) {
 			console.error("Error setting up portal test controls:", error);
@@ -580,15 +644,21 @@ export default class MainMapScene extends BaseGameScene {
 	}
 
 	trackEnemyKill(enemy) {
-		this.removeZombie(enemy);
-		super.trackEnemyKill(enemy);
+		if (typeof this.removeZombie === 'function') {
+			this.removeZombie(enemy);
+		}
+		if (typeof super.trackEnemyKill === 'function') {
+			super.trackEnemyKill(enemy);
+		}
 	}
 
 	update(time, delta) {
-		super.update(time, delta);
+		if (typeof super.update === 'function') {
+			super.update(time, delta);
+		}
 
 		try {
-			if (this.player && !this.player.isDead) {
+			if (this.player && this.player.active && !this.player.isDead && this.cameras && this.cameras.main) {
 				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 			}
 		} catch (error) {
@@ -597,19 +667,29 @@ export default class MainMapScene extends BaseGameScene {
 	}
 
 	shutdown() {
-		if (this.portalTimer) {
-			this.portalTimer.destroy();
-			this.portalTimer = null;
+		try {
+			// Clean up portal timer
+			if (this.portalTimer && !this.portalTimer.hasDispatched) {
+				this.portalTimer.destroy();
+				this.portalTimer = null;
+			}
+
+			// Clean up all portals
+			this.portals.forEach(portal => {
+				this.deactivatePortal(portal);
+			});
+
+			this.portals = [];
+			this.activePortal = null;
+			this.isTeleporting = false;
+
+			// Call parent shutdown
+			if (typeof super.shutdown === 'function') {
+				super.shutdown();
+			}
+		} catch (error) {
+			console.error("Error in MainMapScene shutdown:", error);
 		}
-
-		this.portals.forEach(portal => {
-			this.deactivatePortal(portal);
-		});
-
-		this.portals = [];
-		this.activePortal = null;
-
-		super.shutdown();
 	}
 
 	/* END-USER-CODE */

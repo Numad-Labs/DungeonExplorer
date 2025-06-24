@@ -1005,6 +1005,32 @@
                 "key": "Lift_Platform"
             },
             {
+                "url": "assets/Hero/AttackPatterns/Lighting/lighting_chain_attack_hit_projectile_VFX_72x96_v01.png",
+                "frameConfig": {
+                    "frameWidth": 72,
+                    "frameHeight": 96,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "lighting_chain_attack_hit_projectile_VFX_72x96_v01"
+            },
+            {
+                "url": "assets/Hero/AttackPatterns/Lighting/lighting_chain_projectile_attack_VFX_128x32_v01.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "lighting_chain_projectile_attack_VFX_128x32_v01"
+            },
+            {
                 "url": "assets/Map/mainMap.json",
                 "type": "tilemapTiledJSON",
                 "key": "mainMap"
