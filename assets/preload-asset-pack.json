@@ -165,8 +165,8 @@
             {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Attack_85x112.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 85,
+                    "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -178,8 +178,8 @@
             {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Death_85x32.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 85,
+                    "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -191,8 +191,8 @@
             {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Run_85x32.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 85,
+                    "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -239,6 +239,32 @@
                 },
                 "type": "spritesheet",
                 "key": "attack 1"
+            },
+            {
+                "url": "assets/Hero/big dude/attack 1t.png",
+                "frameConfig": {
+                    "frameWidth": 145,
+                    "frameHeight": 74,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "attack 1t"
+            },
+            {
+                "url": "assets/Hero/big dude/attack 2t.png",
+                "frameConfig": {
+                    "frameWidth": 112,
+                    "frameHeight": 67,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "attack 2t"
             },
             {
                 "url": "assets/Hero/zombie 2/attack.png",
@@ -1516,6 +1542,19 @@
                 "key": "run_1"
             },
             {
+                "url": "assets/Hero/big dude/run.png",
+                "frameConfig": {
+                    "frameWidth": 112,
+                    "frameHeight": 66,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "run_2"
+            },
+            {
                 "url": "assets/Static prop/sharp rocks_0.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -1583,8 +1622,8 @@
             {
                 "url": "assets/Animated prop/shrine-buff available animation-295x311.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 192,
+                    "frameHeight": 288,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -2519,8 +2558,8 @@
             {
                 "url": "assets/Hero/assasin archer/Volley VFX 74x111.png",
                 "frameConfig": {
-                    "frameWidth": 32,
-                    "frameHeight": 32,
+                    "frameWidth": 74,
+                    "frameHeight": 175,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,

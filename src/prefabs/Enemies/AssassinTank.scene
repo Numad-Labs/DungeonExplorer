@@ -1,0 +1,36 @@
+{
+    "id": "f7075cd9-b933-42f3-a054-cfe4189649a6",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Assassin Tank",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "9f113f66-569f-41b7-bdc7-e7a610ec1bbb",
+            "label": "assassinTank_Run",
+            "scope": "CLASS",
+            "texture": {
+                "key": "run_1",
+                "frame": 0
+            },
+            "x": 419,
+            "y": 235,
+            "animationPlayMethod": 1,
+            "animationKey": "AssassinTank Run"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

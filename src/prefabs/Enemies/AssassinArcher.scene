@@ -1,0 +1,36 @@
+{
+    "id": "73355ff6-5b5b-4935-ab80-9aec723dd9a0",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "AssassinArcher",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "01a3a256-b921-44cd-857b-915e9b0a70a9",
+            "label": "assassinArcher_Run",
+            "scope": "CLASS",
+            "texture": {
+                "key": "Archer Bandit-Run_85x32",
+                "frame": 0
+            },
+            "x": 496,
+            "y": 341,
+            "animationPlayMethod": 1,
+            "animationKey": "AssassinArcher Run"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

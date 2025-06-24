@@ -3,6 +3,9 @@ import ExpOrb from "../prefabs/ExpOrb";
 import Zombie from "../prefabs/Enemies/Zombie1";
 import Zombie2 from "../prefabs/Enemies/Zombie2";
 import PoliceDroid from "../prefabs/Enemies/PoliceDroid";
+import Assassin from "../prefabs/Enemies/Assassin";
+import AssassinTank from "../prefabs/Enemies/AssassinTank";
+import AssassinArcher from "../prefabs/Enemies/AssassinArcher";
 
 export default class GameplayManager {
     constructor(scene) {
@@ -43,6 +46,15 @@ export default class GameplayManager {
         }
         if (!this.scene.textures.exists('Police run')){
             this.createZombieTexture('Police run')
+        }
+        if (!this.scene.textures.exists('assassin')){
+            this.createZombieTexture('assassin')
+        }
+        if (!this.scene.textures.exists('assassinTank')){
+            this.createZombieTexture('assassinTank')
+        }
+        if (!this.scene.textures.exists('assassinArcher')){
+            this.createZombieTexture('assassinArcher')
         }
         
         if (!this.scene.textures.exists('Exp')) {
@@ -161,13 +173,19 @@ export default class GameplayManager {
         const roll = Math.random();
         
         if (roll < 0.5) {
-            enemyType = 'zombie';
+          enemyType = 'zombie';        
         } else if (roll < 0.8) {
-            enemyType = 'zombieBig';
-        } else {
-            enemyType = 'policeDroid'; 
+          enemyType = 'zombieBig';    
+        }else if (roll < 0.8) {
+          enemyType = 'assassinTank';    
+        }else if (roll < 0.95) {
+          enemyType = 'policeDroid';  
+        }else if (roll < 0.95) {
+          enemyType = 'assassinArcher';  
         }
-        
+         else {
+          enemyType = 'assassin';     
+    }
         return this.spawnEnemy(x, y, enemyType);
     }
     
@@ -186,7 +204,26 @@ export default class GameplayManager {
                 enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
                 enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
                 enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
-            } else {
+            }
+            else if (enemyType === 'assassin') {
+                enemy = new Assassin(this.scene, x, y);
+                enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
+                enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
+                enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
+            }
+            else if (enemyType === 'assassinArcher') {
+                enemy = new AssassinArcher(this.scene, x, y);
+                enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
+                enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
+                enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
+            }
+            else if (enemyType === 'assassinTank') {
+                enemy = new AssassinTank(this.scene, x, y);
+                enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
+                enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
+                enemy.speed = 50 * (1 + (difficulty - 1) * 0.05);
+            }
+            else {
                 enemy = new Zombie(this.scene, x, y);
                 enemy.maxHealth = 30 * (1 + (difficulty - 1) * 0.2);
                 enemy.damage = 10 * (1 + (difficulty - 1) * 0.1);
@@ -400,7 +437,7 @@ export default class GameplayManager {
         keyboard.on('keydown-X', () => {
             const pointer = this.scene.input.activePointer;
             const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-            this.spawnEnemy(world.x, world.y, 'zombieBig');
+            this.spawnEnemy(world.x, world.y, 'assassinArcher');
         });
 
         keyboard.on('keydown-V', () => {

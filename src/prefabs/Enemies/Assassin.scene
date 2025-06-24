@@ -1,0 +1,36 @@
+{
+    "id": "5d3b2a0c-47cf-40dd-920c-f1bc1a2b7097",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Assassin",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "8c24a7b3-f8b9-4b09-8724-465ec35e3be2",
+            "label": "assasin_Run",
+            "scope": "CLASS",
+            "texture": {
+                "key": "Dagger Bandit-Run",
+                "frame": 0
+            },
+            "x": 478,
+            "y": 433,
+            "animationPlayMethod": 1,
+            "animationKey": "Assasin Run"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}
