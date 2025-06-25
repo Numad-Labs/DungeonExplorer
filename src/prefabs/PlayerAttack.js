@@ -16,20 +16,31 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         scene.add.existing(this);
         this.setDepth(18);
         
-        // Slash attack (AOE melee)
+        // Slash attack (AOE melee) - INCREASED RANGE AND SIZE
         this.slashDamage = player.slashDamage || 10;
         this.slashFireRate = player.slashFireRate || 1;
-        this.slashRange = player.slashRange || 50;
+        this.slashRange = player.slashRange || 70; // Increased from 50 to 70
         this.slashCooldown = 1000 / this.slashFireRate;
         this.lastSlashTime = 0;
         
-        // Fire projectile attack
-        this.fireDamage = player.fireDamage || 15;
-        this.fireFireRate = player.fireFireRate || 0.8;
-        this.fireRange = player.fireRange || 200;
-        this.fireCooldown = 1000 / this.fireFireRate;
-        this.lastFireTime = 0;
-        this.fireProjectileSpeed = 150;
+        // Fire bullet attack (piercing)
+        this.fireBulletDamage = player.fireBulletDamage || 8;
+        this.fireBulletFireRate = player.fireBulletFireRate || 1.2;
+        this.fireBulletRange = player.fireBulletRange || 300;
+        this.fireBulletCooldown = 1000 / this.fireBulletFireRate;
+        this.lastFireBulletTime = 0;
+        this.fireBulletSpeed = 250;
+        this.fireBulletDotDuration = 4000;
+        
+        // Fire bomb attack (AOE explosion)
+        this.fireBombDamage = player.fireBombDamage || 18;
+        this.fireBombFireRate = player.fireBombFireRate || 0.4;
+        this.fireBombRange = player.fireBombRange || 80;
+        this.fireBombCooldown = 1000 / this.fireBombFireRate;
+        this.lastFireBombTime = 0;
+        this.fireBombSpeed = 120;
+        this.fireBombExplosionRadius = 50;
+        this.fireBombDotDuration = 5000;
         
         // Ice projectile attack
         this.iceDamage = player.iceDamage || 12;
@@ -46,12 +57,14 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.lightningCooldown = 1000 / this.lightningFireRate;
         this.lastLightningTime = 0;
         this.lightningProjectileSpeed = 200;
-        this.lightningChainCount = player.lightningChainCount || 3;
+        this.lightningChainCount = player.lightningChainCount || 10;
         this.lightningChainRange = 100;
         
+        // Attack types enabled
         this.attackTypes = {
             slash: true,
-            fire: true,
+            fireBullet: true,
+            fireBomb: true,
             ice: true,
             lightning: true
         };
@@ -82,10 +95,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     createProjectileGroups() {
-        this.fireProjectiles = this.scene.add.group();
+        this.fireBulletProjectiles = this.scene.add.group();
+        this.fireBombProjectiles = this.scene.add.group();
         this.iceProjectiles = this.scene.add.group();
         this.lightningProjectiles = this.scene.add.group();
-        this.scene.physics.world.enable(this.fireProjectiles);
+        
+        this.scene.physics.world.enable(this.fireBulletProjectiles);
+        this.scene.physics.world.enable(this.fireBombProjectiles);
         this.scene.physics.world.enable(this.iceProjectiles);
         this.scene.physics.world.enable(this.lightningProjectiles);
     }
@@ -104,13 +120,24 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         }
         
         // Fire projectile animations
-        if (!this.scene.anims.exists('fire_projectile')) {
+        if (!this.scene.anims.exists('fire_bullet')) {
             this.scene.anims.create({
-                key: 'fire_projectile',
+                key: 'fire_bullet',
                 frames: this.scene.anims.generateFrameNumbers('AOE_Fire_Ball_Projectile_VFX_V01', { 
                     start: 0, end: -1
                 }),
-                frameRate: 20,
+                frameRate: 25,
+                repeat: -1
+            });
+        }
+        
+        if (!this.scene.anims.exists('fire_bomb')) {
+            this.scene.anims.create({
+                key: 'fire_bomb',
+                frames: this.scene.anims.generateFrameNumbers('AOE_Fire_Ball_Projectile_VFX_V01', { 
+                    start: 0, end: -1
+                }),
+                frameRate: 15,
                 repeat: -1
             });
         }
@@ -186,10 +213,19 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             });
         }
         
-        if (this.attackTypes.fire) {
-            this.fireTimer = this.scene.time.addEvent({
-                delay: this.fireCooldown,
-                callback: this.attemptFireAttack,
+        if (this.attackTypes.fireBullet) {
+            this.fireBulletTimer = this.scene.time.addEvent({
+                delay: this.fireBulletCooldown,
+                callback: this.attemptFireBulletAttack,
+                callbackScope: this,
+                loop: true
+            });
+        }
+        
+        if (this.attackTypes.fireBomb) {
+            this.fireBombTimer = this.scene.time.addEvent({
+                delay: this.fireBombCooldown,
+                callback: this.attemptFireBombAttack,
                 callbackScope: this,
                 loop: true
             });
@@ -253,7 +289,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         
         this.slashSprite.setPosition(0, 0);
         this.slashSprite.setVisible(true);
-        this.slashSprite.setScale(1.2);
+        this.slashSprite.setScale(1.4);
         this.slashSprite.setDepth(18);
         this.slashSprite.play('slash_attack_v01');
         
@@ -271,69 +307,119 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.showSlashIndicator();
     }
     
-    // FIRE PROJECTILE ATTACK
-    attemptFireAttack() {
+    // FIRE BULLET ATTACK (Fast piercing)
+    attemptFireBulletAttack() {
         const currentTime = this.scene.time.now;
-        if (currentTime - this.lastFireTime < this.fireCooldown) return;
+        if (currentTime - this.lastFireBulletTime < this.fireBulletCooldown) return;
         
-        const target = this.findNearestEnemyInRange(this.fireRange);
+        const target = this.findNearestEnemyInRange(this.fireBulletRange);
         if (target) {
-            this.fireProjectileAttack(target);
+            this.fireBulletAttack(target);
         }
     }
     
-    fireProjectileAttack(target) {
-        this.lastFireTime = this.scene.time.now;
+    fireBulletAttack(target) {
+        this.lastFireBulletTime = this.scene.time.now;
         
-        const fireProjectile = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Fire_Ball_Projectile_VFX_V01');
-        this.scene.physics.add.existing(fireProjectile);
+        const fireBullet = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Fire_Ball_Projectile_VFX_V01');
+        this.scene.physics.add.existing(fireBullet);
         
-        fireProjectile.setScale(0.8);
-        fireProjectile.setDepth(18);
-        fireProjectile.play('fire_projectile');
+        fireBullet.setScale(0.6);
+        fireBullet.setDepth(18);
+        fireBullet.play('fire_bullet');
         
         const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
         
-        fireProjectile.body.setVelocity(
-            Math.cos(angle) * this.fireProjectileSpeed,
-            Math.sin(angle) * this.fireProjectileSpeed
+        fireBullet.body.setVelocity(
+            Math.cos(angle) * this.fireBulletSpeed,
+            Math.sin(angle) * this.fireBulletSpeed
         );
         
-        fireProjectile.damage = this.fireDamage;
-        fireProjectile.startX = this.player.x;
-        fireProjectile.startY = this.player.y;
-        fireProjectile.maxRange = this.fireRange;
-        fireProjectile.isFireProjectile = true;
+        fireBullet.damage = this.fireBulletDamage;
+        fireBullet.startX = this.player.x;
+        fireBullet.startY = this.player.y;
+        fireBullet.maxRange = this.fireBulletRange;
+        fireBullet.isFireBullet = true;
+        fireBullet.hitEnemies = [];
         
-        this.fireProjectiles.add(fireProjectile);
+        this.fireBulletProjectiles.add(fireBullet);
     }
     
-    explodeFireProjectile(projectile) {
-        if (!projectile.active) return;
+    // FIRE BOMB ATTACK (Delayed AOE explosion)
+    attemptFireBombAttack() {
+        const currentTime = this.scene.time.now;
+        if (currentTime - this.lastFireBombTime < this.fireBombCooldown) return;
         
-        if (this.scene.anims.exists('fire_explosion')) {
-            const explosion = this.scene.add.sprite(projectile.x, projectile.y, 'AOE_Fire_Blast_Attack_VFX_V01');
-            explosion.setScale(1.2);
-            explosion.setDepth(19);
-            explosion.play('fire_explosion');
-            explosion.once('animationcomplete', () => explosion.destroy());
+        const target = this.findNearestEnemyInRange(this.fireBombRange);
+        if (target) {
+            this.fireBombAttack(target);
         }
+    }
+    
+    fireBombAttack(target) {
+        this.lastFireBombTime = this.scene.time.now;
         
-        if (this.scene.enemies) {
-            const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-            enemies.forEach(enemy => {
-                const distance = Phaser.Math.Distance.Between(projectile.x, projectile.y, enemy.x, enemy.y);
-                
-                if (distance <= 40) {
-                    if (enemy.takeDamage) {
-                        enemy.takeDamage(projectile.damage);
-                        this.applyBurnEffect(enemy, projectile.damage * 0.3, 3000);
+        const fireBomb = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Fire_Ball_Projectile_VFX_V01');
+        this.scene.physics.add.existing(fireBomb);
+        
+        fireBomb.setScale(1.0);
+        fireBomb.setDepth(18);
+        fireBomb.play('fire_bomb');
+        fireBomb.setTint(0xff6600);
+        
+        const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
+        
+        fireBomb.body.setVelocity(
+            Math.cos(angle) * this.fireBombSpeed,
+            Math.sin(angle) * this.fireBombSpeed
+        );
+        
+        fireBomb.damage = this.fireBombDamage;
+        fireBomb.startX = this.player.x;
+        fireBomb.startY = this.player.y;
+        fireBomb.maxRange = this.fireBombRange;
+        fireBomb.targetX = target.x;
+        fireBomb.targetY = target.y;
+        fireBomb.isFireBomb = true;
+        fireBomb.hasExploded = false;
+        
+        this.fireBombProjectiles.add(fireBomb);
+    }
+    
+    explodeFireBomb(bomb) {
+        if (!bomb.active || bomb.hasExploded) return;
+        
+        bomb.hasExploded = true;
+        bomb.body.setVelocity(0, 0);
+        
+        this.scene.time.delayedCall(500, () => {
+            if (!bomb.active) return;
+            
+            if (this.scene.anims.exists('fire_explosion')) {
+                const explosion = this.scene.add.sprite(bomb.x, bomb.y, 'AOE_Fire_Blast_Attack_VFX_V01');
+                explosion.setScale(2);
+                explosion.setDepth(19);
+                explosion.play('fire_explosion');
+                explosion.once('animationcomplete', () => explosion.destroy());
+            }
+            
+            // Deal AOE damage
+            if (this.scene.enemies) {
+                const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+                enemies.forEach(enemy => {
+                    const distance = Phaser.Math.Distance.Between(bomb.x, bomb.y, enemy.x, enemy.y);
+                    
+                    if (distance <= this.fireBombExplosionRadius) {
+                        if (enemy.takeDamage) {
+                            enemy.takeDamage(bomb.damage);
+                            this.applyBurnEffect(enemy, bomb.damage * 0.4, this.fireBombDotDuration);
+                        }
                     }
-                }
-            });
-        }
-        
-        projectile.destroy();
+                });
+            }
+            
+            bomb.destroy();
+        });
     }
     
     // ICE PROJECTILE ATTACK
@@ -452,6 +538,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         hitEffect.play('lightning_hit');
         hitEffect.once('animationcomplete', () => hitEffect.destroy());
         
+        // Chain to next target
         if (projectile.chainDepth < this.lightningChainCount - 1) {
             const nextTarget = this.findNearestEnemyInChainRange(target, projectile.hitTargets);
             if (nextTarget) {
@@ -649,7 +736,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashVisual.setAlpha(0.5);
         
         const ringEffect = this.scene.add.circle(this.player.x, this.player.y, 10, 0x00ff00, 0);
-        ringEffect.setStrokeStyle(3, 0x00ff00, 0.8);
+        ringEffect.setStrokeStyle(4, 0x00ff00, 0.8);
         ringEffect.setDepth(17);
         
         this.scene.tweens.add({
@@ -667,8 +754,9 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     update() {
-        this.fireProjectiles.children.entries.forEach(projectile => {
-            if (!projectile.active || !projectile.isFireProjectile) return;
+        // Update fire bullet projectiles (piercing)
+        this.fireBulletProjectiles.children.entries.forEach(projectile => {
+            if (!projectile.active || !projectile.isFireBullet) return;
             
             const distance = Phaser.Math.Distance.Between(
                 projectile.startX, projectile.startY,
@@ -676,7 +764,46 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             );
             
             if (distance >= projectile.maxRange) {
-                this.explodeFireProjectile(projectile);
+                projectile.destroy();
+                return;
+            }
+            
+            const enemyGroups = [this.scene.enemies, this.scene.zombieGroup].filter(group => group);
+            
+            enemyGroups.forEach(enemyGroup => {
+                if (enemyGroup) {
+                    const enemies = enemyGroup.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+                    enemies.forEach(enemy => {
+                        if (projectile.hitEnemies.includes(enemy)) return;
+                        
+                        const enemyDistance = Phaser.Math.Distance.Between(
+                            projectile.x, projectile.y,
+                            enemy.x, enemy.y
+                        );
+                        
+                        if (enemyDistance <= 20) {
+                            projectile.hitEnemies.push(enemy);
+                            if (enemy.takeDamage) {
+                                enemy.takeDamage(projectile.damage);
+                                this.applyBurnEffect(enemy, projectile.damage * 0.3, this.fireBulletDotDuration);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Update fire bomb projectiles (delayed explosion)
+        this.fireBombProjectiles.children.entries.forEach(projectile => {
+            if (!projectile.active || !projectile.isFireBomb) return;
+            
+            const distance = Phaser.Math.Distance.Between(
+                projectile.startX, projectile.startY,
+                projectile.x, projectile.y
+            );
+            
+            if (distance >= projectile.maxRange) {
+                this.explodeFireBomb(projectile);
                 return;
             }
             
@@ -692,13 +819,14 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                         );
                         
                         if (enemyDistance <= 25) {
-                            this.explodeFireProjectile(projectile);
+                            this.explodeFireBomb(projectile);
                         }
                     });
                 }
             });
         });
         
+        // Update ice projectiles
         this.iceProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isIceProjectile) return;
             
@@ -734,6 +862,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             }
         });
         
+        // Update lightning projectiles
         this.lightningProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isLightningProjectile) return;
             
@@ -763,13 +892,18 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         if (this.player) {
             this.slashDamage = this.player.slashDamage || 10;
             this.slashFireRate = this.player.slashFireRate || 1;
-            this.slashRange = this.player.slashRange || 50;
+            this.slashRange = this.player.slashRange || 70;
             this.slashCooldown = 1000 / this.slashFireRate;
             
-            this.fireDamage = this.player.fireDamage || 15;
-            this.fireFireRate = this.player.fireFireRate || 0.8;
-            this.fireRange = this.player.fireRange || 200;
-            this.fireCooldown = 1000 / this.fireFireRate;
+            this.fireBulletDamage = this.player.fireBulletDamage || 8;
+            this.fireBulletFireRate = this.player.fireBulletFireRate || 1.2;
+            this.fireBulletRange = this.player.fireBulletRange || 300;
+            this.fireBulletCooldown = 1000 / this.fireBulletFireRate;
+            
+            this.fireBombDamage = this.player.fireBombDamage || 18;
+            this.fireBombFireRate = this.player.fireBombFireRate || 0.4;
+            this.fireBombRange = this.player.fireBombRange || 220;
+            this.fireBombCooldown = 1000 / this.fireBombFireRate;
             
             this.iceDamage = this.player.iceDamage || 12;
             this.iceFireRate = this.player.iceFireRate || 0.6;
@@ -783,7 +917,8 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             this.lightningChainCount = this.player.lightningChainCount || 10;
             
             if (this.slashTimer) this.slashTimer.delay = this.slashCooldown;
-            if (this.fireTimer) this.fireTimer.delay = this.fireCooldown;
+            if (this.fireBulletTimer) this.fireBulletTimer.delay = this.fireBulletCooldown;
+            if (this.fireBombTimer) this.fireBombTimer.delay = this.fireBombCooldown;
             if (this.iceTimer) this.iceTimer.delay = this.iceCooldown;
             if (this.lightningTimer) this.lightningTimer.delay = this.lightningCooldown;
             
@@ -795,7 +930,8 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     destroy() {
         if (this.slashTimer) this.slashTimer.destroy();
-        if (this.fireTimer) this.fireTimer.destroy();
+        if (this.fireBulletTimer) this.fireBulletTimer.destroy();
+        if (this.fireBombTimer) this.fireBombTimer.destroy();
         if (this.iceTimer) this.iceTimer.destroy();
         if (this.lightningTimer) this.lightningTimer.destroy();
         
@@ -807,7 +943,8 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             });
         }
         
-        this.fireProjectiles.destroy(true);
+        this.fireBulletProjectiles.destroy(true);
+        this.fireBombProjectiles.destroy(true);
         this.iceProjectiles.destroy(true);
         this.lightningProjectiles.destroy(true);
         
