@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import Login from './Login.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+import UserProfile from './UserProfile.jsx';
+
+
 
 const passiveUpgrades = [
   {
@@ -275,6 +280,7 @@ const MainMenu = ({ gameManager, onStartGame }) => {
     return value;
   };
 
+  const [isConnected, setIsConnected] = useState(false);
   // Death screen
   if (showDeathScreen && gameState.lastRunStats) {
     return (
@@ -350,6 +356,7 @@ const MainMenu = ({ gameManager, onStartGame }) => {
           </div>
           
           <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+            
             <button
               onClick={continueAfterDeath}
               style={{
@@ -416,6 +423,13 @@ const MainMenu = ({ gameManager, onStartGame }) => {
           💰 GOLD: <span style={{ color: '#ffff00' }}>{formatNumber(gameState.gold)}</span>
         </div>
       </div>
+
+
+      <AuthProvider>
+        <Login/>
+
+        <UserProfile/>
+      </AuthProvider>
       
       {/* Tab Navigation */}
       <div style={{
@@ -771,23 +785,23 @@ const MainMenu = ({ gameManager, onStartGame }) => {
       </div>
       
       {/* Start Game Button */}
-      <button
-        onClick={startGame}
-        style={{
-          backgroundColor: '#3F8F3F',
-          color: 'white',
-          border: 'none',
-          padding: '18px',
-          borderRadius: '8px',
-          width: '100%',
-          fontSize: '20px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          textTransform: 'uppercase'
-        }}
-      >
-        🎮 Start Game
-      </button>
+<button
+  onClick={startGame}
+  style={{
+    backgroundColor: '#3F8F3F',
+    color: 'white',
+    border: 'none',
+    padding: '18px',
+    borderRadius: '8px',
+    width: '100%',
+    fontSize: '20px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    textTransform: 'uppercase'
+  }}
+>
+  {'🎮 Start Game'}
+</button>
 
       {/* Notification */}
       {notification && (
