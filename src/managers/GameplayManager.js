@@ -164,7 +164,6 @@ export default class GameplayManager {
             this.player,
             this.goldOrbs,
             (player, goldOrb) => {
-                console.log("🟡 Gold orb collision detected in setupCollisions!");
                 this.collectGoldOrb(goldOrb);
             }
         );
@@ -219,7 +218,7 @@ export default class GameplayManager {
                 return expOrb;
             }
         } catch (error) {
-            console.log("ExpOrb class not available, using fallback");
+            // ExpOrb class not available, using fallback
         }
         
         return this.createFallbackOrb(x, y, value);
@@ -227,25 +226,20 @@ export default class GameplayManager {
     
     // FIXED: Enhanced gold orb spawning with comprehensive logging
     spawnGoldOrb(x, y, value = 1) {
-        console.log("🟡 GameplayManager.spawnGoldOrb() called:", { x, y, value });
-        
         try {
             if (GoldPrefab) {
-                console.log("🟡 Using GoldPrefab class");
                 const goldOrb = new GoldPrefab(this.scene, x, y);
                 this.scene.add.existing(goldOrb);
                 this.goldOrbs.add(goldOrb);
                 goldOrb.setGoldValue(value);
                 goldOrb.setDepth(12);
                 
-                console.log("🟢 GoldPrefab orb created successfully");
                 return goldOrb;
             }
         } catch (error) {
-            console.log("🟠 GoldPrefab class not available, using fallback:", error);
+            // GoldPrefab class not available, using fallback
         }
         
-        console.log("🟡 Creating fallback gold orb");
         return this.createFallbackGoldOrb(x, y, value);
     }
     
@@ -275,8 +269,6 @@ export default class GameplayManager {
     
     // FIXED: Enhanced fallback gold orb creation with comprehensive logging
     createFallbackGoldOrb(x, y, value) {
-        console.log("🟡 Creating fallback gold orb:", { x, y, value });
-        
         const goldOrb = this.scene.add.circle(x, y, 8, 0xFFD700);
         goldOrb.goldValue = value || 1;
         this.scene.physics.add.existing(goldOrb);
@@ -284,11 +276,8 @@ export default class GameplayManager {
         goldOrb.setDepth(12);
         this.goldOrbs.add(goldOrb);
         
-        console.log("🟡 Setting up collision detection for fallback gold orb");
-        
         // CRITICAL: For fallback gold orbs, we DO need collision detection
         this.scene.physics.add.overlap(this.player, goldOrb, (player, goldOrb) => {
-            console.log("🟡 Fallback gold orb collision detected!");
             this.collectGoldOrb(goldOrb);
         });
         
@@ -296,12 +285,10 @@ export default class GameplayManager {
         
         this.scene.time.delayedCall(45000, () => {
             if (goldOrb && goldOrb.active) {
-                console.log("🟠 Gold orb timed out and destroyed");
                 goldOrb.destroy();
             }
         });
         
-        console.log("🟢 Fallback gold orb created successfully");
         return goldOrb;
     }
     
@@ -441,25 +428,10 @@ export default class GameplayManager {
     // FIXED: Enhanced gold collection with comprehensive logging and event dispatching
     collectGoldOrb(goldOrb) {
         try {
-            console.log("🟡 GameplayManager.collectGoldOrb() called");
-            console.log("🟡 Gold orb details:", {
-                x: goldOrb.x,
-                y: goldOrb.y,
-                goldValue: goldOrb.goldValue,
-                active: goldOrb.active
-            });
-            
             const goldValue = goldOrb.goldValue || 1;
-            console.log("🟡 Gold value to add:", goldValue);
-            
-            console.log("🟡 GameManager available:", !!this.gameManager);
             
             if (this.gameManager) {
-                console.log("🟡 Calling gameManager.addGold()");
                 this.gameManager.addGold(goldValue);
-                console.log("🟢 gameManager.addGold() completed");
-            } else {
-                console.log("🔴 No GameManager available!");
             }
             
             const goldText = this.scene.add.text(goldOrb.x, goldOrb.y - 20, `+${goldValue} Gold`, {
@@ -480,11 +452,10 @@ export default class GameplayManager {
                 onComplete: () => goldText.destroy()
             });
             
-            console.log("🟢 Gold orb destroyed and text animation started");
             goldOrb.destroy();
             
         } catch (error) {
-            console.error("🔴 Error collecting gold orb:", error);
+            console.error("Error collecting gold orb:", error);
         }
     }
     
@@ -543,7 +514,6 @@ export default class GameplayManager {
         keyboard.on('keydown-G', () => {
             const pointer = this.scene.input.activePointer;
             const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-            console.log("🟡 Manual gold orb spawn at:", world);
             this.spawnGoldOrb(world.x, world.y, 5);
         });
         
@@ -559,7 +529,6 @@ export default class GameplayManager {
         
         // ENHANCED: Spawn multiple gold orbs with logging
         keyboard.on('keydown-P', () => {
-            console.log("🟡 Spawning 10 random gold orbs");
             for (let i = 0; i < 10; i++) {
                 this.spawnRandomGoldOrb();
             }
@@ -573,9 +542,6 @@ export default class GameplayManager {
             const stats = this.mobManager.getStatistics();
             console.log('Mob Statistics:', stats);
         });
-        
-        console.log("Debug controls: Z=Zombie, X=BigZombie, V=PoliceDroid, B=Assassin, N=Tank, M=Archer");
-        console.log("E=Orb, G=GoldOrb, K=KillAll, O=10Orbs, P=10GoldOrbs, W=Wave, L=Stats");
     }
     
     checkEnemyBounds() {

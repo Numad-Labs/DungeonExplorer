@@ -30,11 +30,9 @@ export default class PowerUpManager {
     
     initialize() {
         this.createTextures();
-        console.log("PowerUpManager initialized:", this.powerUps);
     }
     
     createTextures() {
-        // Card texture
         if (!this.scene.textures.exists('blank cards7')) {
             const g = this.scene.add.graphics();
             g.fillStyle(0x333333, 1).fillRoundedRect(0, 0, 200, 300, 16);
@@ -43,7 +41,6 @@ export default class PowerUpManager {
             g.destroy();
         }
         
-        // Power-up icons
         Object.entries(POWER_UPS).forEach(([type, config]) => {
             const iconName = `${type}_icon`;
             if (this.scene.textures.exists(iconName)) return;
@@ -69,7 +66,6 @@ export default class PowerUpManager {
     }
     
     pauseGame() {
-        // Store and pause timers
         ['enemySpawnTimer', 'orbSpawnTimer', 'difficultyTimer'].forEach(timer => {
             if (this.scene[timer]) {
                 this.storedState.timers.push({ name: timer, paused: this.scene[timer].paused });
@@ -77,7 +73,6 @@ export default class PowerUpManager {
             }
         });
         
-        // Store and pause entities
         [this.scene.player, ...(this.scene.enemies?.getChildren() || [])].forEach(entity => {
             if (entity?.body) {
                 this.storedState.entities.push({
@@ -91,7 +86,6 @@ export default class PowerUpManager {
             }
         });
         
-        // Pause game loop
         this.originalUpdate = this.scene.update;
         this.scene.update = () => {};
     }
@@ -99,16 +93,13 @@ export default class PowerUpManager {
     createUI() {
         const cam = this.scene.cameras.main;
         
-        // Overlay
         this.overlay = this.scene.add.rectangle(cam.width/2, cam.height/2, cam.width, cam.height, 0x000000, 0.7)
             .setScrollFactor(0).setDepth(1000);
         
-        // Title
         this.title = this.scene.add.text(cam.width/2, 100, "LEVEL UP! Choose a Power-Up", {
             fontFamily: 'Arial', fontSize: '32px', color: '#ffffff', stroke: '#000000', strokeThickness: 4
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
         
-        // Cards
         this.container = this.scene.add.container(0, 0).setDepth(1001).setScrollFactor(0);
         
         const options = Object.keys(POWER_UPS).sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -126,15 +117,12 @@ export default class PowerUpManager {
     selectPowerUp(type) {
         this.powerUps[type]++;
         
-        // Apply power-up
         const config = POWER_UPS[type];
         const value = config.base * (1 + (this.powerUps[type] - 1) * 0.5);
         config.apply(this.scene.player, value);
         
-        // Show feedback
         this.showFeedback(type, value);
         
-        // Cleanup and resume
         this.scene.tweens.add({
             targets: [this.overlay, this.title, this.container],
             alpha: 0,
@@ -148,12 +136,10 @@ export default class PowerUpManager {
     }
     
     resumeGame() {
-        // Restore timers
         this.storedState.timers.forEach(({ name, paused }) => {
             if (this.scene[name]) this.scene[name].paused = paused;
         });
         
-        // Restore entities
         this.storedState.entities.forEach(({ entity, vx, vy, enabled }) => {
             if (entity?.body) {
                 entity.body.velocity.setTo(vx, vy);
@@ -161,7 +147,6 @@ export default class PowerUpManager {
             }
         });
         
-        // Restore update
         if (this.originalUpdate) this.scene.update = this.originalUpdate;
         
         this.storedState = { timers: [], entities: [] };
@@ -199,6 +184,5 @@ export default class PowerUpManager {
     shutdown() {
         [this.overlay, this.title, this.container].forEach(el => el?.destroy());
         if (this.originalUpdate) this.scene.update = this.originalUpdate;
-        console.log("PowerUpManager shut down");
     }
 }

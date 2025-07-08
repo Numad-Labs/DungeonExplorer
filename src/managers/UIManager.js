@@ -7,7 +7,6 @@ export default class UIManager {
         this.scene = scene;
         this.gameManager = GameManager.get();
         
-        // UI Components
         this.healthBar = null;
         this.playerLevel = null;
         this.timer = {
@@ -17,7 +16,6 @@ export default class UIManager {
             elapsed: 0
         };
         
-        // Scoreboard UI
         this.scoreboard = {
             container: null,
             background: null,
@@ -29,7 +27,6 @@ export default class UIManager {
             }
         };
         
-        // Attack Cooldown UI
         this.attackCooldowns = {
             container: null,
             slash: { icon: null, cooldownBar: null, background: null },
@@ -37,14 +34,11 @@ export default class UIManager {
             ice: { icon: null, cooldownBar: null, background: null }
         };
         
-        // Container for UI elements
         this.uiContainer = null;
         this.isInitialized = false;
     }
     
     initialize() {
-        console.log("Initializing UIManager");
-        
         try {
             this.createContainer();
             this.createHealthBar();
@@ -55,7 +49,6 @@ export default class UIManager {
             this.setupEventListeners();
             
             this.isInitialized = true;
-            console.log("UIManager initialized successfully");
         } catch (error) {
             console.error("Error initializing UIManager:", error);
         }
@@ -72,7 +65,6 @@ export default class UIManager {
         if (!this.healthBar || !this.healthBar.active) {
             this.healthBar = new HealthBar(this.scene, 320, 230, 200, 20);
             this.scene.healthBar = this.healthBar;
-            console.log("Health bar created");
         }
     }
     
@@ -88,19 +80,16 @@ export default class UIManager {
             
             this.scene.playerLevelSystem = this.playerLevel;
             this.syncWithGameManager();
-            console.log("Level system created");
         }
     }
     
     createTimer() {
         const config = { x: 890, y: 210, width: 120, height: 40 };
         
-        // Background
         this.timer.background = this.scene.add.rectangle(
             config.x, config.y, config.width, config.height, 0x000000, 0.7
         ).setStrokeStyle(2, 0xffffff).setScrollFactor(0).setDepth(900);
         
-        // Label
         this.timer.label = this.scene.add.text(config.x, config.y - 20, "TIME", {
             fontFamily: 'Arial',
             fontSize: '14px',
@@ -109,7 +98,6 @@ export default class UIManager {
             strokeThickness: 2
         }).setOrigin(0.5).setScrollFactor(0).setDepth(901);
         
-        // Timer text
         this.timer.text = this.scene.add.text(config.x, config.y, "00:00", {
             fontFamily: 'Arial',
             fontSize: '24px',
@@ -122,22 +110,18 @@ export default class UIManager {
         this.uiContainer.add([this.timer.background, this.timer.label, this.timer.text]);
         
         this.timer.elapsed = 0;
-        console.log("Timer created");
     }
     
     createScoreboard() {
         const config = { x: 880, y: 490, width: 140, height: 90 };
         
-        // Create container for scoreboard
         this.scoreboard.container = this.scene.add.container(config.x, config.y);
         this.scoreboard.container.setScrollFactor(0).setDepth(900);
         
-        // Background
         this.scoreboard.background = this.scene.add.rectangle(
             0, 0, config.width, config.height, 0x000000, 0.7
         ).setStrokeStyle(2, 0xffffff);
         
-        // Title
         this.scoreboard.title = this.scene.add.text(0, -35, "STATS", {
             fontFamily: 'Arial',
             fontSize: '14px',
@@ -147,7 +131,6 @@ export default class UIManager {
             fontStyle: 'bold'
         }).setOrigin(0.5);
         
-        // Stats text elements
         const statStyle = {
             fontFamily: 'Arial',
             fontSize: '12px',
@@ -160,7 +143,6 @@ export default class UIManager {
         this.scoreboard.stats.kills = this.scene.add.text(-60, 0, "Kills: 0", statStyle);
         this.scoreboard.stats.gold = this.scene.add.text(-60, 15, "Gold: 0", statStyle);
         
-        // Add all elements to container (removed level)
         this.scoreboard.container.add([
             this.scoreboard.background,
             this.scoreboard.title,
@@ -169,21 +151,15 @@ export default class UIManager {
             this.scoreboard.stats.gold
         ]);
         
-        // Add to main UI container
         this.uiContainer.add(this.scoreboard.container);
-        
-        console.log("Scoreboard created");
     }
     
-    // FIXED: Working updateScoreboard method
     updateScoreboard() {
         if (!this.scoreboard.container) return;
         
         try {
-            // Get current game statistics with better wave detection
             let currentWave = 0;
             
-            // Try multiple sources for wave data
             if (this.gameManager && this.gameManager.currentWave) {
                 currentWave = this.gameManager.currentWave;
             } else if (this.scene.gameplayManager?.mobManager) {
@@ -193,7 +169,6 @@ export default class UIManager {
                 currentWave = this.scene.currentWave;
             }
             
-            // Get kills from multiple sources
             let totalKills = 0;
             if (this.scene.gameplayManager?.mobManager) {
                 const mobStats = this.scene.gameplayManager.mobManager.getStatistics();
@@ -202,15 +177,11 @@ export default class UIManager {
                 totalKills = this.scene.enemiesKilled;
             }
             
-            // FIXED: Get gold directly from GameManager
             const gold = this.gameManager ? this.gameManager.gold : 0;
             
-            // Update text elements
             this.scoreboard.stats.wave.setText(`Wave: ${currentWave}`);
             this.scoreboard.stats.kills.setText(`Kills: ${totalKills}`);
             this.scoreboard.stats.gold.setText(`Gold: ${gold}`);
-            
-            // Track wave changes (removed problematic pulseScoreboardStat call)
             this.lastWave = currentWave;
             
         } catch (error) {
@@ -220,11 +191,9 @@ export default class UIManager {
     
     showScoreboardUpdate(statType, value, color = 0x00ff00) {
         try {
-            // Fixed coordinates - between health bar (220) and timer (890) at top UI level
-            const centerX = 605; // Middle between health bar and timer
-            const centerY = 150; // Higher up in the UI area, above the health bar
+            const centerX = 605;
+            const centerY = 150;
             
-            // Create appropriate text based on stat type
             let displayText = '';
             switch(statType) {
                 case 'kills':
@@ -240,7 +209,6 @@ export default class UIManager {
                     displayText = `+${value}`;
             }
             
-            // Create floating text for the update
             const updateText = this.scene.add.text(
                 centerX, 
                 centerY, 
@@ -255,7 +223,6 @@ export default class UIManager {
                 }
             ).setOrigin(0.5).setScrollFactor(0).setDepth(1500);
             
-            // Animate the floating text
             this.scene.tweens.add({
                 targets: updateText,
                 y: centerY - 25,
@@ -310,8 +277,6 @@ export default class UIManager {
                 label
             ]);
         });
-        
-        console.log("Attack cooldown UI created");
     }
     
     updateAttackCooldowns() {
@@ -400,8 +365,6 @@ export default class UIManager {
     }
     
     handleLevelUp(newLevel) {
-        console.log(`Level up: ${newLevel}`);
-        
         if (this.gameManager) {
             this.gameManager.playerStats.level = newLevel;
         }
@@ -514,7 +477,6 @@ export default class UIManager {
     }
     
     reset() {
-        console.log("Resetting UI");
         this.timer.elapsed = 0;
         this.lastWave = 0;
         this.syncWithGameManager();
@@ -539,8 +501,6 @@ export default class UIManager {
     }
     
     shutdown() {
-        console.log("Shutting down UIManager");
-        
         if (this.gameManager?.events) {
             this.gameManager.events.off('experienceUpdated');
             this.gameManager.events.off('levelUp');

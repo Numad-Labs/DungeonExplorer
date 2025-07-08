@@ -155,7 +155,6 @@ export default class BaseGameScene extends Phaser.Scene {
             this.expText.setOrigin(1, 0);
             this.statsContainer.add(this.expText);
             
-            console.log("Stats display created successfully");
         } catch (error) {
             console.error("Error creating stats display:", error);
         }
@@ -180,7 +179,6 @@ export default class BaseGameScene extends Phaser.Scene {
                 loop: true
             });
             
-            console.log("UI event listeners set up");
         } catch (error) {
             console.error("Error setting up UI event listeners:", error);
         }
@@ -225,8 +223,6 @@ export default class BaseGameScene extends Phaser.Scene {
             this.zombieGroup = this.physics.add.group();
             this.staticObstacles = this.physics.add.staticGroup();
             this.collisionLayers = [];
-            
-            console.log("Universal collision system initialized");
         } catch (error) {
             console.error("Error initializing collision system:", error);
         }
@@ -243,7 +239,6 @@ export default class BaseGameScene extends Phaser.Scene {
             }
             
             this.collisionLayers.push({ layer, name });
-            console.log(`Registered collision layer: ${name}`);
         } catch (error) {
             console.error(`Error registering collision layer ${name}:`, error);
         }
@@ -366,7 +361,6 @@ export default class BaseGameScene extends Phaser.Scene {
     
     initializeManagers() {
         try {
-            console.log("Initializing managers with GameManager:", !!this.gameManager);
             if (!this.gameManager) {
                 this.gameManager = GameManager.get();
             }
@@ -392,7 +386,6 @@ export default class BaseGameScene extends Phaser.Scene {
             }
             
             if (this.player && this.gameManager) {
-                console.log("Applying player stats from GameManager to player");
                 this.gameManager.applyPlayerStats(this.player);
                 
                 if (this.gameManager.debugMode) {
@@ -418,14 +411,6 @@ export default class BaseGameScene extends Phaser.Scene {
         if (!this.player.critChance) this.player.critChance = 0.05;
         if (!this.player.critDamage) this.player.critDamage = 1.5;
         if (!this.player.pickupRange) this.player.pickupRange = 50;
-        
-        console.log("Player initialized with stats:", {
-            health: this.player.health,
-            maxHealth: this.player.maxHealth,
-            damage: this.player.damage,
-            moveSpeed: this.player.moveSpeed,
-            armor: this.player.armor
-        });
     }
     
     setupPlayerAttack() {
@@ -436,7 +421,6 @@ export default class BaseGameScene extends Phaser.Scene {
                 if (this.playerAttackSystem.updateStats) {
                     this.playerAttackSystem.updateStats();
                 }
-                console.log("Player attack system initialized");
             }
         } catch (error) {
             console.error("Error setting up player attack:", error);
@@ -452,8 +436,6 @@ export default class BaseGameScene extends Phaser.Scene {
         if (this.gameManager) {
             this.gameManager.currentWave = this.currentWave;
         }
-        
-        console.log(`Started wave ${this.currentWave} via MobManager`);
     }
     
     trackEnemyKill(enemy) {
@@ -570,7 +552,6 @@ export default class BaseGameScene extends Phaser.Scene {
             
             this.upgradeDebugText = debugText;
             
-            console.log("Debug display created");
         } catch (error) {
             console.error("Error creating debug display:", error);
         }
@@ -595,14 +576,12 @@ export default class BaseGameScene extends Phaser.Scene {
             
             this.input.keyboard.on('keydown-T', () => {
                 if (this.gameManager && this.gameManager.debugMode) {
-                    console.log("Debug: Triggering wave manually");
                     this.spawnWave();
                 }
             });
             
             this.input.keyboard.on('keydown-C', () => {
                 if (this.gameManager && this.gameManager.debugMode) {
-                    console.log("Debug: Auto-registering collisions");
                     this.autoRegisterCollisions();
                     this.setupZombieObstacleCollisions();
                 }
@@ -611,19 +590,16 @@ export default class BaseGameScene extends Phaser.Scene {
             this.input.keyboard.on('keydown-H', () => { 
                 if (this.player && this.player.heal && this.gameManager && this.gameManager.debugMode) {
                     this.player.heal(50);
-                    console.log("Debug: Player healed");
                 }
             });
             
             this.input.keyboard.on('keydown-Y', () => {
                 if (this.gameManager && this.gameManager.debugMode) {
                     this.gameManager.addGold(100);
-                    console.log("Debug: Added 100 gold");
                 }
             });
             
             this.input.keyboard.on('keydown-ESC', () => {
-                console.log("ESC pressed - returning to menu");
                 if (window.returnToMenu) {
                     this.shutdown();
                     window.returnToMenu();
@@ -682,7 +658,7 @@ export default class BaseGameScene extends Phaser.Scene {
                 `Survival Time: ${this.gameManager.formatTime(currentTime)}`,
                 `Level: ${this.gameManager.playerStats.level}`,
                 `XP: ${this.gameManager.playerStats.experience}/${this.gameManager.playerStats.nextLevelExp}`,
-                `Gold: ${this.gameManager.gold} (${this.gameManager.goldMultiplier.toFixed(2)}x multiplier)`,
+                `Gold: ${this.gameManager.gold}`,
                 ``,
                 `WAVE SYSTEM:`,
                 `Current Wave: ${stats.currentWave || 0}`,

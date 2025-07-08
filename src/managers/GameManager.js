@@ -46,8 +46,6 @@ export default class GameManager {
         // Initialize
         this.loadGame();
         this.applyPassiveUpgrades();
-        
-        console.log("GameManager initialized");
     }
     
     static get() {
@@ -106,8 +104,6 @@ export default class GameManager {
     
     // Upgrade system
     purchaseUpgrade(upgradeId, cost) {
-        console.log(`Purchasing ${upgradeId} for ${cost} gold`);
-        
         if (this.gold < cost) return false;
         if (!UPGRADES[upgradeId]) return false;
         
@@ -126,13 +122,10 @@ export default class GameManager {
         this.saveGame();
         this.emitStateUpdate();
         
-        console.log(`Purchased ${upgradeId} level ${newLevel}`);
         return true;
     }
     
     resetProgress() {
-        console.log("Resetting progress");
-        
         this.gold = 25000;
         this.passiveUpgrades = {};
         this.currentRunStats = this.getEmptyRunStats();
@@ -148,8 +141,6 @@ export default class GameManager {
     
     // Run management
     startNewRun() {
-        console.log("Starting new run");
-        
         this.isGameRunning = true;
         this.gameStartTime = Date.now();
         this.currentRunStats = this.getEmptyRunStats();
@@ -161,8 +152,6 @@ export default class GameManager {
     
     handlePlayerDeath(causeOfDeath = "Unknown") {
         if (!this.isGameRunning) return;
-        
-        console.log("Player died:", causeOfDeath);
         
         this.isGameRunning = false;
         const survivalTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
@@ -239,12 +228,6 @@ export default class GameManager {
                     break;
             }
         });
-        
-        console.log("Applied stats to player:", {
-            health: player.health,
-            damage: player.damage,
-            moveSpeed: player.moveSpeed
-        });
     }
     
     applyPassiveUpgrades() {
@@ -299,7 +282,6 @@ export default class GameManager {
         this.playerStats.experience = expOverflow;
         
         this.events.emit('levelUp', this.playerStats.level);
-        console.log(`Level up! Now level ${this.playerStats.level}`);
     }
     
     // Stat tracking
@@ -325,8 +307,6 @@ export default class GameManager {
         if (this.currentScene?.uiManager) {
             this.currentScene.uiManager.updateScoreboard();
         }
-        
-        console.log(`+${actualAmount} Gold - Total: ${this.gold}`);
     }
     
     // ADDED: getGold method for BaseGameScene compatibility
@@ -380,7 +360,6 @@ export default class GameManager {
     
     toggleDebugMode() {
         this.debugMode = !this.debugMode;
-        console.log("Debug mode:", this.debugMode ? "ON" : "OFF");
         return this.debugMode;
     }
     
@@ -415,7 +394,6 @@ export default class GameManager {
             this.passiveUpgrades = savedData.passiveUpgrades || {};
             this.allTimeStats = savedData.allTimeStats || this.getEmptyAllTimeStats();
             this.lastRunStats = savedData.lastRunStats || null;
-            console.log("Game loaded from save data");
         }
     }
     

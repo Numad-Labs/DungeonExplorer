@@ -16,10 +16,10 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         scene.add.existing(this);
         this.setDepth(18);
         
-        // Slash attack (AOE melee) - INCREASED RANGE AND SIZE
+        // Slash attack (AOE melee)
         this.slashDamage = player.slashDamage || 10;
         this.slashFireRate = player.slashFireRate || 1;
-        this.slashRange = player.slashRange || 70; // Increased from 50 to 70
+        this.slashRange = player.slashRange || 70;
         this.slashCooldown = 1000 / this.slashFireRate;
         this.lastSlashTime = 0;
         
@@ -60,13 +60,21 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.lightningChainCount = player.lightningChainCount || 10;
         this.lightningChainRange = 100;
         
+        // Blinding Light attack (Large AOE disable)
+        this.blindingLightRange = player.blindingLightRange || 300;
+        this.blindingLightFireRate = player.blindingLightFireRate || 0.15; // Very slow fire rate (once every ~6.7 seconds)
+        this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
+        this.lastBlindingLightTime = 0;
+        this.blindingLightDisableDuration = 4000; // 4 seconds of disable
+        
         // Attack types enabled
         this.attackTypes = {
             slash: true,
             fireBullet: true,
             fireBomb: true,
             ice: true,
-            lightning: true
+            lightning: true,
+            blindingLight: true
         };
         
         this.setupWeaponVisuals();
@@ -92,6 +100,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashSprite.setOrigin(0.5, 0.5);
         this.slashSprite.setDepth(18);
         this.add(this.slashSprite);
+        
+        // Blinding Light visual
+        this.blindingLightVisual = this.scene.add.circle(0, 0, this.blindingLightRange, 0xffffff, 0);
+        this.blindingLightVisual.setStrokeStyle(6, 0xffffff, 0.8);
+        this.blindingLightVisual.setVisible(false);
+        this.blindingLightVisual.setDepth(19);
+        this.add(this.blindingLightVisual);
     }
     
     createProjectileGroups() {
@@ -248,6 +263,15 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 loop: true
             });
         }
+        
+        if (this.attackTypes.blindingLight) {
+            this.blindingLightTimer = this.scene.time.addEvent({
+                delay: this.blindingLightCooldown,
+                callback: this.attemptBlindingLightAttack,
+                callbackScope: this,
+                loop: true
+            });
+        }
     }
     
     // SLASH ATTACK
@@ -305,6 +329,244 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         });
         
         this.showSlashIndicator();
+    }
+    
+    attemptBlindingLightAttack() {
+        const currentTime = this.scene.time.now;
+        if (currentTime - this.lastBlindingLightTime < this.blindingLightCooldown) return;
+        
+        const enemiesInRange = this.findEnemiesInBlindingLightRange();
+        if (enemiesInRange.length > 0) {
+            this.blindingLightAttack(enemiesInRange);
+        }
+    }
+    
+    findEnemiesInBlindingLightRange() {
+        if (!this.scene.enemies || !this.player) return [];
+        
+        const enemiesInRange = [];
+        const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+        
+        enemies.forEach(enemy => {
+            const distance = Phaser.Math.Distance.Between(
+                this.player.x, this.player.y,
+                enemy.x, enemy.y
+            );
+            
+            if (distance <= this.blindingLightRange) {
+                enemiesInRange.push({ enemy: enemy, distance: distance });
+            }
+        });
+        
+        if (this.scene.zombieGroup) {
+            const zombies = this.scene.zombieGroup.getChildren().filter(zombie => zombie.active && !zombie.isDead);
+            
+            zombies.forEach(zombie => {
+                const distance = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    zombie.x, zombie.y
+                );
+                
+                if (distance <= this.blindingLightRange) {
+                    enemiesInRange.push({ enemy: zombie, distance: distance });
+                }
+            });
+        }
+        
+        return enemiesInRange;
+    }
+    
+    blindingLightAttack(enemiesInRange) {
+        this.lastBlindingLightTime = this.scene.time.now;
+        
+        this.x = this.player.x;
+        this.y = this.player.y;
+        
+        this.applyPlayerInvincibility(3000);
+        
+        for (let i = 0; i < 3; i++) {
+            this.scene.time.delayedCall(i * 100, () => {
+                this.createBlindingLightRing(i);
+            });
+        }
+        
+        enemiesInRange.forEach((enemyData) => {
+            if (enemyData.enemy.active && !enemyData.enemy.isDead) {
+                this.applyBlindEffect(enemyData.enemy, this.blindingLightDisableDuration);
+            }
+        });
+        
+        this.createScreenFlash();
+    }
+    
+    createBlindingLightRing(ringIndex) {
+        const ring = this.scene.add.circle(this.player.x, this.player.y, 20, 0xffffff, 0);
+        ring.setStrokeStyle(4 - ringIndex, 0xffffff, 0.9 - ringIndex * 0.2);
+        ring.setDepth(20);
+        
+        this.scene.tweens.add({
+            targets: ring,
+            radius: this.blindingLightRange + ringIndex * 50,
+            alpha: 0,
+            duration: 800 + ringIndex * 200,
+            ease: 'Power2',
+            onComplete: () => ring.destroy()
+        });
+    }
+    
+    createScreenFlash() {
+        const flash = this.scene.add.rectangle(
+            this.scene.cameras.main.centerX,
+            this.scene.cameras.main.centerY,
+            this.scene.cameras.main.width,
+            this.scene.cameras.main.height,
+            0xffffff,
+            0.8
+        );
+        flash.setDepth(100);
+        flash.setScrollFactor(0);
+        
+        this.scene.tweens.add({
+            targets: flash,
+            alpha: 0,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => flash.destroy()
+        });
+    }
+
+    applyBlindEffect(enemy, duration) {
+        if (!enemy || enemy.isDead) return;
+        
+        if (enemy.blindTimer) enemy.blindTimer.destroy();
+        
+        if (enemy.originalTint === undefined) {
+            enemy.originalTint = enemy.tint;
+        }
+        
+        enemy.setTint(0xffffff);
+        enemy.isBlinded = true;
+        
+        if (enemy.canAttack !== undefined) {
+            enemy.originalCanAttack = enemy.canAttack;
+            enemy.canAttack = false;
+        }
+        
+        if (enemy.originalSpeed === undefined) {
+            enemy.originalSpeed = enemy.speed || 50;
+        }
+        enemy.speed = enemy.originalSpeed * 0.3;
+        
+        enemy.blindTimer = this.scene.time.delayedCall(duration, () => {
+            this.clearBlindEffect(enemy);
+        });
+    }
+    
+    clearBlindEffect(enemy) {
+        if (!enemy) return;
+        
+        if (enemy.blindTimer) {
+            enemy.blindTimer.destroy();
+            enemy.blindTimer = null;
+        }
+        
+        if (enemy.originalTint !== undefined) {
+            enemy.setTint(enemy.originalTint);
+        } else {
+            enemy.clearTint();
+        }
+        
+        if (enemy.originalCanAttack !== undefined) {
+            enemy.canAttack = enemy.originalCanAttack;
+        }
+        
+        if (enemy.originalSpeed !== undefined) {
+            enemy.speed = enemy.originalSpeed;
+        }
+        
+        enemy.isBlinded = false;
+    }
+    
+    applyPlayerInvincibility(duration) {
+        if (!this.player) return;
+        
+        if (this.player.invincibilityTimer) {
+            this.player.invincibilityTimer.destroy();
+        }
+        
+        if (this.player.originalTint === undefined) {
+            this.player.originalTint = this.player.tint;
+        }
+        
+        this.player.isInvincible = true;
+        this.player.isInvulnerable = true;
+        
+        this.player.invincibilityTween = this.scene.tweens.add({
+            targets: this.player,
+            alpha: 0.3,
+            duration: 200,
+            ease: 'Power2',
+            yoyo: true,
+            repeat: -1
+        });
+        
+        this.player.setTint(0xffd700);
+        
+        this.createProtectiveAura();
+        
+        this.player.invincibilityTimer = this.scene.time.delayedCall(duration, () => {
+            this.clearPlayerInvincibility();
+        });
+    }
+    
+    createProtectiveAura() {
+        if (!this.player) return;
+        
+        const aura = this.scene.add.circle(this.player.x, this.player.y, 40, 0xffd700, 0);
+        aura.setStrokeStyle(3, 0xffd700, 0.6);
+        aura.setDepth(this.player.depth - 1);
+        
+        this.player.protectiveAura = aura;
+        
+        this.scene.tweens.add({
+            targets: aura,
+            scaleX: 1.2,
+            scaleY: 1.2,
+            alpha: 0.3,
+            duration: 800,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        });
+    }
+    
+    clearPlayerInvincibility() {
+        if (!this.player) return;
+        
+        this.player.isInvincible = false;
+        this.player.isInvulnerable = false;
+        
+        if (this.player.invincibilityTween) {
+            this.player.invincibilityTween.stop();
+            this.player.invincibilityTween = null;
+        }
+        
+        this.player.setAlpha(1);
+        if (this.player.originalTint !== undefined) {
+            this.player.setTint(this.player.originalTint);
+        } else {
+            this.player.clearTint();
+        }
+        
+        if (this.player.protectiveAura) {
+            this.player.protectiveAura.destroy();
+            this.player.protectiveAura = null;
+        }
+        
+        if (this.player.invincibilityTimer) {
+            this.player.invincibilityTimer.destroy();
+            this.player.invincibilityTimer = null;
+        }
     }
     
     // FIRE BULLET ATTACK (Fast piercing)
@@ -518,8 +780,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         lightningProjectile.isLightningProjectile = true;
         
         this.lightningProjectiles.add(lightningProjectile);
-        
-        console.log(`Lightning projectile fired (chain ${chainDepth + 1})`);
     }
     
     hitLightningTarget(projectile) {
@@ -538,7 +798,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         hitEffect.play('lightning_hit');
         hitEffect.once('animationcomplete', () => hitEffect.destroy());
         
-        // Chain to next target
         if (projectile.chainDepth < this.lightningChainCount - 1) {
             const nextTarget = this.findNearestEnemyInChainRange(target, projectile.hitTargets);
             if (nextTarget) {
@@ -754,7 +1013,11 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     update() {
-        // Update fire bullet projectiles (piercing)
+        // Update protective aura position if it exists
+        if (this.player && this.player.protectiveAura) {
+            this.player.protectiveAura.setPosition(this.player.x, this.player.y);
+        }
+        
         this.fireBulletProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isFireBullet) return;
             
@@ -793,7 +1056,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             });
         });
         
-        // Update fire bomb projectiles (delayed explosion)
         this.fireBombProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isFireBomb) return;
             
@@ -826,7 +1088,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             });
         });
         
-        // Update ice projectiles
         this.iceProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isIceProjectile) return;
             
@@ -862,7 +1123,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             }
         });
         
-        // Update lightning projectiles
         this.lightningProjectiles.children.entries.forEach(projectile => {
             if (!projectile.active || !projectile.isLightningProjectile) return;
             
@@ -916,14 +1176,24 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
             this.lightningCooldown = 1000 / this.lightningFireRate;
             this.lightningChainCount = this.player.lightningChainCount || 10;
             
+            this.blindingLightRange = this.player.blindingLightRange || 300;
+            this.blindingLightFireRate = this.player.blindingLightFireRate || 0.15;
+            this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
+            this.blindingLightDisableDuration = this.player.blindingLightDisableDuration || 4000;
+            
             if (this.slashTimer) this.slashTimer.delay = this.slashCooldown;
             if (this.fireBulletTimer) this.fireBulletTimer.delay = this.fireBulletCooldown;
             if (this.fireBombTimer) this.fireBombTimer.delay = this.fireBombCooldown;
             if (this.iceTimer) this.iceTimer.delay = this.iceCooldown;
             if (this.lightningTimer) this.lightningTimer.delay = this.lightningCooldown;
+            if (this.blindingLightTimer) this.blindingLightTimer.delay = this.blindingLightCooldown;
             
             if (this.slashVisual) {
                 this.slashVisual.setRadius(this.slashRange);
+            }
+            
+            if (this.blindingLightVisual) {
+                this.blindingLightVisual.setRadius(this.blindingLightRange);
             }
         }
     }
@@ -934,14 +1204,18 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         if (this.fireBombTimer) this.fireBombTimer.destroy();
         if (this.iceTimer) this.iceTimer.destroy();
         if (this.lightningTimer) this.lightningTimer.destroy();
+        if (this.blindingLightTimer) this.blindingLightTimer.destroy();
         
         if (this.scene.enemies) {
             this.scene.enemies.getChildren().forEach(enemy => {
                 this.clearBurnEffect(enemy);
                 this.clearSlowEffect(enemy);
                 this.clearStunEffect(enemy);
+                this.clearBlindEffect(enemy);
             });
         }
+        
+        this.clearPlayerInvincibility();
         
         this.fireBulletProjectiles.destroy(true);
         this.fireBombProjectiles.destroy(true);
