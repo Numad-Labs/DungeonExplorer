@@ -14,7 +14,6 @@ const CONFIG = {
     GAME: '1'
   },
   SCENES: {
-    // MAIN: 'MainMapScene'
     MAIN: 'MainMapScene'
   }
 };
@@ -164,19 +163,21 @@ const SceneManager = {
     }
 
     try {
-      // Pause non-main scenes
-      const activeScenes = window.game.scene.getScenes(true);
-      activeScenes.forEach(scene => {
-        if (scene.scene.key !== CONFIG.SCENES.MAIN) {
-          window.game.scene.pause(scene.scene.key);
-        }
-      });
-
-      // Start main scene
+      // ENHANCED: Complete scene cleanup before starting new scene
+      this.cleanupAllScenes();
+      
+      // Start main scene fresh
       const mainScene = window.game.scene.getScene(CONFIG.SCENES.MAIN);
       if (mainScene) {
-        window.game.scene.start(CONFIG.SCENES.MAIN);
-        console.log("MainMapScene started");
+        // Stop and restart the scene to ensure fresh state
+        window.game.scene.stop(CONFIG.SCENES.MAIN);
+        
+        // Small delay to ensure cleanup completes
+        setTimeout(() => {
+          window.game.scene.start(CONFIG.SCENES.MAIN);
+          console.log("MainMapScene started fresh");
+        }, 100);
+        
         return true;
       } else {
         console.error("MainMapScene not found!");
@@ -185,6 +186,68 @@ const SceneManager = {
     } catch (error) {
       console.error("Error starting main scene:", error);
       return false;
+    }
+  },
+  
+  // NEW: Complete scene cleanup method
+  cleanupAllScenes() {
+    try {
+      const activeScenes = window.game.scene.getScenes(true);
+      
+      activeScenes.forEach(scene => {
+        if (scene.scene.key !== CONFIG.SCENES.MAIN) {
+          // Stop non-main scenes
+          window.game.scene.pause(scene.scene.key);
+        } else {
+          // Clean up main scene if it exists
+          this.cleanupMainScene(scene);
+        }
+      });
+      
+      console.log("All scenes cleaned up");
+    } catch (error) {
+      console.error("Error cleaning up scenes:", error);
+    }
+  },
+  
+  // NEW: Specific main scene cleanup
+  cleanupMainScene(scene) {
+    try {
+      if (!scene) return;
+      
+      // Clean up UI elements that might persist
+      if (scene.children) {
+        // Remove all UI containers and health bars
+        scene.children.list.forEach(child => {
+          if (child && typeof child.destroy === 'function') {
+            // Check for UI elements, health bars, text objects
+            if (child.type === 'Container' || 
+                child.type === 'Rectangle' || 
+                child.type === 'Text' ||
+                (child.displayWidth && child.displayWidth < 50 && child.displayHeight < 20)) {
+              child.destroy();
+            }
+          }
+        });
+      }
+      
+      // Clean up managers if they exist
+      if (scene.uiManager && scene.uiManager.shutdown) {
+        scene.uiManager.shutdown();
+      }
+      
+      if (scene.gameplayManager && scene.gameplayManager.shutdown) {
+        scene.gameplayManager.shutdown();
+      }
+      
+      // Clean up physics groups
+      if (scene.physics && scene.physics.world) {
+        scene.physics.world.bodies.clear();
+      }
+      
+      console.log("Main scene cleaned up");
+    } catch (error) {
+      console.error("Error cleaning up main scene:", error);
     }
   }
 };
@@ -195,6 +258,7 @@ class GameIntegration {
     this.menuContainer = null;
     this.gameContainer = null;
     this.isInitialized = false;
+    this.isStartingGame = false; // NEW: Prevent double-starts
   }
 
   initialize() {
@@ -252,20 +316,31 @@ class GameIntegration {
     });
   }
 
+  // IMPROVED: Better game start handling
   startGame() {
+    // Prevent multiple simultaneous starts
+    if (this.isStartingGame) {
+      console.log("Game start already in progress, ignoring duplicate call");
+      return;
+    }
+    
+    this.isStartingGame = true;
     console.log("Starting game");
 
-    if (!this.validateContainers()) return;
+    if (!this.validateContainers()) {
+      this.isStartingGame = false;
+      return;
+    }
 
     try {
       // Apply upgrades and save data
       GameStateManager.applyUpgrades();
       GameStateManager.saveData();
 
-      // Switch to game view
+      // Switch to game view immediately
       this.showGame();
 
-      // Start game scene
+      // Start game scene with cleanup
       const success = SceneManager.startMainScene();
       if (!success) {
         console.error("Failed to start game scene");
@@ -275,9 +350,15 @@ class GameIntegration {
     } catch (error) {
       console.error("Error starting game:", error);
       this.showMenu();
+    } finally {
+      // Reset flag after a delay to prevent rapid clicking
+      setTimeout(() => {
+        this.isStartingGame = false;
+      }, 1000);
     }
   }
 
+  // IMPROVED: Better menu return handling
   returnToMenu() {
     console.log("Returning to menu");
 
@@ -287,10 +368,13 @@ class GameIntegration {
       // Save game data
       GameStateManager.saveData();
 
+      // Clean up current scene completely
+      SceneManager.cleanupAllScenes();
+
       // Switch to menu view
       this.showMenu();
 
-      // Trigger React re-render
+      // Trigger React re-render with fresh data
       this.renderMenu();
       window.dispatchEvent(new CustomEvent('gameStateUpdated'));
 
@@ -323,6 +407,7 @@ class GameIntegration {
     return true;
   }
 
+  // IMPROVED: Better menu rendering with cleanup
   renderMenu() {
     if (!this.menuContainer) {
       console.error("Menu container not available for rendering");
@@ -330,19 +415,23 @@ class GameIntegration {
     }
 
     try {
-      // Clean unmount to prevent memory leaks
+      // Complete unmount to prevent memory leaks and state issues
       ReactDOM.unmountComponentAtNode(this.menuContainer);
       
-      // Render fresh component
-      ReactDOM.render(
-        React.createElement(MainMenu, {
-          gameManager: GameStateManager.gameManager,
-          onStartGame: () => this.startGame()
-        }), 
-        this.menuContainer
-      );
+      // Small delay to ensure complete cleanup
+      setTimeout(() => {
+        // Render fresh component with current game state
+        ReactDOM.render(
+          React.createElement(MainMenu, {
+            gameManager: GameStateManager.gameManager,
+            onStartGame: () => this.startGame()
+          }), 
+          this.menuContainer
+        );
+        
+        console.log("React menu rendered successfully");
+      }, 50);
       
-      console.log("React menu rendered successfully");
     } catch (error) {
       console.error("Error rendering React menu:", error);
     }

@@ -175,8 +175,7 @@ export default class GameManager {
         // Update all-time stats
         this.updateAllTimeStats(survivalTime);
         
-        // Add earned gold
-        this.gold += this.currentRunStats.goldEarned;
+        // NOTE: Gold is already added during gameplay, no need to add it again here
         
         this.saveGame();
         window.dispatchEvent(new CustomEvent('playerDeath', { detail: this.lastRunStats }));
@@ -310,13 +309,29 @@ export default class GameManager {
         }
     }
     
+    // FIXED: Gold system that updates immediately during gameplay
     addGold(amount) {
         const multiplier = this.getMultiplier('goldMultiplier');
         const actualAmount = Math.floor(amount * multiplier);
         
+        // FIXED: Always add to main gold property immediately
+        this.gold += actualAmount;
+        
         if (this.isGameRunning) {
             this.currentRunStats.goldEarned += actualAmount;
         }
+        
+        // Force UI update
+        if (this.currentScene?.uiManager) {
+            this.currentScene.uiManager.updateScoreboard();
+        }
+        
+        console.log(`+${actualAmount} Gold - Total: ${this.gold}`);
+    }
+    
+    // ADDED: getGold method for BaseGameScene compatibility
+    getGold() {
+        return this.gold;
     }
     
     addDamageDealt(damage) {

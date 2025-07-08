@@ -1,6 +1,7 @@
 import GameManager from "./GameManager";
 import MobManager from "./MobManager";
 import ExpOrb from "../prefabs/ExpOrb";
+import GoldPrefab from "../prefabs/GoldPrefab";
 
 export default class GameplayManager {
     constructor(scene) {
@@ -9,8 +10,10 @@ export default class GameplayManager {
         this.player = null;
         this.mobManager = new MobManager(scene);
         this.expOrbs = null;
+        this.goldOrbs = null;
         this.enemies = null;
         this.orbSpawnTimer = null;
+        this.goldSpawnTimer = null;
         this.difficultyTimer = null;
     }
     
@@ -18,6 +21,7 @@ export default class GameplayManager {
         this.player = player;
         this.mobManager.initialize(this.gameManager, player);
         this.expOrbs = this.scene.add.group();
+        this.goldOrbs = this.scene.add.group();
         this.enemies = this.mobManager.mobGroup;
         this.scene.enemies = this.enemies;
         
@@ -27,6 +31,7 @@ export default class GameplayManager {
         this.setupControls();
 
         this.scene.spawnExperienceOrb = (x, y, value) => this.spawnExperienceOrb(x, y, value);
+        this.scene.spawnGoldOrb = (x, y, value) => this.spawnGoldOrb(x, y, value);
     }
     
     createTextures() {
@@ -41,16 +46,59 @@ export default class GameplayManager {
             }
         });
         
+        // FIXED: Experience orb texture - CYAN/BLUE with white border
         if (!this.scene.textures.exists('Exp')) {
             const graphics = this.scene.add.graphics();
-            graphics.fillStyle(0x00ffff, 1);
-            graphics.fillCircle(8, 8, 8);
-            graphics.lineStyle(1, 0xffffff, 1);
-            graphics.strokeCircle(8, 8, 8);
+            
+            // Main orb body - cyan/blue gradient effect
+            graphics.fillGradientStyle(0x00FFFF, 0x00FFFF, 0x0088FF, 0x0088FF, 1);
+            graphics.fillCircle(8, 8, 7);
+            
+            // Inner glow
+            graphics.fillStyle(0x88FFFF, 0.6);
+            graphics.fillCircle(8, 8, 5);
+            
+            // Bright center
+            graphics.fillStyle(0xFFFFFF, 0.8);
+            graphics.fillCircle(8, 8, 2);
+            
+            // White border
+            graphics.lineStyle(1, 0xFFFFFF, 1);
+            graphics.strokeCircle(8, 8, 7);
+            
             graphics.generateTexture('Exp', 16, 16);
             graphics.destroy();
         }
 
+        // FIXED: Gold orb texture - YELLOW/GOLD with golden border
+        if (!this.scene.textures.exists('Gold')) {
+            const graphics = this.scene.add.graphics();
+            
+            // Main orb body - gold gradient effect
+            graphics.fillGradientStyle(0xFFD700, 0xFFD700, 0xFFA500, 0xFFA500, 1);
+            graphics.fillCircle(10, 10, 9);
+            
+            // Inner glow
+            graphics.fillStyle(0xFFFF88, 0.7);
+            graphics.fillCircle(10, 10, 6);
+            
+            // Bright center
+            graphics.fillStyle(0xFFFFFF, 0.9);
+            graphics.fillCircle(10, 10, 3);
+            
+            // Golden border
+            graphics.lineStyle(2, 0xFFE55C, 1);
+            graphics.strokeCircle(10, 10, 9);
+            
+            // Outer shine effect
+            graphics.lineStyle(1, 0xFFF68F, 0.8);
+            graphics.strokeCircle(10, 10, 10);
+            
+            graphics.generateTexture('Gold', 20, 20);
+            graphics.destroy();
+        }
+
+        // VFX textures remain the same
         if (!this.scene.textures.exists('AOE_Fire_Ball_Projectile_VFX_V01')) {
             const graphics = this.scene.add.graphics();
             graphics.fillStyle(0xff4400, 1);
@@ -108,11 +156,16 @@ export default class GameplayManager {
             }
         );
         
+        // REMOVED: Don't handle experience orb collection here - let ExpOrb handle it
+        // The ExpOrb prefab already has its own collection logic with magnetism
+        
+        // FIXED: Add gold orb collision with enhanced logging
         this.scene.physics.add.overlap(
             this.player,
-            this.expOrbs,
-            (player, orb) => {
-                this.collectExperienceOrb(orb);
+            this.goldOrbs,
+            (player, goldOrb) => {
+                console.log("🟡 Gold orb collision detected in setupCollisions!");
+                this.collectGoldOrb(goldOrb);
             }
         );
     }
@@ -121,6 +174,12 @@ export default class GameplayManager {
         this.orbSpawnTimer = this.scene.time.addEvent({
             delay: 1000,
             callback: () => this.spawnRandomExperienceOrb(),
+            loop: true
+        });
+        
+        this.goldSpawnTimer = this.scene.time.addEvent({
+            delay: 2000,
+            callback: () => this.spawnRandomGoldOrb(),
             loop: true
         });
         
@@ -134,6 +193,7 @@ export default class GameplayManager {
         
         this.scene.enemySpawnTimer = this.mobManager.spawnTimer;
         this.scene.orbSpawnTimer = this.orbSpawnTimer;
+        this.scene.goldSpawnTimer = this.goldSpawnTimer;
         this.scene.difficultyTimer = this.difficultyTimer;
     }
     
@@ -154,7 +214,7 @@ export default class GameplayManager {
                 expOrb.setExpValue(value);
                 expOrb.setDepth(12);
                 
-                this.setupOrbMovement(expOrb);
+                // DON'T call setupOrbMovement - ExpOrb handles its own movement
                 
                 return expOrb;
             }
@@ -165,6 +225,30 @@ export default class GameplayManager {
         return this.createFallbackOrb(x, y, value);
     }
     
+    // FIXED: Enhanced gold orb spawning with comprehensive logging
+    spawnGoldOrb(x, y, value = 1) {
+        console.log("🟡 GameplayManager.spawnGoldOrb() called:", { x, y, value });
+        
+        try {
+            if (GoldPrefab) {
+                console.log("🟡 Using GoldPrefab class");
+                const goldOrb = new GoldPrefab(this.scene, x, y);
+                this.scene.add.existing(goldOrb);
+                this.goldOrbs.add(goldOrb);
+                goldOrb.setGoldValue(value);
+                goldOrb.setDepth(12);
+                
+                console.log("🟢 GoldPrefab orb created successfully");
+                return goldOrb;
+            }
+        } catch (error) {
+            console.log("🟠 GoldPrefab class not available, using fallback:", error);
+        }
+        
+        console.log("🟡 Creating fallback gold orb");
+        return this.createFallbackGoldOrb(x, y, value);
+    }
+    
     createFallbackOrb(x, y, value) {
         const orb = this.scene.add.circle(x, y, 6, 0x00ffff);
         orb.expValue = value || 5;
@@ -173,9 +257,10 @@ export default class GameplayManager {
         orb.setDepth(12);
         this.expOrbs.add(orb);
         
-        orb.collect = () => {
+        // For fallback orbs, we DO need collision detection
+        this.scene.physics.add.overlap(this.player, orb, (player, orb) => {
             this.collectExperienceOrb(orb);
-        };
+        });
         
         this.setupOrbMovement(orb);
         
@@ -186,6 +271,38 @@ export default class GameplayManager {
         });
         
         return orb;
+    }
+    
+    // FIXED: Enhanced fallback gold orb creation with comprehensive logging
+    createFallbackGoldOrb(x, y, value) {
+        console.log("🟡 Creating fallback gold orb:", { x, y, value });
+        
+        const goldOrb = this.scene.add.circle(x, y, 8, 0xFFD700);
+        goldOrb.goldValue = value || 1;
+        this.scene.physics.add.existing(goldOrb);
+        goldOrb.body.setCircle(8);
+        goldOrb.setDepth(12);
+        this.goldOrbs.add(goldOrb);
+        
+        console.log("🟡 Setting up collision detection for fallback gold orb");
+        
+        // CRITICAL: For fallback gold orbs, we DO need collision detection
+        this.scene.physics.add.overlap(this.player, goldOrb, (player, goldOrb) => {
+            console.log("🟡 Fallback gold orb collision detected!");
+            this.collectGoldOrb(goldOrb);
+        });
+        
+        this.setupGoldOrbMovement(goldOrb);
+        
+        this.scene.time.delayedCall(45000, () => {
+            if (goldOrb && goldOrb.active) {
+                console.log("🟠 Gold orb timed out and destroyed");
+                goldOrb.destroy();
+            }
+        });
+        
+        console.log("🟢 Fallback gold orb created successfully");
+        return goldOrb;
     }
     
     setupOrbMovement(orb) {
@@ -220,6 +337,40 @@ export default class GameplayManager {
         });
     }
     
+    setupGoldOrbMovement(goldOrb) {
+        const moveToPlayer = () => {
+            if (!this.player || this.player.isDead || !goldOrb.body) return;
+            
+            const distance = Phaser.Math.Distance.Between(
+                goldOrb.x, goldOrb.y, this.player.x, this.player.y
+            );
+            
+            const pickupRange = (this.player.pickupRange || 50) + 20; // Gold has slightly larger pickup range
+            
+            if (distance < pickupRange) {
+                const angle = Phaser.Math.Angle.Between(
+                    goldOrb.x, goldOrb.y, this.player.x, this.player.y
+                );
+                
+                const speed = 180;
+                goldOrb.body.setVelocity(
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed
+                );
+            }
+        };
+        
+        const updateEvent = this.scene.time.addEvent({
+            delay: 50,
+            callback: moveToPlayer,
+            repeat: -1
+        });
+        
+        goldOrb.on('destroy', () => {
+            updateEvent.destroy();
+        });
+    }
+    
     spawnRandomExperienceOrb() {
         if (!this.player) return;
         
@@ -237,6 +388,25 @@ export default class GameplayManager {
         return this.spawnExperienceOrb(x, y, value);
     }
     
+    spawnRandomGoldOrb() {
+        if (!this.player) return;
+        
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Phaser.Math.Between(250, 600);
+        const x = this.player.x + Math.cos(angle) * distance;
+        const y = this.player.y + Math.sin(angle) * distance;
+        
+        let value = 1;
+        const roll = Math.random();
+        if (roll > 0.98) value = 20;
+        else if (roll > 0.9) value = 10;
+        else if (roll > 0.7) value = 5;
+        else if (roll > 0.4) value = 2;
+        
+        return this.spawnGoldOrb(x, y, value);
+    }
+    
+    // KEEP this method for fallback orbs only
     collectExperienceOrb(orb) {
         try {
             const expValue = orb.expValue || 5;
@@ -265,6 +435,56 @@ export default class GameplayManager {
             orb.destroy();
         } catch (error) {
             console.error("Error collecting experience orb:", error);
+        }
+    }
+    
+    // FIXED: Enhanced gold collection with comprehensive logging and event dispatching
+    collectGoldOrb(goldOrb) {
+        try {
+            console.log("🟡 GameplayManager.collectGoldOrb() called");
+            console.log("🟡 Gold orb details:", {
+                x: goldOrb.x,
+                y: goldOrb.y,
+                goldValue: goldOrb.goldValue,
+                active: goldOrb.active
+            });
+            
+            const goldValue = goldOrb.goldValue || 1;
+            console.log("🟡 Gold value to add:", goldValue);
+            
+            console.log("🟡 GameManager available:", !!this.gameManager);
+            
+            if (this.gameManager) {
+                console.log("🟡 Calling gameManager.addGold()");
+                this.gameManager.addGold(goldValue);
+                console.log("🟢 gameManager.addGold() completed");
+            } else {
+                console.log("🔴 No GameManager available!");
+            }
+            
+            const goldText = this.scene.add.text(goldOrb.x, goldOrb.y - 20, `+${goldValue} Gold`, {
+                fontFamily: 'Arial',
+                fontSize: '14px',
+                color: '#FFD700',
+                stroke: '#000000',
+                strokeThickness: 1,
+                fontWeight: 'bold'
+            });
+            goldText.setOrigin(0.5);
+            
+            this.scene.tweens.add({
+                targets: goldText,
+                y: goldText.y - 30,
+                alpha: 0,
+                duration: 1200,
+                onComplete: () => goldText.destroy()
+            });
+            
+            console.log("🟢 Gold orb destroyed and text animation started");
+            goldOrb.destroy();
+            
+        } catch (error) {
+            console.error("🔴 Error collecting gold orb:", error);
         }
     }
     
@@ -319,6 +539,14 @@ export default class GameplayManager {
             this.spawnExperienceOrb(world.x, world.y, 1);
         });
         
+        // ENHANCED: Gold orb spawn control with logging
+        keyboard.on('keydown-G', () => {
+            const pointer = this.scene.input.activePointer;
+            const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            console.log("🟡 Manual gold orb spawn at:", world);
+            this.spawnGoldOrb(world.x, world.y, 5);
+        });
+        
         keyboard.on('keydown-K', () => {
             this.mobManager.killAllMobs();
         });
@@ -326,6 +554,14 @@ export default class GameplayManager {
         keyboard.on('keydown-O', () => {
             for (let i = 0; i < 10; i++) {
                 this.spawnRandomExperienceOrb();
+            }
+        });
+        
+        // ENHANCED: Spawn multiple gold orbs with logging
+        keyboard.on('keydown-P', () => {
+            console.log("🟡 Spawning 10 random gold orbs");
+            for (let i = 0; i < 10; i++) {
+                this.spawnRandomGoldOrb();
             }
         });
         
@@ -339,7 +575,7 @@ export default class GameplayManager {
         });
         
         console.log("Debug controls: Z=Zombie, X=BigZombie, V=PoliceDroid, B=Assassin, N=Tank, M=Archer");
-        console.log("E=Orb, K=KillAll, O=10Orbs, W=Wave, L=Stats");
+        console.log("E=Orb, G=GoldOrb, K=KillAll, O=10Orbs, P=10GoldOrbs, W=Wave, L=Stats");
     }
     
     checkEnemyBounds() {
@@ -377,6 +613,21 @@ export default class GameplayManager {
                 orb.destroy();
             }
         });
+        
+        // Check gold orb bounds
+        if (this.goldOrbs) {
+            this.goldOrbs.getChildren().forEach(goldOrb => {
+                if (!goldOrb.active) return;
+                
+                const distance = Phaser.Math.Distance.Between(
+                    goldOrb.x, goldOrb.y, this.player.x, this.player.y
+                );
+                
+                if (distance > maxDistance) {
+                    goldOrb.destroy();
+                }
+            });
+        }
     }
     
     teleportMobToPlayer(mob) {
@@ -430,10 +681,18 @@ export default class GameplayManager {
                 }
             });
         }
+        
+        if (this.goldOrbs) {
+            this.goldOrbs.getChildren().forEach(goldOrb => {
+                if (goldOrb.depth < 10) {
+                    goldOrb.setDepth(12);
+                }
+            });
+        }
     }
     
     shutdown() {
-        [this.orbSpawnTimer, this.difficultyTimer].forEach(timer => {
+        [this.orbSpawnTimer, this.goldSpawnTimer, this.difficultyTimer].forEach(timer => {
             if (timer) timer.remove();
         });
         
@@ -443,9 +702,13 @@ export default class GameplayManager {
             this.expOrbs.clear(true, true);
         }
         
+        if (this.goldOrbs) {
+            this.goldOrbs.clear(true, true);
+        }
+        
         if (this.scene.input?.keyboard) {
-            ['keydown-E', 'keydown-Z', 'keydown-V', 'keydown-X', 'keydown-B', 
-             'keydown-N', 'keydown-M', 'keydown-K', 'keydown-O', 'keydown-W', 'keydown-L'].forEach(event => {
+            ['keydown-E', 'keydown-G', 'keydown-Z', 'keydown-V', 'keydown-X', 'keydown-B', 
+             'keydown-N', 'keydown-M', 'keydown-K', 'keydown-O', 'keydown-P', 'keydown-W', 'keydown-L'].forEach(event => {
                 this.scene.input.keyboard.removeAllListeners(event);
             });
         }

@@ -175,6 +175,7 @@ export default class UIManager {
         console.log("Scoreboard created");
     }
     
+    // FIXED: Working updateScoreboard method
     updateScoreboard() {
         if (!this.scoreboard.container) return;
         
@@ -201,47 +202,19 @@ export default class UIManager {
                 totalKills = this.scene.enemiesKilled;
             }
             
-            const gold = this.gameManager?.gold || 0;
+            // FIXED: Get gold directly from GameManager
+            const gold = this.gameManager ? this.gameManager.gold : 0;
             
             // Update text elements
             this.scoreboard.stats.wave.setText(`Wave: ${currentWave}`);
             this.scoreboard.stats.kills.setText(`Kills: ${totalKills}`);
             this.scoreboard.stats.gold.setText(`Gold: ${gold}`);
             
-            // Add visual effects for significant changes
-            if (currentWave > (this.lastWave || 0)) {
-                this.pulseScoreboardStat(this.scoreboard.stats.wave, 0x00ff00);
-                this.lastWave = currentWave;
-            }
+            // Track wave changes (removed problematic pulseScoreboardStat call)
+            this.lastWave = currentWave;
             
         } catch (error) {
             console.error("Error updating scoreboard:", error);
-        }
-    }
-    
-    pulseScoreboardStat(textElement, color = 0xffffff) {
-        if (!textElement) return;
-        
-        try {
-            // Store original color
-            const originalColor = textElement.style.color;
-            
-            // Change color and scale
-            textElement.setColor(`#${color.toString(16).padStart(6, '0')}`);
-            
-            this.scene.tweens.add({
-                targets: textElement,
-                scale: 1.2,
-                duration: 200,
-                yoyo: true,
-                repeat: 1,
-                ease: 'Power2',
-                onComplete: () => {
-                    textElement.setColor(originalColor);
-                }
-            });
-        } catch (error) {
-            console.error("Error pulsing scoreboard stat:", error);
         }
     }
     
@@ -413,7 +386,6 @@ export default class UIManager {
             this.handleLevelUp(newLevel);
         });
         
-        // Listen for scoreboard updates
         this.gameManager.events.on('enemyKilled', (value) => {
             this.showScoreboardUpdate('kills', value || 1, 0xff0000);
         });
@@ -514,13 +486,12 @@ export default class UIManager {
     
     showMessage(text, duration = 2000) {
         try {
-            // Use the same positioning as scoreboard updates for consistency
-            const centerX = 605; // Same as popup texts - between health bar and timer
-            const centerY = 150; // Same Y position as other popup texts
+            const centerX = 605;
+            const centerY = 150;
             
             const message = this.scene.add.text(centerX, centerY, text, {
                 fontFamily: 'Arial',
-                fontSize: '16px', // Slightly larger for important messages
+                fontSize: '16px',
                 color: '#ffffff',
                 stroke: '#000000',
                 strokeThickness: 2,

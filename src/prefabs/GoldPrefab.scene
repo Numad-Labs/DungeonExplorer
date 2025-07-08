@@ -15,7 +15,9 @@
             "type": "Image",
             "id": "6b721a93-b2f9-432b-91fe-94eaffe3e4f8",
             "label": "image_1",
-            "texture": {},
+            "texture": {
+                "key": "Exp"
+            },
             "x": 16,
             "y": 16
         }

@@ -14,7 +14,7 @@ export default class ExpOrb extends Phaser.GameObjects.Image {
         super(scene, x ?? 8, y ?? 8, textureExists ? textureToUse : '__WHITE', frame);
         
         if (!textureExists) {
-            this.setTint(0x00ffff);
+            this.setTint(0x00ffff); // Default cyan
         }
 
         /* START-USER-CTR-CODE */
@@ -52,13 +52,13 @@ export default class ExpOrb extends Phaser.GameObjects.Image {
         this.setScale(scale);
         
         if (value >= 10) {
-            this.setTint(0xffd700);
+            this.setTint(0x0080ff); // Bright blue for high value
         } else if (value >= 5) {
-            this.setTint(0x00ffaa);
+            this.setTint(0x00ffaa); // Green-cyan for medium-high value
         } else if (value >= 2) {
-            this.setTint(0x00aaff);
+            this.setTint(0x00aaff); // Blue-cyan for medium value
         } else {
-            this.setTint(0x00ffff);
+            this.setTint(0x00ffff); // Cyan for low value
         }
         
         return this;

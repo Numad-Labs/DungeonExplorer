@@ -18,6 +18,7 @@ export default class BaseGameScene extends Phaser.Scene {
         this.debugMode = false;
         this.enemies = null;
         this.experienceOrbs = null;
+        this.goldOrbs = null;
         this.zombieGroup = null;
         this.staticObstacles = null;
         this.collisionLayers = [];
@@ -26,6 +27,15 @@ export default class BaseGameScene extends Phaser.Scene {
         this.waveEnemiesRemaining = 0;
         this.enemiesKilled = 0;
         this.gameStartTime = 0;
+        
+        // UI Elements
+        this.statsContainer = null;
+        this.waveText = null;
+        this.killsText = null;
+        this.goldText = null;
+        this.timeText = null;
+        this.expText = null;
+        this.levelText = null;
     }
     
     preload() {
@@ -66,6 +76,8 @@ export default class BaseGameScene extends Phaser.Scene {
         this.isTeleporting = false;
         
         this.initializeCollisionSystem();
+        this.createStatsDisplay();
+        this.setupUIEventListeners();
         
         if (this.gameManager) {
             this.gameManager.startNewRun();
@@ -73,6 +85,139 @@ export default class BaseGameScene extends Phaser.Scene {
         }
         
         console.log("BaseGameScene create() completed - ready for new run");
+    }
+    
+    createStatsDisplay() {
+        try {
+            // Create stats container in top-right corner
+            this.statsContainer = this.add.container(this.cameras.main.width - 20, 20);
+            this.statsContainer.setScrollFactor(0);
+            this.statsContainer.setDepth(1000);
+            
+            // Create background for stats
+            this.statsBackground = this.add.rectangle(0, 0, 220, 140, 0x000000, 0.8);
+            this.statsBackground.setOrigin(1, 0);
+            this.statsBackground.setStrokeStyle(2, 0x444444, 1);
+            this.statsContainer.add(this.statsBackground);
+            
+            // Create text elements with proper spacing
+            this.waveText = this.add.text(-10, 10, 'Wave: 0', {
+                fontFamily: 'Arial',
+                fontSize: '16px',
+                color: '#ffffff',
+                fontWeight: 'bold'
+            });
+            this.waveText.setOrigin(1, 0);
+            this.statsContainer.add(this.waveText);
+            
+            this.killsText = this.add.text(-10, 30, 'Kills: 0', {
+                fontFamily: 'Arial',
+                fontSize: '16px',
+                color: '#ff6666',
+                fontWeight: 'bold'
+            });
+            this.killsText.setOrigin(1, 0);
+            this.statsContainer.add(this.killsText);
+            
+            this.goldText = this.add.text(-10, 50, 'Gold: 0', {
+                fontFamily: 'Arial',
+                fontSize: '16px',
+                color: '#FFD700',
+                fontWeight: 'bold'
+            });
+            this.goldText.setOrigin(1, 0);
+            this.statsContainer.add(this.goldText);
+            
+            this.timeText = this.add.text(-10, 70, 'Time: 00:00', {
+                fontFamily: 'Arial',
+                fontSize: '16px',
+                color: '#88ff88',
+                fontWeight: 'bold'
+            });
+            this.timeText.setOrigin(1, 0);
+            this.statsContainer.add(this.timeText);
+            
+            this.levelText = this.add.text(-10, 90, 'Level: 1', {
+                fontFamily: 'Arial',
+                fontSize: '16px',
+                color: '#ffaa00',
+                fontWeight: 'bold'
+            });
+            this.levelText.setOrigin(1, 0);
+            this.statsContainer.add(this.levelText);
+            
+            this.expText = this.add.text(-10, 110, 'EXP: 0/100', {
+                fontFamily: 'Arial',
+                fontSize: '14px',
+                color: '#8888ff',
+                fontWeight: 'bold'
+            });
+            this.expText.setOrigin(1, 0);
+            this.statsContainer.add(this.expText);
+            
+            console.log("Stats display created successfully");
+        } catch (error) {
+            console.error("Error creating stats display:", error);
+        }
+    }
+    
+    setupUIEventListeners() {
+        try {
+            // Listen for game state updates
+            window.addEventListener('gameStateUpdated', (event) => {
+                this.updateStatsDisplay();
+            });
+            
+            // Listen for level up events
+            window.addEventListener('levelUp', (event) => {
+                this.updateStatsDisplay();
+            });
+            
+            // Set up periodic updates
+            this.statsUpdateTimer = this.time.addEvent({
+                delay: 100, // Update every 100ms
+                callback: () => this.updateStatsDisplay(),
+                loop: true
+            });
+            
+            console.log("UI event listeners set up");
+        } catch (error) {
+            console.error("Error setting up UI event listeners:", error);
+        }
+    }
+    
+    updateStatsDisplay() {
+        if (!this.gameManager || !this.statsContainer) return;
+        
+        try {
+            // Update wave information
+            const waveInfo = this.gameplayManager?.mobManager?.getStatistics();
+            const currentWave = waveInfo?.currentWave || 0;
+            this.waveText.setText(`Wave: ${currentWave}`);
+            
+            // Update kills
+            const kills = this.gameManager.currentRunStats?.enemiesKilled || 0;
+            this.killsText.setText(`Kills: ${kills}`);
+            
+            // FIXED: Get actual current total gold from GameManager
+            const totalGold = this.gameManager.getGold() || 0;
+            this.goldText.setText(`Gold: ${totalGold}`);
+            
+            // Update survival time
+            const survivalTime = this.gameManager.getCurrentSurvivalTime();
+            const formattedTime = this.gameManager.formatTime(survivalTime);
+            this.timeText.setText(`Time: ${formattedTime}`);
+            
+            // Update level and experience
+            const level = this.gameManager.playerStats?.level || 1;
+            const exp = this.gameManager.playerStats?.experience || 0;
+            const nextExp = this.gameManager.playerStats?.nextLevelExp || 100;
+            this.levelText.setText(`Level: ${level}`);
+            this.expText.setText(`EXP: ${exp}/${nextExp}`);
+            
+        } catch (error) {
+            console.error("Error updating stats display:", error);
+        }
     }
     
     initializeCollisionSystem() {
@@ -232,6 +377,7 @@ export default class BaseGameScene extends Phaser.Scene {
                 
                 this.enemies = this.gameplayManager.enemies;
                 this.experienceOrbs = this.gameplayManager.expOrbs;
+                this.goldOrbs = this.gameplayManager.goldOrbs;
                 this.zombieGroup = this.gameplayManager.mobManager.mobGroup;
             }
             
@@ -312,6 +458,14 @@ export default class BaseGameScene extends Phaser.Scene {
     
     trackEnemyKill(enemy) {
         this.enemiesKilled++;
+        
+        // Update game manager
+        if (this.gameManager) {
+            this.gameManager.addEnemyKill();
+        }
+        
+        // Force UI update
+        this.updateStatsDisplay();
     }
     
     spawnExperienceOrb(x, y, value) {
@@ -335,6 +489,31 @@ export default class BaseGameScene extends Phaser.Scene {
             return orb;
         } catch (error) {
             console.error("Error spawning experience orb:", error);
+            return null;
+        }
+    }
+    
+    spawnGoldOrb(x, y, value) {
+        if (this.gameplayManager?.spawnGoldOrb) {
+            return this.gameplayManager.spawnGoldOrb(x, y, value);
+        }
+        
+        try {
+            const goldOrb = this.add.circle(x, y, 8, 0xFFD700);
+            goldOrb.goldValue = value || 1;
+            this.physics.add.existing(goldOrb);
+            goldOrb.body.setCircle(8);
+            
+            this.physics.add.overlap(this.player, goldOrb, (player, goldOrb) => {
+                if (this.gameManager) {
+                    this.gameManager.addGold(goldOrb.goldValue);
+                }
+                goldOrb.destroy();
+            });
+            
+            return goldOrb;
+        } catch (error) {
+            console.error("Error spawning gold orb:", error);
             return null;
         }
     }
@@ -436,6 +615,13 @@ export default class BaseGameScene extends Phaser.Scene {
                 }
             });
             
+            this.input.keyboard.on('keydown-Y', () => {
+                if (this.gameManager && this.gameManager.debugMode) {
+                    this.gameManager.addGold(100);
+                    console.log("Debug: Added 100 gold");
+                }
+            });
+            
             this.input.keyboard.on('keydown-ESC', () => {
                 console.log("ESC pressed - returning to menu");
                 if (window.returnToMenu) {
@@ -496,7 +682,7 @@ export default class BaseGameScene extends Phaser.Scene {
                 `Survival Time: ${this.gameManager.formatTime(currentTime)}`,
                 `Level: ${this.gameManager.playerStats.level}`,
                 `XP: ${this.gameManager.playerStats.experience}/${this.gameManager.playerStats.nextLevelExp}`,
-                `Gold: ${this.gameManager.gold}`,
+                `Gold: ${this.gameManager.gold} (${this.gameManager.goldMultiplier.toFixed(2)}x multiplier)`,
                 ``,
                 `WAVE SYSTEM:`,
                 `Current Wave: ${stats.currentWave || 0}`,
@@ -516,7 +702,7 @@ export default class BaseGameScene extends Phaser.Scene {
                 ``,
                 `Controls:`,
                 `T - Trigger Wave | C - Auto-Collisions`,
-                `H - Heal | ESC - Exit`,
+                `H - Heal | Y - Add Gold | ESC - Exit`,
                 `GameplayManager Debug Controls Active`
             ].join('\n');
             
@@ -527,6 +713,16 @@ export default class BaseGameScene extends Phaser.Scene {
     }
     
     shutdown() {
+        // Clean up UI update timer
+        if (this.statsUpdateTimer) {
+            this.statsUpdateTimer.destroy();
+            this.statsUpdateTimer = null;
+        }
+        
+        // Clean up event listeners
+        window.removeEventListener('gameStateUpdated', this.updateStatsDisplay);
+        window.removeEventListener('levelUp', this.updateStatsDisplay);
+        
         if (this.gameplayManager) {
             this.gameplayManager.shutdown();
         }
@@ -541,6 +737,7 @@ export default class BaseGameScene extends Phaser.Scene {
         
         this.enemies = null;
         this.experienceOrbs = null;
+        this.goldOrbs = null;
         this.zombieGroup = null;
         
         if (this.staticObstacles) {
@@ -562,6 +759,12 @@ export default class BaseGameScene extends Phaser.Scene {
             this.upgradeDebugText = null;
         }
         
+        // Clean up stats display
+        if (this.statsContainer) {
+            this.statsContainer.destroy();
+            this.statsContainer = null;
+        }
+    
         this.enemiesKilled = 0;
         this.currentWave = 0;
         this.isWaveActive = false;

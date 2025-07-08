@@ -15,7 +15,9 @@ const MOB_CONFIGS = {
         expValue: 10,
         goldValue: 5,
         spawnWeight: 50,
-        minWave: 1
+        minWave: 1,
+        expDropChance: 0.8,  // 80% chance to drop EXP
+        goldDropChance: 0.4  // 40% chance to drop gold
     },
     
     zombieBig: {
@@ -27,7 +29,9 @@ const MOB_CONFIGS = {
         expValue: 20,
         goldValue: 15,
         spawnWeight: 25,
-        minWave: 2
+        minWave: 2,
+        expDropChance: 0.85,
+        goldDropChance: 0.5
     },
     
     policeDroid: {
@@ -39,7 +43,9 @@ const MOB_CONFIGS = {
         expValue: 15,
         goldValue: 10,
         spawnWeight: 20,
-        minWave: 3
+        minWave: 3,
+        expDropChance: 0.82,
+        goldDropChance: 0.45
     },
     
     assassin: {
@@ -51,7 +57,9 @@ const MOB_CONFIGS = {
         expValue: 25,
         goldValue: 20,
         spawnWeight: 15,
-        minWave: 4
+        minWave: 4,
+        expDropChance: 0.9,
+        goldDropChance: 0.6
     },
     
     assassinTank: {
@@ -63,7 +71,9 @@ const MOB_CONFIGS = {
         expValue: 40,
         goldValue: 35,
         spawnWeight: 8,
-        minWave: 6
+        minWave: 6,
+        expDropChance: 0.95,
+        goldDropChance: 0.75
     },
     
     assassinArcher: {
@@ -75,7 +85,9 @@ const MOB_CONFIGS = {
         expValue: 30,
         goldValue: 25,
         spawnWeight: 12,
-        minWave: 5
+        minWave: 5,
+        expDropChance: 0.92,
+        goldDropChance: 0.7
     }
 };
 
@@ -213,12 +225,17 @@ export default class MobManager {
         mob.speed = Math.floor(config.baseSpeed * speedScale);
         mob.expValue = Math.floor(config.expValue * (1 + waveBonus));
         mob.goldValue = Math.floor(config.goldValue * (1 + waveBonus));
+        mob.expDropChance = config.expDropChance;
+        mob.goldDropChance = config.goldDropChance;
     }
     
     setupMobProperties(mob, type) {
         mob.mobType = type;
         mob.spawnTime = Date.now();
         mob.isWaveMob = this.waveActive;
+        
+        // Add special abilities based on mob type
+        this.addSpecialAbilities(mob, type);
         
         const originalDie = mob.die?.bind(mob);
         mob.die = () => {
@@ -227,7 +244,324 @@ export default class MobManager {
         };
         
         mob.spawnRewards = () => {
+            this.spawnMobRewards(mob);
         };
+    }
+    
+    addSpecialAbilities(mob, type) {
+        switch (type) {
+            case 'policeDroid':
+                this.addProjectileAttack(mob, {
+                    range: 200,
+                    cooldown: 2000,
+                    projectileSpeed: 150,
+                    projectileColor: 0xff0000,
+                    projectileSize: 3
+                });
+                break;
+                
+            case 'zombieBig':
+                this.addDeathExplosion(mob, {
+                    explosionRange: 80,
+                    explosionDamage: 15,
+                    explosionColor: 0xff4444
+                });
+                break;
+                
+            case 'assassinArcher':
+                this.addProjectileAttack(mob, {
+                    range: 250,
+                    cooldown: 2500,
+                    projectileSpeed: 120,
+                    projectileColor: 0xff0000,
+                    projectileSize: 2
+                });
+                break;
+        }
+    }
+    
+    addProjectileAttack(mob, config) {
+        mob.projectileConfig = config;
+        mob.lastProjectileTime = 0;
+        mob.hasProjectileAttack = true;
+        
+        console.log(`Added projectile attack to ${mob.mobType}`);
+    }
+    
+    updateMobAbilities(time, delta) {
+        this.getAllActiveMobs().forEach(mob => {
+            if (mob.hasProjectileAttack) {
+                this.updateProjectileAttack(mob, time);
+            }
+        });
+    }
+    
+    updateProjectileAttack(mob, time) {
+        if (!this.player || mob.isDead || !mob.projectileConfig) return;
+        
+        const distance = Phaser.Math.Distance.Between(
+            mob.x, mob.y, this.player.x, this.player.y
+        );
+        
+        const config = mob.projectileConfig;
+        
+        if (distance <= config.range && 
+            time - mob.lastProjectileTime > config.cooldown) {
+            
+            this.fireProjectile(mob, config);
+            mob.lastProjectileTime = time;
+        }
+    }
+    
+    fireProjectile(mob, config) {
+        if (!this.player) return;
+        
+        // Create projectile with border
+        const projectile = this.scene.add.circle(
+            mob.x, mob.y, 
+            config.projectileSize, 
+            config.projectileColor
+        );
+        
+        // Add black border
+        projectile.setStrokeStyle(1, 0x000000);
+        
+        this.scene.physics.add.existing(projectile);
+        projectile.body.setCircle(config.projectileSize);
+        projectile.setDepth(15);
+        
+        // Calculate direction to player
+        const angle = Phaser.Math.Angle.Between(
+            mob.x, mob.y, this.player.x, this.player.y
+        );
+        
+        // Set projectile velocity
+        projectile.body.setVelocity(
+            Math.cos(angle) * config.projectileSpeed,
+            Math.sin(angle) * config.projectileSpeed
+        );
+        
+        // Add hit detection
+        const hitOverlap = this.scene.physics.add.overlap(this.player, projectile, () => {
+            if (this.player.takeDamage) {
+                this.player.takeDamage(mob.damage);
+            }
+            
+            this.createHitEffect(projectile.x, projectile.y);
+            hitOverlap.destroy();
+            projectile.destroy();
+        });
+        
+        // Auto-destroy projectile after 3 seconds
+        this.scene.time.delayedCall(3000, () => {
+            if (projectile && projectile.active) {
+                hitOverlap.destroy();
+                projectile.destroy();
+            }
+        });
+        
+        // Visual muzzle flash on mob
+        this.createMuzzleFlash(mob);
+    }
+    
+    createMuzzleFlash(mob) {
+        const flash = this.scene.add.circle(mob.x, mob.y, 12, 0xffff00, 0.8);
+        flash.setDepth(20);
+        
+        this.scene.tweens.add({
+            targets: flash,
+            scale: { from: 1, to: 2 },
+            alpha: { from: 0.8, to: 0 },
+            duration: 200,
+            onComplete: () => flash.destroy()
+        });
+    }
+    
+    createHitEffect(x, y) {
+        const hit = this.scene.add.circle(x, y, 8, 0xff0000, 0.7);
+        hit.setDepth(25);
+        
+        this.scene.tweens.add({
+            targets: hit,
+            scale: { from: 0.5, to: 1.5 },
+            alpha: { from: 0.7, to: 0 },
+            duration: 300,
+            onComplete: () => hit.destroy()
+        });
+    }
+    
+    addDeathExplosion(mob, config) {
+        mob.explosionConfig = config;
+        
+        // Override the die method to add explosion
+        const originalDie = mob.die?.bind(mob);
+        mob.die = () => {
+            this.createDeathExplosion(mob, config);
+            if (originalDie) originalDie();
+        };
+    }
+    
+    createDeathExplosion(mob, config) {
+        if (!this.player) return;
+        
+        // Create explosion visual effect
+        const explosion = this.scene.add.circle(
+            mob.x, mob.y, 
+            config.explosionRange, 
+            config.explosionColor, 
+            0.6
+        );
+        explosion.setDepth(30);
+        
+        // Explosion animation
+        this.scene.tweens.add({
+            targets: explosion,
+            scale: { from: 0, to: 1.5 },
+            alpha: { from: 0.6, to: 0 },
+            duration: 500,
+            onComplete: () => explosion.destroy()
+        });
+        
+        // Check if player is in explosion range
+        const distanceToPlayer = Phaser.Math.Distance.Between(
+            mob.x, mob.y, this.player.x, this.player.y
+        );
+        
+        if (distanceToPlayer <= config.explosionRange) {
+            if (this.player.takeDamage) {
+                this.player.takeDamage(config.explosionDamage);
+            }
+            
+            // Knockback effect
+            if (this.player.body) {
+                const angle = Phaser.Math.Angle.Between(
+                    mob.x, mob.y, this.player.x, this.player.y
+                );
+                const knockbackForce = 150;
+                
+                this.player.body.velocity.x += Math.cos(angle) * knockbackForce;
+                this.player.body.velocity.y += Math.sin(angle) * knockbackForce;
+            }
+        }
+        
+        // Damage other mobs in range
+        this.getAllActiveMobs().forEach(otherMob => {
+            if (otherMob === mob || otherMob.isDead) return;
+            
+            const distance = Phaser.Math.Distance.Between(
+                mob.x, mob.y, otherMob.x, otherMob.y
+            );
+            
+            if (distance <= config.explosionRange) {
+                if (otherMob.takeDamage) {
+                    otherMob.takeDamage(Math.floor(config.explosionDamage * 0.5));
+                }
+            }
+        });
+        
+        // Screen shake effect - subtle
+        this.scene.cameras.main.shake(200, 0.005);
+        
+        console.log(`${mob.mobType} exploded! Range: ${config.explosionRange}, Damage: ${config.explosionDamage}`);
+    }
+    
+    spawnMobRewards(mob) {
+        try {
+            // Try to spawn experience orb
+            this.trySpawnExperienceOrb(mob);
+            
+            // Try to spawn gold orb
+            this.trySpawnGoldOrb(mob);
+        } catch (error) {
+            console.error("Error spawning mob rewards:", error);
+        }
+    }
+    
+    trySpawnExperienceOrb(mob) {
+        const config = MOB_CONFIGS[mob.mobType];
+        if (!config) return;
+        
+        let dropChance = config.expDropChance || 0.8;
+        
+        // Increase drop chance for special waves
+        if (mob.isSpecialWave) {
+            dropChance *= 1.2;
+        }
+        
+        // Boss mobs always drop exp
+        if (mob.specialWaveType === 'boss') {
+            dropChance = 1.0;
+        }
+        
+        // Elite mobs have higher drop chance
+        if (mob.specialWaveType === 'elite') {
+            dropChance = Math.min(1.0, dropChance * 1.1);
+        }
+        
+        if (Math.random() < dropChance) {
+            let expValue = 1;
+            
+            if (mob.expValue) {
+                if (mob.expValue >= 40) expValue = 5;
+                else if (mob.expValue >= 25) expValue = 3;
+                else if (mob.expValue >= 15) expValue = 2;
+                else expValue = 1;
+            }
+            
+            // Random bonus exp (5% chance for triple)
+            if (Math.random() < 0.05) {
+                expValue *= 3;
+            }
+            
+            // Boss bonus
+            if (mob.specialWaveType === 'boss') {
+                expValue *= 5;
+            }
+            
+            if (this.scene.spawnExperienceOrb) {
+                this.scene.spawnExperienceOrb(mob.x, mob.y, expValue);
+            }
+        }
+    }
+    
+    trySpawnGoldOrb(mob) {
+        const config = MOB_CONFIGS[mob.mobType];
+        if (!config) return;
+        
+        let dropChance = config.goldDropChance || 0.4;
+        
+        // Increase drop chance for special waves
+        if (mob.isSpecialWave) {
+            dropChance *= 1.3;
+        }
+        
+        // Boss mobs always drop gold
+        if (mob.specialWaveType === 'boss') {
+            dropChance = 1.0;
+        }
+        
+        // Elite mobs have higher drop chance
+        if (mob.specialWaveType === 'elite') {
+            dropChance = Math.min(1.0, dropChance * 1.2);
+        }
+        
+        if (Math.random() < dropChance) {
+            let goldValue = mob.goldValue || config.goldValue;
+            
+            // Random bonus gold (8% chance for double)
+            if (Math.random() < 0.08) {
+                goldValue *= 2;
+            }
+            
+            // Boss bonus
+            if (mob.specialWaveType === 'boss') {
+                goldValue *= 3;
+            }
+            
+            if (this.scene.spawnGoldOrb) {
+                this.scene.spawnGoldOrb(mob.x, mob.y, goldValue);
+            }
+        }
     }
     
     trackMob(mob, type) {
@@ -399,6 +733,8 @@ export default class MobManager {
                         mob.damage *= 1.5;
                         mob.expValue *= 2;
                         mob.goldValue *= 2;
+                        mob.expDropChance = Math.min(1.0, mob.expDropChance * 1.2);
+                        mob.goldDropChance = Math.min(1.0, mob.goldDropChance * 1.3);
                     }
                     
                     if (specialType === 'boss') {
@@ -407,6 +743,8 @@ export default class MobManager {
                         mob.damage *= 2;
                         mob.expValue *= 5;
                         mob.goldValue *= 5;
+                        mob.expDropChance = 1.0; // Always drop exp
+                        mob.goldDropChance = 1.0; // Always drop gold
                         mob.setTint(0xff0000);
                     }
                     
@@ -500,6 +838,60 @@ export default class MobManager {
         });
     }
     
+    cleanupMobHealthBar(mob) {
+        try {
+            const mobX = mob.x;
+            const mobY = mob.y;
+            const childrenToDestroy = [];
+
+            this.scene.children.list.forEach(child => {
+                if (!child || !child.x || !child.y) return;
+
+                const distance = Phaser.Math.Distance.Between(
+                    child.x, child.y, mobX, mobY - 20
+                );
+
+                const isLikelyHealthBar = (
+                    distance < 40 && 
+                    (
+                        (child.type === 'Rectangle' && 
+                         child.displayWidth <= 50 && 
+                         child.displayHeight <= 8) ||
+                        
+                        (child.type === 'Container' && 
+                         child.getBounds && 
+                         child.getBounds().width <= 50 &&
+                         child.getBounds().height <= 15) ||
+                        
+                        (child.type === 'Graphics' &&
+                         child.displayWidth <= 50 &&
+                         child.displayHeight <= 10)
+                    )
+                );
+
+                if (isLikelyHealthBar) {
+                    childrenToDestroy.push(child);
+                }
+            });
+
+            childrenToDestroy.forEach(element => {
+                if (element && element.active && element.destroy) {
+                    element.destroy();
+                }
+            });
+
+            ['healthBar', 'healthBarBg', 'healthBarContainer', 'healthBarFill', 'healthBarBackground'].forEach(prop => {
+                if (mob[prop] && mob[prop].destroy) {
+                    mob[prop].destroy();
+                    mob[prop] = null;
+                }
+            });
+
+        } catch (error) {
+            console.error("Error cleaning up mob health bar:", error);
+        }
+    }
+    
     checkWaveCompletion() {
         if (!this.waveActive) return;
         
@@ -548,8 +940,6 @@ export default class MobManager {
         }
         
         this.showWaveCompletionMessage(completedWave, specialType, expBonus, goldBonus);
-        
-        console.log(`Wave ${completedWave} completed! Bonus: +${expBonus} XP, +${goldBonus} Gold`);
     }
     
     showWaveCompletionMessage(waveNumber, specialType, expBonus, goldBonus) {
@@ -624,77 +1014,23 @@ export default class MobManager {
         const trackingData = this.activeMobs.get(mob.trackingId);
         if (!trackingData) return;
         
+        this.cleanupMobHealthBar(mob);
+        
         this.stats.totalKilled++;
         const currentKills = this.stats.killsByType.get(mob.mobType) || 0;
         this.stats.killsByType.set(mob.mobType, currentKills + 1);
         
         if (this.gameManager) {
             this.gameManager.addEnemyKill();
-            this.gameManager.addGold(mob.goldValue || 5);
         }
-        
-        this.trySpawnExperienceOrb(mob);
-        
+
+        this.spawnMobRewards(mob);
+
         if (mob.isWaveMob) {
             this.checkWaveCompletion();
         }
-        
+
         this.activeMobs.delete(mob.trackingId);
-    }
-    
-    trySpawnExperienceOrb(mob) {
-        let dropChance = 0.8;
-        
-        const config = MOB_CONFIGS[mob.mobType];
-        if (config) {
-            switch (config.spawnWeight) {
-                case 50:
-                    dropChance = 0.25;
-                    break;
-                case 25:
-                    dropChance = 0.35;
-                    break;
-                case 20:
-                    dropChance = 0.4;
-                    break;
-                case 15:
-                    dropChance = 0.5;
-                    break;
-                case 12:
-                    dropChance = 0.55;
-                    break;
-                case 8:
-                    dropChance = 0.7;
-                    break;
-            }
-        }
-        
-        if (mob.isSpecialWave) {
-            dropChance *= 1.5;
-        }
-        
-        if (mob.specialWaveType === 'boss') {
-            dropChance = 1.0;
-        }
-        
-        if (Math.random() < dropChance) {
-            let orbValue = 1;
-            
-            if (mob.expValue) {
-                if (mob.expValue >= 40) orbValue = 5;
-                else if (mob.expValue >= 25) orbValue = 3;
-                else if (mob.expValue >= 15) orbValue = 2;
-                else orbValue = 1;
-            }
-            
-            if (Math.random() < 0.05) {
-                orbValue *= 3;
-            }
-            
-            if (this.scene.spawnExperienceOrb) {
-                this.scene.spawnExperienceOrb(mob.x, mob.y, orbValue);
-            }
-        }
     }
     
     handleMobCollision(mob1, mob2) {
@@ -809,6 +1145,9 @@ export default class MobManager {
             }
         });
         toRemove.forEach(id => this.activeMobs.delete(id));
+        
+        // Update mob abilities (projectiles, etc.)
+        this.updateMobAbilities(time, delta);
     }
     
     shutdown() {
@@ -821,6 +1160,7 @@ export default class MobManager {
         }
         
         this.getAllActiveMobs().forEach(mob => {
+            this.cleanupMobHealthBar(mob);
             if (mob.destroy) mob.destroy();
         });
         
