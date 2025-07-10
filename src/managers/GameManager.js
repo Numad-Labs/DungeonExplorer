@@ -126,14 +126,14 @@ export default class GameManager {
     }
     
     resetProgress() {
-        this.gold = 25000;
+        this.gold = 0;
         this.passiveUpgrades = {};
         this.currentRunStats = this.getEmptyRunStats();
         this.lastRunStats = null;
         this.allTimeStats = this.getEmptyAllTimeStats();
         this.playerStats = this.getBasePlayerStats();
         
-        resetLocalStorage(25000);
+        resetLocalStorage(0);
         this.emitStateUpdate();
         
         return true;
