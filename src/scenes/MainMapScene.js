@@ -15,7 +15,7 @@ export default class MainMapScene extends BaseGameScene {
 
 		/* START-USER-CTR-CODE */
 		// BaseGameScene already has manager properties and collision system
-		
+
 		this.portals = [];
 		this.activePortal = null;
 		this.portalTimer = null;
@@ -29,7 +29,7 @@ export default class MainMapScene extends BaseGameScene {
 	editorCreate() {
 
 		// mainMap
-		const mainMap = this.add.tilemap("MainMap");
+		const mainMap = this.add.tilemap("mainMap");
 		mainMap.addTilesetImage("golden monument anim-going up-packed sheet", "golden monument anim-going up-packed sheet");
 		mainMap.addTilesetImage("Fire-candelabrum", "Fire-candelabrum");
 		mainMap.addTilesetImage("side way-Sheet", "side way-Sheet");
@@ -52,32 +52,35 @@ export default class MainMapScene extends BaseGameScene {
 		mainMap.addTilesetImage("platform1", "platform1");
 		mainMap.addTilesetImage("lavafal-for Tiled-spritesheet-16frames", "lavafal-for Tiled-spritesheet-16frames");
 
-		// backGround_1
-		const backGround_1 = mainMap.createLayer("BackGround", ["Wall_3"], 0, 0);
-
 		// map_Col_1
 		const map_Col_1 = mainMap.createLayer("Map_Col", ["Bed"], 0, 0);
+
+		// walkingArea_1
+		const walkingArea_1 = mainMap.createLayer("WalkingArea", ["Tileset 3"], -18, 8);
+
+		// backGround_1
+		const backGround_1 = mainMap.createLayer("BackGround", ["Wall_3"], -18, 8);
 
 		// backGround
 		const backGround = mainMap.createLayer("BackGround_1", ["lavafal-for Tiled-spritesheet-16frames"], 0, 0);
 
-		// wall_Upper_1
-		const wall_Upper_1 = mainMap.createLayer("Wall_Upper", ["Tileset 3"], 16, 12);
+		// wall_RD_1
+		const wall_RD_1 = mainMap.createLayer("Wall_RD", ["Tileset 3"], -18, -20);
 
-		// wall_down_1
-		const wall_down_1 = mainMap.createLayer("Wall_down", ["Tileset 3"], -16, 13);
+		// wall_Upper_1
+		const wall_Upper_1 = mainMap.createLayer("Wall_Upper", ["Tileset 3"], 12, 12);
 
 		// wall_RU_1
-		const wall_RU_1 = mainMap.createLayer("Wall_RU", ["Tileset 3"], -16, -19);
+		const wall_RU_1 = mainMap.createLayer("Wall_RU", ["Tileset 3"], -18, -20);
+
+		// wall_down_1
+		const wall_down_1 = mainMap.createLayer("Wall_down", ["Tileset 3"], -18, 12);
 
 		// survive_Zone_1
-		const survive_Zone_1 = mainMap.createLayer("Survive_Zone", ["Survive_Zone"], 0, 0);
-
-		// wall_RD_1
-		const wall_RD_1 = mainMap.createLayer("Wall_RD", ["Tileset 3"], -16, -19);
+		const survive_Zone_1 = mainMap.createLayer("Survive_Zone", ["Survive_Zone"], -18, 8);
 
 		// gold_AC_1
-		const gold_AC_1 = mainMap.createLayer("Gold_AC", ["Gold"], -14, -19);
+		const gold_AC_1 = mainMap.createLayer("Gold_AC", ["Gold"], -18, -24);
 
 		// map
 		const map = mainMap.createLayer("Map_", ["platform1","platform2"], 0, 0);
@@ -86,7 +89,7 @@ export default class MainMapScene extends BaseGameScene {
 		const bed_1 = mainMap.createLayer("Bed", ["Bed"], 0, 0);
 
 		// vase_AC_1
-		const vase_AC_1 = mainMap.createLayer("Vase_AC", ["Atlas-props"], 0, 0);
+		const vase_AC_1 = mainMap.createLayer("Vase_AC", ["Atlas-props"], -18, 8);
 
 		// playerPrefab
 		const playerPrefab = new PlayerPrefab(this, 900, 100);
@@ -172,14 +175,15 @@ export default class MainMapScene extends BaseGameScene {
 		const telAnimation_3 = this.add.sprite(72, 2420, "golden monument anim-going up-packed sheet", 53);
 		telAnimation_3.play("TelAnimation");
 
-		this.backGround_1 = backGround_1;
 		this.map_Col_1 = map_Col_1;
+		this.walkingArea_1 = walkingArea_1;
+		this.backGround_1 = backGround_1;
 		this.backGround = backGround;
-		this.wall_Upper_1 = wall_Upper_1;
-		this.wall_down_1 = wall_down_1;
-		this.wall_RU_1 = wall_RU_1;
-		this.survive_Zone_1 = survive_Zone_1;
 		this.wall_RD_1 = wall_RD_1;
+		this.wall_Upper_1 = wall_Upper_1;
+		this.wall_RU_1 = wall_RU_1;
+		this.wall_down_1 = wall_down_1;
+		this.survive_Zone_1 = survive_Zone_1;
 		this.gold_AC_1 = gold_AC_1;
 		this.map = map;
 		this.bed_1 = bed_1;
@@ -196,21 +200,23 @@ export default class MainMapScene extends BaseGameScene {
 	}
 
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	backGround_1;
-	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	map_Col_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	walkingArea_1;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	backGround_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	backGround;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	wall_Upper_1;
+	wall_RD_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	wall_down_1;
+	wall_Upper_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	wall_RU_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	survive_Zone_1;
+	wall_down_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
-	wall_RD_1;
+	survive_Zone_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
 	gold_AC_1;
 	/** @type {Phaser.Tilemaps.TilemapLayer} */
@@ -318,7 +324,7 @@ export default class MainMapScene extends BaseGameScene {
 		if (this.portalTimer) {
 			this.portalTimer.destroy();
 		}
-		
+
 		this.portalTimer = this.time.addEvent({
 			delay: this.portalActivationInterval,
 			callback: this.activateRandomPortal,
@@ -367,7 +373,7 @@ export default class MainMapScene extends BaseGameScene {
 			portal.glowEffect = glow;
 
 			const targets = (portal.sprite && portal.sprite.active && portal.sprite.scene) ? [portal.sprite, glow] : [glow];
-			
+
 			const tween = this.tweens.add({
 				targets: targets,
 				alpha: { from: 1, to: 0.7 },
@@ -436,12 +442,12 @@ export default class MainMapScene extends BaseGameScene {
 
 		const destinationScene = portal.destinationScene;
 		this.isTeleporting = true;
-		
+
 		// Add null check for player and createTeleportEffect
 		if (this.player && this.player.active && typeof this.createTeleportEffect === 'function') {
 			this.createTeleportEffect(this.player.x, this.player.y);
 		}
-		
+
 		if (this.gameManager && typeof this.gameManager.saveGame === 'function') {
 			try {
 				this.gameManager.saveGame();
@@ -449,12 +455,12 @@ export default class MainMapScene extends BaseGameScene {
 				console.warn("Error saving game:", saveError);
 			}
 		}
-		
+
 		this.cleanupBeforePortalTeleport();
-		
+
 		this.time.delayedCall(500, () => {
 			if (!this.scene || !this.scene.isActive()) return;
-			
+
 			try {
 				if (destinationScene && this.scene.manager && this.scene.manager.keys && this.scene.manager.keys[destinationScene]) {
 					this.scene.start(destinationScene);
@@ -484,7 +490,7 @@ export default class MainMapScene extends BaseGameScene {
 					this[timerName] = null;
 				}
 			});
-			
+
 			// Clean up groups with proper checks
 			const groupsToClean = [
 				{ obj: this.gameplayManager, prop: 'enemies' },
@@ -499,13 +505,13 @@ export default class MainMapScene extends BaseGameScene {
 					obj[prop].clear(true, true);
 				}
 			});
-			
+
 			// Reset counters
 			this.currentWave = 0;
 			this.isWaveActive = false;
 			this.waveEnemiesRemaining = 0;
 			this.enemiesKilled = 0;
-			
+
 		} catch (error) {
 			console.error("Error during portal teleport cleanup:", error);
 		}
