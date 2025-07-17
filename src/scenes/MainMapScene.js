@@ -254,11 +254,16 @@ export default class MainMapScene extends BaseGameScene {
 			this.setupCollisions();
 			this.player = this.playerPrefab;
 			this.initializeManagers();
-			this.setupPlayerAttack();
-			this.setupPortalSystem();
-			this.setupTestControls();
-			this.setupZombieCollisionSystem();
-			this.startEnemySpawning();
+			
+			if (this.gameplayManager?.mobManager && this.walkingArea_1) {
+			 this.gameplayManager.mobManager.setWalkingAreaFromTilemap(this.walkingArea_1);
+			}
+		
+		this.setupPlayerAttack();
+		this.setupPortalSystem();
+		this.setupTestControls();
+		this.setupZombieCollisionSystem();
+		this.startEnemySpawning();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
 		}
