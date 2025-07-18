@@ -2426,6 +2426,19 @@
                 "key": "tormented souls tile-9-hand3"
             },
             {
+                "url": "assets/Decoration/Total.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Vase"
+            },
+            {
                 "url": "assets/Static prop/towers_0.png",
                 "frameConfig": {
                     "frameWidth": 32,

@@ -703,6 +703,38 @@
             "y": 2420,
             "animationPlayMethod": 1,
             "animationKey": "TelAnimation"
+        },
+        {
+            "type": "TilemapLayer",
+            "id": "2d912828-fdbb-48aa-9afc-6e66d3730a7b",
+            "label": "vase_1",
+            "scope": "CLASS",
+            "visible": false,
+            "tilemapId": "6f680f6c-8e16-4437-b8a4-91cb785a737c",
+            "layerName": "Vase",
+            "tilesets": [
+                "golden monument anim-going up-packed sheet",
+                "Fire-candelabrum",
+                "side way-Sheet",
+                "Tileset 3",
+                "Wall_3",
+                "rock pillars coming from darkness-bg_2",
+                "Crystals1-improved refraction_11",
+                "Crystals1-improved refraction_6",
+                "Crystals1-improved refraction_8",
+                "Survive_Zone",
+                "statues-far from platforms-bg_4",
+                "statues-far from platforms-bg_2",
+                "statues-far from platforms-bg_1",
+                "statues-far from platforms-bg_0",
+                "statues-far from platforms-bg_5",
+                "Gold",
+                "Bed",
+                "Atlas-props",
+                "platform2",
+                "platform1",
+                "lavafal-for Tiled-spritesheet-16frames"
+            ]
         }
     ],
     "plainObjects": [

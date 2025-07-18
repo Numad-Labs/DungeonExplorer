@@ -5,6 +5,7 @@
 import BaseGameScene from "./BaseGameScene";
 import PlayerPrefab from "../prefabs/PlayerPrefab";
 import StoneStatuePrefab from "../prefabs/StoneStatuePrefab";
+import VaseSpawner from "../utils/VaseSpawner.js";
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
@@ -22,6 +23,7 @@ export default class MainMapScene extends BaseGameScene {
 		this.portalActivationInterval = 20000;
 		this.availableScenes = ["MiniMapDarkForastScene", "MiniMapBossFightScene", "MiniMapBeachScene", "MiniMapLavaScene"];
 		this.isTeleporting = false;
+		this.vaseSpawner = null;
 		/* END-USER-CTR-CODE */
 	}
 
@@ -175,6 +177,10 @@ export default class MainMapScene extends BaseGameScene {
 		const telAnimation_3 = this.add.sprite(72, 2420, "golden monument anim-going up-packed sheet", 53);
 		telAnimation_3.play("TelAnimation");
 
+		// vase_1
+		const vase_1 = mainMap.createLayer("Vase", ["Atlas-props"], 0, 0);
+		vase_1.setVisible(false);
+
 		this.map_Col_1 = map_Col_1;
 		this.walkingArea_1 = walkingArea_1;
 		this.backGround_1 = backGround_1;
@@ -194,6 +200,7 @@ export default class MainMapScene extends BaseGameScene {
 		this.stoneStatuePrefab_2 = stoneStatuePrefab_2;
 		this.stoneStatuePrefab_3 = stoneStatuePrefab_3;
 		this.torchAnim = torchAnim;
+		this.vase_1 = vase_1;
 		this.mainMap = mainMap;
 
 		this.events.emit("scene-awake");
@@ -237,6 +244,8 @@ export default class MainMapScene extends BaseGameScene {
 	stoneStatuePrefab_3;
 	/** @type {Phaser.GameObjects.Sprite} */
 	torchAnim;
+	/** @type {Phaser.Tilemaps.TilemapLayer} */
+	vase_1;
 	/** @type {Phaser.Tilemaps.Tilemap} */
 	mainMap;
 
@@ -254,15 +263,16 @@ export default class MainMapScene extends BaseGameScene {
 			this.setupCollisions();
 			this.player = this.playerPrefab;
 			this.initializeManagers();
-			
+
 			if (this.gameplayManager?.mobManager && this.walkingArea_1) {
 			 this.gameplayManager.mobManager.setWalkingAreaFromTilemap(this.walkingArea_1);
 			}
-		
+
 		this.setupPlayerAttack();
 		this.setupPortalSystem();
 		this.setupTestControls();
 		this.setupZombieCollisionSystem();
+		this.setupVaseSpawning();
 		this.startEnemySpawning();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
@@ -647,6 +657,30 @@ export default class MainMapScene extends BaseGameScene {
 						});
 					}
 				});
+
+				this.input.keyboard.on('keydown-V', () => {
+					if (this.gameManager && this.gameManager.debugMode && this.vaseSpawner) {
+						const stats = this.vaseSpawner.getStatistics();
+						console.log("=== VASE STATISTICS ===");
+						console.log(`Active vases: ${stats.activeVases}/${stats.maxVases}`);
+						console.log(`Spawn positions: ${stats.totalSpawnPositions}`);
+						console.log(`Spawn chance: ${stats.spawnChance}`);
+						console.log(`Respawn enabled: ${stats.respawnEnabled}`);
+					}
+				});
+
+				this.input.keyboard.on('keydown-B', () => {
+					if (this.gameManager && this.gameManager.debugMode && this.vaseSpawner && this.player) {
+						const testVase = this.vaseSpawner.createVase(
+							this.player.x + 50, 
+							this.player.y + 50, 
+							"Vase"
+						);
+						if (testVase) {
+							console.log("Spawned test vase near player");
+						}
+					}
+				});
 			}
 
 		} catch (error) {
@@ -679,13 +713,11 @@ export default class MainMapScene extends BaseGameScene {
 
 	shutdown() {
 		try {
-			// Clean up portal timer
 			if (this.portalTimer && !this.portalTimer.hasDispatched) {
 				this.portalTimer.destroy();
 				this.portalTimer = null;
 			}
 
-			// Clean up all portals
 			this.portals.forEach(portal => {
 				this.deactivatePortal(portal);
 			});
@@ -694,12 +726,74 @@ export default class MainMapScene extends BaseGameScene {
 			this.activePortal = null;
 			this.isTeleporting = false;
 
-			// Call parent shutdown
 			if (typeof super.shutdown === 'function') {
 				super.shutdown();
 			}
 		} catch (error) {
 			console.error("Error in MainMapScene shutdown:", error);
+		}
+	}
+
+	setupVaseSpawning() {
+		try {
+			this.vaseSpawner = new VaseSpawner(this);
+		
+			if (this.vase_1) {
+				console.log("Found vase_1 layer!");
+				console.log("Layer data:", this.vase_1.layer);
+				console.log("Layer name:", this.vase_1.layer.name);
+				console.log("Layer size:", this.vase_1.layer.width, "x", this.vase_1.layer.height);
+				
+				const tilemap = this.vase_1.tilemap;
+				
+				for (let y = 0; y < Math.min(10, this.vase_1.layer.height); y++) {
+					for (let x = 0; x < Math.min(10, this.vase_1.layer.width); x++) {
+						const tile = tilemap.getTileAt(x, y, false, this.vase_1.layer.name);
+						if (tile && tile.index !== 0) {
+							console.log(`FOUND NON-ZERO TILE at ${x},${y}: index ${tile.index}`);
+						}
+					}
+				}
+				
+				const vasesSpawned = this.vaseSpawner.spawnVasesOnTilemap(this.vase_1, {
+					spawnChance: 1.0,
+					maxVases: 500,
+					textureKey: "Vase",
+					targetTileIndex: null,
+					excludeTileIndices: [0],
+					removeTiles: false
+				});
+			} else {
+				console.error("vase_1 layer not found!");
+			}
+			
+			this.setupVaseAttackCollision();
+			
+		} catch (error) {
+			console.error("Error setting up vase spawning:", error);
+		}
+	}
+
+	setupVaseAttackCollision() {
+		try {
+			if (this.gameManager && this.gameManager.debugMode) {
+				this.input.on('pointerdown', (pointer) => {
+					if (this.breakableVases) {
+						this.breakableVases.children.entries.forEach(vase => {
+							if (vase.active) {
+								const bounds = vase.getBounds();
+								if (bounds.contains(pointer.worldX, pointer.worldY)) {
+									console.log("Debug: Breaking vase with click");
+									vase.onPlayerAttack(1);
+								}
+							}
+						});
+					}
+				});
+			}
+
+		} catch (error) {
+			console.error("Error setting up vase attack collision:", error);
 		}
 	}
 

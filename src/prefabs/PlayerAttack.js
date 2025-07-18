@@ -286,21 +286,41 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findEnemiesInSlashRange() {
-        if (!this.scene.enemies || !this.player) return [];
+        if (!this.player) return [];
         
         const enemiesInRange = [];
-        const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
         
-        enemies.forEach(enemy => {
-            const distance = Phaser.Math.Distance.Between(
-                this.player.x, this.player.y,
-                enemy.x, enemy.y
-            );
+        // Find enemies
+        if (this.scene.enemies) {
+            const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
             
-            if (distance <= this.slashRange) {
-                enemiesInRange.push({ enemy: enemy, distance: distance });
-            }
-        });
+            enemies.forEach(enemy => {
+                const distance = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    enemy.x, enemy.y
+                );
+                
+                if (distance <= this.slashRange) {
+                    enemiesInRange.push({ enemy: enemy, distance: distance });
+                }
+            });
+        }
+        
+        // Find breakable vases
+        if (this.scene.breakableVases) {
+            const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
+            
+            vases.forEach(vase => {
+                const distance = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    vase.x, vase.y
+                );
+                
+                if (distance <= this.slashRange) {
+                    enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
+                }
+            });
+        }
         
         return enemiesInRange;
     }
@@ -323,8 +343,16 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         });
 
         enemiesInRange.forEach((enemyData) => {
-            if (enemyData.enemy.takeDamage && enemyData.enemy.active && !enemyData.enemy.isDead) {
-                enemyData.enemy.takeDamage(this.slashDamage);
+            if (enemyData.enemy.active && !enemyData.enemy.isDead) {
+                if (enemyData.isVase) {
+                    if (enemyData.enemy.onPlayerAttack) {
+                        enemyData.enemy.onPlayerAttack(this.slashDamage);
+                    }
+                } else {
+                    if (enemyData.enemy.takeDamage) {
+                        enemyData.enemy.takeDamage(this.slashDamage);
+                    }
+                }
             }
         });
         
@@ -672,7 +700,9 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                     const distance = Phaser.Math.Distance.Between(bomb.x, bomb.y, enemy.x, enemy.y);
                     
                     if (distance <= this.fireBombExplosionRadius) {
-                        if (enemy.takeDamage) {
+                        if (enemy.isVase && enemy.onPlayerAttack) {
+                            enemy.onPlayerAttack(bomb.damage);
+                        } else if (enemy.takeDamage) {
                             enemy.takeDamage(bomb.damage);
                             this.applyBurnEffect(enemy, bomb.damage * 0.4, this.fireBombDotDuration);
                         }
@@ -971,23 +1001,41 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findNearestEnemyInRange(range) {
-        if (!this.scene.enemies || !this.player) return null;
+        if (!this.player) return null;
         
-        let nearestEnemy = null;
+        let nearestTarget = null;
         let nearestDistance = range;
         
-        const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-        
-        enemies.forEach(enemy => {
-            const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+        // Check enemies
+        if (this.scene.enemies) {
+            const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
             
-            if (distance <= range && distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestEnemy = enemy;
-            }
-        });
+            enemies.forEach(enemy => {
+                const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+                
+                if (distance <= range && distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestTarget = enemy;
+                }
+            });
+        }
         
-        return nearestEnemy;
+        // Check breakable vases
+        if (this.scene.breakableVases) {
+            const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
+            
+            vases.forEach(vase => {
+                const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, vase.x, vase.y);
+                
+                if (distance <= range && distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestTarget = vase;
+                    nearestTarget.isVase = true;
+                }
+            });
+        }
+        
+        return nearestTarget;
     }
     
     showSlashIndicator() {
@@ -1031,7 +1079,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 return;
             }
             
-            const enemyGroups = [this.scene.enemies, this.scene.zombieGroup].filter(group => group);
+            const enemyGroups = [this.scene.enemies, this.scene.zombieGroup, this.scene.breakableVases].filter(group => group);
             
             enemyGroups.forEach(enemyGroup => {
                 if (enemyGroup) {
@@ -1046,7 +1094,9 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                         
                         if (enemyDistance <= 20) {
                             projectile.hitEnemies.push(enemy);
-                            if (enemy.takeDamage) {
+                            if (enemy.isVase && enemy.onPlayerAttack) {
+                                enemy.onPlayerAttack(projectile.damage);
+                            } else if (enemy.takeDamage) {
                                 enemy.takeDamage(projectile.damage);
                                 this.applyBurnEffect(enemy, projectile.damage * 0.3, this.fireBulletDotDuration);
                             }
@@ -1069,7 +1119,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 return;
             }
             
-            const enemyGroups = [this.scene.enemies, this.scene.zombieGroup].filter(group => group);
+            const enemyGroups = [this.scene.enemies, this.scene.zombieGroup, this.scene.breakableVases].filter(group => group);
             
             enemyGroups.forEach(enemyGroup => {
                 if (enemyGroup) {
@@ -1111,7 +1161,10 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                     );
                     
                     if (enemyDistance <= 20) {
-                        if (enemy.takeDamage) {
+                        if (enemy.isVase && enemy.onPlayerAttack) {
+                            enemy.onPlayerAttack(projectile.damage);
+                            this.createIceExplosionEffect(projectile.x, projectile.y);
+                        } else if (enemy.takeDamage) {
                             enemy.takeDamage(projectile.damage);
                             this.applySlowEffect(enemy, 0.5, 2000);
                             this.createIceExplosionEffect(projectile.x, projectile.y);
