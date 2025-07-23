@@ -3,6 +3,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { EventBus } from '../game/EventBus';  // ADD THIS LINE
 /* END-USER-IMPORTS */
 
 export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
@@ -53,6 +54,8 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 				armor: this.armor
 			});
 		}
+
+		this.updateHPBar();
 		this.createAnimations();
 		this.setupMouseTracking();
 
@@ -65,6 +68,27 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 	}
 
 	/* START-USER-CODE */
+
+	updateHPBar() {
+		const healthData = {
+			currentHP: this.health,
+			maxHP: this.maxHealth,
+			health: this.health,
+			maxHealth: this.maxHealth,
+			hp: this.health,
+			maxHp: this.maxHealth
+		};
+
+		// Send to React HP bar
+		EventBus.emit('player-health-updated', healthData);
+		
+		// Send via window event as backup
+		window.dispatchEvent(new CustomEvent('playerHealthUpdated', {
+			detail: healthData
+		}));
+
+		console.log('HP bar updated:', healthData);
+	}
 
 	createAnimations() {
 
@@ -280,6 +304,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		console.log(`Player took ${actualDamage} damage from ${source}. Health: ${this.health}/${this.maxHealth}`);
 
+		this.updateHPBar();
 		this.showDamageEffect(actualDamage);
 		this.setTint(0xff0000);
 		const knockbackForce = 0;
@@ -376,6 +401,9 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		this.isDead = true;
 		this.health = 0;
+		
+		this.updateHPBar();
+		
 		this.body.velocity.x = 0;
 		this.body.velocity.y = 0;
 		this.body.enable = false;
@@ -442,6 +470,8 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		if (actualHeal > 0) {
 			console.log(`Player healed for ${actualHeal}. Health: ${this.health}/${this.maxHealth}`);
+			
+			this.updateHPBar();
 			this.showHealEffect(actualHeal);
 			this.setTint(0x00ff00);
 			this.scene.tweens.add({

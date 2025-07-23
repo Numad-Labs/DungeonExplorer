@@ -3,6 +3,7 @@ import UIManager from "../managers/UIManager";
 import GameplayManager from "../managers/GameplayManager";
 import PowerUpManager from "../managers/PowerUpManager";
 import PlayerAttack from "../prefabs/PlayerAttack";
+import { EventBus } from '../game/EventBus';
 
 export default class BaseGameScene extends Phaser.Scene {
     constructor(sceneKey) {
@@ -85,6 +86,9 @@ export default class BaseGameScene extends Phaser.Scene {
         }
         
         console.log("BaseGameScene create() completed - ready for new run");
+        
+        // Emit scene ready event
+        EventBus.emit('current-scene-ready', this);
     }
     
     createStatsDisplay() {

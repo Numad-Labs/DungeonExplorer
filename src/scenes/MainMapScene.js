@@ -7,6 +7,7 @@ import PlayerPrefab from "../prefabs/PlayerPrefab";
 import StoneStatuePrefab from "../prefabs/StoneStatuePrefab";
 import VaseSpawner from "../utils/VaseSpawner.js";
 /* START-USER-IMPORTS */
+import { EventBus } from '../game/EventBus';
 /* END-USER-IMPORTS */
 
 export default class MainMapScene extends BaseGameScene {
@@ -274,6 +275,7 @@ export default class MainMapScene extends BaseGameScene {
 		this.setupZombieCollisionSystem();
 		this.setupVaseSpawning();
 		this.startEnemySpawning();
+		this.setupHPBarIntegration();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
 		}
@@ -796,7 +798,90 @@ export default class MainMapScene extends BaseGameScene {
 			console.error("Error setting up vase attack collision:", error);
 		}
 	}
+	setupHPBarIntegration() {
+	    console.log('Setting up HP bar integration...');
+		
+	    // Initialize player health
+	    if (this.player) {
+	        this.player.health = 100;
+	        this.player.maxHealth = 100;
+	    }
+	
+	    // Send initial HP to React
+	    this.updateHPBar();
+	}
+	
 
+	playerTakeDamage(damage) {
+		if (!this.player) return;
+
+		this.player.health = Math.max(0, this.player.health - damage);
+		this.updateHPBar();
+
+		console.log(`Player took ${damage} damage. HP: ${this.player.health}/${this.player.maxHealth}`);
+
+		// Add damage flash effect
+		if (this.player.setTint) {
+			this.player.setTint(0xff0000);
+			this.time.delayedCall(100, () => {
+				if (this.player && this.player.clearTint) {
+					this.player.clearTint();
+				}
+			});
+		}
+
+		if (this.player.health <= 0) {
+			console.log('Player died!');
+			this.handlePlayerDeath();
+		}
+	}
+
+	playerHeal(healAmount) {
+		if (!this.player) return;
+
+		this.player.health = Math.min(this.player.maxHealth, this.player.health + healAmount);
+		this.updateHPBar();
+
+		if (this.player.setTint) {
+			this.player.setTint(0x00ff00);
+			this.time.delayedCall(100, () => {
+				if (this.player && this.player.clearTint) {
+					this.player.clearTint();
+				}
+			});
+		}
+	}
+
+	updateHPBar() {
+		if (!this.player) {
+			console.log('No player found for HP update');
+			return;
+		}
+
+		const healthData = {
+			currentHP: this.player.health || 100,
+			maxHP: this.player.maxHealth || 100,
+			health: this.player.health || 100,  // Alternative naming
+			maxHealth: this.player.maxHealth || 100
+		};
+
+		EventBus.emit('player-health-updated', healthData);
+	}
+
+	handlePlayerDeath() {
+		if (this.player && this.player.setAlpha) {
+			this.player.setAlpha(0.5);
+		}
+
+		this.time.delayedCall(2000, () => {
+			this.player.health = this.player.maxHealth;
+			if (this.player && this.player.setAlpha) {
+				this.player.setAlpha(1);
+			}
+			this.updateHPBar();
+			console.log('Player respawned');
+		});
+	}
 	/* END-USER-CODE */
 }
 

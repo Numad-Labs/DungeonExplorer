@@ -3,10 +3,9 @@ import Preload from "./scenes/Preload.js";
 import MainMapScene from "./scenes/MainMapScene.js";
 import MiniMapDarkForastScene from "./scenes/MiniMapDarkForastScene.js";
 import MiniMapBossFightScene from "./scenes/MiniMapBossFightScene.js";
-import { initializeMenu } from "./MenuIntegration.jsx";
 import MiniMapBeachScene from "./scenes/MiniMapBeachScene.js";
 import MiniMapLavaScene from "./scenes/MiniMapLavaScene.js";
-import GameManager from "./managers/GameManager.js";
+import { EventBus } from './game/EventBus';
 
 const config = {
     type: Phaser.AUTO,
@@ -31,39 +30,28 @@ const config = {
 };
 
 class Boot extends Phaser.Scene {
+    constructor() {
+        super("Boot");
+    }
+    
     preload() {
         this.load.pack("pack", "assets/preload-asset-pack.json");
     }
     
     create() {
         this.scene.start("Preload");
+        EventBus.emit('current-scene-ready', this);
     }
 }
 
-let menuControls = null;
-
-const StartGame = (parent) => {
-    const gameManager = new GameManager();
+const StartGame = (parent, gameManager) => {
+    console.log("Starting Phaser game with GameManager...");
     
-    try {
-        menuControls = initializeMenu(gameManager);
-        console.log("React menu initialized successfully with GameManager");
-    } catch (error) {
-        console.error("Error initializing React menu:", error);
-    }
-    
-    const menuContainer = document.getElementById('menu-container');
-    const gameContainer = document.getElementById('game-container');
-    
-    if (menuContainer) menuContainer.style.display = 'block';
-    if (gameContainer) gameContainer.style.display = 'none';
-    
-    console.log("Starting Phaser game...");
     const gameConfig = parent ? { ...config, parent } : config;
     const game = new Phaser.Game(gameConfig);
     
     game.registry.set('gameManager', gameManager);
-    console.log("GameManager initialized and registered");
+    console.log("GameManager registered with Phaser game");
     
     game.scene.add("Boot", Boot, true);
     game.scene.add("Preload", Preload);
@@ -74,56 +62,24 @@ const StartGame = (parent) => {
     game.scene.add("MiniMapBeachScene", MiniMapBeachScene);
     game.scene.add("MiniMapLavaScene", MiniMapLavaScene);
     
-    window.game = game;
-    
-    window.returnToMenu = function() {
-        console.log("Returning to menu from game");
-        
-        const gameManager = game.registry.get('gameManager');
-        if (gameManager && gameManager.isRunActive) {
-            gameManager.endRun("Manual Exit");
+    // global event handlers
+    EventBus.on('return-to-menu', () => {
+        console.log('Return to menu event received');
+        if (gameManager && gameManager.isGameRunning) {
+            gameManager.handlePlayerDeath("Manual Exit");
         }
-        
-        if (menuContainer && gameContainer) {
-            menuContainer.style.display = 'block';
-            gameContainer.style.display = 'none';
-        }
-        
-        window.dispatchEvent(new CustomEvent('gameStateUpdated'));
-    };
+    });
     
-    window.startGame = function() {
-        console.log("Start game button clicked");
-        console.log("Current GameManager upgrades:", gameManager.passiveUpgrades);
-        
-        if (menuContainer) menuContainer.style.display = 'none';
-        if (gameContainer) gameContainer.style.display = 'block';
-        
-        if (gameManager) {
-            if (!gameManager.isRunActive) {
-                gameManager.startNewRun();
-            }
-            console.log("New run started with upgrades:", gameManager.passiveUpgrades);
-        }
-        
-        game.scene.start('MainMapScene');
-    };
-    
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const gameContainer = document.getElementById('game-container');
-            if (gameContainer && gameContainer.style.display !== 'none') {
-                window.returnToMenu();
-            }
+    // Handle scene transitions
+    EventBus.on('change-scene', (sceneName, data) => {
+        if (game.scene.isActive(sceneName)) {
+            game.scene.restart(sceneName, data);
+        } else {
+            game.scene.start(sceneName, data);
         }
     });
     
     return game;
 };
-
-window.addEventListener('load', function() {
-    console.log("Window loaded - starting game initialization");
-    StartGame('game-container');
-});
 
 export default StartGame;

@@ -31,9 +31,6 @@ export default class VaseSpawner {
         const layerData = tilemapLayer.layer;
         let vasesSpawned = 0;
         let tilesChecked = 0;
-        
-        console.log(`Spawning vases on layer: ${layerData.name}, size: ${layerData.width}x${layerData.height}`);
-        
         for (let y = 0; y < layerData.height; y++) {
             for (let x = 0; x < layerData.width; x++) {
                 if (vasesSpawned >= config.maxVases) break;
@@ -81,7 +78,6 @@ export default class VaseSpawner {
     
     createVase(x, y, textureKey = "Vase") {
         try {
-            console.log(`Creating vase at ${x}, ${y} with texture ${textureKey}`);
             const vase = new BreakableVase(this.scene, x, y, textureKey);
             this.scene.add.existing(vase);
             this.setupVaseCollision(vase);
@@ -89,7 +85,6 @@ export default class VaseSpawner {
             vase.setVisible(true);
             vase.setActive(true);
             
-            console.log(`Vase created successfully at ${x}, ${y}`);
             return vase;
         } catch (error) {
             console.error("Error creating vase:", error);

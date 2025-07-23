@@ -1,4 +1,5 @@
 import { saveToLocalStorage, loadFromLocalStorage, resetProgress as resetLocalStorage } from '../GameStorage';
+import { EventBus } from '../game/EventBus';
 
 // Upgrade configuration - centralized and clean
 const UPGRADES = {
@@ -121,6 +122,11 @@ export default class GameManager {
         
         this.saveGame();
         this.emitStateUpdate();
+        
+        console.log(`Purchased ${upgradeId} for ${cost} gold. New level: ${newLevel}`);
+        console.log(`Remaining gold: ${this.gold}`);
+        
+        EventBus.emit('game-state-updated');
         
         return true;
     }

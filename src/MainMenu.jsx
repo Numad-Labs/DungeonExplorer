@@ -128,59 +128,24 @@ const passiveUpgrades = [
   }
 ];
 
-const MainMenu = ({ gameManager, onStartGame }) => {
+const MainMenu = ({ gameManager, gameState = { gold: 500, passiveUpgrades: {}, allTimeStats: {}, lastRunStats: null }, onStartGame }) => {
   const [activeTab, setActiveTab] = useState('upgrades');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showTooltip, setShowTooltip] = useState(null);
   const [notification, setNotification] = useState(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showDeathScreen, setShowDeathScreen] = useState(false);
-  const [gameState, setGameState] = useState({
-    gold: 500,
-    passiveUpgrades: {},
-    allTimeStats: {},
-    lastRunStats: null,
-    currentRunStats: {}
-  });
 
   useEffect(() => {
-    // Load game state
-    if (gameManager) {
-      setGameState({
-        gold: gameManager.gold || 500,
-        passiveUpgrades: gameManager.passiveUpgrades || {},
-        allTimeStats: gameManager.allTimeStats || {},
-        lastRunStats: gameManager.lastRunStats || null,
-        currentRunStats: gameManager.currentRunStats || {}
-      });
-    }
-    
-    // Listen for game state updates
-    const handleGameStateUpdate = (event) => {
-      if (event.detail) {
-        setGameState(event.detail);
-      } else if (gameManager) {
-        setGameState({
-          gold: gameManager.gold || 500,
-          passiveUpgrades: gameManager.passiveUpgrades || {},
-          allTimeStats: gameManager.allTimeStats || {},
-          lastRunStats: gameManager.lastRunStats || null,
-          currentRunStats: gameManager.currentRunStats || {}
-        });
-      }
-    };
-    
     // Listen for death events
     const handlePlayerDeath = (event) => {
       setShowDeathScreen(true);
       setActiveTab('death');
     };
     
-    window.addEventListener('gameStateUpdated', handleGameStateUpdate);
     window.addEventListener('playerDeath', handlePlayerDeath);
     
     return () => {
-      window.removeEventListener('gameStateUpdated', handleGameStateUpdate);
       window.removeEventListener('playerDeath', handlePlayerDeath);
     };
   }, [gameManager]);

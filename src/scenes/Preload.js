@@ -1,7 +1,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
-import { initializeMenu } from "../GameIntegration";
+// Old integration removed - now handled by React App
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -82,48 +82,15 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	create() {
-		if (!this.textures.exists('Exp')) {
-			console.warn("Exp texture failed to load, creating fallback texture");
-			this.createFallbackTexture();
-		}
-		
-		try {
-			console.log("Initializing game menu from Preload scene");
-			this.menuControls = initializeMenu();
-		
-			this.game.registry.set('menuControls', this.menuControls);
-			
-			if (!this.game.registry.get('gameManager')) {
-				console.log("GameManager not found, creating a new one");
-				
-				const gameManager = {
-					gold: 500,
-					passiveUpgrades: {},
-					gameStats: {
-						totalGoldEarned: 0,
-						totalEnemiesKilled: 0,
-						totalExperienceGained: 0,
-						highestLevel: 1,
-						longestSurvivalTime: 0
-					},
-					applyPassiveUpgrades: function() {
-						console.log("Applied passive upgrades (placeholder)");
-					},
-					saveGame: function() {
-						console.log("Game saved (placeholder)");
-					}
-				};
-				
-				this.game.registry.set('gameManager', gameManager);
-			}
-			
-			console.log("Menu initialization complete");
-		} catch (error) {
-			console.error("Error initializing game menu:", error);
-		}
-		
-		// Proceed to next scene
-		this.scene.start("BaseGameScene");
+	if (!this.textures.exists('Exp')) {
+	console.warn("Exp texture failed to load, creating fallback texture");
+	this.createFallbackTexture();
+	}
+	
+	console.log("Preload scene complete - starting MainMapScene");
+	
+	// Proceed to main game scene
+	 this.scene.start("MainMapScene");
 	}
 	
 	createFallbackTexture() {
