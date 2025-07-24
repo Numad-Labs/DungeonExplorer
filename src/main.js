@@ -178,13 +178,7 @@ function createFallbackContainers() {
 
 // Updated window load handler to be async
 window.addEventListener("load", async function () {
-  console.log("Window loaded - starting game initialization");
-  try {
-    await StartGame("game-container");
-    console.log("Game initialization completed successfully");
-  } catch (error) {
-    console.error("Error during game initialization:", error);
-  }
+  await StartGame("game-container");
 });
 
 export default StartGame;

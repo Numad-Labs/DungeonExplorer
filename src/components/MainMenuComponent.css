@@ -1,0 +1,463 @@
+/* Root */
+.mainmenu-root {
+  background-color: #242424;
+  color: white;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  overflow: auto;
+}
+
+/* Header */
+.mainmenu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.mainmenu-title {
+  margin: 0;
+}
+.mainmenu-gold {
+  background-color: #333333;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.mainmenu-gold-amount {
+  color: #ffff00;
+}
+
+/* Tabs */
+.mainmenu-tabs {
+  display: flex;
+  border-bottom: 1px solid #555;
+  margin-bottom: 20px;
+}
+.mainmenu-tab {
+  background: transparent;
+  color: #aaaaaa;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  text-transform: capitalize;
+  transition: background 0.2s, color 0.2s;
+}
+.mainmenu-tab.active {
+  background: #555555;
+  color: white;
+}
+
+/* Content */
+.mainmenu-content {
+  background-color: #333333;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  min-height: 400px;
+}
+
+/* Categories */
+.mainmenu-categories {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.mainmenu-category {
+  background: #444444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: background 0.2s;
+}
+.mainmenu-category.selected {
+  background: #666666;
+}
+
+/* Upgrades Grid */
+.mainmenu-upgrades-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 15px;
+}
+.mainmenu-upgrade {
+  background-color: #444444;
+  padding: 15px;
+  border-radius: 8px;
+  position: relative;
+}
+.mainmenu-upgrade.upgraded {
+  border: 2px solid #666666;
+}
+.mainmenu-upgrade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.mainmenu-upgrade-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mainmenu-upgrade-icon {
+  font-size: 24px;
+}
+.mainmenu-upgrade-title {
+  margin: 0;
+}
+.mainmenu-upgrade-info {
+  background: none;
+  border: none;
+  color: #aaaaaa;
+  cursor: pointer;
+  font-size: 14px;
+}
+.mainmenu-upgrade-level {
+  background-color: #333333;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+.mainmenu-upgrade-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #222222;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 5px;
+  z-index: 10;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #555;
+}
+.mainmenu-upgrade-values {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+.mainmenu-upgrade-current {
+  color: #88ff88;
+  font-weight: bold;
+}
+.mainmenu-upgrade-next {
+  color: #88ffff;
+  font-weight: bold;
+}
+.mainmenu-upgrade-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mainmenu-upgrade-cost {
+  color: #ffff00;
+  font-weight: bold;
+}
+.mainmenu-upgrade-btn {
+  background-color: #3f8f3f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s, color 0.2s;
+}
+.mainmenu-upgrade-btn.disabled {
+  background-color: #555555;
+  color: #777777;
+  cursor: not-allowed;
+}
+.mainmenu-upgrade-maxed {
+  width: 100%;
+  text-align: center;
+  color: #00ff00;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Stats Tab */
+.mainmenu-stats-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.mainmenu-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.mainmenu-stats-alltime {
+  background-color: #444444;
+  padding: 20px;
+  border-radius: 8px;
+}
+.mainmenu-stats-alltime-title {
+  margin-top: 0;
+  border-bottom: 2px solid #666666;
+  padding-bottom: 10px;
+  color: #ffaa00;
+}
+.mainmenu-stats-alltime-list {
+  display: grid;
+  gap: 12px;
+}
+.mainmenu-stats-row {
+  display: flex;
+  justify-content: space-between;
+}
+.mainmenu-stats-green {
+  color: #88ff88;
+}
+.mainmenu-stats-orange {
+  color: #ffaa00;
+}
+.mainmenu-stats-yellow {
+  color: #ffff00;
+}
+.mainmenu-stats-red {
+  color: #ff6666;
+}
+.mainmenu-stats-blue {
+  color: #88ddff;
+}
+.mainmenu-stats-upgrades {
+  background-color: #444444;
+  padding: 20px;
+  border-radius: 8px;
+}
+.mainmenu-stats-upgrades-title {
+  margin-top: 0;
+  border-bottom: 2px solid #666666;
+  padding-bottom: 10px;
+  color: #88ff88;
+}
+.mainmenu-stats-upgrades-list {
+  display: grid;
+  gap: 8px;
+}
+.mainmenu-stats-upgrade-row {
+  display: flex;
+  justify-content: space-between;
+  opacity: 1;
+}
+.mainmenu-stats-upgrade-row.faded {
+  opacity: 0.5;
+}
+.mainmenu-stats-upgrade-value {
+  font-weight: bold;
+}
+.mainmenu-stats-upgrade-level {
+  color: #777777;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* Settings Tab */
+.mainmenu-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+.mainmenu-settings-title {
+  /* h2 */
+}
+.mainmenu-settings-danger {
+  background-color: #444444;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+.mainmenu-settings-danger-title {
+  color: #ff6666;
+  margin-bottom: 15px;
+}
+.mainmenu-settings-danger-desc {
+  margin-bottom: 20px;
+  color: #cccccc;
+}
+.mainmenu-settings-reset-btn {
+  background-color: #8f3f3f;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Start Game Button */
+.mainmenu-start-btn {
+  background-color: #3f8f3f;
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+/* Notification */
+.mainmenu-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #333333;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  border: 2px solid #666666;
+}
+
+/* Reset Confirmation */
+.mainmenu-reset-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.mainmenu-reset-modal {
+  background-color: #333333;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 400px;
+  text-align: center;
+}
+.mainmenu-reset-title {
+  margin-top: 0;
+  color: #ff6666;
+}
+.mainmenu-reset-desc {
+  color: #ff9999;
+  margin-bottom: 25px;
+}
+.mainmenu-reset-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+.mainmenu-reset-cancel-btn {
+  background-color: #555555;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.mainmenu-reset-confirm-btn {
+  background-color: #8f3f3f;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Death Screen */
+.death-root {
+  background-color: #1a1a1a;
+  color: white;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.death-container {
+  background-color: #333333;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+.death-title {
+  color: #ff6666;
+  margin-bottom: 30px;
+  font-size: 48px;
+}
+.death-stats {
+  background-color: #444444;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+.death-stats-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+.death-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  text-align: left;
+}
+.death-stat-green {
+  color: #00ff88;
+}
+.death-stat-orange {
+  color: #ffaa00;
+}
+.death-stat-red {
+  color: #ff6666;
+}
+.death-stat-yellow {
+  color: #ffff00;
+}
+.death-stat-blue {
+  color: #8888ff;
+}
+.death-cause {
+  margin-top: 15px;
+  color: #ff9999;
+}
+.death-btn-row {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+.death-btn-continue {
+  background-color: #3f8f3f;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 18px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.death-btn-retry {
+  background-color: #8f3f3f;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 18px;
+  cursor: pointer;
+  font-weight: bold;
+}

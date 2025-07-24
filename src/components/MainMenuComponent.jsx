@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./MainMenuComponent.css";
 
 const passiveUpgrades = [
   {
@@ -335,141 +336,67 @@ const MainMenu = ({ gameManager, onStartGame }) => {
   // Death screen
   if (showDeathScreen && gameState.lastRunStats) {
     return (
-      <div
-        style={{
-          backgroundColor: "#1a1a1a",
-          color: "white",
-          height: "100%",
-          width: "100%",
-          padding: "20px",
-          boxSizing: "border-box",
-          fontFamily: "Arial, sans-serif",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: "#333333",
-            padding: "30px",
-            borderRadius: "10px",
-            maxWidth: "600px",
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
-          <h1
-            style={{ color: "#ff6666", marginBottom: "30px", fontSize: "48px" }}
-          >
-            💀 YOU DIED 💀
-          </h1>
-
-          <div
-            style={{
-              backgroundColor: "#444444",
-              padding: "20px",
-              borderRadius: "5px",
-              marginBottom: "20px",
-            }}
-          >
-            <h3 style={{ marginTop: 0, marginBottom: "15px" }}>
-              📊 Last Run Statistics
-            </h3>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "15px",
-                textAlign: "left",
-              }}
-            >
+      <div className="death-root">
+        <div className="death-container">
+          <h1 className="death-title">💀 YOU DIED 💀</h1>
+          <div className="death-stats">
+            <h3 className="death-stats-title">📊 Last Run Statistics</h3>
+            <div className="death-stats-grid">
               <div>
                 <strong>⏱️ Survival Time:</strong>
                 <br />
-                <span style={{ color: "#00ff88" }}>
+                <span className="death-stat-green">
                   {formatTime(gameState.lastRunStats.survivalTime)}
                 </span>
               </div>
               <div>
                 <strong>📈 Level Reached:</strong>
                 <br />
-                <span style={{ color: "#ffaa00" }}>
+                <span className="death-stat-orange">
                   {gameState.lastRunStats.maxLevel}
                 </span>
               </div>
               <div>
                 <strong>⚔️ Enemies Killed:</strong>
                 <br />
-                <span style={{ color: "#ff6666" }}>
+                <span className="death-stat-red">
                   {gameState.lastRunStats.enemiesKilled}
                 </span>
               </div>
               <div>
                 <strong>💰 Gold Earned:</strong>
                 <br />
-                <span style={{ color: "#ffff00" }}>
+                <span className="death-stat-yellow">
                   {gameState.lastRunStats.goldEarned}
                 </span>
               </div>
               <div>
                 <strong>🎯 Experience Gained:</strong>
                 <br />
-                <span style={{ color: "#8888ff" }}>
+                <span className="death-stat-blue">
                   {formatNumber(gameState.lastRunStats.experienceGained)}
                 </span>
               </div>
               <div>
                 <strong>💥 Damage Dealt:</strong>
                 <br />
-                <span style={{ color: "#ff8800" }}>
+                <span className="death-stat-orange">
                   {formatNumber(gameState.lastRunStats.damageDealt)}
                 </span>
               </div>
             </div>
-
             {gameState.lastRunStats.causeOfDeath && (
-              <div style={{ marginTop: "15px", color: "#ff9999" }}>
+              <div className="death-cause">
                 <strong>☠️ Cause of Death: Skill Issue</strong>
                 {/* {gameState.lastRunStats.causeOfDeath} */}
               </div>
             )}
           </div>
-
-          <div
-            style={{ display: "flex", gap: "15px", justifyContent: "center" }}
-          >
-            <button
-              onClick={continueAfterDeath}
-              style={{
-                backgroundColor: "#3F8F3F",
-                color: "white",
-                border: "none",
-                padding: "15px 30px",
-                borderRadius: "5px",
-                fontSize: "18px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
+          <div className="death-btn-row">
+            <button onClick={continueAfterDeath} className="death-btn-continue">
               🏠 Continue to Menu
             </button>
-
-            <button
-              onClick={startGame}
-              style={{
-                backgroundColor: "#8F3F3F",
-                color: "white",
-                border: "none",
-                padding: "15px 30px",
-                borderRadius: "5px",
-                fontSize: "18px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
+            <button onClick={startGame} className="death-btn-retry">
               🔄 Try Again
             </button>
           </div>
@@ -479,122 +406,51 @@ const MainMenu = ({ gameManager, onStartGame }) => {
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: "#242424",
-        color: "white",
-        height: "100%",
-        width: "100%",
-        padding: "20px",
-        boxSizing: "border-box",
-        fontFamily: "Arial, sans-serif",
-        overflow: "auto",
-      }}
-    >
+    <div className="mainmenu-root">
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
-        <h1 style={{ margin: 0 }}>Insomnus</h1>
-
-        <div
-          style={{
-            backgroundColor: "#333333",
-            padding: "10px 15px",
-            borderRadius: "5px",
-            fontWeight: "bold",
-          }}
-        >
+      <div className="mainmenu-header">
+        <h1 className="mainmenu-title">Insomnus</h1>
+        <div className="mainmenu-gold">
           💰 GOLD:{" "}
-          <span style={{ color: "#ffff00" }}>
+          <span className="mainmenu-gold-amount">
             {formatNumber(gameState.gold)}
           </span>
         </div>
       </div>
-
       {/* Tab Navigation */}
-      <div
-        style={{
-          display: "flex",
-          borderBottom: "1px solid #555",
-          marginBottom: "20px",
-        }}
-      >
+      <div className="mainmenu-tabs">
         {["upgrades", "stats", "settings"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            style={{
-              backgroundColor: activeTab === tab ? "#555555" : "transparent",
-              color: activeTab === tab ? "white" : "#aaaaaa",
-              border: "none",
-              padding: "10px 20px",
-              cursor: "pointer",
-              fontSize: "16px",
-              textTransform: "capitalize",
-            }}
+            className={`mainmenu-tab${activeTab === tab ? " active" : ""}`}
           >
             {tab === "upgrades" && "⚡"} {tab === "stats" && "📊"}{" "}
             {tab === "settings" && "⚙️"} {tab}
           </button>
         ))}
       </div>
-
       {/* Main Content */}
-      <div
-        style={{
-          backgroundColor: "#333333",
-          padding: "20px",
-          borderRadius: "5px",
-          marginBottom: "20px",
-          minHeight: "400px",
-        }}
-      >
+      <div className="mainmenu-content">
         {/* Upgrades Tab */}
         {activeTab === "upgrades" && (
           <div>
             {/* Category Filter */}
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-                marginBottom: "20px",
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="mainmenu-categories">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  style={{
-                    backgroundColor:
-                      selectedCategory === category ? "#666666" : "#444444",
-                    color: "white",
-                    border: "none",
-                    padding: "8px 16px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    textTransform: "capitalize",
-                  }}
+                  className={`mainmenu-category${
+                    selectedCategory === category ? " selected" : ""
+                  }`}
                 >
                   {category}
                 </button>
               ))}
             </div>
-
             {/* Upgrades Grid */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-                gap: "15px",
-              }}
-            >
+            <div className="mainmenu-upgrades-grid">
               {filteredUpgrades.map((upgrade) => {
                 const currentLevel =
                   gameState.passiveUpgrades[upgrade.id]?.level || 0;
@@ -613,152 +469,75 @@ const MainMenu = ({ gameManager, onStartGame }) => {
                           Math.pow(upgrade.costMultiplier, currentLevel)
                       )
                     : null;
-
                 return (
                   <div
                     key={upgrade.id}
-                    style={{
-                      backgroundColor: "#444444",
-                      padding: "15px",
-                      borderRadius: "8px",
-                      position: "relative",
-                      border: currentLevel > 0 ? "2px solid #666666" : "none",
-                    }}
+                    className={`mainmenu-upgrade${
+                      currentLevel > 0 ? " upgraded" : ""
+                    }`}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                        }}
-                      >
-                        <span style={{ fontSize: "24px" }}>{upgrade.icon}</span>
-                        <h3 style={{ margin: 0 }}>{upgrade.name}</h3>
-
+                    <div className="mainmenu-upgrade-header">
+                      <div className="mainmenu-upgrade-title-row">
+                        <span className="mainmenu-upgrade-icon">
+                          {upgrade.icon}
+                        </span>
+                        <h3 className="mainmenu-upgrade-title">
+                          {upgrade.name}
+                        </h3>
                         <button
-                          style={{
-                            background: "none",
-                            border: "none",
-                            color: "#aaaaaa",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                          }}
+                          className="mainmenu-upgrade-info"
                           onMouseEnter={() => setShowTooltip(upgrade.id)}
                           onMouseLeave={() => setShowTooltip(null)}
                         >
                           ⓘ
                         </button>
                       </div>
-
-                      <div
-                        style={{
-                          backgroundColor: "#333333",
-                          padding: "5px 10px",
-                          borderRadius: "15px",
-                          fontSize: "14px",
-                        }}
-                      >
+                      <div className="mainmenu-upgrade-level">
                         {currentLevel}/{upgrade.maxLevel}
                       </div>
                     </div>
-
                     {showTooltip === upgrade.id && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "100%",
-                          left: "0",
-                          backgroundColor: "#222222",
-                          padding: "10px",
-                          borderRadius: "5px",
-                          marginTop: "5px",
-                          zIndex: 10,
-                          width: "100%",
-                          boxSizing: "border-box",
-                          border: "1px solid #555",
-                        }}
-                      >
+                      <div className="mainmenu-upgrade-tooltip">
                         {upgrade.description}
                       </div>
                     )}
-
-                    <div style={{ marginBottom: "15px", fontSize: "14px" }}>
-                      <div style={{ marginBottom: "5px" }}>
+                    <div className="mainmenu-upgrade-values">
+                      <div>
                         <span>Current: </span>
-                        <span style={{ color: "#88ff88", fontWeight: "bold" }}>
+                        <span className="mainmenu-upgrade-current">
                           {formatValue(upgrade, currentValue)}
                         </span>
                       </div>
-
                       {nextValue !== null && (
                         <div>
                           <span>Next: </span>
-                          <span
-                            style={{ color: "#88ffff", fontWeight: "bold" }}
-                          >
+                          <span className="mainmenu-upgrade-next">
                             {formatValue(upgrade, nextValue)}
                           </span>
                         </div>
                       )}
                     </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
+                    <div className="mainmenu-upgrade-actions">
                       {currentLevel < upgrade.maxLevel ? (
                         <>
-                          <div style={{ color: "#ffff00", fontWeight: "bold" }}>
+                          <div className="mainmenu-upgrade-cost">
                             💰 {formatNumber(cost)}
                           </div>
-
                           <button
                             onClick={() =>
                               gameState.gold >= cost &&
                               purchaseUpgrade(upgrade.id)
                             }
                             disabled={gameState.gold < cost}
-                            style={{
-                              backgroundColor:
-                                gameState.gold >= cost ? "#3F8F3F" : "#555555",
-                              color:
-                                gameState.gold >= cost ? "white" : "#777777",
-                              border: "none",
-                              padding: "10px 20px",
-                              borderRadius: "5px",
-                              cursor:
-                                gameState.gold >= cost
-                                  ? "pointer"
-                                  : "not-allowed",
-                              fontWeight: "bold",
-                            }}
+                            className={`mainmenu-upgrade-btn${
+                              gameState.gold >= cost ? "" : " disabled"
+                            }`}
                           >
                             ⬆️ UPGRADE
                           </button>
                         </>
                       ) : (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "center",
-                            color: "#00ff00",
-                            fontWeight: "bold",
-                            fontSize: "18px",
-                          }}
-                        >
-                          ✅ MAXED
-                        </div>
+                        <div className="mainmenu-upgrade-maxed">✅ MAXED</div>
                       )}
                     </div>
                   </div>
@@ -767,92 +546,56 @@ const MainMenu = ({ gameManager, onStartGame }) => {
             </div>
           </div>
         )}
-
         {/* Stats Tab */}
         {activeTab === "stats" && (
           <div>
-            <h2 style={{ textAlign: "center", marginBottom: "30px" }}>
-              📊 STATISTICS
-            </h2>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                gap: "20px",
-              }}
-            >
+            <h2 className="mainmenu-stats-title">📊 STATISTICS</h2>
+            <div className="mainmenu-stats-grid">
               {/* All-Time Stats */}
-              <div
-                style={{
-                  backgroundColor: "#444444",
-                  padding: "20px",
-                  borderRadius: "8px",
-                }}
-              >
-                <h3
-                  style={{
-                    marginTop: 0,
-                    borderBottom: "2px solid #666666",
-                    paddingBottom: "10px",
-                    color: "#ffaa00",
-                  }}
-                >
+              <div className="mainmenu-stats-alltime">
+                <h3 className="mainmenu-stats-alltime-title">
                   🏆 All-Time Records
                 </h3>
-
-                <div style={{ display: "grid", gap: "12px" }}>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                <div className="mainmenu-stats-alltime-list">
+                  <div className="mainmenu-stats-row">
                     <span>🎮 Total Runs:</span>
-                    <span style={{ color: "#88ff88" }}>
+                    <span className="mainmenu-stats-green">
                       {gameState.allTimeStats.totalRuns || 0}
                     </span>
                   </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                  <div className="mainmenu-stats-row">
                     <span>📈 Highest Level:</span>
-                    <span style={{ color: "#ffaa00" }}>
+                    <span className="mainmenu-stats-orange">
                       {gameState.allTimeStats.highestLevel || 1}
                     </span>
                   </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                  <div className="mainmenu-stats-row">
                     <span>⏱️ Longest Survival:</span>
-                    <span style={{ color: "#00ff88" }}>
+                    <span className="mainmenu-stats-green">
                       {formatTime(
                         gameState.allTimeStats.longestSurvivalTime || 0
                       )}
                     </span>
                   </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                  <div className="mainmenu-stats-row">
                     <span>💰 Total Gold Earned:</span>
-                    <span style={{ color: "#ffff00" }}>
+                    <span className="mainmenu-stats-yellow">
                       {formatNumber(
                         gameState.allTimeStats.totalGoldEarned || 0
                       )}
                     </span>
                   </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                  <div className="mainmenu-stats-row">
                     <span>⚔️ Enemies Killed:</span>
-                    <span style={{ color: "#ff6666" }}>
+                    <span className="mainmenu-stats-red">
                       {formatNumber(
                         gameState.allTimeStats.totalEnemiesKilled || 0
                       )}
                     </span>
                   </div>
-                  <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  >
+                  <div className="mainmenu-stats-row">
                     <span>📊 Average Survival:</span>
-                    <span style={{ color: "#88ddff" }}>
+                    <span className="mainmenu-stats-blue">
                       {formatTime(
                         gameState.allTimeStats.averageSurvivalTime || 0
                       )}
@@ -860,57 +603,33 @@ const MainMenu = ({ gameManager, onStartGame }) => {
                   </div>
                 </div>
               </div>
-
               {/* Current Upgrades */}
-              <div
-                style={{
-                  backgroundColor: "#444444",
-                  padding: "20px",
-                  borderRadius: "8px",
-                }}
-              >
-                <h3
-                  style={{
-                    marginTop: 0,
-                    borderBottom: "2px solid #666666",
-                    paddingBottom: "10px",
-                    color: "#88ff88",
-                  }}
-                >
+              <div className="mainmenu-stats-upgrades">
+                <h3 className="mainmenu-stats-upgrades-title">
                   ⚡ Current Upgrades
                 </h3>
-
-                <div style={{ display: "grid", gap: "8px" }}>
+                <div className="mainmenu-stats-upgrades-list">
                   {passiveUpgrades.map((upgrade) => {
                     const level =
                       gameState.passiveUpgrades[upgrade.id]?.level || 0;
                     const value =
                       gameState.passiveUpgrades[upgrade.id]?.value ||
                       upgrade.baseValue;
-
                     return (
                       <div
                         key={upgrade.id}
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          opacity: level > 0 ? 1 : 0.5,
-                        }}
+                        className={`mainmenu-stats-upgrade-row${
+                          level > 0 ? "" : " faded"
+                        }`}
                       >
                         <span>
                           {upgrade.icon} {upgrade.name}:
                         </span>
                         <div>
-                          <span style={{ fontWeight: "bold" }}>
+                          <span className="mainmenu-stats-upgrade-value">
                             {formatValue(upgrade, value)}
                           </span>
-                          <span
-                            style={{
-                              color: "#777777",
-                              fontSize: "12px",
-                              marginLeft: "8px",
-                            }}
-                          >
+                          <span className="mainmenu-stats-upgrade-level">
                             (Lv {level})
                           </span>
                         </div>
@@ -922,49 +641,21 @@ const MainMenu = ({ gameManager, onStartGame }) => {
             </div>
           </div>
         )}
-
         {/* Settings Tab */}
         {activeTab === "settings" && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "30px",
-            }}
-          >
-            <h2>⚙️ SETTINGS</h2>
-
-            <div
-              style={{
-                backgroundColor: "#444444",
-                padding: "20px",
-                borderRadius: "8px",
-                textAlign: "center",
-              }}
-            >
-              <h3 style={{ color: "#ff6666", marginBottom: "15px" }}>
-                ⚠️ Danger Zone
-              </h3>
-              <p style={{ marginBottom: "20px", color: "#cccccc" }}>
+          <div className="mainmenu-settings">
+            <h2 className="mainmenu-settings-title">⚙️ SETTINGS</h2>
+            <div className="mainmenu-settings-danger">
+              <h3 className="mainmenu-settings-danger-title">⚠️ Danger Zone</h3>
+              <p className="mainmenu-settings-danger-desc">
                 This will reset all your progress including upgrades and
                 statistics.
                 <br />
                 You will receive 25,000 gold to test upgrades.
               </p>
-
               <button
                 onClick={() => setShowResetConfirm(true)}
-                style={{
-                  backgroundColor: "#8F3F3F",
-                  color: "white",
-                  border: "none",
-                  padding: "12px 24px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                }}
+                className="mainmenu-settings-reset-btn"
               >
                 🗑️ RESET ALL PROGRESS
               </button>
@@ -972,109 +663,34 @@ const MainMenu = ({ gameManager, onStartGame }) => {
           </div>
         )}
       </div>
-
       {/* Start Game Button */}
-      <button
-        onClick={startGame}
-        style={{
-          backgroundColor: "#3F8F3F",
-          color: "white",
-          border: "none",
-          padding: "18px",
-          borderRadius: "8px",
-          width: "100%",
-          fontSize: "20px",
-          fontWeight: "bold",
-          cursor: "pointer",
-          textTransform: "uppercase",
-        }}
-      >
+      <button onClick={startGame} className="mainmenu-start-btn">
         {"🎮 Start Game"}
       </button>
-
       {/* Notification */}
       {notification && (
-        <div
-          style={{
-            position: "fixed",
-            top: "20px",
-            right: "20px",
-            backgroundColor: "#333333",
-            color: "white",
-            padding: "15px 20px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-            zIndex: 1000,
-            border: "2px solid #666666",
-          }}
-        >
-          {notification}
-        </div>
+        <div className="mainmenu-notification">{notification}</div>
       )}
-
       {/* Reset Confirmation */}
       {showResetConfirm && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.8)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#333333",
-              padding: "30px",
-              borderRadius: "10px",
-              maxWidth: "400px",
-              textAlign: "center",
-            }}
-          >
-            <h3 style={{ marginTop: 0, color: "#ff6666" }}>
-              ⚠️ Reset Progress?
-            </h3>
-            <p style={{ color: "#ff9999", marginBottom: "25px" }}>
+        <div className="mainmenu-reset-overlay">
+          <div className="mainmenu-reset-modal">
+            <h3 className="mainmenu-reset-title">⚠️ Reset Progress?</h3>
+            <p className="mainmenu-reset-desc">
               This action cannot be undone!
               <br />
               All upgrades and statistics will be lost.
             </p>
-
-            <div
-              style={{ display: "flex", justifyContent: "center", gap: "15px" }}
-            >
+            <div className="mainmenu-reset-btn-row">
               <button
                 onClick={() => setShowResetConfirm(false)}
-                style={{
-                  backgroundColor: "#555555",
-                  color: "white",
-                  border: "none",
-                  padding: "12px 24px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
+                className="mainmenu-reset-cancel-btn"
               >
                 CANCEL
               </button>
-
               <button
                 onClick={resetProgress}
-                style={{
-                  backgroundColor: "#8F3F3F",
-                  color: "white",
-                  border: "none",
-                  padding: "12px 24px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
+                className="mainmenu-reset-confirm-btn"
               >
                 RESET
               </button>
