@@ -73,22 +73,21 @@ const HPBar = ({ showGoldIcon = true }) => {
                     position: 'absolute',
                     top: '2px',
                     left: '2px',
-                    width: 'calc(100% - 4px)',
-                    height: 'calc(100% - 4px)',
+                    width: 'calc(250% - 4px)',
+                    height: 'calc(300% - 4px)',
                     backgroundImage: 'url(/assets/HUD/HUD_HP_BG_V01.png)',
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
-                    backgroundColor: '#333',
                     zIndex: 1
                 }} />
                 
                 {/* HP Fill */}
                 <div style={{
                     position: 'absolute',
-                    top: '2px',
-                    left: '2px',
-                    width: `calc((100% - 4px) * ${hpPercentage / 100})`,
-                    height: 'calc(100% - 4px)',
+                    top: '24px',
+                    left: '52px',
+                    width: `calc((200% - 4px) * ${hpPercentage / 100})`,
+                    height: 'calc(170% - 4px)',
                     backgroundImage: 'url(/assets/HUD/HUD_HP_Indicator_V10.png)',
                     backgroundSize: `${100 / (hpPercentage / 100)}% 100%`,
                     backgroundRepeat: 'no-repeat',
@@ -102,10 +101,10 @@ const HPBar = ({ showGoldIcon = true }) => {
                 {/* HP Frame */}
                 <div style={{
                     position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
+                    top: '22px',
+                    left: '52px',
+                    width: '198%',
+                    height: '165%',
                     backgroundImage: 'url(/assets/HUD/HUD_HP_Indicator_Frame_V01.png)',
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
@@ -115,11 +114,11 @@ const HPBar = ({ showGoldIcon = true }) => {
                 {/* HP Text */}
                 <div style={{
                     position: 'absolute',
-                    top: '50%',
-                    left: '50%',
+                    top: '150%',
+                    left: '130%',
                     transform: 'translate(-50%, -50%)',
                     color: 'white',
-                    fontSize: '12px',
+                    fontSize: '20px',
                     fontWeight: 'bold',
                     textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
                     zIndex: 4,
