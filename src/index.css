@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Alagard";
+  src: url("/src/public/alagard.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/src/public/PixelifySans-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/src/public/PixelifySans-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/src/public/PixelifySans-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@theme {
+  --font-alagard: "Alagard", serif;
+  --font-pixelify: "Pixelify Sans", sans-serif;
+  
+  --font-family-sans: var(--font-pixelify);
+  --font-family-serif: var(--font-alagard);
+}
+
+/* Custom styles */
+body {
+  margin: 0;
+  font-family: var(--font-pixelify);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #111827; /* gray-900 */
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+/* Game container styles */
+#game-container {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #374151; /* gray-700 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6b7280; /* gray-500 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* gray-400 */
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Button hover effects */
+.btn-primary {
+  @apply bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-transparent border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-gray-900 font-bold py-2 px-4 rounded transition-colors duration-200;
+}
+
+/* Card styles */
+.card {
+  @apply bg-gray-800 rounded-lg p-6 border border-gray-700;
+}
+
+.card-hover {
+  @apply hover:bg-gray-700 transition-colors duration-200;
+}
