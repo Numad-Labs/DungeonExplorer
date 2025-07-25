@@ -10,8 +10,8 @@ import GameManager from "./managers/GameManager.js";
 
 const config = {
   type: Phaser.AUTO,
-  width: 1280,
-  height: 720,
+  width: 1920,
+  height: 1080,
   backgroundColor: "#242424",
   parent: "game-container",
   physics: {
@@ -25,8 +25,18 @@ const config = {
     pixelArt: true,
   },
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 1920,
+    height: 1080,
+    min: {
+      width: 1280,
+      height: 720
+    },
+    max: {
+      width: 2560,
+      height: 1440
+    }
   },
 };
 

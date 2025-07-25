@@ -154,6 +154,15 @@ export default class GameManager {
         this.gameProgress = this.getBaseGameProgress();
         
         this.applyPassiveUpgrades();
+        
+        const goldData = {
+            gold: this.gold,
+            totalGold: this.gold,
+            currentGold: this.gold
+        };
+        
+        EventBus.emit('player-gold-updated', goldData);
+        EventBus.emit('player-stats-updated', goldData);
     }
     
     handlePlayerDeath(causeOfDeath = "Unknown") {
@@ -169,8 +178,6 @@ export default class GameManager {
         
         // Update all-time stats
         this.updateAllTimeStats(survivalTime);
-        
-        // NOTE: Gold is already added during gameplay, no need to add it again here
         
         this.saveGame();
         window.dispatchEvent(new CustomEvent('playerDeath', { detail: this.lastRunStats }));
@@ -308,6 +315,25 @@ export default class GameManager {
         if (this.isGameRunning) {
             this.currentRunStats.goldEarned += actualAmount;
         }
+        
+        // Emit gold update events for React components
+        const goldData = {
+            gold: this.gold,
+            goldEarned: actualAmount,
+            totalGold: this.gold
+        };
+        
+        EventBus.emit('player-gold-updated', goldData);
+        EventBus.emit('player-stats-updated', {
+            gold: this.gold,
+            currentGold: this.gold
+        });
+        
+        window.dispatchEvent(new CustomEvent('playerGoldUpdated', {
+            detail: goldData
+        }));
+        
+        console.log(`Player gained ${actualAmount} gold. Total: ${this.gold}`);
         
         // Force UI update
         if (this.currentScene?.uiManager) {

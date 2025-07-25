@@ -6,6 +6,7 @@ import BaseGameScene from "./BaseGameScene";
 import PlayerPrefab from "../prefabs/PlayerPrefab";
 import StoneStatuePrefab from "../prefabs/StoneStatuePrefab";
 import VaseSpawner from "../utils/VaseSpawner.js";
+import PlayerLevel from "../prefabs/PlayerLevel.js";
 /* START-USER-IMPORTS */
 import { EventBus } from '../game/EventBus';
 /* END-USER-IMPORTS */
@@ -16,8 +17,6 @@ export default class MainMapScene extends BaseGameScene {
 		super("MainMapScene");
 
 		/* START-USER-CTR-CODE */
-		// BaseGameScene already has manager properties and collision system
-
 		this.portals = [];
 		this.activePortal = null;
 		this.portalTimer = null;
@@ -25,6 +24,7 @@ export default class MainMapScene extends BaseGameScene {
 		this.availableScenes = ["MiniMapDarkForastScene", "MiniMapBossFightScene", "MiniMapBeachScene", "MiniMapLavaScene"];
 		this.isTeleporting = false;
 		this.vaseSpawner = null;
+		this.playerLevelSystem = null;
 		/* END-USER-CTR-CODE */
 	}
 
@@ -269,13 +269,14 @@ export default class MainMapScene extends BaseGameScene {
 			 this.gameplayManager.mobManager.setWalkingAreaFromTilemap(this.walkingArea_1);
 			}
 
-		this.setupPlayerAttack();
-		this.setupPortalSystem();
-		this.setupTestControls();
-		this.setupZombieCollisionSystem();
-		this.setupVaseSpawning();
-		this.startEnemySpawning();
-		this.setupHPBarIntegration();
+			this.setupPlayerAttack();
+			this.setupPortalSystem();
+			this.setupTestControls();
+			this.setupZombieCollisionSystem();
+			this.setupVaseSpawning();
+			this.startEnemySpawning();
+			this.setupHPBarIntegration();
+			this.setupPlayerLevelSystem();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
 		}
@@ -683,6 +684,18 @@ export default class MainMapScene extends BaseGameScene {
 						}
 					}
 				});
+				
+				this.input.keyboard.on('keydown-E', () => {
+					if (this.gameManager && this.gameManager.debugMode && this.playerLevelSystem) {
+						this.playerLevelSystem.addExperience(50);
+					}
+				});
+				
+				this.input.keyboard.on('keydown-G', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						this.gameManager.addGold(100);
+					}
+				});
 			}
 
 		} catch (error) {
@@ -696,6 +709,16 @@ export default class MainMapScene extends BaseGameScene {
 		}
 		if (typeof super.trackEnemyKill === 'function') {
 			super.trackEnemyKill(enemy);
+		}
+		
+		if (this.playerLevelSystem) {
+			const expReward = 10;
+			this.playerLevelSystem.addExperience(expReward);
+		}
+		
+		if (this.gameManager) {
+			const goldReward = Math.floor(Math.random() * 5) + 2;
+			this.gameManager.addGold(goldReward);
 		}
 	}
 
@@ -727,6 +750,15 @@ export default class MainMapScene extends BaseGameScene {
 			this.portals = [];
 			this.activePortal = null;
 			this.isTeleporting = false;
+			
+			if (this.playerLevelSystem) {
+				this.playerLevelSystem.destroy();
+				this.playerLevelSystem = null;
+				console.log('Player Level System cleaned up');
+			}
+			
+			EventBus.removeListener('request-initial-gold');
+			EventBus.removeListener('main-scene-started');
 
 			if (typeof super.shutdown === 'function') {
 				super.shutdown();
@@ -741,19 +773,11 @@ export default class MainMapScene extends BaseGameScene {
 			this.vaseSpawner = new VaseSpawner(this);
 		
 			if (this.vase_1) {
-				console.log("Found vase_1 layer!");
-				console.log("Layer data:", this.vase_1.layer);
-				console.log("Layer name:", this.vase_1.layer.name);
-				console.log("Layer size:", this.vase_1.layer.width, "x", this.vase_1.layer.height);
-				
 				const tilemap = this.vase_1.tilemap;
 				
 				for (let y = 0; y < Math.min(10, this.vase_1.layer.height); y++) {
 					for (let x = 0; x < Math.min(10, this.vase_1.layer.width); x++) {
 						const tile = tilemap.getTileAt(x, y, false, this.vase_1.layer.name);
-						if (tile && tile.index !== 0) {
-							console.log(`FOUND NON-ZERO TILE at ${x},${y}: index ${tile.index}`);
-						}
 					}
 				}
 				
@@ -785,7 +809,6 @@ export default class MainMapScene extends BaseGameScene {
 							if (vase.active) {
 								const bounds = vase.getBounds();
 								if (bounds.contains(pointer.worldX, pointer.worldY)) {
-									console.log("Debug: Breaking vase with click");
 									vase.onPlayerAttack(1);
 								}
 							}
@@ -799,16 +822,53 @@ export default class MainMapScene extends BaseGameScene {
 		}
 	}
 	setupHPBarIntegration() {
-	    console.log('Setting up HP bar integration...');
-		
-	    // Initialize player health
 	    if (this.player) {
 	        this.player.health = 100;
 	        this.player.maxHealth = 100;
 	    }
 	
-	    // Send initial HP to React
 	    this.updateHPBar();
+	    this.updateGoldDisplay();
+	    this.time.delayedCall(100, () => {
+	    	this.updateGoldDisplay();
+	    });
+	    
+	    EventBus.on('request-initial-gold', () => {
+	     this.time.delayedCall(50, () => {
+        		this.updateGoldDisplay();
+        	});
+        });
+        
+        EventBus.on('main-scene-started', () => {
+        	this.time.delayedCall(200, () => {
+        		this.updateGoldDisplay();
+        	});
+        });
+	}
+	
+	setupPlayerLevelSystem() {
+		try {
+			this.playerLevelSystem = new PlayerLevel(this, 10, 50);
+			this.playerLevelSystem.level = 1;
+			this.playerLevelSystem.experience = 0;
+			this.playerLevelSystem.nextLevelExp = 100;
+			this.playerLevelSystem.updateText();
+			this.playerLevelSystem.updateExpBar();
+			if (this.gameManager && this.gameManager.debugMode) {
+				this.time.addEvent({
+					delay: 5000,
+					callback: () => {
+						if (this.playerLevelSystem) {
+							this.playerLevelSystem.addExperience(25);
+						}
+					},
+					loop: true
+				});
+			}
+			
+		} catch (error) {
+			console.error('Error setting up Player Level System:', error);
+		}
 	}
 	
 
@@ -818,9 +878,6 @@ export default class MainMapScene extends BaseGameScene {
 		this.player.health = Math.max(0, this.player.health - damage);
 		this.updateHPBar();
 
-		console.log(`Player took ${damage} damage. HP: ${this.player.health}/${this.player.maxHealth}`);
-
-		// Add damage flash effect
 		if (this.player.setTint) {
 			this.player.setTint(0xff0000);
 			this.time.delayedCall(100, () => {
@@ -831,7 +888,6 @@ export default class MainMapScene extends BaseGameScene {
 		}
 
 		if (this.player.health <= 0) {
-			console.log('Player died!');
 			this.handlePlayerDeath();
 		}
 	}
@@ -854,18 +910,29 @@ export default class MainMapScene extends BaseGameScene {
 
 	updateHPBar() {
 		if (!this.player) {
-			console.log('No player found for HP update');
 			return;
 		}
 
 		const healthData = {
 			currentHP: this.player.health || 100,
 			maxHP: this.player.maxHealth || 100,
-			health: this.player.health || 100,  // Alternative naming
+			health: this.player.health || 100,
 			maxHealth: this.player.maxHealth || 100
 		};
 
 		EventBus.emit('player-health-updated', healthData);
+	}
+	
+	updateGoldDisplay() {
+		const currentGold = this.gameManager ? this.gameManager.getGold() : 500;
+		const goldData = {
+			gold: currentGold,
+			totalGold: currentGold,
+			currentGold: currentGold
+		};
+		
+		EventBus.emit('player-gold-updated', goldData);
+		EventBus.emit('player-stats-updated', goldData);
 	}
 
 	handlePlayerDeath() {
@@ -879,7 +946,6 @@ export default class MainMapScene extends BaseGameScene {
 				this.player.setAlpha(1);
 			}
 			this.updateHPBar();
-			console.log('Player respawned');
 		});
 	}
 	/* END-USER-CODE */

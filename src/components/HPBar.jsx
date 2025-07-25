@@ -5,7 +5,7 @@ const HPBar = ({ showGoldIcon = true }) => {
     const [playerStats, setPlayerStats] = useState({
         currentHP: 100,
         maxHP: 100,
-        gold: 0
+        gold: 500  // Start with default gold amount
     });
 
     const [isVisible, setIsVisible] = useState(true);
@@ -28,13 +28,23 @@ const HPBar = ({ showGoldIcon = true }) => {
                 ...prevStats,
                 currentHP: statsData.currentHP ?? statsData.health ?? statsData.hp ?? prevStats.currentHP,
                 maxHP: statsData.maxHP ?? statsData.maxHealth ?? statsData.maxHp ?? prevStats.maxHP,
-                gold: statsData.gold ?? prevStats.gold
+                gold: statsData.gold ?? statsData.currentGold ?? prevStats.gold
+            }));
+        };
+
+        const handlePlayerGoldUpdate = (goldData) => {
+            console.log('HP Bar received gold update:', goldData);
+            
+            setPlayerStats(prevStats => ({
+                ...prevStats,
+                gold: goldData.gold ?? goldData.totalGold ?? prevStats.gold
             }));
         };
 
         const handleGameStart = () => {
-            console.log('Game started - showing HP bar');
             setIsVisible(true);
+            
+            EventBus.emit('request-initial-gold');
         };
 
         const handleGameStop = () => {
@@ -51,6 +61,7 @@ const HPBar = ({ showGoldIcon = true }) => {
         EventBus.on('player-health-updated', handlePlayerHealthUpdate);
         EventBus.on('player-hp-changed', handlePlayerHealthUpdate);
         EventBus.on('player-stats-updated', handlePlayerStatsUpdate);
+        EventBus.on('player-gold-updated', handlePlayerGoldUpdate);
         EventBus.on('game-started', handleGameStart);
         EventBus.on('game-stopped', handleGameStop);
         EventBus.on('player-death', handlePlayerDeath);
@@ -68,10 +79,17 @@ const HPBar = ({ showGoldIcon = true }) => {
                 handlePlayerStatsUpdate(event.detail);
             }
         };
+
+        const handleWindowGoldUpdate = (event) => {
+            if (event.detail) {
+                handlePlayerGoldUpdate(event.detail);
+            }
+        };
         
         window.addEventListener('playerHealthUpdated', handleWindowHealthUpdate);
         window.addEventListener('playerHPChanged', handleWindowHealthUpdate);
         window.addEventListener('playerStatsUpdated', handleWindowStatsUpdate);
+        window.addEventListener('playerGoldUpdated', handleWindowGoldUpdate);
         window.addEventListener('playerDeath', handlePlayerDeath);
 
         return () => {
@@ -79,6 +97,7 @@ const HPBar = ({ showGoldIcon = true }) => {
             EventBus.removeListener('player-health-updated', handlePlayerHealthUpdate);
             EventBus.removeListener('player-hp-changed', handlePlayerHealthUpdate);
             EventBus.removeListener('player-stats-updated', handlePlayerStatsUpdate);
+            EventBus.removeListener('player-gold-updated', handlePlayerGoldUpdate);
             EventBus.removeListener('game-started', handleGameStart);
             EventBus.removeListener('game-stopped', handleGameStop);
             EventBus.removeListener('player-death', handlePlayerDeath);
@@ -88,11 +107,11 @@ const HPBar = ({ showGoldIcon = true }) => {
             window.removeEventListener('playerHealthUpdated', handleWindowHealthUpdate);
             window.removeEventListener('playerHPChanged', handleWindowHealthUpdate);
             window.removeEventListener('playerStatsUpdated', handleWindowStatsUpdate);
+            window.removeEventListener('playerGoldUpdated', handleWindowGoldUpdate);
             window.removeEventListener('playerDeath', handlePlayerDeath);
         };
     }, []);
 
-    // Don't render if not visible
     if (!isVisible) {
         return null;
     }
@@ -102,8 +121,8 @@ const HPBar = ({ showGoldIcon = true }) => {
     return (
         <div style={{
             position: 'fixed',
-            top: '20px',
-            left: '20px',
+            top: '2vh',   
+            left: '2vw',  
             zIndex: 9999,
             display: 'flex',
             flexDirection: 'column',
@@ -112,8 +131,10 @@ const HPBar = ({ showGoldIcon = true }) => {
             {/* HP Bar Container */}
             <div style={{
                 position: 'relative',
-                width: '250px',
-                height: '40px'
+                width: 'min(300px, 25vw)',
+                height: 'min(50px, 5vh)',  
+                minWidth: '200px',         
+                minHeight: '40px'          
             }}>
                 {/* HP Background */}
                 <div style={{
@@ -131,7 +152,7 @@ const HPBar = ({ showGoldIcon = true }) => {
                 {/* HP Fill */}
                 <div style={{
                     position: 'absolute',
-                    top: '22px',
+                    top: '26px',
                     left: '60px',
                     width: `calc((165% - 24px) * ${hpPercentage / 100})`,
                     height: 'calc(140% - 12px)',
@@ -144,8 +165,8 @@ const HPBar = ({ showGoldIcon = true }) => {
                 {/* HP Frame/Border */}
                 <div style={{
                     position: 'absolute',
-                    top: '22px',
-                    left: '50px',
+                    top: '26px',
+                    left: '60px',
                     width: '160%',
                     height: '140%',
                     backgroundImage: 'url(/assets/HUD/HUD_HP_Indicator_Frame_V01.png)',
@@ -176,16 +197,19 @@ const HPBar = ({ showGoldIcon = true }) => {
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
+                    gap: 'min(10px, 1vw)', 
                     background: 'rgba(0,0,0,0.7)',
-                    padding: '8px 12px',
-                    borderRadius: '20px',
+                    padding: 'min(10px, 1vh) min(15px, 1vw)',
+                    borderRadius: 'min(25px, 2vw)',
                     border: '2px solid #FFD700',
-                    alignSelf: 'flex-start'
+                    marginTop: '6.5vh',
+                    marginLeft: '1vw',
                 }}>
                     <div style={{
-                        width: '24px',
-                        height: '24px',
+                        width: 'min(30px, 3vw)', 
+                        height: 'min(30px, 3vw)',
+                        minWidth: '20px',      
+                        minHeight: '20px',     
                         backgroundImage: 'url(/assets/HUD/HUD_Gold_Icon_V01.png)',
                         backgroundSize: 'contain',
                         backgroundRepeat: 'no-repeat',
@@ -193,7 +217,8 @@ const HPBar = ({ showGoldIcon = true }) => {
                     }} />
                     <span style={{
                         color: '#FFD700',
-                        fontSize: '16px',
+                        fontSize: 'min(20px, 2vw)',
+                        minFontSize: '14px',
                         fontWeight: 'bold',
                         textShadow: '1px 1px 2px rgba(0,0,0,0.8)'
                     }}>

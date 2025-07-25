@@ -3,6 +3,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { EventBus } from '../game/EventBus';
 /* END-USER-IMPORTS */
 
 export default class PlayerLevel extends Phaser.GameObjects.Container {
@@ -49,6 +50,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 		scene.playerLevelSystem = this;
 		
 		this.updateText();
+		this.updateExpBar();
 		/* END-USER-CTR-CODE */
 	}
 
@@ -67,6 +69,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			
 			this.checkLevelUp();
 			this.updateText();
+			this.updateExpBar();
 			this.createFloatingText(`+${amount} EXP`);
 			
 			return this;
@@ -88,6 +91,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			} catch (error) {
 				console.error("Error in level up callback:", error);
 			}
+			this.updateExpBar();
 			this.checkLevelUp();
 		}
 	}
@@ -100,8 +104,11 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 		this.background.width = totalWidth;
 		
 		if (this.progressBarFill) {
-			this.updateProgressBar();
+		this.updateProgressBar();
 		}
+			
+			// Update exp bar in React component
+			this.updateExpBar();
 	}
 	
 	createFloatingText(message) {
@@ -268,7 +275,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 		}
 	}
 	
-	updateProgressBar() {
+		updateProgressBar() {
 		try {
 			if (this.progressBarFill && this.progressBarWidth) {
 				const progress = this.getLevelProgress();
@@ -278,6 +285,35 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			}
 		} catch (error) {
 			console.error("Error updating progress bar:", error);
+		}
+	}
+	
+	updateExpBar() {
+		try {
+			const expData = {
+				currentExp: this.experience,
+				maxExp: this.nextLevelExp,
+				level: this.level,
+				experience: this.experience,
+				maxExperience: this.nextLevelExp,
+				exp: this.experience,
+				maxExp: this.nextLevelExp,
+				lvl: this.level
+			};
+			
+			EventBus.emit('player-exp-updated', expData);
+			EventBus.emit('player-stats-updated', expData);
+			
+			window.dispatchEvent(new CustomEvent('playerExpUpdated', {
+				detail: expData
+			}));
+			
+			window.dispatchEvent(new CustomEvent('playerStatsUpdated', {
+				detail: expData
+			}));
+			
+		} catch (error) {
+			console.error('Error updating exp bar:', error);
 		}
 	}
 

@@ -19,7 +19,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		const cam = scene.cameras.main;
 		cam.startFollow(this, true, 0.1, 0.1);
-		cam.setZoom(2);
+		cam.setZoom(3.15);
 		cam.fadeIn(1000);
 
 		this.moveSpeed = 150;

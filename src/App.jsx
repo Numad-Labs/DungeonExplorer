@@ -13,6 +13,7 @@ import { GameProvider } from "./context/GameContext.jsx";
 import { PhaserGame } from "./game/PhaserGame";
 import { EventBus } from "./game/EventBus";
 import HPBar from "./components/HPBar.jsx";
+import SkillExpBar from "./components/SkillExpBar.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -126,7 +127,7 @@ function GameRoute() {
   }, [gameState]);
 
   return (
-    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
       {gameState === "menu" && (
         <div style={{ 
           position: 'absolute', 
@@ -147,6 +148,7 @@ function GameRoute() {
         width: '100%', 
         height: '100%', 
         zIndex: 1,
+        overflow: 'hidden',
         display: gameState === "playing" ? 'block' : 'none'
       }}>
         <PhaserGame 
@@ -160,11 +162,12 @@ function GameRoute() {
       {gameState === "playing" && (
         <>
           {showHPBar && <HPBar showGoldIcon={true} />}
+          {showHPBar && <SkillExpBar />}
           
           <div style={{
             position: 'fixed',
-            top: '20px',
-            right: '20px',
+            top: '2vh',     // Responsive top position
+            right: '2vw',   // Responsive right position
             color: 'white',
             fontSize: '14px',
             background: 'rgba(0,0,0,0.7)',

@@ -191,12 +191,15 @@ export const PhaserGame = forwardRef(function PhaserGame({
       id="game-container" 
       className="game-container"
       style={{ 
-        width: '100%', 
-        height: '100%',
+        width: '100vw',  
+        height: '100vh', 
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#242424'
+        backgroundColor: '#242424',
+        margin: 0,
+        padding: 0,
+        overflow: 'hidden'
       }}
     />
   );
