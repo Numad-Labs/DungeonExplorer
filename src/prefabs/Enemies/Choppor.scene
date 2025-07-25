@@ -1,27 +1,24 @@
 {
-    "id": "75b1e626-c123-43ce-8947-b3bf2cd5be0a",
+    "id": "14ebc5cb-d203-4609-bcb1-f12795f61b93",
     "sceneType": "SCENE",
     "settings": {
         "exportClass": true,
         "autoImport": true,
         "preloadPackFiles": [],
         "createMethodName": "editorCreate",
-        "sceneKey": "Warrior",
+        "sceneKey": "Choppor",
         "borderWidth": 2560,
         "borderHeight": 2560
     },
     "displayList": [
         {
             "type": "Sprite",
-            "id": "a4386232-da8f-4394-b9dc-a34bd988d992",
+            "id": "4f2d7c04-7d2e-4426-9f59-5855bf6d55df",
             "label": "warriorRun",
             "scope": "CLASS",
-            "texture": {
-                "key": "Warrior-Run ",
-                "frame": 0
-            },
-            "x": 626,
-            "y": 1026,
+            "texture": {},
+            "x": 1010,
+            "y": 1105,
             "animationPlayMethod": 1,
             "animationKey": "WarriorRun"
         }

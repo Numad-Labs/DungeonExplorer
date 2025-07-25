@@ -2673,19 +2673,6 @@
                 "key": "Wall_AC_1"
             },
             {
-                "url": "assets/Hero/Chopper/Warrior-Death.png",
-                "frameConfig": {
-                    "frameWidth": 64,
-                    "frameHeight": 45,
-                    "startFrame": 0,
-                    "endFrame": -1,
-                    "spacing": 0,
-                    "margin": 0
-                },
-                "type": "spritesheet",
-                "key": "WarriorDeath"
-            },
-            {
                 "url": "assets/Hero/Chopper/Warrior-Run .png",
                 "frameConfig": {
                     "frameWidth": 64,
@@ -2696,20 +2683,7 @@
                     "margin": 0
                 },
                 "type": "spritesheet",
-                "key": "Warrior-Run "
-            },
-            {
-                "url": "assets/Hero/Chopper/Warrior-Spin 2.png",
-                "frameConfig": {
-                    "frameWidth": 80,
-                    "frameHeight": 45,
-                    "startFrame": 0,
-                    "endFrame": -1,
-                    "spacing": 0,
-                    "margin": 0
-                },
-                "type": "spritesheet",
-                "key": "WarriorSpin2"
+                "key": "Warrior-Run"
             },
             {
                 "url": "assets/Hero/Chopper/Warrior-Spin End Attack.png",
@@ -2723,6 +2697,32 @@
                 },
                 "type": "spritesheet",
                 "key": "Warrior-Spin End Attack"
+            },
+            {
+                "url": "assets/Hero/Chopper/Warrior-Death.png",
+                "frameConfig": {
+                    "frameWidth": 64,
+                    "frameHeight": 45,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "WarriorDeath"
+            },
+            {
+                "url": "assets/Hero/Chopper/Warrior-Spin 2.png",
+                "frameConfig": {
+                    "frameWidth": 80,
+                    "frameHeight": 45,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "WarriorSpin2"
             },
             {
                 "url": "assets/Hero/Chopper/Warrior-Spin Start.png",

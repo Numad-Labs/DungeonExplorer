@@ -6,7 +6,7 @@ import AssassinTank from "../prefabs/Enemies/AssassinTank";
 import AssassinArcher from "../prefabs/Enemies/AssassinArcher";
 import BigDude from "../prefabs/Enemies/BigDude.js";
 import Wreacker from "../prefabs/Enemies/Wreacker.js";
-import Warrior from "../prefabs/Enemies/Warrior.js";
+import Choppor from "../prefabs/Enemies/Choppor.js";
 
 const MOB_CONFIGS = {
   zombie: {
@@ -119,8 +119,8 @@ const MOB_CONFIGS = {
     expDropChance: 0.42,
     goldDropChance: 0.6,
   },
-  warrior: {
-    class: Warrior,
+  choppor: {
+    class: Choppor,
     texture: "Warrior-Run",
     baseHealth: 30,
     baseDamage: 22,
@@ -1012,7 +1012,7 @@ export default class MobManager {
           "assassin",
           "bigDude",
           "wreacker",
-          "warrior",
+          "choppor",
         ];
         announcement = `MIXED ASSAULT!\nWAVE ${waveNumber} - ${mobCount} ENEMIES`;
         break;

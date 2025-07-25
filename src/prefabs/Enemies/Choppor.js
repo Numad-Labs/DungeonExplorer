@@ -73,30 +73,30 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     }
 
     createAnimations() {
-        // Create Warrior Run animation using Warrior-Run texture
-        if (!this.scene.anims.exists('WarriorRun')) {
+        // Create Warrior Run animation using WarriorRun texture (following Wreacker pattern)
+        if (!this.scene.anims.exists('Warrior-Run')) {
             this.scene.anims.create({
-                key: 'WarriorRun',
+                key: 'Warrior-Run',
                 frames: this.scene.anims.generateFrameNumbers('Warrior-Run', { start: 0, end: 7}),
                 frameRate: 8,
                 repeat: -1
             });
         }
         
-        // Create attack animation if attack texture exists
-        if (this.scene.textures.exists('Warrior-Attack') && !this.scene.anims.exists('WarriorAttack')) {
+        // Create attack animation if attack texture exists (following Wreacker pattern)
+        if (this.scene.textures.exists('WarriorAttack') && !this.scene.anims.exists('Warrior Attack')) {
             this.scene.anims.create({
-                key: 'WarriorAttack',
-                frames: this.scene.anims.generateFrameNumbers('Warrior-Attack', { start: 0, end: 5}),
+                key: 'Warrior Attack',
+                frames: this.scene.anims.generateFrameNumbers('WarriorAttack', { start: 0, end: 5}),
                 frameRate: 10,
                 repeat: 0 // Play once for attack
             });
         }
         
-        // Create idle animation
-        if (!this.scene.anims.exists('WarriorIdle')) {
+        // Create idle animation (following Wreacker pattern)
+        if (!this.scene.anims.exists('Warrior Idle')) {
             this.scene.anims.create({
-                key: 'WarriorIdle',
+                key: 'Warrior Idle',
                 frames: [{ key: 'Warrior-Run', frame: 0 }],
                 frameRate: 1,
                 repeat: 0
@@ -247,8 +247,8 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     updateAnimation() {
         if (this.isMoving) {
             // Use run animation when moving
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'WarriorRun') {
-                this.play('WarriorRun');
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Warrior-Run') {
+                this.play('Warrior-Run');
             }
             // Handle flipping for direction
             if (this.lastDirection === 'right') {
@@ -258,8 +258,8 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
             }
         } else {
             // Use idle animation when not moving
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'WarriorIdle') {
-                this.play('WarriorIdle');
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Warrior Idle') {
+                this.play('Warrior Idle');
             }
         }
     }
@@ -268,8 +268,8 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         if (!player || !player.takeDamage) return;
 
         // Play attack animation if it exists, otherwise use a tint effect
-        if (this.scene.anims.exists('WarriorAttack')) {
-            this.play('WarriorAttack');
+        if (this.scene.anims.exists('Warrior Attack')) {
+            this.play('Warrior Attack');
             
             // Deal damage after animation delay
             this.scene.time.delayedCall(300, () => {
