@@ -1,0 +1,36 @@
+{
+    "id": "294c47b0-fdd3-436e-868f-a708df5f545c",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "BigDude",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "97ccdb17-6c29-4e27-8886-87e18d8e49a7",
+            "label": "bigDude_Run",
+            "scope": "CLASS",
+            "texture": {
+                "key": "run_2",
+                "frame": 0
+            },
+            "x": 793,
+            "y": 913,
+            "animationPlayMethod": 1,
+            "animationKey": "BigDude Run"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

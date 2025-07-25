@@ -1,0 +1,36 @@
+{
+    "id": "75b1e626-c123-43ce-8947-b3bf2cd5be0a",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Warrior",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "a4386232-da8f-4394-b9dc-a34bd988d992",
+            "label": "warriorRun",
+            "scope": "CLASS",
+            "texture": {
+                "key": "Warrior-Run ",
+                "frame": 0
+            },
+            "x": 626,
+            "y": 1026,
+            "animationPlayMethod": 1,
+            "animationKey": "WarriorRun"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}
