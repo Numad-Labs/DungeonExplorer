@@ -286,43 +286,43 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findEnemiesInSlashRange() {
-        if (!this.player) return [];
-        
-        const enemiesInRange = [];
-        
-        // Find enemies
-        if (this.scene.enemies) {
-            const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-            
-            enemies.forEach(enemy => {
-                const distance = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y,
-                    enemy.x, enemy.y
-                );
-                
-                if (distance <= this.slashRange) {
-                    enemiesInRange.push({ enemy: enemy, distance: distance });
-                }
-            });
-        }
-        
-        // Find breakable vases
-        if (this.scene.breakableVases) {
-            const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
-            
-            vases.forEach(vase => {
-                const distance = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y,
-                    vase.x, vase.y
-                );
-                
-                if (distance <= this.slashRange) {
-                    enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
-                }
-            });
-        }
-        
-        return enemiesInRange;
+    if (!this.player) return [];
+    
+    const enemiesInRange = [];
+    
+    // Find enemies with safety check
+    if (this.scene.enemies && this.scene.enemies.children) {
+    const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+    
+    enemies.forEach(enemy => {
+    const distance = Phaser.Math.Distance.Between(
+    this.player.x, this.player.y,
+    enemy.x, enemy.y
+    );
+    
+    if (distance <= this.slashRange) {
+    enemiesInRange.push({ enemy: enemy, distance: distance });
+    }
+    });
+    }
+    
+    // Find breakable vases with safety check
+    if (this.scene.breakableVases && this.scene.breakableVases.children) {
+    const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
+    
+    vases.forEach(vase => {
+    const distance = Phaser.Math.Distance.Between(
+    this.player.x, this.player.y,
+    vase.x, vase.y
+    );
+    
+    if (distance <= this.slashRange) {
+    enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
+    }
+    });
+    }
+    
+    return enemiesInRange;
     }
     
     slashAttack(enemiesInRange) {
@@ -370,39 +370,44 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findEnemiesInBlindingLightRange() {
-        if (!this.scene.enemies || !this.player) return [];
-        
-        const enemiesInRange = [];
-        const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-        
-        enemies.forEach(enemy => {
-            const distance = Phaser.Math.Distance.Between(
-                this.player.x, this.player.y,
-                enemy.x, enemy.y
-            );
-            
-            if (distance <= this.blindingLightRange) {
-                enemiesInRange.push({ enemy: enemy, distance: distance });
-            }
-        });
-        
-        if (this.scene.zombieGroup) {
-            const zombies = this.scene.zombieGroup.getChildren().filter(zombie => zombie.active && !zombie.isDead);
-            
-            zombies.forEach(zombie => {
-                const distance = Phaser.Math.Distance.Between(
-                    this.player.x, this.player.y,
-                    zombie.x, zombie.y
-                );
-                
-                if (distance <= this.blindingLightRange) {
-                    enemiesInRange.push({ enemy: zombie, distance: distance });
-                }
-            });
-        }
-        
-        return enemiesInRange;
+    if (!this.scene.enemies || !this.player) return [];
+    
+    const enemiesInRange = [];
+    
+    // Check main enemies with safety check
+    if (this.scene.enemies && this.scene.enemies.children) {
+    const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+    
+    enemies.forEach(enemy => {
+     const distance = Phaser.Math.Distance.Between(
+      this.player.x, this.player.y,
+      enemy.x, enemy.y
+    );
+     
+      if (distance <= this.blindingLightRange) {
+       enemiesInRange.push({ enemy: enemy, distance: distance });
+      }
+    });
     }
+    
+    // Check zombie group with safety check
+    if (this.scene.zombieGroup && this.scene.zombieGroup.children) {
+    const zombies = this.scene.zombieGroup.getChildren().filter(zombie => zombie.active && !zombie.isDead);
+    
+    zombies.forEach(zombie => {
+    const distance = Phaser.Math.Distance.Between(
+    this.player.x, this.player.y,
+     zombie.x, zombie.y
+     );
+      
+      if (distance <= this.blindingLightRange) {
+       enemiesInRange.push({ enemy: zombie, distance: distance });
+       }
+			});
+		}
+		
+		return enemiesInRange;
+	}
     
     blindingLightAttack(enemiesInRange) {
         this.lastBlindingLightTime = this.scene.time.now;
@@ -841,27 +846,27 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findNearestEnemyInChainRange(fromEnemy, excludeTargets) {
-        if (!this.scene.enemies) return null;
-        
-        let nearestEnemy = null;
-        let nearestDistance = this.lightningChainRange;
-        
-        const enemies = this.scene.enemies.getChildren().filter(enemy => 
-            enemy.active && !enemy.isDead && !excludeTargets.includes(enemy)
-        );
-        
-        enemies.forEach(enemy => {
-            const distance = Phaser.Math.Distance.Between(
-                fromEnemy.x, fromEnemy.y, enemy.x, enemy.y
-            );
-            
-            if (distance <= this.lightningChainRange && distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestEnemy = enemy;
-            }
-        });
-        
-        return nearestEnemy;
+    if (!this.scene.enemies || !this.scene.enemies.children) return null;
+    
+    let nearestEnemy = null;
+    let nearestDistance = this.lightningChainRange;
+    
+    const enemies = this.scene.enemies.getChildren().filter(enemy => 
+    enemy.active && !enemy.isDead && !excludeTargets.includes(enemy)
+    );
+    
+    enemies.forEach(enemy => {
+    const distance = Phaser.Math.Distance.Between(
+    fromEnemy.x, fromEnemy.y, enemy.x, enemy.y
+    );
+    
+    if (distance <= this.lightningChainRange && distance < nearestDistance) {
+    nearestDistance = distance;
+    nearestEnemy = enemy;
+    }
+    });
+    
+    return nearestEnemy;
     }
     
     // LIGHTNING STUN EFFECT
@@ -1001,41 +1006,41 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findNearestEnemyInRange(range) {
-        if (!this.player) return null;
-        
-        let nearestTarget = null;
-        let nearestDistance = range;
-        
-        // Check enemies
-        if (this.scene.enemies) {
-            const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-            
-            enemies.forEach(enemy => {
-                const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
-                
-                if (distance <= range && distance < nearestDistance) {
-                    nearestDistance = distance;
-                    nearestTarget = enemy;
-                }
-            });
-        }
-        
-        // Check breakable vases
-        if (this.scene.breakableVases) {
-            const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
-            
-            vases.forEach(vase => {
-                const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, vase.x, vase.y);
-                
-                if (distance <= range && distance < nearestDistance) {
-                    nearestDistance = distance;
-                    nearestTarget = vase;
-                    nearestTarget.isVase = true;
-                }
-            });
-        }
-        
-        return nearestTarget;
+    if (!this.player) return null;
+    
+    let nearestTarget = null;
+    let nearestDistance = range;
+    
+    // Check enemies with safety check
+    if (this.scene.enemies && this.scene.enemies.children) {
+    const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+    
+    enemies.forEach(enemy => {
+    const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, enemy.x, enemy.y);
+    
+    if (distance <= range && distance < nearestDistance) {
+    nearestDistance = distance;
+    nearestTarget = enemy;
+    }
+    });
+    }
+    
+    // Check breakable vases with safety check
+    if (this.scene.breakableVases && this.scene.breakableVases.children) {
+    const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
+    
+    vases.forEach(vase => {
+    const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, vase.x, vase.y);
+    
+    if (distance <= range && distance < nearestDistance) {
+    nearestDistance = distance;
+    nearestTarget = vase;
+    nearestTarget.isVase = true;
+    }
+    });
+    }
+    
+    return nearestTarget;
     }
     
     showSlashIndicator() {
@@ -1061,145 +1066,159 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     update() {
-        // Update protective aura position if it exists
-        if (this.player && this.player.protectiveAura) {
-            this.player.protectiveAura.setPosition(this.player.x, this.player.y);
-        }
-        
-        this.fireBulletProjectiles.children.entries.forEach(projectile => {
-            if (!projectile.active || !projectile.isFireBullet) return;
-            
-            const distance = Phaser.Math.Distance.Between(
-                projectile.startX, projectile.startY,
-                projectile.x, projectile.y
-            );
-            
-            if (distance >= projectile.maxRange) {
-                projectile.destroy();
-                return;
-            }
-            
-            const enemyGroups = [this.scene.enemies, this.scene.zombieGroup, this.scene.breakableVases].filter(group => group);
-            
-            enemyGroups.forEach(enemyGroup => {
-                if (enemyGroup) {
-                    const enemies = enemyGroup.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-                    enemies.forEach(enemy => {
-                        if (projectile.hitEnemies.includes(enemy)) return;
-                        
-                        const enemyDistance = Phaser.Math.Distance.Between(
-                            projectile.x, projectile.y,
-                            enemy.x, enemy.y
-                        );
-                        
-                        if (enemyDistance <= 20) {
-                            projectile.hitEnemies.push(enemy);
-                            if (enemy.isVase && enemy.onPlayerAttack) {
-                                enemy.onPlayerAttack(projectile.damage);
-                            } else if (enemy.takeDamage) {
-                                enemy.takeDamage(projectile.damage);
-                                this.applyBurnEffect(enemy, projectile.damage * 0.3, this.fireBulletDotDuration);
-                            }
-                        }
-                    });
-                }
-            });
-        });
-        
-        this.fireBombProjectiles.children.entries.forEach(projectile => {
-            if (!projectile.active || !projectile.isFireBomb) return;
-            
-            const distance = Phaser.Math.Distance.Between(
-                projectile.startX, projectile.startY,
-                projectile.x, projectile.y
-            );
-            
-            if (distance >= projectile.maxRange) {
-                this.explodeFireBomb(projectile);
-                return;
-            }
-            
-            const enemyGroups = [this.scene.enemies, this.scene.zombieGroup, this.scene.breakableVases].filter(group => group);
-            
-            enemyGroups.forEach(enemyGroup => {
-                if (enemyGroup) {
-                    const enemies = enemyGroup.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-                    enemies.forEach(enemy => {
-                        const enemyDistance = Phaser.Math.Distance.Between(
-                            projectile.x, projectile.y,
-                            enemy.x, enemy.y
-                        );
-                        
-                        if (enemyDistance <= 25) {
-                            this.explodeFireBomb(projectile);
-                        }
-                    });
-                }
-            });
-        });
-        
-        this.iceProjectiles.children.entries.forEach(projectile => {
-            if (!projectile.active || !projectile.isIceProjectile) return;
-            
-            const distance = Phaser.Math.Distance.Between(
-                projectile.startX, projectile.startY,
-                projectile.x, projectile.y
-            );
-            
-            if (distance >= projectile.maxRange) {
-                this.createIceExplosionEffect(projectile.x, projectile.y);
-                projectile.destroy();
-                return;
-            }
-            
-            if (this.scene.enemies) {
-                const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-                enemies.forEach(enemy => {
-                    const enemyDistance = Phaser.Math.Distance.Between(
-                        projectile.x, projectile.y,
-                        enemy.x, enemy.y
-                    );
-                    
-                    if (enemyDistance <= 20) {
-                        if (enemy.isVase && enemy.onPlayerAttack) {
-                            enemy.onPlayerAttack(projectile.damage);
-                            this.createIceExplosionEffect(projectile.x, projectile.y);
-                        } else if (enemy.takeDamage) {
-                            enemy.takeDamage(projectile.damage);
-                            this.applySlowEffect(enemy, 0.5, 2000);
-                            this.createIceExplosionEffect(projectile.x, projectile.y);
-                        }
-                        projectile.destroy();
-                        return;
-                    }
-                });
-            }
-        });
-        
-        this.lightningProjectiles.children.entries.forEach(projectile => {
-            if (!projectile.active || !projectile.isLightningProjectile) return;
-            
-            const targetDistance = Phaser.Math.Distance.Between(
-                projectile.x, projectile.y,
-                projectile.targetEnemy.x, projectile.targetEnemy.y
-            );
-            
-            if (targetDistance <= 25) {
-                this.hitLightningTarget(projectile);
-                return;
-            }
-            
-            const distance = Phaser.Math.Distance.Between(
-                projectile.startX, projectile.startY,
-                projectile.x, projectile.y
-            );
-            
-            if (distance >= this.lightningRange) {
-                projectile.destroy();
-                return;
-            }
-        });
+    // Update protective aura position if it exists
+    if (this.player && this.player.protectiveAura) {
+    this.player.protectiveAura.setPosition(this.player.x, this.player.y);
     }
+    
+    // Safe projectile updates with null checks
+    if (this.fireBulletProjectiles && this.fireBulletProjectiles.children && this.fireBulletProjectiles.children.entries) {
+    this.fireBulletProjectiles.children.entries.forEach(projectile => {
+     if (!projectile.active || !projectile.isFireBullet) return;
+    
+    const distance = Phaser.Math.Distance.Between(
+      projectile.startX, projectile.startY,
+      projectile.x, projectile.y
+     );
+    
+    if (distance >= projectile.maxRange) {
+      projectile.destroy();
+      return;
+     }
+     
+     const enemyGroups = [this.scene.enemies, this.scene.zombieGroup, this.scene.breakableVases].filter(group => group && group.children);
+    
+    enemyGroups.forEach(enemyGroup => {
+    if (enemyGroup) {
+    const enemies = enemyGroup.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+    enemies.forEach(enemy => {
+     if (projectile.hitEnemies.includes(enemy)) return;
+    
+    const enemyDistance = Phaser.Math.Distance.Between(
+      projectile.x, projectile.y,
+      enemy.x, enemy.y
+     );
+    
+    if (enemyDistance <= 20) {
+    projectile.hitEnemies.push(enemy);
+     if (enemy.isVase && enemy.onPlayerAttack) {
+     enemy.onPlayerAttack(projectile.damage);
+    } else if (enemy.takeDamage) {
+      enemy.takeDamage(projectile.damage);
+       this.applyBurnEffect(enemy, projectile.damage * 0.3, this.fireBulletDotDuration);
+       }
+       }
+       });
+       }
+      });
+     });
+    }
+    
+    if (this.fireBombProjectiles && this.fireBombProjectiles.children && this.fireBombProjectiles.children.entries) {
+    this.fireBombProjectiles.children.entries.forEach(projectile => {
+    if (!projectile.active || !projectile.isFireBomb) return;
+     
+     const distance = Phaser.Math.Distance.Between(
+      projectile.startX, projectile.startY,
+     projectile.x, projectile.y
+    );
+     
+     if (distance >= projectile.maxRange) {
+      this.explodeFireBomb(projectile);
+      return;
+     }
+    
+    const enemyGroups = [this.scene.enemies, this.scene.zombieGroup, this.scene.breakableVases].filter(group => group && group.children);
+    
+    enemyGroups.forEach(enemyGroup => {
+    if (enemyGroup) {
+    const enemies = enemyGroup.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+    enemies.forEach(enemy => {
+     const enemyDistance = Phaser.Math.Distance.Between(
+      projectile.x, projectile.y,
+     enemy.x, enemy.y
+     );
+      
+       if (enemyDistance <= 25) {
+         this.explodeFireBomb(projectile);
+         }
+        });
+       }
+     });
+    });
+    }
+    
+    if (this.iceProjectiles && this.iceProjectiles.children && this.iceProjectiles.children.entries) {
+    this.iceProjectiles.children.entries.forEach(projectile => {
+     if (!projectile.active || !projectile.isIceProjectile) return;
+     
+    const distance = Phaser.Math.Distance.Between(
+     projectile.startX, projectile.startY,
+     projectile.x, projectile.y
+     );
+     
+     if (distance >= projectile.maxRange) {
+     this.createIceExplosionEffect(projectile.x, projectile.y);
+     projectile.destroy();
+    return;
+    }
+    
+    if (this.scene.enemies && this.scene.enemies.children) {
+    const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+    enemies.forEach(enemy => {
+    const enemyDistance = Phaser.Math.Distance.Between(
+    projectile.x, projectile.y,
+    enemy.x, enemy.y
+    );
+    
+    if (enemyDistance <= 20) {
+    if (enemy.isVase && enemy.onPlayerAttack) {
+      enemy.onPlayerAttack(projectile.damage);
+      this.createIceExplosionEffect(projectile.x, projectile.y);
+     } else if (enemy.takeDamage) {
+       enemy.takeDamage(projectile.damage);
+        this.applySlowEffect(enemy, 0.5, 2000);
+         this.createIceExplosionEffect(projectile.x, projectile.y);
+         }
+         projectile.destroy();
+         return;
+       }
+      });
+     }
+    });
+    }
+    
+    if (this.lightningProjectiles && this.lightningProjectiles.children && this.lightningProjectiles.children.entries) {
+    this.lightningProjectiles.children.entries.forEach(projectile => {
+    if (!projectile.active || !projectile.isLightningProjectile) return;
+    
+     if (!projectile.targetEnemy || !projectile.targetEnemy.active) {
+      projectile.destroy();
+      return;
+    }
+    
+     const targetDistance = Phaser.Math.Distance.Between(
+      projectile.x, projectile.y,
+      projectile.targetEnemy.x, projectile.targetEnemy.y
+    );
+    
+     if (targetDistance <= 25) {
+       this.hitLightningTarget(projectile);
+        return;
+				}
+				
+				const distance = Phaser.Math.Distance.Between(
+					projectile.startX, projectile.startY,
+					projectile.x, projectile.y
+				);
+				
+				if (distance >= this.lightningRange) {
+					projectile.destroy();
+					return;
+				}
+			});
+		}
+	}
     
     updateStats() {
         if (this.player) {

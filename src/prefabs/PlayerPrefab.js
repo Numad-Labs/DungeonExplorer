@@ -169,6 +169,10 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			return;
 		}
 
+		if (!this.scene || !this.scene.input || !this.scene.input.keyboard) {
+			return;
+		}
+
 		const keyboard = this.scene.input.keyboard;
 		const up = keyboard.addKey('W').isDown;
 		const down = keyboard.addKey('S').isDown;
@@ -205,9 +209,8 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 				}
 			}
 		}
-		else if (this.isMovingToTarget) {
+		else if (this.isMovingToTarget && this.scene.input && this.scene.input.activePointer) {
 			const pointer = this.scene.input.activePointer;
-
 			const worldPoint = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
 			const targetX = worldPoint.x;
 			const targetY = worldPoint.y;
