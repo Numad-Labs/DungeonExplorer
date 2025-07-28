@@ -7,6 +7,8 @@ import PlayerPrefab from "../prefabs/PlayerPrefab";
 import StoneStatuePrefab from "../prefabs/StoneStatuePrefab";
 import VaseSpawner from "../utils/VaseSpawner.js";
 import PlayerLevel from "../prefabs/PlayerLevel.js";
+import UIManager from "../managers/UIManager.js";
+import MobManager from "../managers/MobManager.js";
 /* START-USER-IMPORTS */
 import { EventBus } from '../game/EventBus';
 /* END-USER-IMPORTS */
@@ -25,7 +27,35 @@ export default class MainMapScene extends BaseGameScene {
 		this.isTeleporting = false;
 		this.vaseSpawner = null;
 		this.playerLevelSystem = null;
+		this.mobManager = null;
 		/* END-USER-CTR-CODE */
+	}
+	
+	initializeMobManager() {
+		try {
+			this.mobManager = new MobManager(this);
+			this.mobManager.initialize(this.gameManager, this.player);
+			
+			if (this.walkingArea_1) {
+				this.mobManager.setWalkingAreaFromTilemap(this.walkingArea_1);
+			}
+			
+			this.gameplayManager = { mobManager: this.mobManager };
+			this.mobManager.startWave(1);
+		} catch (error) {
+			console.error('Error initializing MobManager:', error);
+		}
+	}
+	
+	initializeUIManager() {
+		try {
+			this.uiManager = new UIManager(this);
+			this.uiManager.initialize();
+			window.currentGameScene = this;
+			this.currentWave = 1;
+		} catch (error) {
+			console.error('Error initializing UIManager:', error);
+		}
 	}
 
 	/** @returns {void} */
@@ -277,9 +307,61 @@ export default class MainMapScene extends BaseGameScene {
 			this.startEnemySpawning();
 			this.setupHPBarIntegration();
 			this.setupPlayerLevelSystem();
+			this.initializeUIManager();
+		this.initializeMobManager();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
 		}
+	}
+	
+	advanceWave() {
+		this.currentWave = (this.currentWave || 1) + 1;
+		
+		if (this.uiManager) {
+			this.uiManager.updateScoreboard();
+		}
+		
+		this.showWaveNotification();
+		EventBus.emit('wave-notification', { wave: this.currentWave });
+		EventBus.emit('wave-updated', { wave: this.currentWave });
+	}
+	
+	showWaveNotification() {
+		if (!this.cameras || !this.cameras.main) return;
+
+		const centerX = this.cameras.main.centerX;
+		const centerY = this.cameras.main.centerY;
+
+		const notification = this.add.text(centerX, centerY - 50, `WAVE ${this.currentWave}`, {
+			fontFamily: 'Arial',
+			fontSize: '48px',
+			color: '#FFD700',
+			stroke: '#000000',
+			strokeThickness: 4,
+			fontStyle: 'bold'
+		});
+		notification.setOrigin(0.5);
+		notification.setScrollFactor(0);
+		notification.setDepth(1000);
+
+		this.tweens.add({
+			targets: notification,
+			scale: { from: 0, to: 1.2 },
+			alpha: { from: 0, to: 1 },
+			duration: 500,
+			ease: 'Back.easeOut',
+			onComplete: () => {
+				this.time.delayedCall(1500, () => {
+					this.tweens.add({
+						targets: notification,
+						alpha: 0,
+						scale: 0.8,
+						duration: 800,
+						onComplete: () => notification.destroy()
+					});
+				});
+			}
+		});
 	}
 
 	setupPortalSystem() {
@@ -696,6 +778,53 @@ export default class MainMapScene extends BaseGameScene {
 						this.gameManager.addGold(100);
 					}
 				});
+				
+				// Timer debug controls
+				this.input.keyboard.on('keydown-T', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						EventBus.emit('timer-reset');
+					}
+				});
+				
+				this.input.keyboard.on('keydown-Y', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						EventBus.emit('timer-start');
+					}
+				});
+				
+				this.input.keyboard.on('keydown-U', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						EventBus.emit('timer-stop');
+					}
+				});
+				
+				// Wave debug controls
+				this.input.keyboard.on('keydown-PLUS', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						// Use timer controls to advance wave
+						if (window.timerControls) {
+							window.timerControls.advanceWave();
+						}
+					}
+				});
+				
+				this.input.keyboard.on('keydown-MINUS', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						// Use timer controls to decrease wave
+						if (window.timerControls) {
+							const currentState = window.timerControls.getState();
+							const newWave = Math.max(1, currentState.currentWave - 1);
+							window.timerControls.setWave(newWave);
+						}
+					}
+				});
+				
+				this.input.keyboard.on('keydown-N', () => {
+					if (this.gameManager && this.gameManager.debugMode) {
+						console.log('Testing wave notification...');
+						EventBus.emit('wave-notification', { wave: 99 });
+					}
+				});
 			}
 
 		} catch (error) {
@@ -712,13 +841,18 @@ export default class MainMapScene extends BaseGameScene {
 		}
 		
 		if (this.playerLevelSystem) {
-			const expReward = 10;
-			this.playerLevelSystem.addExperience(expReward);
+			this.playerLevelSystem.addExperience(10);
 		}
 		
 		if (this.gameManager) {
 			const goldReward = Math.floor(Math.random() * 5) + 2;
 			this.gameManager.addGold(goldReward);
+		}
+		
+		this.enemiesKilled = (this.enemiesKilled || 0) + 1;
+		
+		if (this.enemiesKilled % 10 === 0) {
+			this.advanceWave();
 		}
 	}
 
@@ -730,6 +864,14 @@ export default class MainMapScene extends BaseGameScene {
 		try {
 			if (this.player && this.player.active && !this.player.isDead && this.cameras && this.cameras.main) {
 				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+			}
+			
+			if (this.uiManager && this.uiManager.isInitialized) {
+				this.uiManager.update(time, delta);
+			}
+			
+			if (this.mobManager) {
+				this.mobManager.update(time, delta);
 			}
 		} catch (error) {
 			console.error("Error in MainMapScene update:", error);
@@ -759,6 +901,23 @@ export default class MainMapScene extends BaseGameScene {
 			
 			EventBus.removeListener('request-initial-gold');
 			EventBus.removeListener('main-scene-started');
+			EventBus.removeListener('wave-updated');
+			
+			EventBus.emit('timer-stop');
+			
+			if (this.uiManager) {
+				this.uiManager.shutdown();
+				this.uiManager = null;
+			}
+			
+			if (this.mobManager) {
+				this.mobManager.shutdown();
+				this.mobManager = null;
+			}
+			
+			if (window.currentGameScene === this) {
+				delete window.currentGameScene;
+			}
 
 			if (typeof super.shutdown === 'function') {
 				super.shutdown();

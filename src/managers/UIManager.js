@@ -1,6 +1,7 @@
 import GameManager from "./GameManager";
 import HealthBar from "../prefabs/HealthBar";
 import PlayerLevel from "../prefabs/PlayerLevel";
+import { EventBus } from '../game/EventBus';
 
 export default class UIManager {
     constructor(scene) {
@@ -113,7 +114,7 @@ export default class UIManager {
     }
     
     createScoreboard() {
-        const config = { x: 880, y: 490, width: 140, height: 90 };
+        // const config = { x: 880, y: 490, width: 140, height: 90 };
         
         this.scoreboard.container = this.scene.add.container(config.x, config.y);
         this.scoreboard.container.setScrollFactor(0).setDepth(900);
@@ -191,48 +192,11 @@ export default class UIManager {
     
     showScoreboardUpdate(statType, value, color = 0x00ff00) {
         try {
-            const centerX = 605;
-            const centerY = 150;
-            
-            let displayText = '';
-            switch(statType) {
-                case 'kills':
-                    displayText = `+${value} Kill${value > 1 ? 's' : ''}`;
-                    break;
-                case 'gold':
-                    displayText = `+${value} Gold`;
-                    break;
-                case 'wave':
-                    displayText = `Wave ${value} Started!`;
-                    break;
-                default:
-                    displayText = `+${value}`;
-            }
-            
-            const updateText = this.scene.add.text(
-                centerX, 
-                centerY, 
-                displayText, 
-                {
-                    fontFamily: 'Arial',
-                    fontSize: '12px',
-                    color: `#${color.toString(16).padStart(6, '0')}`,
-                    stroke: '#000000',
-                    strokeThickness: 2,
-                    fontStyle: 'bold'
-                }
-            ).setOrigin(0.5).setScrollFactor(0).setDepth(1500);
-            
-            this.scene.tweens.add({
-                targets: updateText,
-                y: centerY - 25,
-                alpha: 0,
-                scale: { from: 1.1, to: 0.9 },
-                duration: 1200,
-                ease: 'Power2',
-                onComplete: () => {
-                    updateText.destroy();
-                }
+            EventBus.emit('ui-scoreboard-update', {
+                statType,
+                value,
+                color: `#${color.toString(16).padStart(6, '0')}`,
+                timestamp: Date.now()
             });
             
         } catch (error) {
@@ -449,26 +413,12 @@ export default class UIManager {
     
     showMessage(text, duration = 2000) {
         try {
-            const centerX = 605;
-            const centerY = 150;
-            
-            const message = this.scene.add.text(centerX, centerY, text, {
-                fontFamily: 'Arial',
-                fontSize: '16px',
+                EventBus.emit('notification', {
+                text,
                 color: '#ffffff',
-                stroke: '#000000',
-                strokeThickness: 2,
-                fontStyle: 'bold'
-            }).setOrigin(0.5).setScrollFactor(0).setDepth(2000);
-            
-            this.scene.tweens.add({
-                targets: message,
-                y: centerY - 30,
-                alpha: 0,
-                scale: { from: 1.2, to: 0.8 },
-                duration: duration,
-                ease: 'Power2',
-                onComplete: () => message.destroy()
+                type: 'message',
+                duration,
+                timestamp: Date.now()
             });
             
         } catch (error) {

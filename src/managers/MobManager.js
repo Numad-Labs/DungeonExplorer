@@ -7,6 +7,7 @@ import AssassinArcher from "../prefabs/Enemies/AssassinArcher";
 import BigDude from "../prefabs/Enemies/BigDude.js";
 import Wreacker from "../prefabs/Enemies/Wreacker.js";
 import Choppor from "../prefabs/Enemies/Choppor.js";
+import { EventBus } from '../game/EventBus';
 
 const MOB_CONFIGS = {
   zombie: {
@@ -920,8 +921,9 @@ export default class MobManager {
     this.waveActive = true;
     this.waveMobs = [];
 
-    const mobCount = this.calculateWaveSize(waveNumber);
+    EventBus.emit('wave-notification', { wave: waveNumber });
 
+    const mobCount = this.calculateWaveSize(waveNumber);
     const specialWaveType = this.getSpecialWaveType(waveNumber);
 
     if (specialWaveType) {
@@ -932,8 +934,6 @@ export default class MobManager {
   }
 
   startNormalWave(waveNumber, mobCount) {
-    this.showWaveAnnouncement(waveNumber, mobCount);
-
     for (let i = 0; i < mobCount; i++) {
       this.scene.time.delayedCall(i * 100, () => {
         const type = this.selectMobType();
@@ -947,60 +947,18 @@ export default class MobManager {
     }
   }
 
-  showWaveAnnouncement(waveNumber, mobCount) {
-    const centerX = this.scene.cameras.main.centerX;
-    const centerY = this.scene.cameras.main.centerY;
-
-    const announcement = this.scene.add.text(
-      centerX,
-      centerY,
-      `WAVE ${waveNumber}\n${mobCount} ENEMIES`,
-      {
-        fontFamily: "Arial",
-        fontSize: "32px",
-        color: "#ff6600",
-        stroke: "#000000",
-        strokeThickness: 3,
-        align: "center",
-        fontStyle: "bold",
-      }
-    );
-    announcement.setOrigin(0.5);
-    announcement.setScrollFactor(0);
-    announcement.setDepth(1000);
-
-    this.scene.tweens.add({
-      targets: announcement,
-      scale: { from: 0, to: 1 },
-      duration: 500,
-      ease: "Back.easeOut",
-      onComplete: () => {
-        this.scene.time.delayedCall(2500, () => {
-          this.scene.tweens.add({
-            targets: announcement,
-            alpha: 0,
-            duration: 800,
-            onComplete: () => announcement.destroy(),
-          });
-        });
-      },
-    });
-  }
-
   startSpecialWave(waveNumber, specialType) {
-    let mobCount, mobTypes, announcement;
+    let mobCount, mobTypes;
 
     switch (specialType) {
       case "swarm":
         mobCount = Math.min(15 + waveNumber * 3, 30);
         mobTypes = ["zombie"];
-        announcement = `SWARM INCOMING!\nWAVE ${waveNumber} - ${mobCount} ZOMBIES`;
         break;
 
       case "elite":
         mobCount = Math.floor(this.calculateWaveSize(waveNumber) * 0.4);
         mobTypes = ["assassinTank", "assassinArcher"];
-        announcement = `ELITE SQUAD!\nWAVE ${waveNumber} - ${mobCount} ELITES`;
         break;
 
       case "mixed":
@@ -1014,23 +972,17 @@ export default class MobManager {
           "wreacker",
           "choppor",
         ];
-        announcement = `MIXED ASSAULT!\nWAVE ${waveNumber} - ${mobCount} ENEMIES`;
         break;
 
       case "boss":
         mobCount = Math.max(1, Math.floor(waveNumber / 10));
         mobTypes = ["assassinTank"];
-        announcement = `BOSS WAVE!\nWAVE ${waveNumber} - ${mobCount} BOSS${
-          mobCount > 1 ? "ES" : ""
-        }`;
         break;
 
       default:
         this.startNormalWave(waveNumber, this.calculateWaveSize(waveNumber));
         return;
     }
-
-    this.showSpecialWaveAnnouncement(waveNumber, announcement, specialType);
 
     for (let i = 0; i < mobCount; i++) {
       this.scene.time.delayedCall(i * 100, () => {
@@ -1098,65 +1050,6 @@ export default class MobManager {
     );
 
     return Math.min(25, baseSize + waveScaling + difficultyBonus);
-  }
-
-  showSpecialWaveAnnouncement(waveNumber, message, specialType) {
-    const centerX = this.scene.cameras.main.centerX;
-    const centerY = this.scene.cameras.main.centerY;
-
-    let color = "#ff6600";
-    if (specialType === "swarm") color = "#ff0000";
-    if (specialType === "elite") color = "#ffaa00";
-    if (specialType === "mixed") color = "#00aaff";
-    if (specialType === "boss") color = "#ff0088";
-
-    const announcement = this.scene.add.text(centerX, centerY - 60, message, {
-      fontFamily: "Arial",
-      fontSize: "36px",
-      color: color,
-      stroke: "#ffffff",
-      strokeThickness: 4,
-      align: "center",
-      fontStyle: "bold",
-    });
-    announcement.setOrigin(0.5);
-    announcement.setScrollFactor(0);
-    announcement.setDepth(1000);
-
-    const flash = this.scene.add.rectangle(
-      0,
-      0,
-      this.scene.cameras.main.width * 2,
-      this.scene.cameras.main.height * 2,
-      0xff0000,
-      0.3
-    );
-    flash.setScrollFactor(0);
-    flash.setDepth(999);
-
-    this.scene.tweens.add({
-      targets: flash,
-      alpha: 0,
-      duration: 300,
-      onComplete: () => flash.destroy(),
-    });
-
-    this.scene.tweens.add({
-      targets: announcement,
-      scale: { from: 0, to: 1 },
-      duration: 500,
-      ease: "Back.easeOut",
-      onComplete: () => {
-        this.scene.time.delayedCall(3000, () => {
-          this.scene.tweens.add({
-            targets: announcement,
-            alpha: 0,
-            duration: 800,
-            onComplete: () => announcement.destroy(),
-          });
-        });
-      },
-    });
   }
 
   cleanupMobHealthBar(mob) {
@@ -1264,12 +1157,6 @@ export default class MobManager {
       this.gameManager.addGold(goldBonus);
     }
 
-    this.showWaveCompletionMessage(
-      completedWave,
-      specialType,
-      expBonus,
-      goldBonus
-    );
   }
 
   showWaveCompletionMessage(waveNumber, specialType, expBonus, goldBonus) {

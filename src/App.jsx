@@ -14,6 +14,8 @@ import { PhaserGame } from "./game/PhaserGame";
 import { EventBus } from "./game/EventBus";
 import HPBar from "./components/HPBar.jsx";
 import SkillExpBar from "./components/SkillExpBar.jsx";
+import Timer from "./components/Timer.jsx";
+import GameNotifications from "./components/GameNotifications.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -163,6 +165,8 @@ function GameRoute() {
         <>
           {showHPBar && <HPBar showGoldIcon={true} />}
           {showHPBar && <SkillExpBar />}
+          {showHPBar && <Timer />}
+          {showHPBar && <GameNotifications />}
           
           <div style={{
             position: 'fixed',
