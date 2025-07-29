@@ -615,18 +615,19 @@ export default class BaseGameScene extends Phaser.Scene {
     }
     
     update(time, delta) {
-        try {
-            if (this.player && this.player.isDead) {
-                return;
-            }
-            
-            if (this.gameplayManager) {
-                this.gameplayManager.update(time, delta);
-            }
-            
-            if (this.uiManager) {
-                this.uiManager.update(time, delta);
-            }
+    try {
+    if (this.player && this.player.isDead) {
+    return;
+    }
+    
+    // Only update gameplayManager if it exists and has update method
+    if (this.gameplayManager && typeof this.gameplayManager.update === 'function') {
+    this.gameplayManager.update(time, delta);
+    }
+    
+    if (this.uiManager && typeof this.uiManager.update === 'function') {
+    this.uiManager.update(time, delta);
+    }
             
             if (this.playerAttackSystem && this.playerAttackSystem.update) {
                 this.playerAttackSystem.update();

@@ -51,7 +51,7 @@ export default class UIManager {
             
             this.isInitialized = true;
         } catch (error) {
-            console.error("Error initializing UIManager:", error);
+            // console.error("Error initializing UIManager:", error);
         }
     }
     

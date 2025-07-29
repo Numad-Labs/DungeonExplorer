@@ -13,37 +13,163 @@ export default class BreakableVase extends Phaser.GameObjects.Image {
 		super(scene, x ?? 16, y ?? 16, texture || "Vase", frame ?? 0);
 
 		/* START-USER-CTR-CODE */
-		scene.physics.add.existing(this, true);
-		
-		this.body.setSize(28, 28);
-		this.body.setOffset(2, 2);
-		
-		this.maxHealth = 1;
-		this.health = this.maxHealth;
-		this.isBroken = false;
-		this.canBeAttacked = true;
-		
-		// Loot properties
-		this.dropChance = {
-			gold: 0.4,
-			experience: 0.7,
-			healing: 0.2
-		};
-		
-		this.dropAmounts = {
-			gold: { min: 1, max: 3 },
-			experience: { min: 2, max: 5 },
-			healing: { min: 10, max: 25 }
-		};
-		
-		this.originalTint = 0xffffff;
-		this.setTint(this.originalTint);
-		this.randomizeTexture();
-		this.setInteractive();
-		if (scene.breakableVases) {
-			scene.breakableVases.add(this);
+		try {
+			if (!scene || !scene.physics) {
+				console.error('BreakableVase: Scene or physics not ready');
+				return;
+			}
+			
+			// Initialize properties first
+			this.maxHealth = 1;
+			this.health = this.maxHealth;
+			this.isBroken = false;
+			this.canBeAttacked = true;
+			this.originalTint = 0xffffff;
+			
+			// Loot properties
+			this.dropChance = {
+				gold: 0.4,
+				experience: 0.7,
+				healing: 0.2
+			};
+			
+			this.dropAmounts = {
+				gold: { min: 1, max: 3 },
+				experience: { min: 2, max: 5 },
+				healing: { min: 10, max: 25 }
+			};
+			
+			this.setTint(this.originalTint);
+			this.setInteractive();
+			this.randomizeTexture();
+			this.createPhysicsBodyImmediate(scene);
+			
+		} catch (error) {
+			console.error('Error in BreakableVase constructor:', error);
 		}
 		/* END-USER-CTR-CODE */
+	}
+	
+		createPhysicsBodyImmediate(scene) {
+		try {
+			if (!scene.breakableVases) {
+				scene.breakableVases = scene.physics.add.staticGroup();
+				console.log('BreakableVase: Created breakableVases group');
+			}
+			
+			// Create physics body
+			scene.physics.add.existing(this, true);
+			
+			if (this.body) {
+				this.body.setSize(28, 28);
+				this.body.setOffset(2, 2);
+				
+				scene.breakableVases.add(this);
+			} else {
+				scene.time.delayedCall(50, () => {
+					this.createPhysicsBody(scene);
+				});
+			}
+			
+		} catch (error) {
+			this.canBeAttacked = true;
+			this.isInCollisionSystem = true;
+		}
+	}
+	
+	createPhysicsBody(scene) {
+		try {
+			if (!scene || !scene.physics || this.body) {
+				return;
+			}
+			
+			scene.physics.add.existing(this, true);
+			
+			if (this.body) {
+				this.body.setSize(28, 28);
+				this.body.setOffset(2, 2);
+				scene.time.delayedCall(16, () => {
+					this.addToVaseGroup(scene);
+				});
+			} else {
+				return;
+			}
+			
+		} catch (error) {
+			console.error('Error creating physics body for BreakableVase:', error);
+		}
+	}
+	
+	addToVaseGroup(scene) {
+		try {
+			// Simple check - if physics world is updating, skip group addition for now
+			if (!scene.physics.world || scene.physics.world.isPaused) {
+				scene.time.delayedCall(50, () => this.addToVaseGroup(scene));
+				return;
+			}
+			
+			// Ensure we have a valid physics body before adding to group
+			if (!this.body || !this.body.enable) {
+				return;
+			}
+			
+			// Skip group addition entirely if it keeps failing - use alternative approach
+			if (!this.addToPhysicsGroup(scene)) {
+				// Alternative: Just mark as attackable without group
+				this.canBeAttacked = true;
+				this.isInCollisionSystem = true; // Custom flag
+			}
+			
+		} catch (error) {
+			console.error('Error adding BreakableVase to group:', error);
+			// Fallback - just mark the vase as collision-ready
+			this.canBeAttacked = true;
+			this.isInCollisionSystem = true;
+		}
+	}
+	
+	addToPhysicsGroup(scene) {
+		try {
+			// Ensure breakableVases group exists
+			if (!scene.breakableVases) {
+				scene.breakableVases = scene.physics.add.staticGroup();
+				console.log('BreakableVase: Created breakableVases group in addToPhysicsGroup');
+			}
+			
+			// Simple test - try to get group children first
+			if (!scene.breakableVases.children) {
+				console.warn('BreakableVase: Group children not available');
+				return false;
+			}
+			
+			// Add to group safely with additional checks
+			if (scene.breakableVases && scene.breakableVases.add && typeof scene.breakableVases.add === 'function') {
+				// Check if already in group (safer check)
+				let alreadyInGroup = false;
+				try {
+					alreadyInGroup = scene.breakableVases.contains && scene.breakableVases.contains(this);
+				} catch (containsError) {
+					console.warn('Contains check failed, proceeding with add:', containsError);
+					alreadyInGroup = false;
+				}
+				
+				if (!alreadyInGroup) {
+					scene.breakableVases.add(this);
+					console.log('BreakableVase: Successfully added to group');
+					return true;
+				} else {
+					console.log('BreakableVase: Already in group');
+					return true;
+				}
+			} else {
+				console.warn('BreakableVase: Group add method not available');
+				return false;
+			}
+			
+		} catch (error) {
+			console.error('Error in addToPhysicsGroup:', error);
+			return false;
+		}
 	}
 
 	/* START-USER-CODE */
@@ -104,12 +230,23 @@ export default class BreakableVase extends Phaser.GameObjects.Image {
 		this.canBeAttacked = false;
 		this.createBreakEffect();
 		this.dropLoot();
-		if (this.scene.breakableVases) {
-			this.scene.breakableVases.remove(this);
+		
+		// Safely remove from group
+		if (this.scene.breakableVases && this.scene.breakableVases.remove) {
+			try {
+				this.scene.breakableVases.remove(this);
+			} catch (error) {
+				console.warn('Error removing vase from group:', error);
+			}
 		}
 		
-		if (this.body) {
-			this.scene.physics.world.disable(this);
+		// Disable physics body safely
+		if (this.body && this.scene.physics && this.scene.physics.world) {
+			try {
+				this.scene.physics.world.disable(this);
+			} catch (error) {
+				console.warn('Error disabling physics body:', error);
+			}
 		}
 		
 		this.destroy();

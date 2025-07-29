@@ -4,51 +4,52 @@ import { EventBus } from '../game/EventBus';
 const Timer = () => {
     const [time, setTime] = useState('00:00');
     const [currentWave, setCurrentWave] = useState(1);
+    const [isGameRunning, setIsGameRunning] = useState(false);
 
     useEffect(() => {
-        const pollGameData = () => {
-            const currentScene = window.game?.scene?.getScene('MainMapScene') || 
-                                window.game?.scene?.scenes?.find(scene => scene.scene.key === 'MainMapScene') ||
-                                window.currentGameScene;
+        const handleTimerStart = () => {
+            setIsGameRunning(true);
+        };
 
-            if (currentScene) {
-                if (currentScene.uiManager && currentScene.uiManager.timer) {
-                    const elapsed = currentScene.uiManager.timer.elapsed || 0;
-                    const minutes = Math.floor(elapsed / 60);
-                    const seconds = Math.floor(elapsed % 60);
-                    const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                    setTime(timeString);
-                }
+        const handleTimerStop = () => {
+            setIsGameRunning(false);
+        };
 
-                let wave = 1;
-                
-                if (currentScene.uiManager && currentScene.uiManager.lastWave) {
-                    wave = currentScene.uiManager.lastWave;
-                }
-                else if (currentScene.gameManager && currentScene.gameManager.currentWave) {
-                    wave = currentScene.gameManager.currentWave;
-                }
-                else if (currentScene.currentWave !== undefined) {
-                    wave = currentScene.currentWave;
-                }
-                else if (currentScene.gameplayManager?.mobManager) {
-                    const mobStats = currentScene.gameplayManager.mobManager.getStatistics();
-                    wave = mobStats.currentWave || 1;
-                }
-
-                setCurrentWave(wave);
+        const handleTimerUpdate = (data) => {
+            if (data.formattedTime) {
+                setTime(data.formattedTime);
+            }
+            if (data.currentWave !== undefined) {
+                setCurrentWave(data.currentWave);
             }
         };
-        const interval = setInterval(pollGameData, 100);
-        pollGameData();
 
-        return () => clearInterval(interval);
+        const handleWaveUpdate = (data) => {
+            if (data.wave !== undefined) {
+                setCurrentWave(data.wave);
+            }
+        };
+
+        EventBus.on('timer-start', handleTimerStart);
+        EventBus.on('timer-stop', handleTimerStop);
+        EventBus.on('timer-updated', handleTimerUpdate);
+        EventBus.on('wave-updated', handleWaveUpdate);
+        EventBus.on('wave-notification', handleWaveUpdate);
+
+        return () => {
+            EventBus.off('timer-start', handleTimerStart);
+            EventBus.off('timer-stop', handleTimerStop);
+            EventBus.off('timer-updated', handleTimerUpdate);
+            EventBus.off('wave-updated', handleWaveUpdate);
+            EventBus.off('wave-notification', handleWaveUpdate);
+        };
     }, []);
 
     useEffect(() => {
         window.reactTimerState = {
             time,
             currentWave,
+            isGameRunning,
             getGameScene: () => {
                 return window.game?.scene?.getScene('MainMapScene') || 
                        window.game?.scene?.scenes?.find(scene => scene.scene.key === 'MainMapScene') ||
@@ -59,7 +60,7 @@ const Timer = () => {
         return () => {
             delete window.reactTimerState;
         };
-    }, [time, currentWave]);
+    }, [time, currentWave, isGameRunning]);
 
     return (
         <div style={{
@@ -148,6 +149,23 @@ const Timer = () => {
                     backgroundRepeat: 'no-repeat',
                     zIndex: 1
                 }} />
+
+                {/* Bridge Status */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '-15px',
+                        right: '5px',
+                        fontSize: '10px',
+                        color: isGameRunning ? '#4CAF50' : '#FF6B6B',
+                        background: 'rgba(0,0,0,0.7)',
+                        padding: '2px 6px',
+                        borderRadius: '4px'
+                    }}
+                    >
+                        {isGameRunning ? 'RUNNING' : 'STOPPED'}
+                    </div>
+                )}
             </div>
         </div>
     );

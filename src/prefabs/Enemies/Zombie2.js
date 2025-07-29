@@ -235,10 +235,6 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
             } else if (this.lastDirection === 'left') {
                 this.setFlipX(true);
             }
-        } else {
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'idle') {
-                this.play('idle');
-            }
         }
     }
     

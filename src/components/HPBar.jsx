@@ -1,122 +1,137 @@
 import React, { useState, useEffect } from 'react';
 import { EventBus } from '../game/EventBus';
+import { getBridge } from '../bridge/GameBridge';
 
 const HPBar = ({ showGoldIcon = true }) => {
     const [playerStats, setPlayerStats] = useState({
         currentHP: 100,
         maxHP: 100,
-        gold: 500  // Start with default gold amount
+        gold: 500
     });
-
+    const [useBridge, setUseBridge] = useState(true);
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
-        const handlePlayerHealthUpdate = (healthData) => {
-            console.log('HP Bar received health update:', healthData);
+        // Initialize bridge
+        const bridge = getBridge();
+
+        if (useBridge) {
+            const handleBridgePlayerData = (data) => {
+                setPlayerStats({
+                    currentHP: data.health,
+                    maxHP: data.maxHealth,
+                    gold: data.gold
+                });
+                setIsVisible(data.isInGame || data.isAlive);
+            };
+
+            const handleBridgeHealthUpdate = (data) => {
+                setPlayerStats(prevStats => ({
+                    ...prevStats,
+                    currentHP: data.currentHP,
+                    maxHP: data.maxHP
+                }));
+            };
+
+            const handleBridgeGoldUpdate = (data) => {
+                setPlayerStats(prevStats => ({
+                    ...prevStats,
+                    gold: data.gold
+                }));
+            };
+
+            EventBus.on('bridge-player-data', handleBridgePlayerData);
+            EventBus.on('bridge-health-updated', handleBridgeHealthUpdate);
+            EventBus.on('bridge-gold-updated', handleBridgeGoldUpdate);
             
-            setPlayerStats(prevStats => ({
-                ...prevStats,
-                currentHP: healthData.currentHP ?? healthData.health ?? healthData.hp ?? prevStats.currentHP,
-                maxHP: healthData.maxHP ?? healthData.maxHealth ?? healthData.maxHp ?? prevStats.maxHP
-            }));
-        };
-
-        const handlePlayerStatsUpdate = (statsData) => {
-            console.log('HP Bar received stats update:', statsData);
-            
-            setPlayerStats(prevStats => ({
-                ...prevStats,
-                currentHP: statsData.currentHP ?? statsData.health ?? statsData.hp ?? prevStats.currentHP,
-                maxHP: statsData.maxHP ?? statsData.maxHealth ?? statsData.maxHp ?? prevStats.maxHP,
-                gold: statsData.gold ?? statsData.currentGold ?? prevStats.gold
-            }));
-        };
-
-        const handlePlayerGoldUpdate = (goldData) => {
-            console.log('HP Bar received gold update:', goldData);
-            
-            setPlayerStats(prevStats => ({
-                ...prevStats,
-                gold: goldData.gold ?? goldData.totalGold ?? prevStats.gold
-            }));
-        };
-
-        const handleGameStart = () => {
-            setIsVisible(true);
-            
-            EventBus.emit('request-initial-gold');
-        };
-
-        const handleGameStop = () => {
-            console.log('Game stopped - hiding HP bar');
-            setIsVisible(false);
-        };
-
-        const handlePlayerDeath = () => {
-            console.log('Player died - hiding HP bar');
-            setIsVisible(false);
-        };
-
-        // EventBus listeners
-        EventBus.on('player-health-updated', handlePlayerHealthUpdate);
-        EventBus.on('player-hp-changed', handlePlayerHealthUpdate);
-        EventBus.on('player-stats-updated', handlePlayerStatsUpdate);
-        EventBus.on('player-gold-updated', handlePlayerGoldUpdate);
-        EventBus.on('game-started', handleGameStart);
-        EventBus.on('game-stopped', handleGameStop);
-        EventBus.on('player-death', handlePlayerDeath);
-        EventBus.on('main-scene-started', handleGameStart);
-
-        // Window event listeners (backup)
-        const handleWindowHealthUpdate = (event) => {
-            if (event.detail) {
-                handlePlayerHealthUpdate(event.detail);
+            // Get initial data from bridge
+            const initialGameState = bridge.getGameState();
+            if (initialGameState?.player) {
+                handleBridgePlayerData(initialGameState.player);
             }
-        };
 
-        const handleWindowStatsUpdate = (event) => {
-            if (event.detail) {
-                handlePlayerStatsUpdate(event.detail);
-            }
-        };
+            return () => {
+                EventBus.off('bridge-player-data', handleBridgePlayerData);
+                EventBus.off('bridge-health-updated', handleBridgeHealthUpdate);
+                EventBus.off('bridge-gold-updated', handleBridgeGoldUpdate);
+            };
+        } else {
+            // Fallback to original EventBus system
+            const handlePlayerHealthUpdate = (healthData) => {
+                console.log('HP Bar received health update:', healthData);
+                
+                setPlayerStats(prevStats => ({
+                    ...prevStats,
+                    currentHP: healthData.currentHP ?? healthData.health ?? healthData.hp ?? prevStats.currentHP,
+                    maxHP: healthData.maxHP ?? healthData.maxHealth ?? healthData.maxHp ?? prevStats.maxHP
+                }));
+            };
 
-        const handleWindowGoldUpdate = (event) => {
-            if (event.detail) {
-                handlePlayerGoldUpdate(event.detail);
-            }
-        };
-        
-        window.addEventListener('playerHealthUpdated', handleWindowHealthUpdate);
-        window.addEventListener('playerHPChanged', handleWindowHealthUpdate);
-        window.addEventListener('playerStatsUpdated', handleWindowStatsUpdate);
-        window.addEventListener('playerGoldUpdated', handleWindowGoldUpdate);
-        window.addEventListener('playerDeath', handlePlayerDeath);
+            const handlePlayerStatsUpdate = (statsData) => {
+                console.log('HP Bar received stats update:', statsData);
+                
+                setPlayerStats(prevStats => ({
+                    ...prevStats,
+                    currentHP: statsData.currentHP ?? statsData.health ?? statsData.hp ?? prevStats.currentHP,
+                    maxHP: statsData.maxHP ?? statsData.maxHealth ?? statsData.maxHp ?? prevStats.maxHP,
+                    gold: statsData.gold ?? statsData.currentGold ?? prevStats.gold
+                }));
+            };
 
-        return () => {
-            // Remove EventBus listeners
-            EventBus.removeListener('player-health-updated', handlePlayerHealthUpdate);
-            EventBus.removeListener('player-hp-changed', handlePlayerHealthUpdate);
-            EventBus.removeListener('player-stats-updated', handlePlayerStatsUpdate);
-            EventBus.removeListener('player-gold-updated', handlePlayerGoldUpdate);
-            EventBus.removeListener('game-started', handleGameStart);
-            EventBus.removeListener('game-stopped', handleGameStop);
-            EventBus.removeListener('player-death', handlePlayerDeath);
-            EventBus.removeListener('main-scene-started', handleGameStart);
+            const handlePlayerGoldUpdate = (goldData) => {
+                console.log('HP Bar received gold update:', goldData);
+                
+                setPlayerStats(prevStats => ({
+                    ...prevStats,
+                    gold: goldData.gold ?? goldData.totalGold ?? prevStats.gold
+                }));
+            };
 
-            // Remove window listeners
-            window.removeEventListener('playerHealthUpdated', handleWindowHealthUpdate);
-            window.removeEventListener('playerHPChanged', handleWindowHealthUpdate);
-            window.removeEventListener('playerStatsUpdated', handleWindowStatsUpdate);
-            window.removeEventListener('playerGoldUpdated', handleWindowGoldUpdate);
-            window.removeEventListener('playerDeath', handlePlayerDeath);
-        };
-    }, []);
+            const handleGameStart = () => {
+                setIsVisible(true);
+                EventBus.emit('request-initial-gold');
+            };
+
+            const handleGameStop = () => {
+                console.log('Game stopped - hiding HP bar');
+                setIsVisible(false);
+            };
+
+            const handlePlayerDeath = () => {
+                console.log('Player died - hiding HP bar');
+                setIsVisible(false);
+            };
+
+            // EventBus listeners
+            EventBus.on('player-health-updated', handlePlayerHealthUpdate);
+            EventBus.on('player-hp-changed', handlePlayerHealthUpdate);
+            EventBus.on('player-stats-updated', handlePlayerStatsUpdate);
+            EventBus.on('player-gold-updated', handlePlayerGoldUpdate);
+            EventBus.on('game-started', handleGameStart);
+            EventBus.on('game-stopped', handleGameStop);
+            EventBus.on('player-death', handlePlayerDeath);
+            EventBus.on('main-scene-started', handleGameStart);
+
+            return () => {
+                EventBus.removeListener('player-health-updated', handlePlayerHealthUpdate);
+                EventBus.removeListener('player-hp-changed', handlePlayerHealthUpdate);
+                EventBus.removeListener('player-stats-updated', handlePlayerStatsUpdate);
+                EventBus.removeListener('player-gold-updated', handlePlayerGoldUpdate);
+                EventBus.removeListener('game-started', handleGameStart);
+                EventBus.removeListener('game-stopped', handleGameStop);
+                EventBus.removeListener('player-death', handlePlayerDeath);
+                EventBus.removeListener('main-scene-started', handleGameStart);
+            };
+        }
+    }, [useBridge]);
 
     if (!isVisible) {
         return null;
     }
 
     const hpPercentage = Math.max(0, Math.min(100, (playerStats.currentHP / playerStats.maxHP) * 100));
+    const isLowHealth = hpPercentage < 25;
+    const isCritical = hpPercentage < 10;
     
     return (
         <div style={{
@@ -159,7 +174,8 @@ const HPBar = ({ showGoldIcon = true }) => {
                     backgroundColor: hpPercentage > 50 ? '#4CAF50' : hpPercentage > 25 ? '#FF9800' : '#F44336',
                     borderRadius: '3px',
                     zIndex: 2,
-                    transition: 'width 0.3s ease-in-out, background-color 0.3s ease-in-out'
+                    transition: 'width 0.3s ease-in-out, background-color 0.3s ease-in-out',
+                    animation: isCritical ? 'healthPulse 1s infinite' : 'none'
                 }} />
                 
                 {/* HP Frame/Border */}
@@ -181,7 +197,7 @@ const HPBar = ({ showGoldIcon = true }) => {
                     top: '130%',
                     left: '100%',
                     transform: 'translate(-50%, -50%)',
-                    color: 'white',
+                    color: isLowHealth ? '#ff6b6b' : 'white',
                     fontSize: '20px',
                     fontWeight: 'bold',
                     textShadow: '2px 2px 4px rgba(0,0,0,0.9)',
@@ -190,9 +206,27 @@ const HPBar = ({ showGoldIcon = true }) => {
                 }}>
                     {Math.ceil(playerStats.currentHP)}/{playerStats.maxHP}
                 </div>
+
+                {/* Health status indicators */}
+                {isLowHealth && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '110%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        color: isCritical ? '#ff4444' : '#ff8844',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.9)',
+                        zIndex: 4,
+                        animation: 'healthWarning 2s infinite'
+                    }}>
+                        {isCritical ? 'CRITICAL!' : 'LOW HEALTH!'}
+                    </div>
+                )}
             </div>
 
-            {/* Gold Display - Underneath HP Bar */}
+            {/* Gold Display - Enhanced with better formatting */}
             {showGoldIcon && (
                 <div style={{
                     display: 'flex',
@@ -226,6 +260,38 @@ const HPBar = ({ showGoldIcon = true }) => {
                     </span>
                 </div>
             )}
+
+            {/* Bridge Status (dev mode) */}
+            {process.env.NODE_ENV === 'development' && (
+                <div style={{
+                    position: 'absolute',
+                    top: '-15px',
+                    right: '5px',
+                    fontSize: '10px',
+                    color: useBridge ? '#4CAF50' : '#FF9800',
+                    background: 'rgba(0,0,0,0.7)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                }}
+                onClick={() => setUseBridge(!useBridge)}
+                >
+                    {useBridge ? 'BRIDGE' : 'LEGACY'}
+                </div>
+            )}
+
+            {/* CSS styles moved to index.css or inline styles */}
+            <style>{`
+                @keyframes healthPulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.6; }
+                }
+                
+                @keyframes healthWarning {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+            `}</style>
         </div>
     );
 };
