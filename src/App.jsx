@@ -9,6 +9,12 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./pages/Login.jsx";
 import MainMenu from "./pages/MainMenu.jsx";
 import Sidebar from "./components/SideBar.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Leaderboard from "./pages/Leaderboard.jsx";
+import Quest from "./pages/Quest.jsx";
+import Market from "./pages/Market.jsx";
+import Guide from "./pages/Guide.jsx";
+import Account from "./pages/Account.jsx";
 import { GameProvider } from "./context/GameContext.jsx";
 import { PhaserGame } from "./game/PhaserGame";
 import { EventBus } from "./game/EventBus";
@@ -52,8 +58,8 @@ function GameRoute() {
   const [phaserInstance, setPhaserInstance] = useState(null);
 
   const showModal = (id, modalData) => {
-    console.log('Game modal requested:', { id, modalData });
-    
+    console.log("Game modal requested:", { id, modalData });
+
     switch (id) {
       case "PAUSE_MENU":
         setGameState("paused");
@@ -78,7 +84,7 @@ function GameRoute() {
   const startGame = () => {
     setGameState("playing");
     setShowHPBar(true);
-    
+
     if (phaserRef.current?.startGame) {
       phaserRef.current.startGame();
     }
@@ -87,7 +93,7 @@ function GameRoute() {
   const returnToMenu = () => {
     setGameState("menu");
     setShowHPBar(false);
-    
+
     if (phaserRef.current?.stopGame) {
       phaserRef.current.stopGame();
     }
@@ -108,9 +114,9 @@ function GameRoute() {
       returnToMenu();
     };
 
-    EventBus.on('game-started', handleGameStart);
-    EventBus.on('game-over', handleGameOver);
-    EventBus.on('return-to-menu', handleReturnToMenu);
+    EventBus.on("game-started", handleGameStart);
+    EventBus.on("game-over", handleGameOver);
+    EventBus.on("return-to-menu", handleReturnToMenu);
 
     const handleKeyPress = (e) => {
       if (e.key === "Escape" && gameState === "playing") {
@@ -121,41 +127,51 @@ function GameRoute() {
     document.addEventListener("keydown", handleKeyPress);
 
     return () => {
-      EventBus.removeListener('game-started', handleGameStart);
-      EventBus.removeListener('game-over', handleGameOver);
-      EventBus.removeListener('return-to-menu', handleReturnToMenu);
+      EventBus.removeListener("game-started", handleGameStart);
+      EventBus.removeListener("game-over", handleGameOver);
+      EventBus.removeListener("return-to-menu", handleReturnToMenu);
       document.removeEventListener("keydown", handleKeyPress);
     };
   }, [gameState]);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
       {gameState === "menu" && (
-        <div style={{ 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          width: '100%', 
-          height: '100%', 
-          zIndex: 10 
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 10,
+          }}
+        >
           <MainMenu onStartGame={startGame} />
         </div>
       )}
-
-      <div style={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        width: '100%', 
-        height: '100%', 
-        zIndex: 1,
-        overflow: 'hidden',
-        display: gameState === "playing" ? 'block' : 'none'
-      }}>
-        <PhaserGame 
-          ref={phaserRef} 
-          currentActiveScene={currentScene} 
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 1,
+          overflow: "hidden",
+          display: gameState === "playing" ? "block" : "none",
+        }}
+      >
+        <PhaserGame
+          ref={phaserRef}
+          currentActiveScene={currentScene}
           showModal={showModal}
           autoStart={false}
         />
@@ -167,53 +183,59 @@ function GameRoute() {
           {showHPBar && <SkillExpBar />}
           {showHPBar && <Timer />}
           {showHPBar && <GameNotifications />}
-          
-          <div style={{
-            position: 'fixed',
-            top: '2vh',     // Responsive top position
-            right: '2vw',   // Responsive right position
-            color: 'white',
-            fontSize: '14px',
-            background: 'rgba(0,0,0,0.7)',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            zIndex: 1000
-          }}>
+
+          <div
+            style={{
+              position: "fixed",
+              top: "2vh", // Responsive top position
+              right: "2vw", // Responsive right position
+              color: "white",
+              fontSize: "14px",
+              background: "rgba(0,0,0,0.7)",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              zIndex: 1000,
+            }}
+          >
             Press ESC to return to menu
           </div>
         </>
       )}
 
       {gameState === "paused" && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: 'rgba(0,0,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: '#333',
-            padding: '20px',
-            borderRadius: '8px',
-            color: 'white',
-            textAlign: 'center'
-          }}>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "#333",
+              padding: "20px",
+              borderRadius: "8px",
+              color: "white",
+              textAlign: "center",
+            }}
+          >
             <h2>Game Paused</h2>
-            <button 
+            <button
               onClick={() => setGameState("playing")}
-              style={{ margin: '10px', padding: '10px 20px' }}
+              style={{ margin: "10px", padding: "10px 20px" }}
             >
               Resume
             </button>
-            <button 
+            <button
               onClick={returnToMenu}
-              style={{ margin: '10px', padding: '10px 20px' }}
+              style={{ margin: "10px", padding: "10px 20px" }}
             >
               Return to Menu
             </button>
@@ -245,13 +267,38 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         >
+          <Route index element={<Dashboard />} />
+          <Route path="leaderboard" element={<Leaderboard />} />
+          <Route path="quest" element={<Quest />} />
+          <Route path="market" element={<Market />} />
+          <Route path="guide" element={<Guide />} />
+          <Route path="account" element={<Account />} />
           <Route
             path="about"
             element={
               <ProtectedRoute>
                 <div className="p-8">
-                  <h1 className="text-2xl font-bold mb-4">About</h1>
-                  <p>This is the about page. Only accessible after login.</p>
+                  <h1 className="text-display-1-alagard-bold">Alagard title</h1>
+                  <h1 className="text-display-1-pixelify-bold">
+                    Pixelify title
+                  </h1>
+                  // Heading Typography
+                  <h2 className="text-heading-1-alagard">Alagard heading</h2>
+                  <h2 className="text-heading-1-pixelify-bold">
+                    Pixelify heading
+                  </h2>
+                  // Body Typography
+                  <p className="text-body-1-alagard">Alagard body text</p>
+                  <p className="text-body-2-pixelify-bold">
+                    Pixelify body text
+                  </p>
+                  // Button Typography
+                  <button className="text-button-56-alagard">
+                    Alagard button
+                  </button>
+                  <button className="text-button-48-pixelify">
+                    Pixelify button
+                  </button>
                 </div>
               </ProtectedRoute>
             }

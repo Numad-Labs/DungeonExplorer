@@ -1,0 +1,393 @@
+/* Typography Utility Classes */
+
+/* Display Typography - Alagard Font */
+.text-display-1-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-display-1-size);
+  line-height: var(--text-display-1-line-height);
+  letter-spacing: var(--text-display-1-letter-spacing);
+  font-weight: 400;
+}
+
+.text-display-1-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-display-1-size);
+  line-height: var(--text-display-1-line-height);
+  letter-spacing: var(--text-display-1-letter-spacing);
+  font-weight: 700;
+}
+
+.text-display-2-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-display-2-size);
+  line-height: var(--text-display-2-line-height);
+  letter-spacing: var(--text-display-2-letter-spacing);
+  font-weight: 400;
+}
+
+.text-display-2-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-display-2-size);
+  line-height: var(--text-display-2-line-height);
+  letter-spacing: var(--text-display-2-letter-spacing);
+  font-weight: 700;
+}
+
+.text-display-3-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-display-3-size);
+  line-height: var(--text-display-3-line-height);
+  letter-spacing: var(--text-display-3-letter-spacing);
+  font-weight: 400;
+}
+
+.text-display-3-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-display-3-size);
+  line-height: var(--text-display-3-line-height);
+  letter-spacing: var(--text-display-3-letter-spacing);
+  font-weight: 700;
+}
+
+/* Display Typography - Pixelify Font */
+.text-display-1-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-display-1-size);
+  line-height: var(--text-display-1-line-height);
+  letter-spacing: var(--text-display-1-letter-spacing);
+  font-weight: 400;
+}
+
+.text-display-1-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-display-1-size);
+  line-height: var(--text-display-1-line-height);
+  letter-spacing: var(--text-display-1-letter-spacing);
+  font-weight: 700;
+}
+
+.text-display-2-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-display-2-size);
+  line-height: var(--text-display-2-line-height);
+  letter-spacing: var(--text-display-2-letter-spacing);
+  font-weight: 400;
+}
+
+.text-display-2-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-display-2-size);
+  line-height: var(--text-display-2-line-height);
+  letter-spacing: var(--text-display-2-letter-spacing);
+  font-weight: 700;
+}
+
+.text-display-3-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-display-3-size);
+  line-height: var(--text-display-3-line-height);
+  letter-spacing: var(--text-display-3-letter-spacing);
+  font-weight: 400;
+}
+
+.text-display-3-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-display-3-size);
+  line-height: var(--text-display-3-line-height);
+  letter-spacing: var(--text-display-3-letter-spacing);
+  font-weight: 700;
+}
+
+/* Heading Typography - Alagard Font */
+.text-heading-1-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-1-size);
+  line-height: var(--text-heading-1-line-height);
+  letter-spacing: var(--text-heading-1-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-1-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-1-size);
+  line-height: var(--text-heading-1-line-height);
+  letter-spacing: var(--text-heading-1-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-2-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-2-size);
+  line-height: var(--text-heading-2-line-height);
+  letter-spacing: var(--text-heading-2-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-2-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-2-size);
+  line-height: var(--text-heading-2-line-height);
+  letter-spacing: var(--text-heading-2-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-3-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-3-size);
+  line-height: var(--text-heading-3-line-height);
+  letter-spacing: var(--text-heading-3-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-3-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-3-size);
+  line-height: var(--text-heading-3-line-height);
+  letter-spacing: var(--text-heading-3-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-4-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-4-size);
+  line-height: var(--text-heading-4-line-height);
+  letter-spacing: var(--text-heading-4-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-4-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-4-size);
+  line-height: var(--text-heading-4-line-height);
+  letter-spacing: var(--text-heading-4-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-5-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-5-size);
+  line-height: var(--text-heading-5-line-height);
+  letter-spacing: var(--text-heading-5-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-5-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-heading-5-size);
+  line-height: var(--text-heading-5-line-height);
+  letter-spacing: var(--text-heading-5-letter-spacing);
+  font-weight: 700;
+}
+
+/* Heading Typography - Pixelify Font */
+.text-heading-1-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-1-size);
+  line-height: var(--text-heading-1-line-height);
+  letter-spacing: var(--text-heading-1-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-1-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-1-size);
+  line-height: var(--text-heading-1-line-height);
+  letter-spacing: var(--text-heading-1-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-2-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-2-size);
+  line-height: var(--text-heading-2-line-height);
+  letter-spacing: var(--text-heading-2-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-2-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-2-size);
+  line-height: var(--text-heading-2-line-height);
+  letter-spacing: var(--text-heading-2-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-3-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-3-size);
+  line-height: var(--text-heading-3-line-height);
+  letter-spacing: var(--text-heading-3-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-3-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-3-size);
+  line-height: var(--text-heading-3-line-height);
+  letter-spacing: var(--text-heading-3-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-4-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-4-size);
+  line-height: var(--text-heading-4-line-height);
+  letter-spacing: var(--text-heading-4-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-4-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-4-size);
+  line-height: var(--text-heading-4-line-height);
+  letter-spacing: var(--text-heading-4-letter-spacing);
+  font-weight: 700;
+}
+
+.text-heading-5-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-5-size);
+  line-height: var(--text-heading-5-line-height);
+  letter-spacing: var(--text-heading-5-letter-spacing);
+  font-weight: 400;
+}
+
+.text-heading-5-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-heading-5-size);
+  line-height: var(--text-heading-5-line-height);
+  letter-spacing: var(--text-heading-5-letter-spacing);
+  font-weight: 700;
+}
+
+/* Body Typography - Alagard Font */
+.text-body-1-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-body-1-size);
+  line-height: var(--text-body-1-line-height);
+  letter-spacing: var(--text-body-1-letter-spacing);
+  font-weight: 400;
+}
+
+.text-body-1-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-body-1-size);
+  line-height: var(--text-body-1-line-height);
+  letter-spacing: var(--text-body-1-letter-spacing);
+  font-weight: 700;
+}
+
+.text-body-2-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-body-2-size);
+  line-height: var(--text-body-2-line-height);
+  letter-spacing: var(--text-body-2-letter-spacing);
+  font-weight: 400;
+}
+
+.text-body-2-alagard-bold {
+  font-family: var(--font-display);
+  font-size: var(--text-body-2-size);
+  line-height: var(--text-body-2-line-height);
+  letter-spacing: var(--text-body-2-letter-spacing);
+  font-weight: 700;
+}
+
+/* Body Typography - Pixelify Font */
+.text-body-1-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-body-1-size);
+  line-height: var(--text-body-1-line-height);
+  letter-spacing: var(--text-body-1-letter-spacing);
+  font-weight: 400;
+}
+
+.text-body-1-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-body-1-size);
+  line-height: var(--text-body-1-line-height);
+  letter-spacing: var(--text-body-1-letter-spacing);
+  font-weight: 700;
+}
+
+.text-body-2-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-body-2-size);
+  line-height: var(--text-body-2-line-height);
+  letter-spacing: var(--text-body-2-letter-spacing);
+  font-weight: 400;
+}
+
+.text-body-2-pixelify-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-body-2-size);
+  line-height: var(--text-body-2-line-height);
+  letter-spacing: var(--text-body-2-letter-spacing);
+  font-weight: 700;
+}
+
+/* Button Typography - Alagard Font */
+.text-button-56-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-button-56-size);
+  line-height: var(--text-button-56-line-height);
+  letter-spacing: var(--text-button-56-letter-spacing);
+  font-weight: 700;
+}
+
+.text-button-48-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-button-48-size);
+  line-height: var(--text-button-48-line-height);
+  letter-spacing: var(--text-button-48-letter-spacing);
+  font-weight: 700;
+}
+
+.text-button-40-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-button-40-size);
+  line-height: var(--text-button-40-line-height);
+  letter-spacing: var(--text-button-40-letter-spacing);
+  font-weight: 700;
+}
+
+.text-button-32-alagard {
+  font-family: var(--font-display);
+  font-size: var(--text-button-32-size);
+  line-height: var(--text-button-32-line-height);
+  letter-spacing: var(--text-button-32-letter-spacing);
+  font-weight: 700;
+}
+
+/* Button Typography - Pixelify Font */
+.text-button-56-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-button-56-size);
+  line-height: var(--text-button-56-line-height);
+  letter-spacing: var(--text-button-56-letter-spacing);
+  font-weight: 700;
+}
+
+.text-button-48-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-button-48-size);
+  line-height: var(--text-button-48-line-height);
+  letter-spacing: var(--text-button-48-letter-spacing);
+  font-weight: 700;
+}
+
+.text-button-40-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-button-40-size);
+  line-height: var(--text-button-40-line-height);
+  letter-spacing: var(--text-button-40-letter-spacing);
+  font-weight: 700;
+}
+
+.text-button-32-pixelify {
+  font-family: var(--font-body);
+  font-size: var(--text-button-32-size);
+  line-height: var(--text-button-32-line-height);
+  letter-spacing: var(--text-button-32-letter-spacing);
+  font-weight: 700;
+}

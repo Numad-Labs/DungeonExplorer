@@ -1,0 +1,208 @@
+:root {
+    /* Brand Colors */
+    /* --color-primary: #cc1508;
+    --color-primary-hover: #a01106;
+    --color-primary-dark: #7a0c04; */
+
+    --color-brand-50: #fcb3ad;
+    --color-brand-100: #fa8c85;
+    --color-brand-200: #f8665c;
+    --color-brand-300: #f64033;
+    --color-brand-400: #f51a0a;
+    --color-brand-500: #cc1508;
+    --color-brand-600: #a31107;
+    --color-brand-700: #7a0d05;
+    --color-brand-800: #520903;
+    --color-brand-900: #310502;
+
+    /* Secondary */
+
+    --color-secondary-50: #ffefcf;
+    --color-secondary-100: #ffe4ae;
+    --color-secondary-200: #ffd685;
+    --color-secondary-300: #ffc95c;
+    --color-secondary-400: #ffbb34;
+    --color-secondary-500: #ffae0b;
+    --color-secondary-600: #de9400;
+    --color-secondary-700: #b17600;
+    --color-secondary-800: #865900;
+    --color-secondary-900: #593b00;
+
+    /* Dark */
+
+    --color-dark-primary: #170908;
+    --color-dark-secondary: #24110f;
+    --color-dark-tertiary: #2f1a18;
+    --color-dark-quaternary: #392423;
+
+    /* Light */
+    --color-light-primary: #ffffff;
+    --color-light-secondary: #c7c5c5;
+    --color-light-tertiary: #918b8a;
+    --color-light-quaternary: #575151;
+
+    /* Translucent-dark */
+
+    --color-translucent-dark-4: #1709080a;
+    --color-translucent-dark-8: #17090814;
+    --color-translucent-dark-12: #1709081f;
+    --color-translucent-dark-16: #17090829;
+    --color-translucent-dark-24: #1709083d;
+    --color-translucent-dark-32: #17090852;
+    --color-translucent-dark-48: #1709087a;
+    --color-translucent-dark-64: #170908a3;
+    --color-translucent-dark-72: #170908b8;
+    --color-translucent-dark-80: #170908cc;
+
+    /* Translucent-light */
+
+    --color-translucent-light-4: #ffffff0a;
+    --color-translucent-light-8: #ffffff14;
+    --color-translucent-light-12: #ffffff1f;
+    --color-translucent-light-16: #ffffff29;
+    --color-translucent-light-24: #ffffff3d;
+    --color-translucent-light-32: #ffffff52;
+    --color-translucent-light-48: #ffffff7a;
+    --color-translucent-light-64: #ffffffa3;
+    --color-translucent-light-72: #ffffffb8;
+    --color-translucent-light-80: #ffffffcc;
+
+    /* Gradient */
+
+    --gradient-top-to-bottom: linear-gradient(to bottom, #170908, #17090800);
+    --gradient-bottom-to-top: linear-gradient(to top, #17090800, #170908);
+
+    /* System */
+
+    --color-system-success-primary: #2cb59e;
+    --color-system-success-secondary: #2cb59e33;
+    --color-system-error-primary: #ff5c69;
+    --color-system-error-secondary: #ff5c6933;
+    --color-system-warning-primary: #ff9800;
+    --color-system-warning-secondary: #ff980033;
+    --color-system-info-primary: #6db5e5;
+    --color-system-info-secondary: #6db5e533;
+
+    /* Game UI Colors */
+    --color-gold: #ffff00;
+    --color-success: #00ff88;
+    --color-error: #ff6666;
+    --color-warning: #ffaa00;
+    --color-info: #88ddff;
+
+    /* Typography */
+    --font-display: "Alagard", serif;
+    --font-body: "Pixelify Sans", sans-serif;
+    --font-mono: "Courier New", monospace;
+
+    /* Font Sizes */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+
+    /* Spacing Scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* Border Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-slow: 0.5s ease;
+
+    /* Z-Index Scale */
+    --z-base: 1;
+    --z-dropdown: 10;
+    --z-modal: 100;
+    --z-notification: 1000;
+
+    /* Typography System */
+
+    /* Display Typography */
+    --text-display-1-size: 4rem; /* 64px */
+    --text-display-1-line-height: 4.5rem; /* 72px */
+    --text-display-1-letter-spacing: 0%;
+
+    --text-display-2-size: 3.5rem; /* 56px */
+    --text-display-2-line-height: 4rem; /* 64px */
+    --text-display-2-letter-spacing: 0%;
+
+    --text-display-3-size: 3rem; /* 48px */
+    --text-display-3-line-height: 3.5rem; /* 56px */
+    --text-display-3-letter-spacing: 0%;
+
+    /* Heading Typography */
+    --text-heading-1-size: 2.5rem; /* 40px */
+    --text-heading-1-line-height: 3rem; /* 48px */
+    --text-heading-1-letter-spacing: 1%;
+
+    --text-heading-2-size: 2.25rem; /* 36px */
+    --text-heading-2-line-height: 2.75rem; /* 44px */
+    --text-heading-2-letter-spacing: 1%;
+
+    --text-heading-3-size: 2rem; /* 28px */
+    --text-heading-3-line-height: 2.5rem; /* 44px */
+    --text-heading-3-letter-spacing: 1%;
+
+    --text-heading-4-size: 1.75rem; /* 24px */
+    --text-heading-4-line-height: 2rem; /* 32px */
+    --text-heading-4-letter-spacing: 1%;
+
+    --text-heading-5-size: 1.5rem; /* 24px */
+    --text-heading-5-line-height: 2rem; /* 32px */
+    --text-heading-5-letter-spacing: 1%;
+
+    /* Body Typography */
+    --text-body-1-size: 1.25rem; /* 18px */
+    --text-body-1-line-height: 1.75rem; /* 28px */
+    --text-body-1-letter-spacing: 2%;
+
+    --text-body-2-size: 1rem; /* 16px */
+    --text-body-2-line-height: 1.5rem; /* 24px */
+    --text-body-2-letter-spacing: 2%;
+
+    /* Caption Typography */
+    --text-button-56-size: 1.1875rem;
+    --text-button-56-line-height: 1.5rem;
+    --text-button-56-letter-spacing: 2%;
+    --text-button-56-font-weight: "bold";
+
+    --text-button-48-size: 1.1875rem;
+    --text-button-48-line-height: 1.5rem;
+    --text-button-48-letter-spacing: 2%;
+    --text-button-48-font-weight: "bold";
+
+    --text-button-40-size: 0.9375rem;
+    --text-button-40-line-height: 1rem;
+    --text-button-40-letter-spacing: 2%;
+    --text-button-40-font-weight: "bold";
+
+    --text-button-32-size: 0.875rem;
+    --text-button-32-line-height: 1rem;
+    --text-button-32-letter-spacing: 2%;
+    --text-button-32-font-weight: "bold";
+}

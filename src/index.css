@@ -1,141 +1,222 @@
 @import "tailwindcss";
+@import "./styles/typography.css";
 
 @font-face {
-  font-family: "Alagard";
-  src: url("/src/public/alagard.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "Alagard";
+    src: url("/public/alagard.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Pixelify Sans";
-  src: url("/src/public/PixelifySans-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "Pixelify Sans";
+    src: url("/public/PixelifySans-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Pixelify Sans";
-  src: url("/src/public/PixelifySans-Bold.ttf") format("truetype");
-  font-weight: bold;
-  font-style: normal;
+    font-family: "Pixelify Sans";
+    src: url("/public/PixelifySans-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Pixelify Sans";
-  src: url("/src/public/PixelifySans-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
+    font-family: "Pixelify Sans";
+    src: url("/public/PixelifySans-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
 }
 
 @theme {
-  --font-alagard: "Alagard", serif;
-  --font-pixelify: "Pixelify Sans", sans-serif;
-  
-  --font-family-sans: var(--font-pixelify);
-  --font-family-serif: var(--font-alagard);
+    --font-alagard: "Alagard", serif;
+    --font-pixelify: "Pixelify Sans", sans-serif;
+
+    --font-family-sans: var(--font-pixelify);
+    --font-family-serif: var(--font-alagard);
+
+    /* Brand Colors */
+    --color-brand-50: #fcb3ad;
+    --color-brand-100: #fa8c85;
+    --color-brand-200: #f8665c;
+    --color-brand-300: #f64033;
+    --color-brand-400: #f51a0a;
+    --color-brand-500: #cc1508;
+    --color-brand-600: #a31107;
+    --color-brand-700: #7a0d05;
+    --color-brand-800: #520903;
+    --color-brand-900: #310502;
+
+    /* Secondary */
+    --color-secondary-50: #ffefcf;
+    --color-secondary-100: #ffe4ae;
+    --color-secondary-200: #ffd685;
+    --color-secondary-300: #ffc95c;
+    --color-secondary-400: #ffbb34;
+    --color-secondary-500: #ffae0b;
+    --color-secondary-600: #de9400;
+    --color-secondary-700: #b17600;
+    --color-secondary-800: #865900;
+    --color-secondary-900: #593b00;
+
+    /* Dark */
+    --color-dark-primary: #170908;
+    --color-dark-secondary: #24110f;
+    --color-dark-tertiary: #2f1a18;
+    --color-dark-quaternary: #392423;
+
+    /* Light */
+    --color-light-primary: #ffffff;
+    --color-light-secondary: #c7c5c5;
+    --color-light-tertiary: #918b8a;
+    --color-light-quaternary: #575151;
+
+    /* Translucent-dark */
+    --color-translucent-dark-4: #1709080a;
+    --color-translucent-dark-8: #17090814;
+    --color-translucent-dark-12: #1709081f;
+    --color-translucent-dark-16: #17090829;
+    --color-translucent-dark-24: #1709083d;
+    --color-translucent-dark-32: #17090852;
+    --color-translucent-dark-48: #1709087a;
+    --color-translucent-dark-64: #170908a3;
+    --color-translucent-dark-72: #170908b8;
+    --color-translucent-dark-80: #170908cc;
+
+    /* Translucent-light */
+    --color-translucent-light-4: #ffffff0a;
+    --color-translucent-light-8: #ffffff14;
+    --color-translucent-light-12: #ffffff1f;
+    --color-translucent-light-16: #ffffff29;
+    --color-translucent-light-24: #ffffff3d;
+    --color-translucent-light-32: #ffffff52;
+    --color-translucent-light-48: #ffffff7a;
+    --color-translucent-light-64: #ffffffa3;
+    --color-translucent-light-72: #ffffffb8;
+    --color-translucent-light-80: #ffffffcc;
+
+    /* System */
+    --color-system-success-primary: #2cb59e;
+    --color-system-success-secondary: #2cb59e33;
+    --color-system-error-primary: #ff5c69;
+    --color-system-error-secondary: #ff5c6933;
+    --color-system-warning-primary: #ff9800;
+    --color-system-warning-secondary: #ff980033;
+    --color-system-info-primary: #6db5e5;
+    --color-system-info-secondary: #6db5e533;
+
+    /* Game UI Colors */
+    --color-gold: #ffff00;
+    --color-success: #00ff88;
+    --color-error: #ff6666;
+    --color-warning: #ffaa00;
+    --color-info: #88ddff;
 }
 
 /* Custom styles */
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 body {
-  font-family: var(--font-pixelify);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #111827; /* gray-900 */
+    font-family: var(--font-pixelify);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #111827; /* gray-900 */
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+    font-family:
+        source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 /* Game container styles */
 #game-container {
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 #game-container canvas {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #374151; /* gray-700 */
+    background: #374151; /* gray-700 */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #6b7280; /* gray-500 */
-  border-radius: 4px;
+    background: #6b7280; /* gray-500 */
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af; /* gray-400 */
+    background: #9ca3af; /* gray-400 */
 }
+
 
 /* Animation classes */
 .fade-in {
-  animation: fadeIn 0.5s ease-in;
+    animation: fadeIn 0.5s ease-in;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .slide-in {
-  animation: slideIn 0.3s ease-out;
+    animation: slideIn 0.3s ease-out;
 }
 
 @keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
 
 /* Button hover effects */
 .btn-primary {
-  @apply bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded transition-colors duration-200;
+    @apply bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded transition-colors duration-200;
 }
 
 .btn-secondary {
-  @apply bg-transparent border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-gray-900 font-bold py-2 px-4 rounded transition-colors duration-200;
+    @apply bg-transparent border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-gray-900 font-bold py-2 px-4 rounded transition-colors duration-200;
 }
 
 /* Card styles */
 .card {
-  @apply bg-gray-800 rounded-lg p-6 border border-gray-700;
+    @apply bg-gray-800 rounded-lg p-6 border border-gray-700;
 }
 
 .card-hover {
-  @apply hover:bg-gray-700 transition-colors duration-200;
+    @apply hover:bg-gray-700 transition-colors duration-200;
 }
