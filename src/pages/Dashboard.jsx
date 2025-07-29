@@ -7,18 +7,17 @@ import { useAuth } from "../context/AuthContext";
 const Dashboard = () => {
   const { user } = useAuth();
 
-  console.log(user);
-  // const {
-  //   data: userData,
-  //   isLoading,
-  //   error,
-  // } = useQuery({
-  //   queryKey: ["user"],
-  //   queryFn: () => getUserById(user.id),
-  // });
+  const {
+    data: userData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => getUserById(user.id),
+  });
 
-  // if (isLoading) return <div>Loading...</div>;
-  // if (error) return <div>Error loading user data</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading user data</div>;
 
   return (
     <div className="bg-dark-secondary flex flex-col">

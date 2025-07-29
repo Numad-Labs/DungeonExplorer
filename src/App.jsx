@@ -22,6 +22,7 @@ import HPBar from "./components/HPBar.jsx";
 import SkillExpBar from "./components/SkillExpBar.jsx";
 import Timer from "./components/Timer.jsx";
 import GameNotifications from "./components/GameNotifications.jsx";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -341,15 +342,26 @@ function AppRoutes() {
   );
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
 function App() {
   return (
-    <AuthProvider>
-      <GameProvider>
-        <Router>
-          <AppRoutes />
-        </Router>
-      </GameProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <GameProvider>
+          <Router>
+            <AppRoutes />
+          </Router>
+        </GameProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
