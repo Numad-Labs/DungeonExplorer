@@ -1,0 +1,36 @@
+{
+    "id": "b5ff83ca-631a-4504-946a-78c49565ecf3",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Bomber.Scene",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "016a1634-b267-4963-a1c7-81d371013e6f",
+            "label": "bomberRun",
+            "scope": "CLASS",
+            "texture": {
+                "key": "Bomber_Activited_run_v01",
+                "frame": 0
+            },
+            "x": 1106,
+            "y": 1135,
+            "animationPlayMethod": 1,
+            "animationKey": "BomberRun"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

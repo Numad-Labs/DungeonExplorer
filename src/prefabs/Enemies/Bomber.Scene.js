@@ -5,25 +5,29 @@
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class BigDude extends Phaser.GameObjects.Sprite {
+export default class Bomber extends Phaser.GameObjects.Sprite {
 
     constructor(scene, x, y, texture, frame) {
-        super(scene, x ?? 64, y ?? 64, texture || "run_2", frame ?? 0);
+        super(scene, x ?? 64, y ?? 64, texture || "Bomber_Activited_run_v01", frame ?? 0);
 
         /* START-USER-CTR-CODE */
         scene.physics.add.existing(this, false);
-        this.body.setSize(32, 32, false);
-        this.body.setOffset(16, 32);
-        this.maxHealth = 80;
+        this.body.setSize(28, 28, false);
+        this.body.setOffset(18, 20);
+        this.maxHealth = 40;
         this.health = this.maxHealth;
-        this.damage = 25;
-        this.speed = 30;
-        this.attackRange = 40;
-        this.attackCooldown = 1500;
-        this.lastAttackTime = 0;
+        this.damage = 35; 
+        this.speed = 35;
+        this.explosionRange = 80;
+        this.triggerRange = 50; 
+        this.explosionDelay = 1000; 
+        this.isTriggered = false;
+        this.triggerTime = 0;
         this.isDead = false;
         this.isMoving = false;
         this.lastDirection = 'down';
+        this.flashTimer = 0;
+        this.flashInterval = 200; 
         this.createHealthBar();
         this.createAnimations();
         this.addToZombieGroup(scene);
@@ -43,17 +47,17 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         scene.zombieGroup.add(this);
     }
 
-    handleZombieCollision(zombie1, zombie2, bigDude) {
+    handleZombieCollision(zombie1, zombie2, bomber) {
         const distance = Phaser.Math.Distance.Between(
             zombie1.x, zombie1.y, zombie2.x, zombie2.y
         );
 
-        if (distance < 30) {
+        if (distance < 28) {
             const angle = Phaser.Math.Angle.Between(
                 zombie1.x, zombie1.y, zombie2.x, zombie2.y
             );
 
-            const separationForce = 40;
+            const separationForce = 35;
             const pushX = Math.cos(angle) * separationForce;
             const pushY = Math.sin(angle) * separationForce;
 
@@ -62,36 +66,35 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
             zombie1.body.velocity.x -= pushX;
             zombie1.body.velocity.y -= pushY;
 
-            if (bigDude) {
-                bigDude.body.velocity.x -= pushX * 0.5;
-                bigDude.body.velocity.y -= pushY * 0.5;
+            if (bomber) {
+                bomber.body.velocity.x -= pushX * 0.4;
+                bomber.body.velocity.y -= pushY * 0.4;
             }
         }
     }
 
     createAnimations() {
-        if (!this.scene.anims.exists('BigDude Run')) {
+        if (!this.scene.anims.exists('Bomber Run')) {
             this.scene.anims.create({
-                key: 'BigDude Run',
-                frames: this.scene.anims.generateFrameNumbers('run_2', { start: 0, end: 7}),
-                frameRate: 6,
+                key: 'Bomber Run',
+                frames: this.scene.anims.generateFrameNumbers('Bomber_Activited_run_v01', { start: 0, end: 7}),
+                frameRate: 8,
                 repeat: -1
             });
         }
-
-        if (this.scene.textures.exists('attack 2t') && !this.scene.anims.exists('BigDude Attack2')) {
+        if (this.scene.textures.exists('bomber_explode') && !this.scene.anims.exists('Bomber Explode')) {
             this.scene.anims.create({
-                key: 'BigDude Attack2',
-                frames: this.scene.anims.generateFrameNumbers('attack 2t', { start: 0, end: 7}),
-                frameRate: 8,
+                key: 'Bomber Explode',
+                frames: this.scene.anims.generateFrameNumbers('bomber_explode', { start: 0, end: 5}),
+                frameRate: 15,
                 repeat: 0 
             });
         }
        
-        if (!this.scene.anims.exists('BigDude Idle')) {
+        if (!this.scene.anims.exists('Bomber Idle')) {
             this.scene.anims.create({
-                key: 'BigDude Idle',
-                frames: [{ key: 'run_2', frame: 0 }],
+                key: 'Bomber Idle',
+                frames: [{ key: 'Bomber_Activited_run_v01', frame: 0 }],
                 frameRate: 1,
                 repeat: 0
             });
@@ -99,12 +102,12 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     }
 
     createHealthBar() {
-        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 25, 40, 6, 0xff0000);
+        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 22, 35, 5, 0xff0000);
         this.healthBarBg.setOrigin(0.5, 0.5);
         this.healthBarBg.setDepth(1);
 
         this.healthBarFg = this.scene.add.rectangle(
-            this.x - 20, this.y - 25, 40, 6, 0x00ff00
+            this.x - 17.5, this.y - 22, 35, 5, 0x00ff00
         );
         this.healthBarFg.setOrigin(0, 0.5);
         this.healthBarFg.setDepth(20);
@@ -121,10 +124,14 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         if (!this.healthBarFg || !this.healthBarBg) return;
 
         this.healthBarBg.setPosition(this.x, this.y - 15);
-        this.healthBarFg.setPosition(this.x - 20, this.y - 15);
+        this.healthBarFg.setPosition(this.x - 17.5, this.y - 15);
 
         const healthPercentage = this.health / this.maxHealth;
-        this.healthBarFg.width = 40 * healthPercentage;
+        this.healthBarFg.width = 35 * healthPercentage;
+        if (this.isTriggered) {
+            this.healthBarBg.setFillStyle(0xffaa00);
+            this.healthBarFg.setFillStyle(0xff0000);
+        }
     }
 
     update(time, delta) {
@@ -140,21 +147,36 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                 this.x, this.y,
                 player.x, player.y
             );
-
-            if (distance > this.attackRange) {
+            if (!this.isTriggered && distance <= this.triggerRange) {
+                this.triggerExplosion(time);
+            }
+            if (this.isTriggered) {
+                this.handleTriggeredState(time);
+                if (time - this.triggerTime >= this.explosionDelay) {
+                    this.explode();
+                    return;
+                }
+            }
+            const moveSpeed = this.isTriggered ? this.speed * 1.5 : this.speed;
+            
+            if (distance > 10) { 
                 const angle = Phaser.Math.Angle.Between(
                     this.x, this.y,
                     player.x, player.y
                 );
-                const forceX = Math.cos(angle) * this.speed * 0.1;
-                const forceY = Math.sin(angle) * this.speed * 0.1;
+                const forceMultiplier = this.isTriggered ? 0.15 : 0.11;
+                const forceX = Math.cos(angle) * moveSpeed * forceMultiplier;
+                const forceY = Math.sin(angle) * moveSpeed * forceMultiplier;
                 this.body.velocity.x += forceX;
                 this.body.velocity.y += forceY;
-                this.body.velocity.x *= 0.85; 
-                this.body.velocity.y *= 0.85;
-                this.applyZombieAvoidance();
+                this.body.velocity.x *= 0.88; 
+                this.body.velocity.y *= 0.88;
+                
+                if (!this.isTriggered) {
+                    this.applyZombieAvoidance();
+                }
 
-                const maxSpeed = this.speed;
+                const maxSpeed = moveSpeed;
                 const currentSpeed = Math.sqrt(
                     this.body.velocity.x * this.body.velocity.x + 
                     this.body.velocity.y * this.body.velocity.y
@@ -168,31 +190,126 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                 this.isMoving = true;
                 this.updateDirection(angle);
             } else {
-                this.body.velocity.x *= 0.7;
-                this.body.velocity.y *= 0.7;
+                this.body.velocity.x *= 0.8;
+                this.body.velocity.y *= 0.8;
                 const currentSpeed = Math.sqrt(
                     this.body.velocity.x * this.body.velocity.x + 
                     this.body.velocity.y * this.body.velocity.y
                 );
-                this.isMoving = currentSpeed > 5; 
-
-                if (time - this.lastAttackTime > this.attackCooldown) {
-                    this.attackPlayer(player);
-                    this.lastAttackTime = time;
-                }
+                this.isMoving = currentSpeed > 3;
             }
 
             this.updateAnimation();
         } catch (error) {
-            console.error("Error in BigDude update:", error);
+            console.error("Error in Bomber update:", error);
+        }
+    }
+
+    triggerExplosion(time) {
+        this.isTriggered = true;
+        this.triggerTime = time;
+        this.setTint(0xff6600);
+        
+        if (this.scene.sound && this.scene.sound.get('bomber_trigger')) {
+            this.scene.sound.play('bomber_trigger');
+        }
+    }
+
+    handleTriggeredState(time) {
+        const timeLeft = this.explosionDelay - (time - this.triggerTime);
+        const flashSpeed = Math.max(50, timeLeft * 0.2);
+        
+        if (time - this.flashTimer > flashSpeed) {
+            if (this.tint === 0xffffff) {
+                this.setTint(0xff0000); 
+            } else {
+                this.clearTint();
+            }
+            this.flashTimer = time;
+        }
+    }
+
+    explode() {
+        if (this.isDead) return;
+
+        this.isDead = true;
+        this.body.enable = false;
+        this.stop();
+        this.createExplosionEffect();
+        this.dealExplosionDamage();
+        if (this.scene.sound && this.scene.sound.get('explosion')) {
+            this.scene.sound.play('explosion');
+        }
+
+        if (this.scene.zombieGroup) {
+            this.scene.zombieGroup.remove(this);
+        }
+        this.scene.tweens.add({
+            targets: this,
+            scaleX: 2,
+            scaleY: 2,
+            alpha: 0,
+            duration: 300,
+            ease: 'Power2',
+            onComplete: () => this.cleanupAndDestroy()
+        });
+
+        this.spawnRewards();
+    }
+
+    createExplosionEffect() {
+        const explosionCircle = this.scene.add.circle(this.x, this.y, 0, 0xff4400, 0.7);
+        explosionCircle.setDepth(100);
+
+        this.scene.tweens.add({
+            targets: explosionCircle,
+            radius: this.explosionRange,
+            alpha: 0,
+            duration: 400,
+            ease: 'Power2',
+            onComplete: () => explosionCircle.destroy()
+        });
+    }
+
+    dealExplosionDamage() {
+        const player = this.scene.player;
+        if (player && player.active) {
+            const playerDistance = Phaser.Math.Distance.Between(
+                this.x, this.y, player.x, player.y
+            );
+            
+            if (playerDistance <= this.explosionRange) {
+                const damageMultiplier = 1 - (playerDistance / this.explosionRange);
+                const finalDamage = Math.floor(this.damage * damageMultiplier);
+                if (player.takeDamage) {
+                    player.takeDamage(finalDamage);
+                }
+            }
+        }
+        if (this.scene.zombieGroup) {
+            this.scene.zombieGroup.children.entries.forEach(enemy => {
+                if (enemy === this || enemy.isDead || !enemy.active) return;
+                
+                const enemyDistance = Phaser.Math.Distance.Between(
+                    this.x, this.y, enemy.x, enemy.y
+                );
+                
+                if (enemyDistance <= this.explosionRange) {
+                    const damageMultiplier = 1 - (enemyDistance / this.explosionRange);
+                    const finalDamage = Math.floor(this.damage * 0.5 * damageMultiplier);
+                    if (enemy.takeDamage) {
+                        enemy.takeDamage(finalDamage);
+                    }
+                }
+            });
         }
     }
 
     applyZombieAvoidance() {
         if (!this.scene.zombieGroup) return;
 
-        const avoidanceRadius = 35; 
-        const avoidanceForce = 20; 
+        const avoidanceRadius = 30;
+        const avoidanceForce = 18;
         let totalAvoidanceX = 0;
         let totalAvoidanceY = 0;
         let nearbyZombies = 0;
@@ -217,8 +334,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         });
 
         if (nearbyZombies > 0) {
-            this.body.velocity.x += totalAvoidanceX * 0.08;
-            this.body.velocity.y += totalAvoidanceY * 0.08;
+            this.body.velocity.x += totalAvoidanceX * 0.07;
+            this.body.velocity.y += totalAvoidanceY * 0.07;
         }
     }
 
@@ -238,9 +355,11 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
 
     updateAnimation() {
         if (this.isMoving) {
-
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'BigDude Run') {
-                this.play('BigDude Run');
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Bomber Run') {
+                this.play('Bomber Run');
+                if (this.isTriggered) {
+                    this.anims.msPerFrame = 80; 
+                }
             }
 
             if (this.lastDirection === 'right') {
@@ -249,34 +368,10 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                 this.setFlipX(true);
             }
         } else {
-
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'BigDude Idle') {
-                this.play('BigDude Idle');
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Bomber Idle') {
+                this.play('Bomber Idle');
             }
         }
-    }
-
-    attackPlayer(player) {
-        if (!player || !player.takeDamage) return;
-        if (this.scene.anims.exists('BigDude Attack2')) {
-            this.play('BigDude Attack2');
-            this.scene.time.delayedCall(400, () => {
-                if (player && player.takeDamage && !this.isDead) {
-                    player.takeDamage(this.damage);
-                }
-            });
-        } else {
-            player.takeDamage(this.damage);
-        }
-
-        this.setTint(0xff8800); 
-        this.scene.time.delayedCall(200, () => {
-            if (this.active) {
-                this.clearTint();
-            }
-        });
-
-        this.lastAttackTime = this.scene.time.now;
     }
 
     takeDamage(amount) {
@@ -286,55 +381,30 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         this.updateHealthBar();
 
         this.setTint(0xff0000);
-        this.scene.time.delayedCall(150, () => {
-            if (this.active) {
+        this.scene.time.delayedCall(120, () => {
+            if (this.active && !this.isTriggered) {
                 this.clearTint();
             }
         });
 
         if (this.health <= 0) {
-            this.die();
+            this.explode(); 
         }
-    }
-
-    die() {
-        if (this.isDead) return;
-
-        this.isDead = true;
-
-        this.body.velocity.x = 0;
-        this.body.velocity.y = 0;
-        this.body.enable = false;
-        this.stop();
-
-        if (this.scene.zombieGroup) {
-            this.scene.zombieGroup.remove(this);
-        }
-
-        this.scene.tweens.add({
-            targets: this,
-            alpha: 0,
-            scale: 0.7,
-            duration: 500,
-            onComplete: () => this.cleanupAndDestroy()
-        });
-
-        this.spawnRewards();
     }
 
     spawnRewards() {
         try {
             if (this.scene.spawnExperienceOrb) {
-                const orbCount = Phaser.Math.Between(3, 6); 
+                const orbCount = Phaser.Math.Between(2, 4);
 
                 for (let i = 0; i < orbCount; i++) {
-                    const xOffset = Phaser.Math.Between(-15, 15);
-                    const yOffset = Phaser.Math.Between(-15, 15);
+                    const xOffset = Phaser.Math.Between(-20, 20);
+                    const yOffset = Phaser.Math.Between(-20, 20);
 
                     this.scene.spawnExperienceOrb(
                         this.x + xOffset, 
                         this.y + yOffset, 
-                        2 // Higher experience value
+                        3 
                     );
                 }
             }

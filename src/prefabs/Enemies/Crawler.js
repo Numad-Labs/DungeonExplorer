@@ -5,21 +5,21 @@
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class BigDude extends Phaser.GameObjects.Sprite {
+export default class Crawler extends Phaser.GameObjects.Sprite {
 
     constructor(scene, x, y, texture, frame) {
-        super(scene, x ?? 64, y ?? 64, texture || "run_2", frame ?? 0);
+        super(scene, x ?? 64, y ?? 64, texture || "crawler_run_32x16_v01", frame ?? 0);
 
         /* START-USER-CTR-CODE */
         scene.physics.add.existing(this, false);
-        this.body.setSize(32, 32, false);
-        this.body.setOffset(16, 32);
-        this.maxHealth = 80;
+        this.body.setSize(24, 12, false);
+        this.body.setOffset(4, 4);
+        this.maxHealth = 30;
         this.health = this.maxHealth;
-        this.damage = 25;
-        this.speed = 30;
-        this.attackRange = 40;
-        this.attackCooldown = 1500;
+        this.damage = 15;
+        this.speed = 45;
+        this.attackRange = 25;
+        this.attackCooldown = 800; 
         this.lastAttackTime = 0;
         this.isDead = false;
         this.isMoving = false;
@@ -43,17 +43,17 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         scene.zombieGroup.add(this);
     }
 
-    handleZombieCollision(zombie1, zombie2, bigDude) {
+    handleZombieCollision(zombie1, zombie2, crawler) {
         const distance = Phaser.Math.Distance.Between(
             zombie1.x, zombie1.y, zombie2.x, zombie2.y
         );
 
-        if (distance < 30) {
+        if (distance < 25) { 
             const angle = Phaser.Math.Angle.Between(
                 zombie1.x, zombie1.y, zombie2.x, zombie2.y
             );
 
-            const separationForce = 40;
+            const separationForce = 30; 
             const pushX = Math.cos(angle) * separationForce;
             const pushY = Math.sin(angle) * separationForce;
 
@@ -62,36 +62,36 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
             zombie1.body.velocity.x -= pushX;
             zombie1.body.velocity.y -= pushY;
 
-            if (bigDude) {
-                bigDude.body.velocity.x -= pushX * 0.5;
-                bigDude.body.velocity.y -= pushY * 0.5;
+            if (crawler) {
+                crawler.body.velocity.x -= pushX * 0.3;
+                crawler.body.velocity.y -= pushY * 0.3;
             }
         }
     }
 
     createAnimations() {
-        if (!this.scene.anims.exists('BigDude Run')) {
+        if (!this.scene.anims.exists('Crawler Run')) {
             this.scene.anims.create({
-                key: 'BigDude Run',
-                frames: this.scene.anims.generateFrameNumbers('run_2', { start: 0, end: 7}),
-                frameRate: 6,
+                key: 'Crawler Run',
+                frames: this.scene.anims.generateFrameNumbers('crawler_run_32x16_v01', { start: 0, end: 7}),
+                frameRate: 10,
                 repeat: -1
             });
         }
 
-        if (this.scene.textures.exists('attack 2t') && !this.scene.anims.exists('BigDude Attack2')) {
+        if (this.scene.textures.exists('crawler_attack') && !this.scene.anims.exists('Crawler Attack')) {
             this.scene.anims.create({
-                key: 'BigDude Attack2',
-                frames: this.scene.anims.generateFrameNumbers('attack 2t', { start: 0, end: 7}),
-                frameRate: 8,
+                key: 'Crawler Attack',
+                frames: this.scene.anims.generateFrameNumbers('crawler_attack', { start: 0, end: 5}),
+                frameRate: 12,
                 repeat: 0 
             });
         }
        
-        if (!this.scene.anims.exists('BigDude Idle')) {
+        if (!this.scene.anims.exists('Crawler Idle')) {
             this.scene.anims.create({
-                key: 'BigDude Idle',
-                frames: [{ key: 'run_2', frame: 0 }],
+                key: 'Crawler Idle',
+                frames: [{ key: 'crawler_run_32x16_v01', frame: 0 }],
                 frameRate: 1,
                 repeat: 0
             });
@@ -99,12 +99,12 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     }
 
     createHealthBar() {
-        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 25, 40, 6, 0xff0000);
+        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 20, 30, 4, 0xff0000);
         this.healthBarBg.setOrigin(0.5, 0.5);
         this.healthBarBg.setDepth(1);
 
         this.healthBarFg = this.scene.add.rectangle(
-            this.x - 20, this.y - 25, 40, 6, 0x00ff00
+            this.x - 15, this.y - 20, 30, 4, 0x00ff00
         );
         this.healthBarFg.setOrigin(0, 0.5);
         this.healthBarFg.setDepth(20);
@@ -120,11 +120,11 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     updateHealthBar() {
         if (!this.healthBarFg || !this.healthBarBg) return;
 
-        this.healthBarBg.setPosition(this.x, this.y - 15);
-        this.healthBarFg.setPosition(this.x - 20, this.y - 15);
+        this.healthBarBg.setPosition(this.x, this.y - 12);
+        this.healthBarFg.setPosition(this.x - 15, this.y - 12);
 
         const healthPercentage = this.health / this.maxHealth;
-        this.healthBarFg.width = 40 * healthPercentage;
+        this.healthBarFg.width = 30 * healthPercentage;
     }
 
     update(time, delta) {
@@ -146,12 +146,12 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                     this.x, this.y,
                     player.x, player.y
                 );
-                const forceX = Math.cos(angle) * this.speed * 0.1;
-                const forceY = Math.sin(angle) * this.speed * 0.1;
+                const forceX = Math.cos(angle) * this.speed * 0.12;
+                const forceY = Math.sin(angle) * this.speed * 0.12;
                 this.body.velocity.x += forceX;
                 this.body.velocity.y += forceY;
-                this.body.velocity.x *= 0.85; 
-                this.body.velocity.y *= 0.85;
+                this.body.velocity.x *= 0.9;
+                this.body.velocity.y *= 0.9;
                 this.applyZombieAvoidance();
 
                 const maxSpeed = this.speed;
@@ -168,13 +168,13 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                 this.isMoving = true;
                 this.updateDirection(angle);
             } else {
-                this.body.velocity.x *= 0.7;
-                this.body.velocity.y *= 0.7;
+                this.body.velocity.x *= 0.8;
+                this.body.velocity.y *= 0.8;
                 const currentSpeed = Math.sqrt(
                     this.body.velocity.x * this.body.velocity.x + 
                     this.body.velocity.y * this.body.velocity.y
                 );
-                this.isMoving = currentSpeed > 5; 
+                this.isMoving = currentSpeed > 3; 
 
                 if (time - this.lastAttackTime > this.attackCooldown) {
                     this.attackPlayer(player);
@@ -184,15 +184,15 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
 
             this.updateAnimation();
         } catch (error) {
-            console.error("Error in BigDude update:", error);
+            console.error("Error in Crawler update:", error);
         }
     }
 
     applyZombieAvoidance() {
         if (!this.scene.zombieGroup) return;
 
-        const avoidanceRadius = 35; 
-        const avoidanceForce = 20; 
+        const avoidanceRadius = 25; 
+        const avoidanceForce = 15; 
         let totalAvoidanceX = 0;
         let totalAvoidanceY = 0;
         let nearbyZombies = 0;
@@ -217,8 +217,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         });
 
         if (nearbyZombies > 0) {
-            this.body.velocity.x += totalAvoidanceX * 0.08;
-            this.body.velocity.y += totalAvoidanceY * 0.08;
+            this.body.velocity.x += totalAvoidanceX * 0.06;
+            this.body.velocity.y += totalAvoidanceY * 0.06;
         }
     }
 
@@ -238,9 +238,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
 
     updateAnimation() {
         if (this.isMoving) {
-
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'BigDude Run') {
-                this.play('BigDude Run');
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Crawler Run') {
+                this.play('Crawler Run');
             }
 
             if (this.lastDirection === 'right') {
@@ -249,18 +248,18 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                 this.setFlipX(true);
             }
         } else {
-
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'BigDude Idle') {
-                this.play('BigDude Idle');
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Crawler Idle') {
+                this.play('Crawler Idle');
             }
         }
     }
 
     attackPlayer(player) {
         if (!player || !player.takeDamage) return;
-        if (this.scene.anims.exists('BigDude Attack2')) {
-            this.play('BigDude Attack2');
-            this.scene.time.delayedCall(400, () => {
+        
+        if (this.scene.anims.exists('Crawler Attack')) {
+            this.play('Crawler Attack');
+            this.scene.time.delayedCall(300, () => {
                 if (player && player.takeDamage && !this.isDead) {
                     player.takeDamage(this.damage);
                 }
@@ -269,8 +268,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
             player.takeDamage(this.damage);
         }
 
-        this.setTint(0xff8800); 
-        this.scene.time.delayedCall(200, () => {
+        this.setTint(0xff4400); 
+        this.scene.time.delayedCall(150, () => {
             if (this.active) {
                 this.clearTint();
             }
@@ -286,7 +285,7 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         this.updateHealthBar();
 
         this.setTint(0xff0000);
-        this.scene.time.delayedCall(150, () => {
+        this.scene.time.delayedCall(100, () => {
             if (this.active) {
                 this.clearTint();
             }
@@ -314,8 +313,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         this.scene.tweens.add({
             targets: this,
             alpha: 0,
-            scale: 0.7,
-            duration: 500,
+            scale: 0.5, 
+            duration: 400, 
             onComplete: () => this.cleanupAndDestroy()
         });
 
@@ -325,16 +324,16 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     spawnRewards() {
         try {
             if (this.scene.spawnExperienceOrb) {
-                const orbCount = Phaser.Math.Between(3, 6); 
+                const orbCount = Phaser.Math.Between(1, 3); 
 
                 for (let i = 0; i < orbCount; i++) {
-                    const xOffset = Phaser.Math.Between(-15, 15);
-                    const yOffset = Phaser.Math.Between(-15, 15);
+                    const xOffset = Phaser.Math.Between(-10, 10);
+                    const yOffset = Phaser.Math.Between(-10, 10);
 
                     this.scene.spawnExperienceOrb(
                         this.x + xOffset, 
                         this.y + yOffset, 
-                        2 // Higher experience value
+                        1 
                     );
                 }
             }

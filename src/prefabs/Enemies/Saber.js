@@ -5,25 +5,32 @@
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class BigDude extends Phaser.GameObjects.Sprite {
+export default class Saber extends Phaser.GameObjects.Sprite {
 
     constructor(scene, x, y, texture, frame) {
-        super(scene, x ?? 64, y ?? 64, texture || "run_2", frame ?? 0);
+        super(scene, x ?? 64, y ?? 64, texture || "saber_run_53x53_v01", frame ?? 0);
 
         /* START-USER-CTR-CODE */
         scene.physics.add.existing(this, false);
-        this.body.setSize(32, 32, false);
-        this.body.setOffset(16, 32);
-        this.maxHealth = 80;
+        this.body.setSize(36, 36, false);
+        this.body.setOffset(8, 8);
+        this.maxHealth = 60;
         this.health = this.maxHealth;
-        this.damage = 25;
-        this.speed = 30;
-        this.attackRange = 40;
-        this.attackCooldown = 1500;
+        this.damage = 20;
+        this.speed = 55; // Fastest enemy
+        this.attackRange = 35;
+        this.attackCooldown = 600; // Very fast attacks
         this.lastAttackTime = 0;
         this.isDead = false;
         this.isMoving = false;
+        this.isAttacking = false;
         this.lastDirection = 'down';
+        this.dashCooldown = 3000; // Dash ability every 3 seconds
+        this.lastDashTime = 0;
+        this.dashSpeed = 120;
+        this.dashDuration = 300;
+        this.isDashing = false;
+        this.dashStartTime = 0;
         this.createHealthBar();
         this.createAnimations();
         this.addToZombieGroup(scene);
@@ -43,17 +50,17 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         scene.zombieGroup.add(this);
     }
 
-    handleZombieCollision(zombie1, zombie2, bigDude) {
+    handleZombieCollision(zombie1, zombie2, saber) {
         const distance = Phaser.Math.Distance.Between(
             zombie1.x, zombie1.y, zombie2.x, zombie2.y
         );
 
-        if (distance < 30) {
+        if (distance < 32) {
             const angle = Phaser.Math.Angle.Between(
                 zombie1.x, zombie1.y, zombie2.x, zombie2.y
             );
 
-            const separationForce = 40;
+            const separationForce = 25; // Less separation force for agile enemy
             const pushX = Math.cos(angle) * separationForce;
             const pushY = Math.sin(angle) * separationForce;
 
@@ -62,36 +69,47 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
             zombie1.body.velocity.x -= pushX;
             zombie1.body.velocity.y -= pushY;
 
-            if (bigDude) {
-                bigDude.body.velocity.x -= pushX * 0.5;
-                bigDude.body.velocity.y -= pushY * 0.5;
+            if (saber && !saber.isDashing) { // Don't affect dash movement
+                saber.body.velocity.x -= pushX * 0.2;
+                saber.body.velocity.y -= pushY * 0.2;
             }
         }
     }
 
     createAnimations() {
-        if (!this.scene.anims.exists('BigDude Run')) {
+        if (!this.scene.anims.exists('Saber Run')) {
             this.scene.anims.create({
-                key: 'BigDude Run',
-                frames: this.scene.anims.generateFrameNumbers('run_2', { start: 0, end: 7}),
-                frameRate: 6,
+                key: 'Saber Run',
+                frames: this.scene.anims.generateFrameNumbers('saber_run_53x53_v01', { start: 0, end: 7}),
+                frameRate: 12, // Fast animation
                 repeat: -1
             });
         }
 
-        if (this.scene.textures.exists('attack 2t') && !this.scene.anims.exists('BigDude Attack2')) {
+        // Check if attack animation exists
+        if (this.scene.textures.exists('saber_attack') && !this.scene.anims.exists('Saber Attack')) {
             this.scene.anims.create({
-                key: 'BigDude Attack2',
-                frames: this.scene.anims.generateFrameNumbers('attack 2t', { start: 0, end: 7}),
-                frameRate: 8,
+                key: 'Saber Attack',
+                frames: this.scene.anims.generateFrameNumbers('saber_attack', { start: 0, end: 5}),
+                frameRate: 15,
                 repeat: 0 
             });
         }
-       
-        if (!this.scene.anims.exists('BigDude Idle')) {
+
+        // Check if dash animation exists
+        if (this.scene.textures.exists('saber_dash') && !this.scene.anims.exists('Saber Dash')) {
             this.scene.anims.create({
-                key: 'BigDude Idle',
-                frames: [{ key: 'run_2', frame: 0 }],
+                key: 'Saber Dash',
+                frames: this.scene.anims.generateFrameNumbers('saber_dash', { start: 0, end: 3}),
+                frameRate: 20,
+                repeat: -1 
+            });
+        }
+       
+        if (!this.scene.anims.exists('Saber Idle')) {
+            this.scene.anims.create({
+                key: 'Saber Idle',
+                frames: [{ key: 'saber_run_53x53_v01', frame: 0 }],
                 frameRate: 1,
                 repeat: 0
             });
@@ -99,12 +117,12 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     }
 
     createHealthBar() {
-        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 25, 40, 6, 0xff0000);
+        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 25, 38, 5, 0xff0000);
         this.healthBarBg.setOrigin(0.5, 0.5);
         this.healthBarBg.setDepth(1);
 
         this.healthBarFg = this.scene.add.rectangle(
-            this.x - 20, this.y - 25, 40, 6, 0x00ff00
+            this.x - 19, this.y - 25, 38, 5, 0x00ff00
         );
         this.healthBarFg.setOrigin(0, 0.5);
         this.healthBarFg.setDepth(20);
@@ -120,11 +138,20 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     updateHealthBar() {
         if (!this.healthBarFg || !this.healthBarBg) return;
 
-        this.healthBarBg.setPosition(this.x, this.y - 15);
-        this.healthBarFg.setPosition(this.x - 20, this.y - 15);
+        this.healthBarBg.setPosition(this.x, this.y - 18);
+        this.healthBarFg.setPosition(this.x - 19, this.y - 18);
 
         const healthPercentage = this.health / this.maxHealth;
-        this.healthBarFg.width = 40 * healthPercentage;
+        this.healthBarFg.width = 38 * healthPercentage;
+
+        // Change color when dashing
+        if (this.isDashing) {
+            this.healthBarBg.setFillStyle(0x00aaff); // Blue background when dashing
+            this.healthBarFg.setFillStyle(0x00ffff); // Cyan foreground when dashing
+        } else {
+            this.healthBarBg.setFillStyle(0xff0000);
+            this.healthBarFg.setFillStyle(0x00ff00);
+        }
     }
 
     update(time, delta) {
@@ -141,17 +168,29 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                 player.x, player.y
             );
 
+            // Handle dash ability
+            if (!this.isDashing && time - this.lastDashTime > this.dashCooldown && distance > 80 && distance < 200) {
+                this.startDash(player, time);
+            }
+
+            // Handle dash movement
+            if (this.isDashing) {
+                this.handleDash(time);
+                return; // Skip normal movement while dashing
+            }
+
+            // Normal movement and combat
             if (distance > this.attackRange) {
                 const angle = Phaser.Math.Angle.Between(
                     this.x, this.y,
                     player.x, player.y
                 );
-                const forceX = Math.cos(angle) * this.speed * 0.1;
-                const forceY = Math.sin(angle) * this.speed * 0.1;
+                const forceX = Math.cos(angle) * this.speed * 0.14; // More aggressive than others
+                const forceY = Math.sin(angle) * this.speed * 0.14;
                 this.body.velocity.x += forceX;
                 this.body.velocity.y += forceY;
-                this.body.velocity.x *= 0.85; 
-                this.body.velocity.y *= 0.85;
+                this.body.velocity.x *= 0.92; // Less friction for agile movement
+                this.body.velocity.y *= 0.92;
                 this.applyZombieAvoidance();
 
                 const maxSpeed = this.speed;
@@ -166,15 +205,16 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
                     this.body.velocity.y *= scale;
                 }
                 this.isMoving = true;
+                this.isAttacking = false;
                 this.updateDirection(angle);
             } else {
-                this.body.velocity.x *= 0.7;
-                this.body.velocity.y *= 0.7;
+                this.body.velocity.x *= 0.85;
+                this.body.velocity.y *= 0.85;
                 const currentSpeed = Math.sqrt(
                     this.body.velocity.x * this.body.velocity.x + 
                     this.body.velocity.y * this.body.velocity.y
                 );
-                this.isMoving = currentSpeed > 5; 
+                this.isMoving = currentSpeed > 4;
 
                 if (time - this.lastAttackTime > this.attackCooldown) {
                     this.attackPlayer(player);
@@ -184,15 +224,55 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
 
             this.updateAnimation();
         } catch (error) {
-            console.error("Error in BigDude update:", error);
+            console.error("Error in Saber update:", error);
         }
     }
 
-    applyZombieAvoidance() {
-        if (!this.scene.zombieGroup) return;
+    startDash(player, time) {
+        this.isDashing = true;
+        this.dashStartTime = time;
+        this.lastDashTime = time;
 
-        const avoidanceRadius = 35; 
-        const avoidanceForce = 20; 
+        // Calculate dash direction toward player
+        const angle = Phaser.Math.Angle.Between(
+            this.x, this.y,
+            player.x, player.y
+        );
+
+        // Set dash velocity
+        this.body.velocity.x = Math.cos(angle) * this.dashSpeed;
+        this.body.velocity.y = Math.sin(angle) * this.dashSpeed;
+
+        // Visual effect
+        this.setTint(0x00ffff); // Cyan tint during dash
+        
+        // Play dash sound if available
+        if (this.scene.sound && this.scene.sound.get('saber_dash')) {
+            this.scene.sound.play('saber_dash');
+        }
+
+        this.updateDirection(angle);
+    }
+
+    handleDash(time) {
+        if (time - this.dashStartTime >= this.dashDuration) {
+            // End dash
+            this.isDashing = false;
+            this.clearTint();
+            this.body.velocity.x *= 0.3; // Slow down after dash
+            this.body.velocity.y *= 0.3;
+        }
+        
+        // Dash doesn't avoid other zombies - it goes through them
+        this.isMoving = true;
+        this.updateAnimation();
+    }
+
+    applyZombieAvoidance() {
+        if (!this.scene.zombieGroup || this.isDashing) return;
+
+        const avoidanceRadius = 28; // Smaller avoidance for agile enemy
+        const avoidanceForce = 12;
         let totalAvoidanceX = 0;
         let totalAvoidanceY = 0;
         let nearbyZombies = 0;
@@ -217,8 +297,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         });
 
         if (nearbyZombies > 0) {
-            this.body.velocity.x += totalAvoidanceX * 0.08;
-            this.body.velocity.y += totalAvoidanceY * 0.08;
+            this.body.velocity.x += totalAvoidanceX * 0.05;
+            this.body.velocity.y += totalAvoidanceY * 0.05;
         }
     }
 
@@ -237,41 +317,63 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     }
 
     updateAnimation() {
-        if (this.isMoving) {
-
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'BigDude Run') {
-                this.play('BigDude Run');
+        if (this.isDashing) {
+            if (this.scene.anims.exists('Saber Dash')) {
+                if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Saber Dash') {
+                    this.play('Saber Dash');
+                }
+            } else {
+                if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Saber Run') {
+                    this.play('Saber Run');
+                }
             }
-
-            if (this.lastDirection === 'right') {
-                this.setFlipX(false);
-            } else if (this.lastDirection === 'left') {
-                this.setFlipX(true);
+        } else if (this.isAttacking) {
+            if (this.scene.anims.exists('Saber Attack')) {
+                if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Saber Attack') {
+                    this.play('Saber Attack');
+                }
+            }
+        } else if (this.isMoving) {
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Saber Run') {
+                this.play('Saber Run');
             }
         } else {
-
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'BigDude Idle') {
-                this.play('BigDude Idle');
+            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Saber Idle') {
+                this.play('Saber Idle');
             }
+        }
+
+        // Handle flipping
+        if (this.lastDirection === 'right') {
+            this.setFlipX(false);
+        } else if (this.lastDirection === 'left') {
+            this.setFlipX(true);
         }
     }
 
     attackPlayer(player) {
         if (!player || !player.takeDamage) return;
-        if (this.scene.anims.exists('BigDude Attack2')) {
-            this.play('BigDude Attack2');
-            this.scene.time.delayedCall(400, () => {
+        
+        this.isAttacking = true;
+        
+        if (this.scene.anims.exists('Saber Attack')) {
+            this.play('Saber Attack');
+            this.scene.time.delayedCall(200, () => { // Fast attack timing
                 if (player && player.takeDamage && !this.isDead) {
                     player.takeDamage(this.damage);
                 }
+                this.isAttacking = false;
             });
         } else {
             player.takeDamage(this.damage);
+            this.scene.time.delayedCall(300, () => {
+                this.isAttacking = false;
+            });
         }
 
-        this.setTint(0xff8800); 
-        this.scene.time.delayedCall(200, () => {
-            if (this.active) {
+        this.setTint(0xffff00); // Yellow flash for slash attack
+        this.scene.time.delayedCall(100, () => {
+            if (this.active && !this.isDashing) {
                 this.clearTint();
             }
         });
@@ -286,8 +388,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         this.updateHealthBar();
 
         this.setTint(0xff0000);
-        this.scene.time.delayedCall(150, () => {
-            if (this.active) {
+        this.scene.time.delayedCall(100, () => {
+            if (this.active && !this.isDashing && !this.isAttacking) {
                 this.clearTint();
             }
         });
@@ -314,8 +416,10 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         this.scene.tweens.add({
             targets: this,
             alpha: 0,
-            scale: 0.7,
-            duration: 500,
+            scale: 0.6,
+            rotation: this.rotation + Math.PI, // Spin on death
+            duration: 450,
+            ease: 'Power2',
             onComplete: () => this.cleanupAndDestroy()
         });
 
@@ -325,16 +429,16 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     spawnRewards() {
         try {
             if (this.scene.spawnExperienceOrb) {
-                const orbCount = Phaser.Math.Between(3, 6); 
+                const orbCount = Phaser.Math.Between(2, 5);
 
                 for (let i = 0; i < orbCount; i++) {
-                    const xOffset = Phaser.Math.Between(-15, 15);
-                    const yOffset = Phaser.Math.Between(-15, 15);
+                    const xOffset = Phaser.Math.Between(-12, 12);
+                    const yOffset = Phaser.Math.Between(-12, 12);
 
                     this.scene.spawnExperienceOrb(
                         this.x + xOffset, 
                         this.y + yOffset, 
-                        2 // Higher experience value
+                        2 // Good experience value
                     );
                 }
             }

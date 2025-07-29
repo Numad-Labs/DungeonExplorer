@@ -1,0 +1,36 @@
+{
+    "id": "0286ebc9-dbd1-420a-b5ac-dae372c7362c",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Guardian",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "1e5a0c1c-db20-42a4-9e46-f41d4886aade",
+            "label": "guardianRun",
+            "scope": "CLASS",
+            "texture": {
+                "key": "guradian_walk224x45",
+                "frame": 0
+            },
+            "x": 756,
+            "y": 699,
+            "animationPlayMethod": 1,
+            "animationKey": "guardianRun"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

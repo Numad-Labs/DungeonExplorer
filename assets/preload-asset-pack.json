@@ -402,6 +402,45 @@
                 "key": "blank cards7"
             },
             {
+                "url": "assets/Hero/Bomber/Bomber_Activited_run_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Bomber_Activited_run_v01"
+            },
+            {
+                "url": "assets/Hero/Bomber/Bomber_Death_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Bomber_Death_v01"
+            },
+            {
+                "url": "assets/Hero/Bomber/Bomber_run_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Bomber_run_v01"
+            },
+            {
                 "url": "assets/Static prop/bone - big - 1.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -480,6 +519,45 @@
                 "key": "carriage - no tent"
             },
             {
+                "url": "assets/Hero/Charger/Charger_death_50x31_v01.png",
+                "frameConfig": {
+                    "frameWidth": 50,
+                    "frameHeight": 31,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Charger_death_50x31_v01"
+            },
+            {
+                "url": "assets/Hero/Charger/Charger_run_32x32_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Charger_run_32x32_v01"
+            },
+            {
+                "url": "assets/Hero/Charger/Charger_run_50x31_v01.png",
+                "frameConfig": {
+                    "frameWidth": 50,
+                    "frameHeight": 31,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Charger_run_50x31_v01"
+            },
+            {
                 "url": "assets/Static prop/chest_3.png",
                 "frameConfig": {
                     "frameWidth": 32,
@@ -504,6 +582,45 @@
                 },
                 "type": "spritesheet",
                 "key": "chest-anims-shaking"
+            },
+            {
+                "url": "assets/Hero/crawler/crawler_attack_32x16_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 16,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crawler_attack_32x16_v01"
+            },
+            {
+                "url": "assets/Hero/crawler/crawler_death_32x16_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 15,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crawler_death_32x16_v01"
+            },
+            {
+                "url": "assets/Hero/crawler/crawler_run_32x16_v01.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 16,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "crawler_run_32x16_v01"
             },
             {
                 "url": "assets/Animated prop/crusher-retreat-pentagram FX.png",
@@ -925,6 +1042,45 @@
                 },
                 "type": "spritesheet",
                 "key": "GroundTileset_V02"
+            },
+            {
+                "url": "assets/Hero/guardian/guardian_attack_224x45.png",
+                "frameConfig": {
+                    "frameWidth": 224,
+                    "frameHeight": 45,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "guardian_attack_224x45"
+            },
+            {
+                "url": "assets/Hero/guardian/guardian_death_224x45.png",
+                "frameConfig": {
+                    "frameWidth": 224,
+                    "frameHeight": 45,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "guardian_death_224x45"
+            },
+            {
+                "url": "assets/Hero/guardian/guradian_walk224x45.png",
+                "frameConfig": {
+                    "frameWidth": 224,
+                    "frameHeight": 45,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "guradian_walk224x45"
             },
             {
                 "url": "assets/Hero/zombie 2/idle.png",
@@ -1579,6 +1735,58 @@
                 },
                 "type": "spritesheet",
                 "key": "run_2"
+            },
+            {
+                "url": "assets/Hero/saber/saber_attack_53x53_v01.png",
+                "frameConfig": {
+                    "frameWidth": 53,
+                    "frameHeight": 53,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "saber_attack_53x53_v01"
+            },
+            {
+                "url": "assets/Hero/saber/saber_attack_53x53_v01 (2).png",
+                "frameConfig": {
+                    "frameWidth": 52,
+                    "frameHeight": 52,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "saber_attack_53x53_v01 (2)"
+            },
+            {
+                "url": "assets/Hero/saber/saber_death_53x53_v01.png",
+                "frameConfig": {
+                    "frameWidth": 53,
+                    "frameHeight": 53,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "saber_death_53x53_v01"
+            },
+            {
+                "url": "assets/Hero/saber/saber_run_53x53_v01.png",
+                "frameConfig": {
+                    "frameWidth": 52,
+                    "frameHeight": 52,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "saber_run_53x53_v01"
             },
             {
                 "url": "assets/Static prop/sharp rocks_0.png",

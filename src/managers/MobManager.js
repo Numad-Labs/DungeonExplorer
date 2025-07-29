@@ -7,7 +7,12 @@ import AssassinArcher from "../prefabs/Enemies/AssassinArcher";
 import BigDude from "../prefabs/Enemies/BigDude.js";
 import Wreacker from "../prefabs/Enemies/Wreacker.js";
 import Choppor from "../prefabs/Enemies/Choppor.js";
-import { EventBus } from '../game/EventBus';
+import { EventBus } from "../game/EventBus";
+import Crawler from "../prefabs/Enemies/Crawler.js";
+import Bomber from "../prefabs/Enemies/Bomber.Scene.js";
+import Saber from "../prefabs/Enemies/Saber.js";
+import Guardian from "../prefabs/Enemies/Guardian.js";
+import Charger from "../prefabs/Enemies/Charger.Scene.js";
 
 const MOB_CONFIGS = {
   zombie: {
@@ -33,7 +38,7 @@ const MOB_CONFIGS = {
     expValue: 20,
     goldValue: 15,
     spawnWeight: 25,
-    minWave: 2,
+    minWave: 1,
     expDropChance: 0.85,
     goldDropChance: 0.5,
   },
@@ -47,7 +52,7 @@ const MOB_CONFIGS = {
     expValue: 15,
     goldValue: 10,
     spawnWeight: 20,
-    minWave: 3,
+    minWave: 1,
     expDropChance: 0.82,
     goldDropChance: 0.45,
   },
@@ -61,7 +66,7 @@ const MOB_CONFIGS = {
     expValue: 25,
     goldValue: 20,
     spawnWeight: 15,
-    minWave: 4,
+    minWave: 2,
     expDropChance: 0.9,
     goldDropChance: 0.6,
   },
@@ -75,7 +80,7 @@ const MOB_CONFIGS = {
     expValue: 40,
     goldValue: 35,
     spawnWeight: 8,
-    minWave: 6,
+    minWave: 2,
     expDropChance: 0.95,
     goldDropChance: 0.75,
   },
@@ -89,7 +94,7 @@ const MOB_CONFIGS = {
     expValue: 30,
     goldValue: 25,
     spawnWeight: 12,
-    minWave: 5,
+    minWave: 2,
     expDropChance: 0.92,
     goldDropChance: 0.7,
   },
@@ -103,7 +108,7 @@ const MOB_CONFIGS = {
     expValue: 50,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 5,
+    minWave: 3,
     expDropChance: 0.42,
     goldDropChance: 0.6,
   },
@@ -116,7 +121,7 @@ const MOB_CONFIGS = {
     expValue: 50,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 2,
+    minWave: 3,
     expDropChance: 0.42,
     goldDropChance: 0.6,
   },
@@ -129,7 +134,72 @@ const MOB_CONFIGS = {
     expValue: 50,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 2,
+    minWave: 3,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  bomber: {
+    class: Bomber,
+    texture: "Bomber_Activited_run_v01",
+    baseHealth: 10,
+    baseDamage: 42,
+    baseSpeed: 35,
+    expValue: 20,
+    goldValue: 15,
+    spawnWeight: 14,
+    minWave: 4,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  saber: {
+    class: Saber,
+    texture: "saber_run_53x53_v01",
+    baseHealth: 10,
+    baseDamage: 42,
+    baseSpeed: 40,
+    expValue: 20,
+    goldValue: 25,
+    spawnWeight: 4,
+    minWave: 4,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  guardian: {
+    class: Guardian,
+    texture: "guradian_walk224x45",
+    baseHealth: 90,
+    baseDamage: 22,
+    baseSpeed: 30,
+    expValue: 50,
+    goldValue: 35,
+    spawnWeight: 14,
+    minWave: 4,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  crawler: {
+    class: Crawler,
+    texture: "crawler_run_32x16_v01",
+    baseHealth: 10,
+    baseDamage: 12,
+    baseSpeed: 45,
+    expValue: 20,
+    goldValue: 15,
+    spawnWeight: 14,
+    minWave: 5,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  charger: {
+    class: Charger,
+    texture: "harger_run_32x32_v01",
+    baseHealth: 90,
+    baseDamage: 32,
+    baseSpeed: 45,
+    expValue: 24,
+    goldValue: 35,
+    spawnWeight: 14,
+    minWave: 5,
     expDropChance: 0.42,
     goldDropChance: 0.6,
   },
@@ -921,7 +991,7 @@ export default class MobManager {
     this.waveActive = true;
     this.waveMobs = [];
 
-    EventBus.emit('wave-notification', { wave: waveNumber });
+    EventBus.emit("wave-notification", { wave: waveNumber });
 
     const mobCount = this.calculateWaveSize(waveNumber);
     const specialWaveType = this.getSpecialWaveType(waveNumber);
@@ -971,6 +1041,11 @@ export default class MobManager {
           "bigDude",
           "wreacker",
           "choppor",
+          "crawler",
+          "bomber",
+          "saber",
+          "guardian",
+          "charger",
         ];
         break;
 
@@ -1156,7 +1231,6 @@ export default class MobManager {
       this.gameManager.addExperience(expBonus);
       this.gameManager.addGold(goldBonus);
     }
-
   }
 
   showWaveCompletionMessage(waveNumber, specialType, expBonus, goldBonus) {

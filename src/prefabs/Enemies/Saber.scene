@@ -1,0 +1,36 @@
+{
+    "id": "ac47dc9e-5c66-49a6-b439-ee59f6a722bb",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Saber",
+        "borderWidth": 2560,
+        "borderHeight": 2560
+    },
+    "displayList": [
+        {
+            "type": "Sprite",
+            "id": "2c366040-12db-4935-9fcd-d71cb326967d",
+            "label": "saberRun",
+            "scope": "CLASS",
+            "texture": {
+                "key": "saber_run_53x53_v01",
+                "frame": 0
+            },
+            "x": 454,
+            "y": 458,
+            "animationPlayMethod": 1,
+            "animationKey": "SaberRun"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}
