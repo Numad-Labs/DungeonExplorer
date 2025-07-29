@@ -1,55 +1,123 @@
 import React from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 import Header from "./Header.jsx";
+import Menu from "./icons/Menu.jsx";
+import Trending from "./icons/Trending.jsx";
+import Quest from "./icons/Quest.jsx";
+import Market from "./icons/Market.jsx";
+import Guide from "./icons/Guide.jsx";
+import User from "./icons/User.jsx";
+import Logout from "./icons/Logout.jsx";
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const isActive = (path) => {
     return location.pathname === path ? "active" : "";
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex">
+    <div className="min-h-screen text-white flex">
       {/* Left Sidebar Navigation */}
-      <nav className="bg-gray-800 border-r border-gray-700 w-64 min-h-screen">
+      <nav className="bg-dark-secondary border-r border-gray-700 w-64 min-h-screen relative">
         <div className="p-4">
+          <img
+            src="/logo.svg"
+            alt="Logo"
+            className=" mb-16"
+            draggable="false"
+          />
           {/* Navigation Links */}
-          <div className="space-y-2">
+          <div className=" gap-5 flex flex-col">
             <Link
               to="/"
-              className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={` flex gap-3 pl-6 pr-5 py-3 outline-none border-none  text-sm font-medium transition-colors ${
                 isActive("/")
-                  ? "bg-gray-900 text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                  ? "bg-translucent-light-8 text-light-primary"
+                  : "text-light-primary hover:bg-translucent-light-8"
               }`}
             >
-              🏠 Home
+              <Menu size={20} />
+              <p className="text-button-48-pixelify">Dashboard</p>
             </Link>
             <Link
-              to="/game"
-              className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive("/game")
-                  ? "bg-gray-900 text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+              to="/leaderboard"
+              className={` flex gap-3 pl-6 pr-5 py-3 outline-none border-none  text-sm font-medium transition-colors ${
+                isActive("/leaderboard")
+                  ? "bg-translucent-light-8 text-light-primary"
+                  : "text-light-primary hover:bg-translucent-light-8"
               }`}
             >
-              🎮 Game
+              <Trending size={20} />
+              <p className="text-button-48-pixelify">Leaderboard</p>
             </Link>
             <Link
-              to="/about"
-              className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive("/about")
-                  ? "bg-gray-900 text-white"
-                  : "text-gray-300 hover:bg-gray-700 hover:text-white"
+              to="/quest"
+              className={` flex gap-3 pl-6 pr-5 py-3 outline-none border-none  text-sm font-medium transition-colors ${
+                isActive("/quest")
+                  ? "bg-translucent-light-8 text-light-primary"
+                  : "text-light-primary hover:bg-translucent-light-8"
               }`}
             >
-              ℹ️ About
+              <Quest size={20} />
+              <p className="text-button-48-pixelify">Quest</p>
+            </Link>
+            <Link
+              to="/market"
+              className={` flex gap-3 pl-6 pr-5 py-3 outline-none border-none  text-sm font-medium transition-colors ${
+                isActive("/market")
+                  ? "bg-translucent-light-8 text-light-primary"
+                  : "text-light-primary hover:bg-translucent-light-8"
+              }`}
+            >
+              <Market size={20} />
+              <p className="text-button-48-pixelify">Market</p>
+            </Link>
+            <Link
+              to="/guide"
+              className={` flex gap-3 pl-6 pr-5 py-3 outline-none border-none  text-sm font-medium transition-colors ${
+                isActive("/guide")
+                  ? "bg-translucent-light-8 text-light-primary"
+                  : "text-light-primary hover:bg-translucent-light-8"
+              }`}
+            >
+              <Guide size={20} />
+              <p className="text-button-48-pixelify">Guide</p>
+            </Link>
+            <Link
+              to="/account"
+              className={` flex gap-3 pl-6 pr-5 py-3 outline-none border-none  text-sm font-medium transition-colors ${
+                isActive("/account")
+                  ? "bg-translucent-light-8 text-light-primary"
+                  : "text-light-primary hover:bg-translucent-light-8"
+              }`}
+            >
+              <User size={20} />
+              <p className="text-button-48-pixelify">Account</p>
             </Link>
           </div>
 
+          {/* Logout Button */}
+          <div className="absolute bottom-4 left-4 right-4">
+            <button
+              onClick={handleLogout}
+              className="w-full flex gap-3 pl-6 pr-5 py-3 outline-none border-none text-sm font-medium transition-colors text-light-primary hover:bg-translucent-light-8"
+            >
+              <Logout size={20} />
+              <p className="text-button-48-pixelify">Logout</p>
+            </button>
+          </div>
+
           {/* User Menu */}
-          <div className="mt-8 pt-4 border-t border-gray-700">
+          {/* <div className="mt-8 pt-4 border-t border-gray-700">
             <div className="space-y-2">
               <Link
                 to="/profile"
@@ -72,7 +140,7 @@ const Sidebar = () => {
                 ⚙️ Settings
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
       </nav>
 
