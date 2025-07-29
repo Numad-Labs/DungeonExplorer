@@ -27,7 +27,7 @@ const Sidebar = () => {
   return (
     <div className="min-h-screen text-white flex">
       {/* Left Sidebar Navigation */}
-      <nav className="bg-dark-secondary border-r border-gray-700 w-64 min-h-screen relative">
+      <nav className="bg-dark-secondary border-r border-dark-secondary w-64 min-h-screen relative">
         <div className="p-4">
           <img
             src="/logo.svg"
@@ -145,23 +145,20 @@ const Sidebar = () => {
       </nav>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-screen">
         {/* Header */}
         <Header />
-
         {/* Main Content */}
-        <main className="flex-1" style={{ minHeight: "calc(100vh - 112px)" }}>
-          <Outlet />
-        </main>
+        <Outlet />
 
         {/* Footer */}
-        <footer className="bg-gray-800 border-t border-gray-700 py-4">
+        {/* <footer className="bg-gray-800 border-t border-gray-700 py-4">
           <div className="px-4">
             <div className="text-center text-gray-400 text-sm">
               <p>&copy; 2024 DungeonExplorer. All rights reserved.</p>
             </div>
           </div>
-        </footer>
+        </footer> */}
       </div>
     </div>
   );

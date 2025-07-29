@@ -1,30 +1,31 @@
 @import "tailwindcss";
+@import "./styles/constants.css";
 @import "./styles/typography.css";
 
 @font-face {
     font-family: "Alagard";
-    src: url("/public/alagard.ttf") format("truetype");
+    src: url("/alagard.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Pixelify Sans";
-    src: url("/public/PixelifySans-Regular.ttf") format("truetype");
+    src: url("/PixelifySans-Regular.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Pixelify Sans";
-    src: url("/public/PixelifySans-Bold.ttf") format("truetype");
+    src: url("/PixelifySans-Bold.ttf") format("truetype");
     font-weight: bold;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Pixelify Sans";
-    src: url("/public/PixelifySans-SemiBold.ttf") format("truetype");
+    src: url("/PixelifySans-SemiBold.ttf") format("truetype");
     font-weight: 600;
     font-style: normal;
 }

@@ -10,8 +10,9 @@ export const AuthProvider = ({ children }) => {
   // Initialize auth state on mount
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (token) {
-      setUser({ username: "Player", token });
+    const userData = localStorage.getItem("user_data");
+    if (token && userData) {
+      setUser({ ...JSON.parse(userData), token });
     }
     setIsLoading(false);
   }, []);
@@ -23,7 +24,8 @@ export const AuthProvider = ({ children }) => {
 
       if (res?.data.token && res?.data.user) {
         localStorage.setItem("access_token", res.data.token);
-        setUser(res.data.user);
+        localStorage.setItem("user_data", JSON.stringify(res.data.user));
+        setUser({ ...res.data.user, token: res.data.token });
         return res.data;
       } else {
         throw new Error("Invalid login response");
@@ -36,6 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("user_data");
     setUser(null);
   };
 
