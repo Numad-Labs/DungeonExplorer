@@ -206,41 +206,65 @@ export default class GameManager {
     
     // Player stats management
     applyPlayerStats(player) {
-        if (!player) return;
+        if (!player) {
+            console.warn("GameManager: No player provided to applyPlayerStats");
+            return;
+        }
         
-        // Apply base stats
-        Object.assign(player, this.playerStats);
+        const baseStats = this.getBasePlayerStats();
         
-        // Apply passive upgrades
-        Object.entries(this.passiveUpgrades).forEach(([upgradeId, upgrade]) => {
-            switch (upgradeId) {
-                case 'maxHealth':
-                    player.maxHealth = upgrade.value;
-                    player.health = upgrade.value;
-                    break;
-                case 'baseDamage':
-                    player.damage = upgrade.value;
-                    break;
-                case 'moveSpeed':
-                    player.moveSpeed = upgrade.value;
-                    break;
-                case 'attackSpeed':
-                    player.fireRate = upgrade.value;
-                    break;
-                case 'armor':
-                    player.armor = upgrade.value;
-                    break;
-                case 'critChance':
-                    player.critChance = upgrade.value / 100;
-                    break;
-                case 'critDamage':
-                    player.critDamage = upgrade.value / 100;
-                    break;
-                case 'pickupRange':
-                    player.pickupRange = upgrade.value;
-                    break;
-            }
-        });
+        player.maxHealth = baseStats.maxHealth;
+        player.health = baseStats.health;
+        player.damage = baseStats.damage;
+        player.moveSpeed = baseStats.moveSpeed;
+        player.fireRate = baseStats.fireRate;
+        player.attackRange = baseStats.attackRange;
+        
+        if (this.passiveUpgrades && Object.keys(this.passiveUpgrades).length > 0) {
+            console.log("GameManager: Applying upgrades...");
+            Object.entries(this.passiveUpgrades).forEach(([upgradeId, upgrade]) => {
+                console.log(`GameManager: Applying ${upgradeId}:`, upgrade);
+                switch (upgradeId) {
+                    case 'maxHealth':
+                        player.maxHealth = upgrade.value;
+                        player.health = upgrade.value;
+                        console.log(`GameManager: Applied maxHealth - now ${player.health}/${player.maxHealth}`);
+                        break;
+                    case 'baseDamage':
+                        player.damage = upgrade.value;
+                        console.log(`GameManager: Applied damage - now ${player.damage}`);
+                        break;
+                    case 'moveSpeed':
+                        player.moveSpeed = upgrade.value;
+                        console.log(`GameManager: Applied moveSpeed - now ${player.moveSpeed}`);
+                        break;
+                    case 'attackSpeed':
+                        player.fireRate = upgrade.value;
+                        break;
+                    case 'armor':
+                        player.armor = upgrade.value;
+                        break;
+                    case 'critChance':
+                        player.critChance = upgrade.value / 100;
+                        break;
+                    case 'critDamage':
+                        player.critDamage = upgrade.value / 100;
+                        break;
+                    case 'pickupRange':
+                        player.pickupRange = upgrade.value;
+                        break;
+                }
+            });
+        } else {
+            console.log("GameManager: No upgrades to apply");
+        }
+        
+        this.playerStats.maxHealth = player.maxHealth;
+        this.playerStats.health = player.health;
+        this.playerStats.damage = player.damage;
+        this.playerStats.moveSpeed = player.moveSpeed;
+        this.playerStats.fireRate = player.fireRate;
+        this.playerStats.attackRange = player.attackRange;
     }
     
     applyPassiveUpgrades() {
@@ -263,7 +287,6 @@ export default class GameManager {
         });
     }
     
-    // Experience system
     addExperience(amount) {
         const multiplier = this.getMultiplier('expMultiplier');
         const actualAmount = Math.floor(amount * multiplier);

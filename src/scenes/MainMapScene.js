@@ -1307,28 +1307,32 @@ export default class MainMapScene extends BaseGameScene {
 		}
 	}
 	setupHPBarIntegration() {
-	    if (this.player) {
-	        this.player.health = 100;
-	        this.player.maxHealth = 100;
-	    }
 	
-	    this.updateHPBar();
-	    this.updateGoldDisplay();
-	    this.time.delayedCall(100, () => {
-	    	this.updateGoldDisplay();
-	    });
-	    
-	    EventBus.on('request-initial-gold', () => {
-	     this.time.delayedCall(50, () => {
-        		this.updateGoldDisplay();
-        	});
-        });
-        
-        EventBus.on('main-scene-started', () => {
-        	this.time.delayedCall(200, () => {
-        		this.updateGoldDisplay();
-        	});
-        });
+	if (this.player) {
+		if (!this.player.health || !this.player.maxHealth) {
+			console.warn("Player missing HP values, applying emergency defaults");
+			this.player.health = 100;
+			this.player.maxHealth = 100;
+		}
+	}
+
+	this.updateHPBar();
+	this.updateGoldDisplay();
+	this.time.delayedCall(100, () => {
+	this.updateGoldDisplay();
+	});
+	
+	 EventBus.on('request-initial-gold', () => {
+			this.time.delayedCall(50, () => {
+				this.updateGoldDisplay();
+			});
+		});
+		
+		EventBus.on('main-scene-started', () => {
+			this.time.delayedCall(200, () => {
+				this.updateGoldDisplay();
+			});
+		});
 	}
 	
 	setupPlayerLevelSystem() {

@@ -45,13 +45,18 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		this.gameManager = scene.game.registry.get('gameManager');
 
 		if (this.gameManager) {
-			console.log("Applying fresh player stats for new run");
 			this.gameManager.applyPlayerStats(this);
+			this.isDead = false;
+			this.alive = true;
+			this.isInvulnerable = false;
+			
 			console.log("Player stats after applying menu upgrades:", {
 				maxHealth: this.maxHealth,
+				health: this.health,
 				damage: this.damage,
 				moveSpeed: this.moveSpeed,
-				armor: this.armor
+				armor: this.armor,
+				isAlive: !this.isDead
 			});
 		}
 
@@ -79,15 +84,17 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			maxHp: this.maxHealth
 		};
 
-		// Send to React HP bar
 		EventBus.emit('player-health-updated', healthData);
+		EventBus.emit('player-hp-changed', healthData);
 		
-		// Send via window event as backup
+		if (this.gameManager && this.gameManager.playerStats) {
+			this.gameManager.playerStats.health = this.health;
+			this.gameManager.playerStats.maxHealth = this.maxHealth;
+		}
+		
 		window.dispatchEvent(new CustomEvent('playerHealthUpdated', {
 			detail: healthData
 		}));
-
-		console.log('HP bar updated:', healthData);
 	}
 
 	createAnimations() {
