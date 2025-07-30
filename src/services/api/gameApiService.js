@@ -64,7 +64,7 @@ export const getGlobalScores = async () => {
 
 export const getGlobalKillCounts = async () => {
   try {
-    const response = await api.get("/scores/global/kills");
+    const response = await api.get("/scores/global");
     return response.data;
   } catch (error) {
     console.error("Failed to get global kill counts:", error);

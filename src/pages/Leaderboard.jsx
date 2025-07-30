@@ -52,6 +52,9 @@ const Leaderboard = () => {
   }
 
   console.log("Leaderboard data:", leaderboardData);
+  console.log("Scores data:", scoresData);
+  console.log("Kills data:", killsData);
+  console.log("Current sort field:", sortField);
 
   // Sort the data based on selected field and order
   const sortedData = leaderboardData?.data
@@ -150,7 +153,7 @@ const Leaderboard = () => {
       <div className="bg-dark-secondary  border border-[#24110F] rounded-lg overflow-hidden w-full">
         <div className="bg-[#24110F] border-b border-[#2F1A18] px-6 py-4">
           <h2 className="text-heading-1-pixelify-bold text-[#FFAE0B]">
-            Top Players
+            Top Players ({sortedData.length} players)
           </h2>
         </div>
         <div className="divide-y divide-[#2F1A18] min-h-screen max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-[#392423] scrollbar-track-[#24110F] hover:scrollbar-thumb-[#4A2D2A]">
