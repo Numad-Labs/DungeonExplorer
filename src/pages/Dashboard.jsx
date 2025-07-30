@@ -1,5 +1,6 @@
 import React from "react";
 import StatCard from "../components/cards/StatCard";
+import UpgradeCard from "../components/cards/UpgradeCard";
 import { getUserById } from "../services/api/gameApiService";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
@@ -27,12 +28,12 @@ const Dashboard = () => {
           Statistics
         </h1>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          <StatCard />
-          <StatCard />
-          <StatCard />
-          <StatCard />
-          <StatCard />
-          <StatCard />
+          <StatCard title={"Total Runs"} value={24} />
+          <StatCard title={"Highest level"} value={24} />
+          <StatCard title={"Total Gold Earned"} value={"343’242"} />
+          <StatCard title={"Enemies Killed"} value={24} />
+          <StatCard title={"Average survival"} value={"0 : 45"} />
+          <StatCard title={"Longest Survival"} value={"1 : 23"} />
         </div>
       </div>
       {/* Upgrade */}
@@ -41,12 +42,12 @@ const Dashboard = () => {
           Upgrade
         </h1>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          <StatCard />
-          <StatCard />
-          <StatCard />
-          <StatCard />
-          <StatCard />
-          <StatCard />
+          <UpgradeCard title={"Weapon"} value={"Sword"} />
+          <UpgradeCard title={"Armor"} value={"Leather"} />
+          <UpgradeCard title={"Shield"} value={"Wooden"} />
+          <UpgradeCard title={"Potion"} value={"Health"} />
+          <UpgradeCard title={"Spell"} value={"Fireball"} />
+          <UpgradeCard title={"Pet"} value={"Wolf"} />
         </div>
       </div>
     </div>
