@@ -1,223 +1,356 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import {
+  getCurrentUserProfile,
+  updateProfile,
+} from "../services/api/gameApiService";
+import Mail from "../components/icons/Mail.jsx";
+import Connection from "../components/icons/Connection.jsx";
+import Discord from "../components/icons/Discord.jsx";
+import Wallet from "../components/icons/Wallet.jsx";
+import X from "../components/icons/X.jsx";
+import Update from "../components/icons/Update.jsx";
 
 const Account = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile");
-  const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    username: "DragonSlayer",
-    email: "player@dungeonexplorer.com",
-    joinDate: "January 2024",
-    level: 15,
-    totalPlayTime: "42 hours",
-    achievements: 23
+    username: "Temuujin",
+    email: "cuntwithego@gmail.com",
+    x: "https://x.com/miakhalifa",
+    discord: "https://discord.com/miakhalifa",
+    referralCode: "blx3...38q8",
+    gold: 33124,
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [editingDiscord, setEditingDiscord] = useState(false);
+  const [editingX, setEditingX] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [discordUrl, setDiscordUrl] = useState("");
+  const [xUrl, setXUrl] = useState("");
+  const [emailValue, setEmailValue] = useState("");
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // Here you would typically save to your backend
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getCurrentUserProfile();
+        setProfileData({
+          username: data.username || data.name || "Temuujin",
+          email: data.email || "cuntwithego@gmail.com",
+          x:
+            data.x ||
+            data.twitter ||
+            data.socials?.x ||
+            data.socials?.twitter ||
+            "https://x.com/miakhalifa",
+          discord:
+            data.discord ||
+            data.socials?.discord ||
+            "https://discord.com/miakhalifa",
+          referralCode:
+            data.referralCode || data.referral?.code || "blx3...38q8",
+          gold: data.gold || data.currency?.gold || 33124,
+        });
+        setDiscordUrl(
+          data.discord ||
+            data.socials?.discord ||
+            "https://discord.com/miakhalifa"
+        );
+        setXUrl(
+          data.x ||
+            data.twitter ||
+            data.socials?.x ||
+            data.socials?.twitter ||
+            "https://x.com/miakhalifa"
+        );
+        setEmailValue(data.email || "cuntwithego@gmail.com");
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
   };
 
-  const achievements = [
-    { id: 1, name: "First Steps", description: "Complete your first quest", earned: true, date: "Jan 15, 2024" },
-    { id: 2, name: "Dragon Slayer", description: "Defeat your first dragon", earned: true, date: "Feb 3, 2024" },
-    { id: 3, name: "Treasure Hunter", description: "Find 10 hidden treasures", earned: true, date: "Feb 10, 2024" },
-    { id: 4, name: "Master Explorer", description: "Explore 50 different areas", earned: false, date: null },
-    { id: 5, name: "Legendary Hero", description: "Reach level 50", earned: false, date: null }
-  ];
+  const handleUpdateProfile = async () => {
+    try {
+      console.log("=== PROFILE UPDATE START ===");
+      console.log("Current profileData:", profileData);
 
-  const settings = [
-    { key: "sound", label: "Sound Effects", value: true },
-    { key: "music", label: "Background Music", value: true },
-    { key: "notifications", label: "Push Notifications", value: false },
-    { key: "autoSave", label: "Auto Save", value: true }
-  ];
+      // Create complete profile structure with all fields
+      const completeProfileData = {
+        username: profileData.username,
+        email: emailValue || profileData.email,
+        socials: {
+          x: xUrl || profileData.x,
+          discord: discordUrl || profileData.discord,
+        },
+      };
 
-  const renderProfile = () => (
-    <div className="space-y-6">
-      <div className="bg-dark-secondary border border-gray-700 rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-heading-1-pixelify-bold">Profile Information</h3>
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors text-button-48-pixelify"
-          >
-            {isEditing ? "Cancel" : "Edit"}
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-body-2-pixelify-bold text-gray-400 mb-2">Username</label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={profileData.username}
-                onChange={(e) => setProfileData({...profileData, username: e.target.value})}
-                className="w-full bg-translucent-light-8 border border-gray-600 rounded px-3 py-2 text-body-1-alagard text-white"
-              />
-            ) : (
-              <p className="text-body-1-alagard">{profileData.username}</p>
-            )}
-          </div>
-          
-          <div>
-            <label className="block text-body-2-pixelify-bold text-gray-400 mb-2">Email</label>
-            {isEditing ? (
-              <input
-                type="email"
-                value={profileData.email}
-                onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                className="w-full bg-translucent-light-8 border border-gray-600 rounded px-3 py-2 text-body-1-alagard text-white"
-              />
-            ) : (
-              <p className="text-body-1-alagard">{profileData.email}</p>
-            )}
-          </div>
-          
-          <div>
-            <label className="block text-body-2-pixelify-bold text-gray-400 mb-2">Member Since</label>
-            <p className="text-body-1-alagard">{profileData.joinDate}</p>
-          </div>
-          
-          <div>
-            <label className="block text-body-2-pixelify-bold text-gray-400 mb-2">Current Level</label>
-            <p className="text-body-1-alagard">{profileData.level}</p>
-          </div>
-          
-          <div>
-            <label className="block text-body-2-pixelify-bold text-gray-400 mb-2">Total Play Time</label>
-            <p className="text-body-1-alagard">{profileData.totalPlayTime}</p>
-          </div>
-          
-          <div>
-            <label className="block text-body-2-pixelify-bold text-gray-400 mb-2">Achievements</label>
-            <p className="text-body-1-alagard">{profileData.achievements} earned</p>
-          </div>
-        </div>
-        
-        {isEditing && (
-          <div className="mt-6">
-            <button
-              onClick={handleSave}
-              className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded transition-colors text-button-48-pixelify mr-3"
-            >
-              Save Changes
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+      console.log("Sending complete profile data:", completeProfileData);
+      console.log("Calling updateProfile API...");
+      await updateProfile(completeProfileData);
+      console.log("API call successful, updating local state...");
 
-  const renderAchievements = () => (
-    <div className="space-y-4">
-      {achievements.map((achievement) => (
-        <div
-          key={achievement.id}
-          className={`bg-dark-secondary border rounded-lg p-6 ${
-            achievement.earned ? "border-yellow-600" : "border-gray-700"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
-                achievement.earned ? "bg-yellow-600" : "bg-gray-600"
-              }`}>
-                {achievement.earned ? "🏆" : "🔒"}
-              </div>
-              <div>
-                <h4 className="text-heading-1-pixelify-bold">{achievement.name}</h4>
-                <p className="text-body-1-alagard text-gray-300">{achievement.description}</p>
-                {achievement.earned && achievement.date && (
-                  <p className="text-body-2-pixelify-bold text-yellow-400">Earned: {achievement.date}</p>
-                )}
-              </div>
+      setProfileData((prev) => {
+        const newData = {
+          ...prev,
+          email: emailValue || prev.email,
+          x: xUrl || prev.x,
+          discord: discordUrl || prev.discord,
+        };
+        console.log("New profile data:", newData);
+        return newData;
+      });
+
+      // Reset edit states
+      setEditingDiscord(false);
+      setEditingX(false);
+      setEditingEmail(false);
+
+      alert("Profile updated successfully!");
+      console.log("=== PROFILE UPDATE SUCCESS ===");
+    } catch (error) {
+      console.error("=== PROFILE UPDATE ERROR ===");
+      console.error("Error details:", error);
+      console.error("Error message:", error.message);
+      console.error("Error response:", error.response);
+      alert(`Failed to update profile: ${error.message}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white bg-[#170908] pl-6 pr-6">
+        <div className="bg-[#24110F] border border-[#392423] rounded-lg p-6 max-w-md">
+          <div className="flex flex-col items-center">
+            <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 animate-pulse"></div>
+            <div className="h-8 bg-gray-600 rounded w-32 mb-6 animate-pulse"></div>
+            <div className="space-y-3 w-full">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 h-12 animate-pulse"
+                ></div>
+              ))}
             </div>
           </div>
         </div>
-      ))}
-    </div>
-  );
-
-  const renderSettings = () => (
-    <div className="bg-dark-secondary border border-gray-700 rounded-lg p-6">
-      <h3 className="text-heading-1-pixelify-bold mb-6">Game Settings</h3>
-      <div className="space-y-4">
-        {settings.map((setting) => (
-          <div key={setting.key} className="flex items-center justify-between">
-            <label className="text-body-1-alagard">{setting.label}</label>
-            <button
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                setting.value ? "bg-blue-600" : "bg-gray-600"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  setting.value ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
-          </div>
-        ))}
       </div>
-      
-      <div className="mt-8 pt-6 border-t border-gray-700">
-        <h4 className="text-body-2-pixelify-bold mb-4">Account Actions</h4>
-        <div className="space-y-3">
-          <button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded transition-colors text-button-48-pixelify">
-            Change Password
-          </button>
-          <button className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors text-button-48-pixelify">
-            Delete Account
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  }
 
   return (
-    <div className="p-8 text-white">
-      <h1 className="text-display-1-alagard-bold mb-6">Account</h1>
-      
-      <div className="flex space-x-1 mb-6 bg-dark-secondary rounded-lg p-1">
-        <button
-          onClick={() => setActiveTab("profile")}
-          className={`flex-1 py-2 px-4 rounded-md transition-colors text-button-48-pixelify ${
-            activeTab === "profile"
-              ? "bg-translucent-light-8 text-light-primary"
-              : "text-gray-400 hover:text-light-primary"
-          }`}
-        >
-          Profile
+    <div className="min-h-screen flex items-center justify-center text-white bg-[#170908] pl-6 pr-6">
+      {/* Profile Section */}
+      <div className="bg-[#24110F] border border-[#392423] rounded-lg p-6 max-w-md">
+        {/* Profile Picture */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 flex items-center justify-center">
+            <span className="text-4xl">👤</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white">
+            {profileData.username}
+          </h2>
+        </div>
+        <div className="space-y-3">
+          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Wallet className="w-5 h-5 text-gray-400" />
+              <span className="text-white font-medium">
+                {profileData.referralCode}
+              </span>
+            </div>
+            <button
+              onClick={() => copyToClipboard(profileData.referralCode)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Update className="w-4 h-4" />
+            </button>
+          </div>
+          {/* Discord */}
+          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Discord className="w-5 h-5 text-blue-500" />
+              {editingDiscord ? (
+                <input
+                  type="text"
+                  value={discordUrl}
+                  onChange={(e) => setDiscordUrl(e.target.value)}
+                  className="bg-[#392423] border border-[#4A2D2A] rounded px-2 py-1 text-white text-sm flex-1"
+                  placeholder="Enter Discord URL"
+                />
+              ) : (
+                <span className="text-white font-medium">
+                  {profileData.discord}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {editingDiscord ? (
+                <>
+                  <button
+                    onClick={() => {
+                      console.log("✓ DISCORD SAVE BUTTON CLICKED");
+                      handleUpdateProfile();
+                    }}
+                    className="text-green-400 hover:text-green-300 transition-colors text-sm"
+                  >
+                    ✓
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingDiscord(false);
+                      setDiscordUrl(profileData.discord);
+                    }}
+                    className="text-red-400 hover:text-red-300 transition-colors text-sm"
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setEditingDiscord(true)}
+                    className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
+                  >
+                    <Update className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => copyToClipboard(profileData.discord)}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <Update className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* X/Twitter */}
+          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <X className="w-5 h-5 text-blue-400" />
+              {editingX ? (
+                <input
+                  type="text"
+                  value={xUrl}
+                  onChange={(e) => setXUrl(e.target.value)}
+                  className="bg-[#392423] border border-[#4A2D2A] rounded px-2 py-1 text-white text-sm flex-1"
+                  placeholder="Enter X URL"
+                />
+              ) : (
+                <span className="text-white font-medium">{profileData.x}</span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {editingX ? (
+                <>
+                  <button
+                    onClick={() => {
+                      console.log("✓ X SAVE BUTTON CLICKED");
+                      handleUpdateProfile();
+                    }}
+                    className="text-green-400 hover:text-green-300 transition-colors text-sm"
+                  >
+                    ✓
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingX(false);
+                      setXUrl(profileData.x);
+                    }}
+                    className="text-red-400 hover:text-red-300 transition-colors text-sm"
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setEditingX(true)}
+                    className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
+                  >
+                    <Update className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => copyToClipboard(profileData.x)}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <Update className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Mail className="w-5 h-5 text-gray-400" />
+              {editingEmail ? (
+                <input
+                  type="text"
+                  value={emailValue}
+                  onChange={(e) => setEmailValue(e.target.value)}
+                  className="bg-[#392423] border border-[#4A2D2A] rounded px-2 py-1 text-white text-sm flex-1"
+                  placeholder="Enter Email"
+                />
+              ) : (
+                <span className="text-white font-medium">
+                  {profileData.email}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {editingEmail ? (
+                <>
+                  <button
+                    onClick={() => {
+                      console.log("✓ EMAIL SAVE BUTTON CLICKED");
+                      handleUpdateProfile();
+                    }}
+                    className="text-green-400 hover:text-green-300 transition-colors text-sm"
+                  >
+                    ✓
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingEmail(false);
+                      setEmailValue(profileData.email);
+                    }}
+                    className="text-red-400 hover:text-red-300 transition-colors text-sm"
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setEditingEmail(true)}
+                    className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
+                  >
+                    <Update className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => copyToClipboard(profileData.email)}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    <Update className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+        <button className="w-full mt-6 bg-transparent border-2 border-red-600 text-red-600 py-3 px-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-red-600 hover:text-white transition-colors">
+          <Connection className="w-6 h-6" />
+          <span>Referral Link</span>
         </button>
-        <button
-          onClick={() => setActiveTab("achievements")}
-          className={`flex-1 py-2 px-4 rounded-md transition-colors text-button-48-pixelify ${
-            activeTab === "achievements"
-              ? "bg-translucent-light-8 text-light-primary"
-              : "text-gray-400 hover:text-light-primary"
-          }`}
-        >
-          Achievements
-        </button>
-        <button
-          onClick={() => setActiveTab("settings")}
-          className={`flex-1 py-2 px-4 rounded-md transition-colors text-button-48-pixelify ${
-            activeTab === "settings"
-              ? "bg-translucent-light-8 text-light-primary"
-              : "text-gray-400 hover:text-light-primary"
-          }`}
-        >
-          Settings
-        </button>
-      </div>
-      
-      <div>
-        {activeTab === "profile" && renderProfile()}
-        {activeTab === "achievements" && renderAchievements()}
-        {activeTab === "settings" && renderSettings()}
       </div>
     </div>
   );
