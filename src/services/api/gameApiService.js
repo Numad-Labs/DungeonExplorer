@@ -62,6 +62,16 @@ export const getGlobalScores = async () => {
   }
 };
 
+export const getGlobalKillCounts = async () => {
+  try {
+    const response = await api.get("/scores/global/kills");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to get global kill counts:", error);
+    throw error;
+  }
+};
+
 export const getMapLeaderboard = async (mapId) => {
   try {
     const response = await api.get(`/leaderboard/map/${mapId}`);
@@ -145,7 +155,6 @@ export const updateProfile = async (profileData) => {
     throw error;
   }
 };
-
 // Current User Data
 export const getUserAchievements = async () => {
   try {

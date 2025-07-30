@@ -17,11 +17,8 @@ const Header = () => {
   //     }
   //   };
   return (
-    <header className="bg-dark-primary border-b border-dark-secondary h-16 flex items-center justify-between px-6">
-      <div className="flex items-center">
-        <h1 className="text-xl font-bold text-yellow-400">DungeonExplorer</h1>
-      </div>
-
+    <header className="bg-dark-secondary border-b border-dark-secondary h-16 flex items-center justify-between px-6">
+      <div className="flex items-center"></div>
       <div className="flex items-center space-x-4">
         {user && (
           <>

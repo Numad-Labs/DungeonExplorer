@@ -1,0 +1,24 @@
+import React from "react";
+
+const Connection = ({ size }) => {
+  return (
+    <svg
+      width="25"
+      height="24"
+      viewBox="0 0 25 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M16.5 10H17.5V17H16.5V18H15.5V19H14.5V20H13.5V21H12.5V22H11.5V23H5.5V22H4.5V21H3.5V20H2.5V19H1.5V14H2.5V13H3.5V12H4.5V11H5.5V14H4.5V15H3.5V18H4.5V19H5.5V20H6.5V21H10.5V20H11.5V19H12.5V18H13.5V17H14.5V16H15.5V11H14.5V10H13.5V9H14.5V8H15.5V9H16.5V10Z"
+        fill="white"
+      />
+      <path
+        d="M23.5 5V10H22.5V11H21.5V12H20.5V13H19.5V10H20.5V9H21.5V6H20.5V5H19.5V4H18.5V3H14.5V4H13.5V5H12.5V6H11.5V7H10.5V8H9.5V13H10.5V14H11.5V15H10.5V16H9.5V15H8.5V14H7.5V7H8.5V6H9.5V5H10.5V4H11.5V3H12.5V2H13.5V1H19.5V2H20.5V3H21.5V4H22.5V5H23.5Z"
+        fill="white"
+      />
+    </svg>
+  );
+};
+
+export default Connection;
