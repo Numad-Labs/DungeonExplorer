@@ -60,12 +60,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.lightningChainCount = player.lightningChainCount || 10;
         this.lightningChainRange = 100;
         
-        // Blinding Light attack (Large AOE disable)
+        // Blinding Light attack
         this.blindingLightRange = player.blindingLightRange || 300;
-        this.blindingLightFireRate = player.blindingLightFireRate || 0.15; // Very slow fire rate (once every ~6.7 seconds)
+        this.blindingLightFireRate = player.blindingLightFireRate || 0.15;
         this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
         this.lastBlindingLightTime = 0;
-        this.blindingLightDisableDuration = 4000; // 4 seconds of disable
+        this.blindingLightDisableDuration = 4000;
         
         // Attack types enabled
         this.attackTypes = {
@@ -320,6 +320,34 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
     }
     });
+    }
+    
+    if (this.scene.children && this.scene.children.list) {
+        this.scene.children.list.forEach(child => {
+            const isVase = child && 
+                          child.active && 
+                          !child.isBroken && 
+                          child.canBeAttacked &&
+                          (child.constructor.name === 'BreakableVase' || 
+                           child.texture?.key === 'Vase' ||
+                           child.onPlayerAttack ||
+                           (child.takeDamage && child.dropLoot));
+                           
+            if (isVase) {
+                const distance = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    child.x, child.y
+                );
+                
+                if (distance <= this.slashRange) {
+                    // Check if we already found this vase to avoid duplicates
+                    const alreadyFound = enemiesInRange.some(item => item.enemy === child);
+                    if (!alreadyFound) {
+                        enemiesInRange.push({ enemy: child, distance: distance, isVase: true });
+                    }
+                }
+            }
+        });
     }
     
     return enemiesInRange;
@@ -1040,6 +1068,33 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     });
     }
     
+    if (this.scene.children && this.scene.children.list) {
+        this.scene.children.list.forEach(child => {
+            const isVase = child && 
+                          child.active && 
+                          !child.isBroken && 
+                          child.canBeAttacked &&
+                          (child.constructor.name === 'BreakableVase' || 
+                           child.texture?.key === 'Vase' ||
+                           child.onPlayerAttack ||
+                           (child.takeDamage && child.dropLoot));
+                           
+            if (isVase) {
+                const distance = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    child.x, child.y
+                );
+                
+                if (distance <= range && distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestTarget = child;
+                    nearestTarget.isVase = true;
+                    console.log('Found vase target via fallback detection:', child);
+                }
+            }
+        });
+    }
+    
     return nearestTarget;
     }
     
@@ -1221,52 +1276,64 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
 	}
     
     updateStats() {
-        if (this.player) {
-            this.slashDamage = this.player.slashDamage || 10;
-            this.slashFireRate = this.player.slashFireRate || 1;
-            this.slashRange = this.player.slashRange || 70;
-            this.slashCooldown = 1000 / this.slashFireRate;
-            
-            this.fireBulletDamage = this.player.fireBulletDamage || 8;
-            this.fireBulletFireRate = this.player.fireBulletFireRate || 1.2;
-            this.fireBulletRange = this.player.fireBulletRange || 300;
-            this.fireBulletCooldown = 1000 / this.fireBulletFireRate;
-            
-            this.fireBombDamage = this.player.fireBombDamage || 18;
-            this.fireBombFireRate = this.player.fireBombFireRate || 0.4;
-            this.fireBombRange = this.player.fireBombRange || 220;
-            this.fireBombCooldown = 1000 / this.fireBombFireRate;
-            
-            this.iceDamage = this.player.iceDamage || 12;
-            this.iceFireRate = this.player.iceFireRate || 0.6;
-            this.iceRange = this.player.iceRange || 180;
-            this.iceCooldown = 1000 / this.iceFireRate;
-            
-            this.lightningDamage = this.player.lightningDamage || 20;
-            this.lightningFireRate = this.player.lightningFireRate || 0.5;
-            this.lightningRange = this.player.lightningRange || 250;
-            this.lightningCooldown = 1000 / this.lightningFireRate;
-            this.lightningChainCount = this.player.lightningChainCount || 10;
-            
-            this.blindingLightRange = this.player.blindingLightRange || 300;
-            this.blindingLightFireRate = this.player.blindingLightFireRate || 0.15;
-            this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
-            this.blindingLightDisableDuration = this.player.blindingLightDisableDuration || 4000;
-            
-            if (this.slashTimer) this.slashTimer.delay = this.slashCooldown;
-            if (this.fireBulletTimer) this.fireBulletTimer.delay = this.fireBulletCooldown;
-            if (this.fireBombTimer) this.fireBombTimer.delay = this.fireBombCooldown;
-            if (this.iceTimer) this.iceTimer.delay = this.iceCooldown;
-            if (this.lightningTimer) this.lightningTimer.delay = this.lightningCooldown;
-            if (this.blindingLightTimer) this.blindingLightTimer.delay = this.blindingLightCooldown;
-            
-            if (this.slashVisual) {
+        if (!this.player || !this.scene || !this.scene.active) return;
+        
+        try {
+        this.slashDamage = this.player.slashDamage || 10;
+        this.slashFireRate = this.player.slashFireRate || 1;
+        this.slashRange = this.player.slashRange || 70;
+        this.slashCooldown = 1000 / this.slashFireRate;
+        
+        this.fireBulletDamage = this.player.fireBulletDamage || 8;
+        this.fireBulletFireRate = this.player.fireBulletFireRate || 1.2;
+        this.fireBulletRange = this.player.fireBulletRange || 300;
+        this.fireBulletCooldown = 1000 / this.fireBulletFireRate;
+        
+        this.fireBombDamage = this.player.fireBombDamage || 18;
+        this.fireBombFireRate = this.player.fireBombFireRate || 0.4;
+        this.fireBombRange = this.player.fireBombRange || 220;
+        this.fireBombCooldown = 1000 / this.fireBombFireRate;
+        
+        this.iceDamage = this.player.iceDamage || 12;
+        this.iceFireRate = this.player.iceFireRate || 0.6;
+        this.iceRange = this.player.iceRange || 180;
+        this.iceCooldown = 1000 / this.iceFireRate;
+        
+        this.lightningDamage = this.player.lightningDamage || 20;
+        this.lightningFireRate = this.player.lightningFireRate || 0.5;
+        this.lightningRange = this.player.lightningRange || 250;
+        this.lightningCooldown = 1000 / this.lightningFireRate;
+        this.lightningChainCount = this.player.lightningChainCount || 10;
+        
+        this.blindingLightRange = this.player.blindingLightRange || 300;
+        this.blindingLightFireRate = this.player.blindingLightFireRate || 0.15;
+        this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
+        this.blindingLightDisableDuration = this.player.blindingLightDisableDuration || 4000;
+        
+        if (this.slashTimer) this.slashTimer.delay = this.slashCooldown;
+        if (this.fireBulletTimer) this.fireBulletTimer.delay = this.fireBulletCooldown;
+        if (this.fireBombTimer) this.fireBombTimer.delay = this.fireBombCooldown;
+        if (this.iceTimer) this.iceTimer.delay = this.iceCooldown;
+        if (this.lightningTimer) this.lightningTimer.delay = this.lightningCooldown;
+        if (this.blindingLightTimer) this.blindingLightTimer.delay = this.blindingLightCooldown;
+        
+        if (this.slashVisual && this.slashVisual.setRadius && typeof this.slashVisual.setRadius === 'function') {
+            try {
                 this.slashVisual.setRadius(this.slashRange);
+            } catch (error) {
+                console.warn('Error setting slash visual radius:', error);
             }
-            
-            if (this.blindingLightVisual) {
+        }
+        
+        if (this.blindingLightVisual && this.blindingLightVisual.setRadius && typeof this.blindingLightVisual.setRadius === 'function') {
+            try {
                 this.blindingLightVisual.setRadius(this.blindingLightRange);
+            } catch (error) {
+                console.warn('Error setting blinding light visual radius:', error);
             }
+        }
+        } catch (error) {
+            console.error('Error in PlayerAttack.updateStats:', error);
         }
     }
     
