@@ -1,12 +1,19 @@
 import React from "react";
 import StatCard from "../components/cards/StatCard";
 import UpgradeCard from "../components/cards/UpgradeCard";
-import { getUserById } from "../services/api/gameApiService";
-import { useQuery } from "@tanstack/react-query";
+import {
+  getAllMaps,
+  getUserById,
+  getUserStatistics,
+  getUpgrades,
+  buyUpgrade,
+} from "../services/api/gameApiService";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const {
     data: userData,
@@ -16,6 +23,38 @@ const Dashboard = () => {
     queryKey: ["user"],
     queryFn: () => getUserById(user.id),
   });
+
+  const { data: maps } = useQuery({
+    queryKey: ["user-maps"],
+    queryFn: () => getAllMaps(),
+  });
+
+  const { data: userStats } = useQuery({
+    queryKey: ["user-stats"],
+    queryFn: () => getUserStatistics(),
+  });
+
+  const { data: upgrades } = useQuery({
+    queryKey: ["user-upgrades"],
+    queryFn: () => getUpgrades(),
+  });
+
+  const upgradeMutation = useMutation({
+    mutationFn: buyUpgrade,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-upgrades"] });
+      queryClient.invalidateQueries({ queryKey: ["user-stats"] });
+    },
+    onError: (error) => {
+      console.error("Failed to upgrade:", error);
+    },
+  });
+
+  const handleUpgrade = (upgradeId) => {
+    upgradeMutation.mutate(upgradeId);
+  };
+
+  console.log("userStats", maps);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading user data</div>;
@@ -28,12 +67,27 @@ const Dashboard = () => {
           Statistics
         </h1>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          <StatCard title={"Total Runs"} value={24} />
-          <StatCard title={"Highest level"} value={24} />
-          <StatCard title={"Total Gold Earned"} value={"343’242"} />
-          <StatCard title={"Enemies Killed"} value={24} />
-          <StatCard title={"Average survival"} value={"0 : 45"} />
-          <StatCard title={"Longest Survival"} value={"1 : 23"} />
+          <StatCard title={"Total Runs"} value={userStats?.totalRuns || 0} />
+          <StatCard
+            title={"Highest level"}
+            value={userStats?.maxSkillLevel || 0}
+          />
+          <StatCard
+            title={"Total Gold Earned"}
+            value={userStats?.totalGoldEarned?.toLocaleString() || 0}
+          />
+          <StatCard
+            title={"Enemies Killed"}
+            value={userStats?.totalKillPoints || 0}
+          />
+          <StatCard
+            title={"Average survival"}
+            value={userStats?.averageSurvival || "00:00"}
+          />
+          <StatCard
+            title={"Longest Survival"}
+            value={userStats?.longestSurvival || "00:00"}
+          />
         </div>
       </div>
       {/* Upgrade */}
@@ -42,12 +96,27 @@ const Dashboard = () => {
           Upgrade
         </h1>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          <UpgradeCard title={"Weapon"} value={"Sword"} />
-          <UpgradeCard title={"Armor"} value={"Leather"} />
-          <UpgradeCard title={"Shield"} value={"Wooden"} />
-          <UpgradeCard title={"Potion"} value={"Health"} />
-          <UpgradeCard title={"Spell"} value={"Fireball"} />
-          <UpgradeCard title={"Pet"} value={"Wolf"} />
+          {upgrades?.data?.map((upgrade) => (
+            <UpgradeCard
+              key={upgrade.id}
+              title={upgrade.name}
+              value={`Level ${upgrade.level}`}
+              progress={upgrade.progress}
+              description={upgrade.description}
+              onUpgrade={handleUpgrade}
+              isMaxed={upgrade.isMaxed}
+              upgradeId={upgrade.id}
+            />
+          )) || (
+            <>
+              <UpgradeCard title={"Weapon"} value={"Sword"} />
+              <UpgradeCard title={"Armor"} value={"Leather"} />
+              <UpgradeCard title={"Shield"} value={"Wooden"} />
+              <UpgradeCard title={"Potion"} value={"Health"} />
+              <UpgradeCard title={"Spell"} value={"Fireball"} />
+              <UpgradeCard title={"Pet"} value={"Wolf"} />
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -180,6 +180,9 @@ export default class GameManager {
         this.updateAllTimeStats(survivalTime);
         
         this.saveGame();
+        
+        // Emit both EventBus and window events for compatibility
+        EventBus.emit('player-died', this.lastRunStats);
         window.dispatchEvent(new CustomEvent('playerDeath', { detail: this.lastRunStats }));
     }
     

@@ -87,10 +87,10 @@ export default class Preload extends Phaser.Scene {
 	this.createFallbackTexture();
 	}
 	
-	console.log("Preload scene complete - starting MainMapScene");
+	console.log("Preload scene complete - waiting for manual game start");
 	
-	// Proceed to main game scene
-	 this.scene.start("MainMapScene");
+	// Don't auto-start MainMapScene - wait for manual start from React
+	// this.scene.start("MainMapScene");
 	}
 	
 	createFallbackTexture() {

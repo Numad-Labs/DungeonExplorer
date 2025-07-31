@@ -10,6 +10,16 @@ export const getAllUsers = async () => {
   }
 };
 
+export const getUserStatistics = async () => {
+  try {
+    const response = await api.get("/my/statistic");
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to get all users:", error);
+    throw error;
+  }
+};
+
 export const getUserById = async (userId) => {
   try {
     const response = await api.get(`/users/${userId}`);
@@ -203,6 +213,26 @@ export const travelThroughPortal = async (travelData) => {
     return response.data;
   } catch (error) {
     console.error("Failed to travel through portal:", error);
+    throw error;
+  }
+};
+
+export const getUpgrades = async () => {
+  try {
+    const response = await api.get("/my/upgrades");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to get upgrades:", error);
+    throw error;
+  }
+};
+
+export const buyUpgrade = async (upgradeId) => {
+  try {
+    const response = await api.post("/user/upgrade", { statId: upgradeId });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to buy upgrade:", error);
     throw error;
   }
 };

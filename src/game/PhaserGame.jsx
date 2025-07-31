@@ -132,6 +132,11 @@ export const PhaserGame = forwardRef(function PhaserGame({
       console.log("Player death detected:", deathData);
       isGameStarted.current = false;
       
+      // Stop the game when player dies
+      if (ref?.current?.stopGame) {
+        ref.current.stopGame();
+      }
+      
       if (showModal) {
         showModal("GAME_OVER", deathData);
       }

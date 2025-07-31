@@ -23,6 +23,7 @@ import SkillExpBar from "./components/SkillExpBar.jsx";
 import Timer from "./components/Timer.jsx";
 import GameNotifications from "./components/GameNotifications.jsx";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { getBridge } from "./bridge/GameBridge.js";
 
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();

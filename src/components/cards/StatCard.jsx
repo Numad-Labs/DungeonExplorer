@@ -1,6 +1,6 @@
 import React from "react";
 
-const StatCard = ({ title, value }) => {
+const StatCard = ({ icon, title, value }) => {
   return (
     <div className="relative p-8 flex max-w-[360px] max-h-[108px] ">
       <div className="absolute inset-0 bg-[url('/small-frame.png')] bg-no-repeat bg-contain pointer-events-none" />

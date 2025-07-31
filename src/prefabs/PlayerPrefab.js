@@ -422,10 +422,12 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		this.scene.input.off('pointerdown', this.handlePointerDown, this);
 		this.scene.input.off('pointerup', this.handlePointerUp, this);
 
+		// Pause enemy spawning and difficulty progression
 		if (this.scene.enemySpawnTimer) this.scene.enemySpawnTimer.paused = true;
 		if (this.scene.orbSpawnTimer) this.scene.orbSpawnTimer.paused = true;
 		if (this.scene.difficultyTimer) this.scene.difficultyTimer.paused = true;
 
+		// Disable all enemies but don't pause physics yet to allow death events to process
 		if (this.scene.enemies) {
 			this.scene.enemies.getChildren().forEach(enemy => {
 				if (enemy.body) {

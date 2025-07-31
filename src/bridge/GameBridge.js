@@ -1,4 +1,10 @@
 import { EventBus } from "../game/EventBus";
+import {
+  startGameSession,
+  saveCheckpoint,
+  endGameSession,
+} from "../services/api/gameApiService";
+import { useMutation } from "@tanstack/react-query";
 
 /**
  * Simple Game Bridge for DungeonExplorer - enhances existing EventBus communication
@@ -8,6 +14,10 @@ class GameBridge {
     this.gameManager = null;
     this.currentScene = null;
     this.isConnected = false;
+    this.sessionId = null;
+    this.lastSyncTime = 0;
+    this.syncInterval = 5000; // 5 seconds
+    this.setupMutations();
     this.init();
   }
 
@@ -15,8 +25,9 @@ class GameBridge {
     this.startPolling();
     this.setupEventEnhancement();
     this.isConnected = true;
-    console.log('GameBridge connected');
-    EventBus.emit('bridge-connected');
+    console.log("GameBridge connected");
+    console.log("GameBridge: Mutations setup complete");
+    EventBus.emit("bridge-connected");
   }
 
   startPolling() {
@@ -28,30 +39,34 @@ class GameBridge {
   }
 
   updateGameReferences() {
-    const gameManagerFromRegistry = window.game?.registry?.get('gameManager');
+    const gameManagerFromRegistry = window.game?.registry?.get("gameManager");
     const gameManagerFromGlobal = window.gameManager;
     const gameManagerFromScene = window.currentGameScene?.gameManager;
-    
-    const newGameManager = gameManagerFromRegistry || gameManagerFromGlobal || gameManagerFromScene || null;
-    
+
+    const newGameManager =
+      gameManagerFromRegistry ||
+      gameManagerFromGlobal ||
+      gameManagerFromScene ||
+      null;
+
     if (newGameManager && newGameManager !== this.gameManager) {
       this.gameManager = newGameManager;
-      console.log('GameBridge: GameManager connected');
+      console.log("GameBridge: GameManager connected");
     }
 
     // Get current scene with better fallback logic
-    const sceneFromGame = window.game?.scene?.getScene('MainMapScene');
+    const sceneFromGame = window.game?.scene?.getScene("MainMapScene");
     const sceneFromGlobal = window.currentGameScene;
-    
+
     const newScene = sceneFromGame || sceneFromGlobal || null;
-    
+
     if (newScene && newScene !== this.currentScene) {
       this.currentScene = newScene;
-      console.log('GameBridge: Scene connected');
-      
+      console.log("GameBridge: Scene connected");
+
       if (newScene.player || newScene.playerPrefab) {
         this.player = newScene.player || newScene.playerPrefab;
-        console.log('GameBridge: Player connected');
+        console.log("GameBridge: Player connected");
       }
     }
   }
@@ -61,11 +76,18 @@ class GameBridge {
 
     // Enhanced player data
     const playerData = this.getPlayerData();
-    EventBus.emit('bridge-player-data', playerData);
+    EventBus.emit("bridge-player-data", playerData);
 
     // Enhanced game progress
     const gameProgress = this.getGameProgress();
-    EventBus.emit('bridge-game-progress', gameProgress);
+    EventBus.emit("bridge-game-progress", gameProgress);
+
+    // Backend sync (every 5 seconds)
+    const now = Date.now();
+    if (this.sessionId && now - this.lastSyncTime > this.syncInterval) {
+      this.syncToBackend(playerData, gameProgress);
+      this.lastSyncTime = now;
+    }
   }
 
   getPlayerData() {
@@ -79,36 +101,50 @@ class GameBridge {
       experiencePercentage: 0,
       gold: 500,
       isAlive: true,
-      isInGame: false
+      isInGame: false,
     };
 
     // Priority order: Player object -> GameManager -> Scene -> defaults
-    const player = this.player || this.currentScene?.player || this.currentScene?.playerPrefab;
+    const player =
+      this.player ||
+      this.currentScene?.player ||
+      this.currentScene?.playerPrefab;
     if (player) {
       data.health = player.health !== undefined ? player.health : data.health;
-      data.maxHealth = player.maxHealth !== undefined ? player.maxHealth : data.maxHealth;
+      data.maxHealth =
+        player.maxHealth !== undefined ? player.maxHealth : data.maxHealth;
       data.isAlive = player.alive !== false && player.health > 0;
     }
-    
+
     // Get from GameManager stats
     if (this.gameManager?.playerStats) {
       const stats = this.gameManager.playerStats;
       data.health = stats.health !== undefined ? stats.health : data.health;
-      data.maxHealth = stats.maxHealth !== undefined ? stats.maxHealth : data.maxHealth;
-      data.experience = stats.experience !== undefined ? stats.experience : data.experience;
-      data.maxExperience = stats.nextLevelExp !== undefined ? stats.nextLevelExp : data.maxExperience;
+      data.maxHealth =
+        stats.maxHealth !== undefined ? stats.maxHealth : data.maxHealth;
+      data.experience =
+        stats.experience !== undefined ? stats.experience : data.experience;
+      data.maxExperience =
+        stats.nextLevelExp !== undefined
+          ? stats.nextLevelExp
+          : data.maxExperience;
       data.level = stats.level !== undefined ? stats.level : data.level;
     }
-    
+
     // Get gold from GameManager
     if (this.gameManager) {
-      data.gold = this.gameManager.gold !== undefined ? this.gameManager.gold : data.gold;
+      data.gold =
+        this.gameManager.gold !== undefined ? this.gameManager.gold : data.gold;
       data.isInGame = this.gameManager.isGameRunning || false;
     }
 
     // Calculate percentages safely
-    data.healthPercentage = data.maxHealth > 0 ? Math.max(0, (data.health / data.maxHealth) * 100) : 0;
-    data.experiencePercentage = data.maxExperience > 0 ? (data.experience / data.maxExperience) * 100 : 0;
+    data.healthPercentage =
+      data.maxHealth > 0
+        ? Math.max(0, (data.health / data.maxHealth) * 100)
+        : 0;
+    data.experiencePercentage =
+      data.maxExperience > 0 ? (data.experience / data.maxExperience) * 100 : 0;
 
     return data;
   }
@@ -116,10 +152,10 @@ class GameBridge {
   getGameProgress() {
     const data = {
       gameTime: 0,
-      formattedTime: '00:00',
+      formattedTime: "00:00",
       currentWave: 1,
       survivalTime: 0,
-      isGameRunning: false
+      isGameRunning: false,
     };
 
     // Get from GameManager
@@ -134,7 +170,7 @@ class GameBridge {
       data.gameTime = elapsed;
       const minutes = Math.floor(elapsed / 60);
       const seconds = Math.floor(elapsed % 60);
-      data.formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      data.formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
     }
 
     // Get wave information
@@ -149,30 +185,369 @@ class GameBridge {
 
   setupEventEnhancement() {
     // Enhance existing health events
-    EventBus.on('player-health-updated', (data) => {
+    EventBus.on("player-health-updated", (data) => {
       const enhancedData = {
         ...data,
         percentage: data.maxHP > 0 ? (data.currentHP / data.maxHP) * 100 : 0,
-        isLowHealth: data.currentHP < (data.maxHP * 0.25),
-        isCritical: data.currentHP < (data.maxHP * 0.1)
+        isLowHealth: data.currentHP < data.maxHP * 0.25,
+        isCritical: data.currentHP < data.maxHP * 0.1,
       };
-      EventBus.emit('bridge-health-updated', enhancedData);
+      EventBus.emit("bridge-health-updated", enhancedData);
     });
 
     // Enhance existing gold events
-    EventBus.on('player-gold-updated', (data) => {
+    EventBus.on("player-gold-updated", (data) => {
       const enhancedData = {
         ...data,
-        formatted: this.formatNumber(data.gold || 0)
+        formatted: this.formatNumber(data.gold || 0),
       };
-      EventBus.emit('bridge-gold-updated', enhancedData);
+      EventBus.emit("bridge-gold-updated", enhancedData);
+    });
+
+    // Session lifecycle events
+    EventBus.on("game-started", () => {
+      console.log("GameBridge: Game started event received");
+      this.startSession();
+    });
+
+    EventBus.on("player-death", (deathData) => {
+      console.log("GameBridge: Player death event received", deathData);
+      this.endSession(deathData);
+    });
+
+    EventBus.on("game-over", (deathData) => {
+      console.log("GameBridge: Game over event received", deathData);
+      this.endSession(deathData);
+    });
+
+    EventBus.on("game-ended", (finalStats) => {
+      console.log("GameBridge: Game ended event received", finalStats);
+      this.endSession(finalStats);
     });
   }
 
   formatNumber(num) {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
     return num.toString();
+  }
+
+  setupMutations() {
+    console.log("GameBridge: Setting up mutations for API calls");
+
+    // Note: These mutations would be used in React components that consume this bridge
+    // For now, we'll create the mutation functions that can be used when needed
+    this.startSessionMutation = {
+      mutationFn: startGameSession,
+      onSuccess: (response) => {
+        console.log("GameBridge: Start session mutation success", response);
+        this.sessionId = response.sessionId;
+        this.lastSyncTime = Date.now();
+        EventBus.emit("bridge-session-started", { sessionId: this.sessionId });
+      },
+      onError: (error) => {
+        console.error("GameBridge: Start session mutation error", error);
+      },
+    };
+
+    this.saveCheckpointMutation = {
+      mutationFn: saveCheckpoint,
+      onSuccess: (response, variables) => {
+        console.log(
+          "GameBridge: Save checkpoint mutation success",
+          response,
+          variables,
+        );
+      },
+      onError: (error, variables) => {
+        console.error(
+          "GameBridge: Save checkpoint mutation error",
+          error,
+          variables,
+        );
+      },
+    };
+
+    this.endSessionMutation = {
+      mutationFn: endGameSession,
+      onSuccess: (response, variables) => {
+        console.log(
+          "GameBridge: End session mutation success",
+          response,
+          variables,
+        );
+        EventBus.emit("bridge-session-ended", {
+          sessionId: this.sessionId,
+          deathData: variables,
+        });
+        this.sessionId = null;
+      },
+      onError: (error, variables) => {
+        console.error(
+          "GameBridge: End session mutation error",
+          error,
+          variables,
+        );
+      },
+    };
+  }
+
+  // Backend sync methods
+  async startSession() {
+    try {
+      console.log("GameBridge: Starting session...");
+      // Format session start payload according to backend requirements
+      const sessionData = {
+        userId: this.getCurrentUserId(),
+        mapId: "87224afa-25e3-4bce-8fce-0981f854e6b6",
+      };
+
+      console.log("GameBridge: Session data prepared", sessionData);
+      const response = await startGameSession(sessionData);
+      console.log("GameBridge: Session API response", response);
+
+      this.sessionId = response.sessionId;
+      this.lastSyncTime = Date.now();
+      console.log("GameBridge: Session started", this.sessionId, sessionData);
+      EventBus.emit("bridge-session-started", { sessionId: this.sessionId });
+    } catch (error) {
+      console.error("GameBridge: Failed to start session", error);
+      console.error("GameBridge: Error details", error.message, error.stack);
+    }
+  }
+
+  async syncToBackend(playerData, gameProgress) {
+    if (!this.sessionId) {
+      console.log("GameBridge: No session ID available for sync");
+      return;
+    }
+
+    try {
+      console.log("GameBridge: Starting backend sync...");
+      // Format checkpoint payload according to backend requirements
+      const checkpointData = {
+        sessionId: this.sessionId,
+        xp: playerData.experience || 0,
+        gold: playerData.gold || 0,
+        position: this.getPlayerPosition(),
+        skillsUsed: this.getSkillsUsedWithCounts(),
+      };
+
+      console.log("GameBridge: Checkpoint data prepared", checkpointData);
+      const response = await saveCheckpoint(checkpointData);
+      console.log("GameBridge: Checkpoint API response", response);
+      console.log("GameBridge: Checkpoint saved:", checkpointData);
+    } catch (error) {
+      console.error("GameBridge: Failed to save checkpoint", error);
+      console.error(
+        "GameBridge: Checkpoint error details",
+        error.message,
+        error.stack,
+      );
+    }
+  }
+
+  getPlayerPosition() {
+    // Get player position from current scene
+    if (this.currentScene?.player) {
+      const x = Math.floor(this.currentScene.player.x || 0);
+      const y = Math.floor(this.currentScene.player.y || 0);
+      return `x${x}y${y}`;
+    }
+
+    // Get from playerPrefab if available
+    if (this.player) {
+      const x = Math.floor(this.player.x || 0);
+      const y = Math.floor(this.player.y || 0);
+      return `x${x}y${y}`;
+    }
+
+    return "x0y0";
+  }
+
+  getSkillsUsedWithCounts() {
+    // Get skills with usage counts from GameManager
+    if (this.gameManager?.playerStats?.skillsUsed) {
+      return this.gameManager.playerStats.skillsUsed.map((skill) => ({
+        skillId: skill.skillId,
+        uses: skill.uses || skill.count || 1,
+      }));
+    }
+
+    // Get from scene if available
+    if (this.currentScene?.skillsUsed) {
+      return this.currentScene.skillsUsed;
+    }
+
+    // Default empty array
+    return [];
+  }
+
+  async endSession(deathData = {}) {
+    if (!this.sessionId) {
+      console.log("GameBridge: No session ID available, but still sending death data");
+    }
+
+    try {
+      console.log("GameBridge: Ending session...", deathData);
+      // Format death payload according to backend requirements
+      const deathPayload = {
+        userId: this.getCurrentUserId(),
+        deathReason: this.getDeathReason(deathData),
+        causeOfDeath: this.getDeathReason(deathData),
+        survivalTime:
+          deathData.survivalTime || this.getGameProgress().survivalTime || 0,
+        enemiesKilled: deathData.enemiesKilled || 0,
+        goldEarned: deathData.goldEarned || 0,
+        maxLevel: deathData.maxLevel || 1,
+        kills: this.formatKillsData(deathData),
+        skillsUsed: this.getSkillsUsed(),
+        perfectRun: this.isPerfectRun(deathData),
+        achievementPoints: this.calculateAchievementPoints(deathData),
+      };
+
+      console.log("GameBridge: Death payload prepared", deathPayload);
+      console.log("GameBridge: Attempting to send death data to API...");
+      const response = await endGameSession(deathPayload);
+      console.log("GameBridge: End session API response", response);
+      console.log("GameBridge: Session ended with death data:", deathPayload);
+      EventBus.emit("bridge-session-ended", {
+        sessionId: this.sessionId,
+        deathData: deathPayload,
+      });
+      this.sessionId = null;
+    } catch (error) {
+      console.error("GameBridge: Failed to end session", error);
+      console.error(
+        "GameBridge: End session error details",
+        error.message,
+        error.stack,
+      );
+    }
+  }
+
+  getCurrentUserId() {
+    // Get from localStorage or auth context
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.userId || payload.sub;
+      } catch (e) {
+        console.warn("Failed to parse user ID from token");
+      }
+    }
+    return null;
+  }
+
+  getCurrentMapId() {
+    // Get current map/scene ID
+    if (this.currentScene?.mapId) {
+      return this.currentScene.mapId;
+    }
+
+    // Get from scene key/name
+    if (this.currentScene?.scene?.key) {
+      return this.getMapIdFromSceneKey(this.currentScene.scene.key);
+    }
+
+    // Get from GameManager if available
+    if (this.gameManager?.currentMapId) {
+      return this.gameManager.currentMapId;
+    }
+
+    // Default to main map
+    return "a1b32a8b-0ff3-432c-b787-dd1713f580d9";
+  }
+
+  getMapIdFromSceneKey(sceneKey) {
+    // Map scene keys to map IDs
+    const sceneToMapId = {
+      MainMapScene: "a1b32a8b-0ff3-432c-b787-dd1713f580d9",
+      MiniMapBeachScene: "b2c43b9c-1aa4-543d-c898-ee2824g691ea",
+      MiniMapDarkForastScene: "c3d54cad-2bb5-654e-d9a9-ff3935h7a2fb",
+      MiniMapLavaScene: "d4e65dbe-3cc6-765f-eaba-004046i8b3gc",
+      MiniMapBossFightScene: "e5f76ecf-4dd7-876g-fbc-115157j9c4hd",
+    };
+
+    return sceneToMapId[sceneKey] || "a1b32a8b-0ff3-432c-b787-dd1713f580d9";
+  }
+
+  getDeathReason(deathData) {
+    if (deathData.deathReason) return deathData.deathReason;
+    if (deathData.enemiesKilled === 0)
+      return "You barely survived the first wave";
+    if (deathData.survivalTime < 30)
+      return "Quick death, better luck next time";
+    return "You have failed emperor";
+  }
+
+  formatKillsData(deathData) {
+    const kills = [];
+
+    if (deathData.enemiesKilled) {
+      kills.push({ type: "regular", count: deathData.enemiesKilled });
+    }
+
+    if (deathData.bossKills) {
+      kills.push({ type: "boss", count: deathData.bossKills });
+    }
+
+    // Default if no kills data
+    if (kills.length === 0) {
+      kills.push({ type: "regular", count: 0 });
+    }
+
+    return kills;
+  }
+
+  getSkillsUsed() {
+    // Get skills for death payload (with tier instead of uses)
+    if (this.gameManager?.playerStats?.skillsUsed) {
+      return this.gameManager.playerStats.skillsUsed.map((skill) => ({
+        skillId: skill.skillId,
+        tier: skill.tier || skill.level || 1,
+      }));
+    }
+
+    // Get from scene if available
+    if (this.currentScene?.skillsUsed) {
+      return this.currentScene.skillsUsed.map((skill) => ({
+        skillId: skill.skillId,
+        tier: skill.tier || skill.level || 1,
+      }));
+    }
+
+    // Default empty skills
+    return [];
+  }
+
+  isPerfectRun(deathData) {
+    // Perfect run logic - no damage taken, survived certain time
+    const playerData = this.getPlayerData();
+    return (
+      playerData.health === playerData.maxHealth &&
+      deathData.survivalTime > 60 &&
+      deathData.enemiesKilled > 10
+    );
+  }
+
+  calculateAchievementPoints(deathData) {
+    let points = 0;
+
+    // Base points for survival time (10 points per second)
+    points += (deathData.survivalTime || 0) * 10;
+
+    // Points for kills (100 per regular enemy, 1000 per boss)
+    points += (deathData.enemiesKilled || 0) * 100;
+    points += (deathData.bossKills || 0) * 1000;
+
+    // Perfect run bonus
+    if (this.isPerfectRun(deathData)) {
+      points *= 2;
+    }
+
+    return points;
   }
 
   // Methods for React components
@@ -180,12 +555,35 @@ class GameBridge {
     return {
       player: this.getPlayerData(),
       progress: this.getGameProgress(),
-      connected: this.isConnected
+      connected: this.isConnected,
+      sessionId: this.sessionId,
     };
   }
 
   isGameReady() {
     return !!(this.gameManager && this.currentScene);
+  }
+
+  // Manual sync methods for external use
+  async forceSyncToBackend() {
+    if (!this.sessionId) {
+      console.warn("GameBridge: No active session to sync");
+      return;
+    }
+
+    console.log("GameBridge: Force sync requested");
+    const playerData = this.getPlayerData();
+    const gameProgress = this.getGameProgress();
+    console.log("GameBridge: Force sync data", { playerData, gameProgress });
+    await this.syncToBackend(playerData, gameProgress);
+  }
+
+  getSessionInfo() {
+    return {
+      sessionId: this.sessionId,
+      isActive: !!this.sessionId,
+      lastSyncTime: this.lastSyncTime,
+    };
   }
 }
 
