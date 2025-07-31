@@ -16,7 +16,9 @@ const Header = () => {
       console.log("Start Game button clicked - starting game directly!");
       gameControls.startGame();
     } else {
-      console.log("Start Game button clicked - navigating to game with auto-start!");
+      console.log(
+        "Start Game button clicked - navigating to game with auto-start!",
+      );
       navigate("/game");
     }
   };
@@ -30,7 +32,11 @@ const Header = () => {
   };
 
   const handleGameAction = () => {
-    if (isOnGameRoute && gameControls?.gameState === "playing" && gameControls?.returnToMenu) {
+    if (
+      isOnGameRoute &&
+      gameControls?.gameState === "playing" &&
+      gameControls?.returnToMenu
+    ) {
       gameControls.returnToMenu();
     } else {
       startGame();
