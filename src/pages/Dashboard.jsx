@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import StatCard from "../components/cards/StatCard";
 import UpgradeCard from "../components/cards/UpgradeCard";
 import {
@@ -10,6 +10,7 @@ import {
 } from "../services/api/gameApiService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
+import { EventBus } from "../game/EventBus";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -44,6 +45,10 @@ const Dashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-upgrades"] });
       queryClient.invalidateQueries({ queryKey: ["user-stats"] });
+      
+      // Notify GameManager about the upgrade purchase
+      EventBus.emit('upgrade-purchased');
+      console.log('Dashboard: Upgrade purchased, notified GameManager');
     },
     onError: (error) => {
       console.error("Failed to upgrade:", error);
@@ -54,7 +59,24 @@ const Dashboard = () => {
     upgradeMutation.mutate(upgradeId);
   };
 
-  console.log("userStats", maps);
+  // Listen for dashboard data invalidation after game session ends
+  useEffect(() => {
+    const handleDashboardInvalidation = () => {
+      console.log('Dashboard: Invalidating queries after game session ended');
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["user-upgrades"] });
+      queryClient.invalidateQueries({ queryKey: ["user-maps"] });
+    };
+
+    EventBus.on('invalidate-dashboard-data', handleDashboardInvalidation);
+
+    return () => {
+      EventBus.removeListener('invalidate-dashboard-data', handleDashboardInvalidation);
+    };
+  }, [queryClient]);
+
+  console.log("userStats", userStats);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading user data</div>;

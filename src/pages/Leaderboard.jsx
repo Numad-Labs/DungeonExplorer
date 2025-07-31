@@ -6,7 +6,7 @@ import {
 } from "../services/api/gameApiService";
 
 const Leaderboard = () => {
-  const [sortField, setSortField] = useState("score");
+  const [sortField, setSortField] = useState("experience");
   const scrollbarStyles = {
     scrollbarWidth: "thin",
     scrollbarColor: "#FFAE0B #2D3748",
@@ -66,8 +66,8 @@ const Leaderboard = () => {
 
         switch (sortField) {
           case "killCount":
-            aValue = a.killCount || a.kills || 0;
-            bValue = b.killCount || b.kills || 0;
+            aValue = a.killPoints || 0;
+            bValue = b.killPoints || 0;
             break;
           case "experience":
             aValue = a.experience || 0;
@@ -77,9 +77,13 @@ const Leaderboard = () => {
             aValue = a.gold || 0;
             bValue = b.gold || 0;
             break;
+          case "totalGames":
+            aValue = a.totalGames || 0;
+            bValue = b.totalGames || 0;
+            break;
           default:
-            aValue = a.score || 0;
-            bValue = b.score || 0;
+            aValue = a.experience || 0;
+            bValue = b.experience || 0;
             break;
         }
 
@@ -100,10 +104,10 @@ const Leaderboard = () => {
               onChange={(e) => setSortField(e.target.value)}
               className="bg-dark-secondary rounded px-3 py-2 text-white appearance-none cursor-pointer pr-8 w-full h-full"
             >
-              <option value="score">Score</option>
-              <option value="killCount">Kill Count</option>
               <option value="experience">Experience</option>
+              <option value="killCount">Kill Points</option>
               <option value="gold">Gold</option>
+              <option value="totalGames">Games Played</option>
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
               <svg
@@ -141,7 +145,7 @@ const Leaderboard = () => {
             >
               <div className="flex items-center space-x-4">
                 <div className="flex items-center justify-center border-2 border-[#392423] bg-[#2F1A18] p-1 w-12 h-9">
-                  {idx + 1}
+                  {player.rank || idx + 1}
                 </div>
                 <div>
                   <p className="text-body-1-alagard font-bold">
@@ -152,12 +156,14 @@ const Leaderboard = () => {
               <div className="text-right">
                 <p className="text-body-1-alagard font-bold">
                   {sortField === "killCount"
-                    ? `${player.killCount || player.kills || 0} kills`
+                    ? `${(player.killPoints || 0).toLocaleString()} kill pts`
                     : sortField === "experience"
-                    ? `${player.experience?.toLocaleString() || 0} XP`
+                    ? `${(player.experience || 0).toLocaleString()} XP`
                     : sortField === "gold"
-                    ? `${player.gold?.toLocaleString() || 0} gold`
-                    : `${player.score?.toLocaleString()} pts`}
+                    ? `${(player.gold || 0).toLocaleString()} gold`
+                    : sortField === "totalGames"
+                    ? `${(player.totalGames || 0).toLocaleString()} games`
+                    : `${(player.experience || 0).toLocaleString()} XP`}
                 </p>
               </div>
             </div>

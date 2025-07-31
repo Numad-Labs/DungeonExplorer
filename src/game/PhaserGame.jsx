@@ -132,9 +132,14 @@ export const PhaserGame = forwardRef(function PhaserGame({
       console.log("Player death detected:", deathData);
       isGameStarted.current = false;
       
-      // Stop the game when player dies
-      if (ref?.current?.stopGame) {
-        ref.current.stopGame();
+      // Only stop the game scenes, don't call handlePlayerDeath again
+      if (game.current) {
+        const activeScenes = game.current.scene.getScenes(true);
+        activeScenes.forEach(scene => {
+          if (scene.scene.key !== "Boot" && scene.scene.key !== "Preload") {
+            game.current.scene.stop(scene.scene.key);
+          }
+        });
       }
       
       if (showModal) {
@@ -159,7 +164,7 @@ export const PhaserGame = forwardRef(function PhaserGame({
     };
 
     EventBus.on('current-scene-ready', handleSceneReady);
-    EventBus.on('player-death', handlePlayerDeath);
+    EventBus.on('player-died', handlePlayerDeath);
     EventBus.on('return-to-menu', handleReturnToMenu);
     EventBus.on('pause-game', handlePauseRequest);
 
@@ -168,7 +173,7 @@ export const PhaserGame = forwardRef(function PhaserGame({
 
     return () => {
       EventBus.removeListener('current-scene-ready', handleSceneReady);
-      EventBus.removeListener('player-death', handlePlayerDeath);
+      EventBus.removeListener('player-died', handlePlayerDeath);
       EventBus.removeListener('return-to-menu', handleReturnToMenu);
       EventBus.removeListener('pause-game', handlePauseRequest);
       

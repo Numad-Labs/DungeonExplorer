@@ -1,5 +1,6 @@
 import { saveToLocalStorage, loadFromLocalStorage, resetProgress as resetLocalStorage } from '../GameStorage';
 import { EventBus } from '../game/EventBus';
+import { BackendStatsManager } from './BackendStatsManager';
 
 // Upgrade configuration - centralized and clean
 const UPGRADES = {
@@ -44,13 +45,46 @@ export default class GameManager {
         this.events = new Phaser.Events.EventEmitter();
         this.currentScene = null;
         
+        // Backend stats integration
+        this.backendStatsManager = BackendStatsManager.getInstance();
+        this.loadingBackendUpgrades = false;
+        
         // Initialize
         this.loadGame();
         this.applyPassiveUpgrades();
+        
+        // Load backend upgrades asynchronously on startup
+        this.loadBackendUpgradesAsync();
+        
+        // Listen for upgrade purchases from Dashboard
+        EventBus.on('upgrade-purchased', () => {
+            console.log('GameManager: Upgrade purchased, refreshing backend upgrades...');
+            this.loadBackendUpgradesAsync();
+        });
     }
     
     static get() {
         return GameManager.instance || new GameManager();
+    }
+    
+    // Asynchronously load backend upgrades (non-blocking)
+    async loadBackendUpgradesAsync() {
+        if (this.loadingBackendUpgrades) return;
+        
+        this.loadingBackendUpgrades = true;
+        try {
+            await this.backendStatsManager.loadBackendUpgrades();
+            console.log("GameManager: Backend upgrades loaded in background");
+            
+            // If there's a current scene with a player, re-apply stats
+            if (this.currentScene?.player) {
+                this.applyPlayerStats(this.currentScene.player);
+            }
+        } catch (error) {
+            console.warn("GameManager: Failed to load backend upgrades in background:", error);
+        } finally {
+            this.loadingBackendUpgrades = false;
+        }
     }
     
     // Base state getters
@@ -153,6 +187,9 @@ export default class GameManager {
         this.playerStats = this.getBasePlayerStats();
         this.gameProgress = this.getBaseGameProgress();
         
+        // Refresh backend upgrades for new run (non-blocking)
+        this.loadBackendUpgradesAsync();
+        
         this.applyPassiveUpgrades();
         
         const goldData = {
@@ -167,6 +204,7 @@ export default class GameManager {
     
     handlePlayerDeath(causeOfDeath = "Unknown") {
         if (!this.isGameRunning) return;
+        console.log(`GameManager: handlePlayerDeath called with cause: ${causeOfDeath}`);
         
         this.isGameRunning = false;
         const survivalTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
@@ -214,8 +252,10 @@ export default class GameManager {
             return;
         }
         
-        const baseStats = this.getBasePlayerStats();
+        console.log("GameManager: Applying player stats...");
         
+        // Start with base stats
+        const baseStats = this.getBasePlayerStats();
         player.maxHealth = baseStats.maxHealth;
         player.health = baseStats.health;
         player.damage = baseStats.damage;
@@ -223,8 +263,9 @@ export default class GameManager {
         player.fireRate = baseStats.fireRate;
         player.attackRange = baseStats.attackRange;
         
+        // Apply local passive upgrades first
         if (this.passiveUpgrades && Object.keys(this.passiveUpgrades).length > 0) {
-            console.log("GameManager: Applying upgrades...");
+            console.log("GameManager: Applying local upgrades...");
             Object.entries(this.passiveUpgrades).forEach(([upgradeId, upgrade]) => {
                 console.log(`GameManager: Applying ${upgradeId}:`, upgrade);
                 switch (upgradeId) {
@@ -259,15 +300,36 @@ export default class GameManager {
                 }
             });
         } else {
-            console.log("GameManager: No upgrades to apply");
+            console.log("GameManager: No local upgrades to apply");
         }
         
+        // Apply backend upgrades (purchased through Dashboard) if loaded
+        if (this.backendStatsManager.isBackendUpgradesLoaded()) {
+            try {
+                this.backendStatsManager.applyBackendUpgradesToPlayer(player);
+                console.log("GameManager: Backend upgrades applied successfully");
+            } catch (error) {
+                console.warn("GameManager: Failed to apply backend upgrades:", error);
+            }
+        } else {
+            console.log("GameManager: Backend upgrades not loaded yet, will apply when ready");
+        }
+        
+        // Update internal playerStats to reflect final values
         this.playerStats.maxHealth = player.maxHealth;
         this.playerStats.health = player.health;
         this.playerStats.damage = player.damage;
         this.playerStats.moveSpeed = player.moveSpeed;
         this.playerStats.fireRate = player.fireRate;
         this.playerStats.attackRange = player.attackRange;
+        
+        console.log("GameManager: Final player stats applied:", {
+            maxHealth: player.maxHealth,
+            damage: player.damage,
+            moveSpeed: player.moveSpeed,
+            fireRate: player.fireRate,
+            attackRange: player.attackRange
+        });
     }
     
     applyPassiveUpgrades() {

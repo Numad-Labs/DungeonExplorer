@@ -2,7 +2,7 @@ import axios from "axios";
 import { refreshToken } from "./authApiService.js";
 
 const api = axios.create({
-  baseURL: "http://localhost:3333/api",
+  baseURL: "https://insomnus-backend-aa250a74a37c.herokuapp.com/api",
   withCredentials: true,
 });
 
@@ -10,23 +10,26 @@ let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
+  failedQueue.forEach((prom) => {
     error ? prom.reject(error) : prom.resolve(token);
   });
   failedQueue = [];
 };
 
-api.interceptors.request.use(config => {
+api.interceptors.request.use((config) => {
+  // Skip adding token for auth endpoints
+  const isAuthEndpoint = config.url?.includes('/auth/');
   const token = localStorage.getItem("access_token");
-  if (token) {
+  
+  if (token && !isAuthEndpoint) {
     config.headers["Authorization"] = `Bearer ${token}`;
   }
   return config;
 });
 
 api.interceptors.response.use(
-  res => res,
-  async error => {
+  (res) => res,
+  async (error) => {
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -34,11 +37,11 @@ api.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then(token => {
+          .then((token) => {
             originalRequest.headers["Authorization"] = `Bearer ${token}`;
             return api(originalRequest);
           })
-          .catch(err => Promise.reject(err));
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
@@ -60,7 +63,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

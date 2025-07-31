@@ -14,56 +14,48 @@ import Update from "../components/icons/Update.jsx";
 const Account = () => {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState({
-    username: "Temuujin",
-    email: "cuntwithego@gmail.com",
-    x: "https://x.com/miakhalifa",
-    discord: "https://discord.com/miakhalifa",
-    referralCode: "blx3...38q8",
-    gold: 33124,
+    username: "",
+    email: "",
+    x: "",
+    discord: "",
+    referralCode: "",
+    gold: 0,
+    xp: 0,
+    walletAddress: "",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [editingDiscord, setEditingDiscord] = useState(false);
   const [editingX, setEditingX] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
+  const [editingUsername, setEditingUsername] = useState(false);
   const [discordUrl, setDiscordUrl] = useState("");
   const [xUrl, setXUrl] = useState("");
   const [emailValue, setEmailValue] = useState("");
+  const [usernameValue, setUsernameValue] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        const data = await getCurrentUserProfile();
+        const response = await getCurrentUserProfile();
+        const data = response.data || response; // Handle nested data structure
+
         setProfileData({
-          username: data.username || data.name || "Temuujin",
-          email: data.email || "cuntwithego@gmail.com",
-          x:
-            data.x ||
-            data.twitter ||
-            data.socials?.x ||
-            data.socials?.twitter ||
-            "https://x.com/miakhalifa",
-          discord:
-            data.discord ||
-            data.socials?.discord ||
-            "https://discord.com/miakhalifa",
-          referralCode:
-            data.referralCode || data.referral?.code || "blx3...38q8",
-          gold: data.gold || data.currency?.gold || 33124,
+          username: data.username || "Unknown User",
+          email: data.email || "",
+          x: data.socials?.x || "",
+          discord: data.socials?.discord || "",
+          referralCode: data.referralCode || data.id || "",
+          gold: data.gold || 0,
+          xp: data.xp || 0,
+          walletAddress: data.walletAddress || "",
         });
-        setDiscordUrl(
-          data.discord ||
-            data.socials?.discord ||
-            "https://discord.com/miakhalifa"
-        );
-        setXUrl(
-          data.x ||
-            data.twitter ||
-            data.socials?.x ||
-            data.socials?.twitter ||
-            "https://x.com/miakhalifa"
-        );
-        setEmailValue(data.email || "cuntwithego@gmail.com");
+
+        // Initialize input values
+        setDiscordUrl(data.socials?.discord || "");
+        setXUrl(data.socials?.x || "");
+        setEmailValue(data.email || "");
+        setUsernameValue(data.username || "");
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       } finally {
@@ -78,12 +70,40 @@ const Account = () => {
     navigator.clipboard.writeText(text);
   };
 
+  const refreshProfile = async () => {
+    try {
+      const response = await getCurrentUserProfile();
+      const data = response.data || response; // Handle nested data structure
+
+      setProfileData({
+        username: data.username || "Unknown User",
+        email: data.email || "",
+        x: data.socials?.x || "",
+        discord: data.socials?.discord || "",
+        referralCode: data.referralCode || data.id || "",
+        gold: data.gold || 0,
+        xp: data.xp || 0,
+        walletAddress: data.walletAddress || "",
+      });
+
+      // Update input values to match fetched data
+      setUsernameValue(data.username || "");
+      setEmailValue(data.email || "");
+      setDiscordUrl(data.socials?.discord || "");
+      setXUrl(data.socials?.x || "");
+
+      console.log("Profile refreshed with latest data:", data);
+    } catch (error) {
+      console.error("Failed to refresh profile:", error);
+    }
+  };
+
   const handleUpdateProfile = async () => {
     try {
       console.log("=== PROFILE UPDATE START ===");
       console.log("Current profileData:", profileData);
       const completeProfileData = {
-        username: profileData.username,
+        username: usernameValue || profileData.username,
         email: emailValue || profileData.email,
         socials: {
           x: xUrl || profileData.x,
@@ -94,31 +114,22 @@ const Account = () => {
       console.log("Sending complete profile data:", completeProfileData);
       console.log("Calling updateProfile API...");
       await updateProfile(completeProfileData);
-      console.log("API call successful, updating local state...");
+      console.log("API call successful, refreshing profile data...");
 
-      setProfileData((prev) => {
-        const newData = {
-          ...prev,
-          email: emailValue || prev.email,
-          x: xUrl || prev.x,
-          discord: discordUrl || prev.discord,
-        };
-        console.log("New profile data:", newData);
-        return newData;
-      });
+      // Refresh profile data from server to ensure we have the latest
+      await refreshProfile();
 
       setEditingDiscord(false);
       setEditingX(false);
       setEditingEmail(false);
+      setEditingUsername(false);
 
-      alert("Profile updated successfully!");
       console.log("=== PROFILE UPDATE SUCCESS ===");
     } catch (error) {
       console.error("=== PROFILE UPDATE ERROR ===");
       console.error("Error details:", error);
       console.error("Error message:", error.message);
       console.error("Error response:", error.response);
-      alert(`Failed to update profile: ${error.message}`);
     }
   };
 
@@ -150,24 +161,93 @@ const Account = () => {
           <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 flex items-center justify-center">
             <span className="text-4xl">👤</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">
-            {profileData.username}
-          </h2>
+          <div className="flex items-center space-x-2">
+            {editingUsername ? (
+              <>
+                <input
+                  type="text"
+                  value={usernameValue}
+                  onChange={(e) => setUsernameValue(e.target.value)}
+                  className="bg-[#392423] border border-[#4A2D2A] rounded px-3 py-1 text-white text-xl font-bold text-center"
+                  placeholder="Enter username"
+                />
+                <button
+                  onClick={() => {
+                    console.log("✓ USERNAME SAVE BUTTON CLICKED");
+                    handleUpdateProfile();
+                  }}
+                  className="text-green-400 hover:text-green-300 transition-colors"
+                >
+                  ✓
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingUsername(false);
+                    setUsernameValue(profileData.username);
+                  }}
+                  className="text-red-400 hover:text-red-300 transition-colors"
+                >
+                  ✕
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold text-white">
+                  {profileData.username}
+                </h2>
+                <button
+                  onClick={() => setEditingUsername(true)}
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Update className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
         <div className="space-y-3">
           <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Wallet className="w-5 h-5 text-gray-400" />
-              <span className="text-white font-medium">
-                {profileData.referralCode}
-              </span>
+              <div>
+                <span className="text-white font-medium block">
+                  {profileData.walletAddress
+                    ? `${profileData.walletAddress.slice(0, 6)}...${profileData.walletAddress.slice(-4)}`
+                    : "No wallet"}
+                </span>
+                <span className="text-gray-400 text-sm">Wallet Address</span>
+              </div>
             </div>
             <button
-              onClick={() => copyToClipboard(profileData.referralCode)}
+              onClick={() => copyToClipboard(profileData.walletAddress)}
               className="text-gray-400 hover:text-white transition-colors"
             >
               <Update className="w-4 h-4" />
             </button>
+          </div>
+
+          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-5 h-5 text-yellow-500 font-bold">💰</div>
+              <div>
+                <span className="text-white font-medium block">
+                  {profileData.gold?.toLocaleString() || 0}
+                </span>
+                <span className="text-gray-400 text-sm">Gold</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-5 h-5 text-blue-500 font-bold">⭐</div>
+              <div>
+                <span className="text-white font-medium block">
+                  {profileData.xp?.toLocaleString() || 0}
+                </span>
+                <span className="text-gray-400 text-sm">Experience Points</span>
+              </div>
+            </div>
           </div>
           <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
             <div className="flex items-center space-x-3">

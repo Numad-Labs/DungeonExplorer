@@ -117,15 +117,8 @@ const StartGame = (parent, gameManager = null, autoStartGame = false) => {
     }));
   });
 
-  // Player death handling
-  EventBus.on("player-died", (deathData) => {
-    console.log("Player died:", deathData);
-    EventBus.emit('player-death', deathData);
-    
-    window.dispatchEvent(new CustomEvent('playerDeath', { 
-      detail: deathData 
-    }));
-  });
+  // Player death handling (removed duplicate event emission to prevent loops)
+  // The GameManager already emits both EventBus and window events
 
   if (autoStartGame) {
     setTimeout(() => {

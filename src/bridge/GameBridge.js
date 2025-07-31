@@ -15,6 +15,7 @@ class GameBridge {
     this.currentScene = null;
     this.isConnected = false;
     this.sessionId = null;
+    this.sessionEnding = false;
     this.lastSyncTime = 0;
     this.syncInterval = 5000; // 5 seconds
     this.setupMutations();
@@ -210,19 +211,10 @@ class GameBridge {
       this.startSession();
     });
 
-    EventBus.on("player-death", (deathData) => {
+    // Listen to the canonical death event from GameManager
+    EventBus.on("player-died", (deathData) => {
       console.log("GameBridge: Player death event received", deathData);
       this.endSession(deathData);
-    });
-
-    EventBus.on("game-over", (deathData) => {
-      console.log("GameBridge: Game over event received", deathData);
-      this.endSession(deathData);
-    });
-
-    EventBus.on("game-ended", (finalStats) => {
-      console.log("GameBridge: Game ended event received", finalStats);
-      this.endSession(finalStats);
     });
   }
 
@@ -384,10 +376,18 @@ class GameBridge {
   }
 
   async endSession(deathData = {}) {
+    // Prevent multiple calls to endSession
+    if (this.sessionEnding) {
+      console.log("GameBridge: Session already ending, ignoring duplicate call");
+      return;
+    }
+    
     if (!this.sessionId) {
       console.log("GameBridge: No session ID available, but still sending death data");
     }
 
+    this.sessionEnding = true;
+    
     try {
       console.log("GameBridge: Ending session...", deathData);
       // Format death payload according to backend requirements
@@ -415,6 +415,11 @@ class GameBridge {
         sessionId: this.sessionId,
         deathData: deathPayload,
       });
+      
+      // Invalidate Dashboard data after session ends
+      EventBus.emit("invalidate-dashboard-data");
+      console.log("GameBridge: Dashboard data invalidation requested");
+      
       this.sessionId = null;
     } catch (error) {
       console.error("GameBridge: Failed to end session", error);
@@ -423,6 +428,8 @@ class GameBridge {
         error.message,
         error.stack,
       );
+    } finally {
+      this.sessionEnding = false;
     }
   }
 
