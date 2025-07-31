@@ -4,8 +4,11 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { GameControlsProvider, useGameControls } from "./context/GameControlsContext";
 import Login from "./pages/Login.jsx";
 import MainMenu from "./pages/MainMenu.jsx";
 import Sidebar from "./components/SideBar.jsx";
@@ -58,6 +61,9 @@ function GameRoute() {
   const [gameState, setGameState] = useState("menu");
   const [showHPBar, setShowHPBar] = useState(false);
   const [phaserInstance, setPhaserInstance] = useState(null);
+  const { setGameControls } = useGameControls();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const showModal = (id, modalData) => {
     console.log("Game modal requested:", { id, modalData });
@@ -101,6 +107,29 @@ function GameRoute() {
     }
   };
 
+  // Register game controls with context
+  useEffect(() => {
+    if (setGameControls) {
+      setGameControls({
+        startGame,
+        returnToMenu,
+        gameState,
+      });
+    }
+  }, [setGameControls, gameState]);
+
+  // Auto-start game if autostart parameter is present
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('autostart') === 'true' && gameState === 'menu') {
+      console.log("Auto-starting game from URL parameter");
+      // Small delay to ensure PhaserGame is mounted
+      setTimeout(() => {
+        startGame();
+      }, 500);
+    }
+  }, [location.search, gameState]);
+
   useEffect(() => {
     const handleGameStart = () => {
       setGameState("playing");
@@ -110,6 +139,9 @@ function GameRoute() {
     const handleGameOver = () => {
       setGameState("menu");
       setShowHPBar(false);
+      // Navigate to dashboard after death
+      console.log("Game over - navigating to dashboard");
+      navigate("/");
     };
 
     const handleReturnToMenu = () => {
@@ -334,7 +366,9 @@ function AppRoutes() {
           path="/game/*"
           element={
             <ProtectedRoute>
-              <GameRoute />
+              <GameControlsProvider>
+                <GameRoute />
+              </GameControlsProvider>
             </ProtectedRoute>
           }
         />
