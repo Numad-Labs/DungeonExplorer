@@ -1,132 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "./MainMenuComponent.css";
+import { getUpgrades, buyUpgrade } from "../services/api/gameApiService";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const passiveUpgrades = [
-  {
-    id: "maxHealth",
-    name: "Max Health",
-    description: "Increase your maximum health points",
-    icon: "❤️",
-    baseValue: 100,
-    valuePerLevel: 20,
-    baseCost: 100,
-    costMultiplier: 1.5,
-    maxLevel: 15,
-    category: "survival",
-  },
-  {
-    id: "baseDamage",
-    name: "Base Damage",
-    description: "Increase your base weapon damage",
-    icon: "⚔️",
-    baseValue: 10,
-    valuePerLevel: 2,
-    baseCost: 150,
-    costMultiplier: 1.6,
-    maxLevel: 15,
-    category: "combat",
-  },
-  {
-    id: "moveSpeed",
-    name: "Move Speed",
-    description: "Increase your movement speed",
-    icon: "💨",
-    baseValue: 200,
-    valuePerLevel: 15,
-    baseCost: 125,
-    costMultiplier: 1.4,
-    maxLevel: 12,
-    category: "mobility",
-  },
-  {
-    id: "attackSpeed",
-    name: "Attack Speed",
-    description: "Increase your attack rate",
-    icon: "⚡",
-    baseValue: 1,
-    valuePerLevel: 0.1,
-    baseCost: 175,
-    costMultiplier: 1.7,
-    maxLevel: 10,
-    category: "combat",
-  },
-  {
-    id: "critChance",
-    name: "Critical Chance",
-    description: "Increase chance for critical hits",
-    icon: "💥",
-    baseValue: 5,
-    valuePerLevel: 2,
-    baseCost: 200,
-    costMultiplier: 1.8,
-    maxLevel: 10,
-    category: "combat",
-  },
-  {
-    id: "critDamage",
-    name: "Critical Damage",
-    description: "Increase critical hit damage multiplier",
-    icon: "🔥",
-    baseValue: 150,
-    valuePerLevel: 25,
-    baseCost: 250,
-    costMultiplier: 1.9,
-    maxLevel: 8,
-    category: "combat",
-  },
-  {
-    id: "pickupRange",
-    name: "Pickup Range",
-    description: "Increase item pickup range",
-    icon: "🧲",
-    baseValue: 50,
-    valuePerLevel: 10,
-    baseCost: 120,
-    costMultiplier: 1.3,
-    maxLevel: 12,
-    category: "utility",
-  },
-  {
-    id: "armor",
-    name: "Armor",
-    description: "Reduce damage taken from enemies",
-    icon: "🛡️",
-    baseValue: 0,
-    valuePerLevel: 2,
-    baseCost: 180,
-    costMultiplier: 1.6,
-    maxLevel: 10,
-    category: "survival",
-  },
-  {
-    id: "expMultiplier",
-    name: "EXP Gain",
-    description: "Increase experience gained from enemies",
-    icon: "📈",
-    baseValue: 100,
-    valuePerLevel: 10,
-    baseCost: 300,
-    costMultiplier: 2.0,
-    maxLevel: 8,
-    category: "progression",
-  },
-  {
-    id: "goldMultiplier",
-    name: "Gold Gain",
-    description: "Increase gold earned from enemies",
-    icon: "💰",
-    baseValue: 100,
-    valuePerLevel: 20,
-    baseCost: 350,
-    costMultiplier: 2.2,
-    maxLevel: 8,
-    category: "progression",
-  },
-];
 
 const MainMenu = ({ gameManager, onStartGame }) => {
   console.log({ gameManager, onStartGame });
 
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("upgrades");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showTooltip, setShowTooltip] = useState(null);
@@ -141,6 +22,25 @@ const MainMenu = ({ gameManager, onStartGame }) => {
     currentRunStats: {},
   });
   const [debugInfo, setDebugInfo] = useState([]);
+
+  // Fetch upgrades from backend
+  const { data: upgrades } = useQuery({
+    queryKey: ["user-upgrades"],
+    queryFn: () => getUpgrades(),
+  });
+
+  // Upgrade mutation
+  const upgradeMutation = useMutation({
+    mutationFn: buyUpgrade,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-upgrades"] });
+      showNotification("Upgrade purchased successfully!");
+    },
+    onError: (error) => {
+      console.error("Failed to upgrade:", error);
+      showNotification("Failed to purchase upgrade!");
+    },
+  });
 
   useEffect(() => {
     // Load game state
@@ -196,10 +96,12 @@ const MainMenu = ({ gameManager, onStartGame }) => {
     "progression",
   ];
 
+  // Use backend data instead of hardcoded data
+  const backendUpgrades = upgrades?.data || [];
   const filteredUpgrades =
     selectedCategory === "all"
-      ? passiveUpgrades
-      : passiveUpgrades.filter(
+      ? backendUpgrades
+      : backendUpgrades.filter(
           (upgrade) => upgrade.category === selectedCategory
         );
 
@@ -221,47 +123,7 @@ const MainMenu = ({ gameManager, onStartGame }) => {
   };
 
   const purchaseUpgrade = (upgradeId) => {
-    const upgrade = passiveUpgrades.find((u) => u.id === upgradeId);
-    if (!upgrade) return;
-
-    const currentLevel = gameState.passiveUpgrades[upgradeId]?.level || 0;
-
-    if (currentLevel >= upgrade.maxLevel) {
-      showNotification("Already at maximum level!");
-      return;
-    }
-
-    const cost = Math.floor(
-      upgrade.baseCost * Math.pow(upgrade.costMultiplier, currentLevel)
-    );
-
-    if (gameState.gold < cost) {
-      showNotification("Not enough gold!");
-      return;
-    }
-
-    console.log(`Attempting to purchase ${upgradeId} for ${cost} gold`);
-
-    if (gameManager && gameManager.purchaseUpgrade) {
-      const success = gameManager.purchaseUpgrade(upgradeId, cost);
-      if (success) {
-        const newLevel = currentLevel + 1;
-        console.log(`Successfully purchased ${upgrade.name} level ${newLevel}`);
-        showNotification(`${upgrade.name} upgraded to level ${newLevel}!`);
-
-        const newGameState = {
-          ...gameState,
-          gold: gameManager.gold,
-          passiveUpgrades: { ...gameManager.passiveUpgrades },
-        };
-        setGameState(newGameState);
-      } else {
-        showNotification("Purchase failed!");
-      }
-    } else {
-      console.error("GameManager or purchaseUpgrade method not available");
-      showNotification("Error: Game system not ready");
-    }
+    upgradeMutation.mutate(upgradeId);
   };
 
   const resetProgress = () => {
@@ -324,13 +186,6 @@ const MainMenu = ({ gameManager, onStartGame }) => {
     setActiveTab("upgrades");
   };
 
-  const formatValue = (upgrade, value) => {
-    if (upgrade.id === "critChance") return `${value}%`;
-    if (upgrade.id === "critDamage") return `${value}%`;
-    if (upgrade.id === "expMultiplier" || upgrade.id === "goldMultiplier")
-      return `${value}%`;
-    return value;
-  };
 
   const [isConnected, setIsConnected] = useState(false);
   // Death screen
@@ -410,11 +265,16 @@ const MainMenu = ({ gameManager, onStartGame }) => {
       {/* Header */}
       <div className="mainmenu-header">
         <h1 className="mainmenu-title">Insomnus</h1>
-        <div className="mainmenu-gold">
-          💰 GOLD:{" "}
-          <span className="mainmenu-gold-amount">
-            {formatNumber(gameState.gold)}
-          </span>
+        <div className="mainmenu-header-right">
+          <div className="mainmenu-gold">
+            💰 GOLD:{" "}
+            <span className="mainmenu-gold-amount">
+              {formatNumber(gameState.gold)}
+            </span>
+          </div>
+          <button onClick={startGame} className="mainmenu-start-btn">
+            🎮 Start Game
+          </button>
         </div>
       </div>
       {/* Tab Navigation */}
@@ -452,23 +312,8 @@ const MainMenu = ({ gameManager, onStartGame }) => {
             {/* Upgrades Grid */}
             <div className="mainmenu-upgrades-grid">
               {filteredUpgrades.map((upgrade) => {
-                const currentLevel =
-                  gameState.passiveUpgrades[upgrade.id]?.level || 0;
-                const currentValue =
-                  gameState.passiveUpgrades[upgrade.id]?.value ||
-                  upgrade.baseValue;
-                const nextValue =
-                  currentLevel < upgrade.maxLevel
-                    ? upgrade.baseValue +
-                      upgrade.valuePerLevel * (currentLevel + 1)
-                    : null;
-                const cost =
-                  currentLevel < upgrade.maxLevel
-                    ? Math.floor(
-                        upgrade.baseCost *
-                          Math.pow(upgrade.costMultiplier, currentLevel)
-                      )
-                    : null;
+                const currentLevel = upgrade.level || 0;
+                const isMaxed = upgrade.isMaxed || false;
                 return (
                   <div
                     key={upgrade.id}
@@ -479,7 +324,7 @@ const MainMenu = ({ gameManager, onStartGame }) => {
                     <div className="mainmenu-upgrade-header">
                       <div className="mainmenu-upgrade-title-row">
                         <span className="mainmenu-upgrade-icon">
-                          {upgrade.icon}
+                          {upgrade.icon || "⚡"}
                         </span>
                         <h3 className="mainmenu-upgrade-title">
                           {upgrade.name}
@@ -493,7 +338,7 @@ const MainMenu = ({ gameManager, onStartGame }) => {
                         </button>
                       </div>
                       <div className="mainmenu-upgrade-level">
-                        {currentLevel}/{upgrade.maxLevel}
+                        Level {currentLevel}
                       </div>
                     </div>
                     {showTooltip === upgrade.id && (
@@ -502,40 +347,26 @@ const MainMenu = ({ gameManager, onStartGame }) => {
                       </div>
                     )}
                     <div className="mainmenu-upgrade-values">
-                      <div>
-                        <span>Current: </span>
-                        <span className="mainmenu-upgrade-current">
-                          {formatValue(upgrade, currentValue)}
-                        </span>
-                      </div>
-                      {nextValue !== null && (
+                      {upgrade.progress && (
                         <div>
-                          <span>Next: </span>
-                          <span className="mainmenu-upgrade-next">
-                            {formatValue(upgrade, nextValue)}
+                          <span>Progress: </span>
+                          <span className="mainmenu-upgrade-current">
+                            {upgrade.progress}
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="mainmenu-upgrade-actions">
-                      {currentLevel < upgrade.maxLevel ? (
-                        <>
-                          <div className="mainmenu-upgrade-cost">
-                            💰 {formatNumber(cost)}
-                          </div>
-                          <button
-                            onClick={() =>
-                              gameState.gold >= cost &&
-                              purchaseUpgrade(upgrade.id)
-                            }
-                            disabled={gameState.gold < cost}
-                            className={`mainmenu-upgrade-btn${
-                              gameState.gold >= cost ? "" : " disabled"
-                            }`}
-                          >
-                            ⬆️ UPGRADE
-                          </button>
-                        </>
+                      {!isMaxed ? (
+                        <button
+                          onClick={() => purchaseUpgrade(upgrade.id)}
+                          disabled={upgradeMutation.isPending}
+                          className={`mainmenu-upgrade-btn${
+                            upgradeMutation.isPending ? " disabled" : ""
+                          }`}
+                        >
+                          {upgradeMutation.isPending ? "⏳ UPGRADING..." : "⬆️ UPGRADE"}
+                        </button>
                       ) : (
                         <div className="mainmenu-upgrade-maxed">✅ MAXED</div>
                       )}
@@ -609,12 +440,8 @@ const MainMenu = ({ gameManager, onStartGame }) => {
                   ⚡ Current Upgrades
                 </h3>
                 <div className="mainmenu-stats-upgrades-list">
-                  {passiveUpgrades.map((upgrade) => {
-                    const level =
-                      gameState.passiveUpgrades[upgrade.id]?.level || 0;
-                    const value =
-                      gameState.passiveUpgrades[upgrade.id]?.value ||
-                      upgrade.baseValue;
+                  {backendUpgrades.map((upgrade) => {
+                    const level = upgrade.level || 0;
                     return (
                       <div
                         key={upgrade.id}
@@ -623,11 +450,11 @@ const MainMenu = ({ gameManager, onStartGame }) => {
                         }`}
                       >
                         <span>
-                          {upgrade.icon} {upgrade.name}:
+                          {upgrade.icon || "⚡"} {upgrade.name}:
                         </span>
                         <div>
                           <span className="mainmenu-stats-upgrade-value">
-                            {formatValue(upgrade, value)}
+                            {upgrade.progress || "N/A"}
                           </span>
                           <span className="mainmenu-stats-upgrade-level">
                             (Lv {level})
@@ -663,10 +490,6 @@ const MainMenu = ({ gameManager, onStartGame }) => {
           </div>
         )}
       </div>
-      {/* Start Game Button */}
-      <button onClick={startGame} className="mainmenu-start-btn">
-        {"🎮 Start Game"}
-      </button>
       {/* Notification */}
       {notification && (
         <div className="mainmenu-notification">{notification}</div>

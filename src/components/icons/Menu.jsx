@@ -9,7 +9,7 @@ const Menu = ({ size }) => {
       viewBox="0 0 20 20"
       fill="none"
     >
-      <g clip-path="url(#clip0_17780_125)">
+      <g clipPath="url(#clip0_17780_125)">
         <path
           d="M8.33337 10.833H1.66671V11.6663H0.833374V18.333H1.66671V19.1663H8.33337V18.333H9.16671V11.6663H8.33337V10.833ZM7.50004 17.4997H2.50004V12.4997H7.50004V17.4997Z"
           fill="white"
