@@ -374,7 +374,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         this.body.enable = false;
         this.stop();
 
-        if (this.scene.chargerGroup) {
+        if (this.scene && this.scene.chargerGroup && this.scene.chargerGroup.children) {
             this.scene.chargerGroup.remove(this);
         }
 
@@ -429,7 +429,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
                 this.scene.events.off('update', this.updateListener);
                 this.updateListener = null;
             }
-            if (this.scene.chargerGroup) {
+            if (this.scene && this.scene.chargerGroup && this.scene.chargerGroup.children) {
                 this.scene.chargerGroup.remove(this);
             }
         } catch (error) {

@@ -306,7 +306,7 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
         this.body.enable = false;
         this.stop();
 
-        if (this.scene.zombieGroup) {
+        if (this.scene && this.scene.zombieGroup && this.scene.zombieGroup.children) {
             this.scene.zombieGroup.remove(this);
         }
 
@@ -361,7 +361,7 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
                 this.scene.events.off('update', this.updateListener);
                 this.updateListener = null;
             }
-            if (this.scene.zombieGroup) {
+            if (this.scene && this.scene.zombieGroup && this.scene.zombieGroup.children) {
                 this.scene.zombieGroup.remove(this);
             }
         } catch (error) {
