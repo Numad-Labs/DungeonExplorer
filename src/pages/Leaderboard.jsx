@@ -6,10 +6,24 @@ import {
 } from "../services/api/gameApiService";
 
 const Leaderboard = () => {
-  const [sortOrder, setSortOrder] = useState("descending");
   const [sortField, setSortField] = useState("score");
+  const scrollbarStyles = {
+    scrollbarWidth: "thin",
+    scrollbarColor: "#FFAE0B #2D3748",
+  };
 
-  // Fetch global scores
+  const scrollbarClass = `
+    scrollbar-thin 
+    scrollbar-track-gray-800 
+    scrollbar-thumb-[#FFAE0B] 
+    scrollbar-thumb-rounded-full 
+    hover:scrollbar-thumb-[#FFAE0B]/80
+    [&::-webkit-scrollbar]:w-2
+    [&::-webkit-scrollbar-track]:bg-gray-800
+    [&::-webkit-scrollbar-thumb]:bg-[#FFAE0B]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    [&::-webkit-scrollbar-thumb]:hover:bg-[#FFAE0B]/80
+  `;
   const {
     data: scoresData,
     isLoading: scoresLoading,
@@ -19,8 +33,6 @@ const Leaderboard = () => {
     queryKey: ["globalScores"],
     queryFn: getGlobalScores,
   });
-
-  // Fetch global kill counts
   const {
     data: killsData,
     isLoading: killsLoading,
@@ -30,8 +42,6 @@ const Leaderboard = () => {
     queryKey: ["globalKillCounts"],
     queryFn: getGlobalKillCounts,
   });
-
-  // Determine which data to use based on sortField
   const isLoading = sortField === "killCount" ? killsLoading : scoresLoading;
   const isError = sortField === "killCount" ? killsError : scoresError;
   const error = sortField === "killCount" ? killsErrorData : scoresErrorData;
@@ -50,13 +60,6 @@ const Leaderboard = () => {
       </div>
     );
   }
-
-  console.log("Leaderboard data:", leaderboardData);
-  console.log("Scores data:", scoresData);
-  console.log("Kills data:", killsData);
-  console.log("Current sort field:", sortField);
-
-  // Sort the data based on selected field and order
   const sortedData = leaderboardData?.data
     ? [...leaderboardData.data].sort((a, b) => {
         let aValue, bValue;
@@ -74,17 +77,13 @@ const Leaderboard = () => {
             aValue = a.gold || 0;
             bValue = b.gold || 0;
             break;
-          default: // score
+          default:
             aValue = a.score || 0;
             bValue = b.score || 0;
             break;
         }
 
-        if (sortOrder === "ascending") {
-          return aValue > bValue ? 1 : -1;
-        } else {
-          return aValue < bValue ? 1 : -1;
-        }
+        return aValue < bValue ? 1 : -1;
       })
     : [];
 
@@ -94,33 +93,8 @@ const Leaderboard = () => {
         <h1 className="font-alagard font-medium text-[#FFAE0B] text-3xl leading-10">
           Leaderboard
         </h1>
-        <div className="flex items-center  space-x-4 pt-6">
+        <div className="flex items-center space-x-4 pt-6">
           <div className="relative">
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              className="bg-dark-secondary rounded px-3 py-2 text-white appearance-none cursor-pointer pr-8 w-full h-full"
-            >
-              <option value="ascending">Ascending</option>
-              <option value="descending">Descending</option>
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-          </div>
-          <div className="relative ">
             <select
               value={sortField}
               onChange={(e) => setSortField(e.target.value)}
@@ -156,7 +130,10 @@ const Leaderboard = () => {
             Top Players ({sortedData.length} players)
           </h2>
         </div>
-        <div className="divide-y divide-[#2F1A18] min-h-screen max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-[#392423] scrollbar-track-[#24110F] hover:scrollbar-thumb-[#4A2D2A]">
+        <div
+          className={`divide-y divide-[#2F1A18] min-h-screen max-h-96 overflow-y-auto ${scrollbarClass}`}
+          style={scrollbarStyles}
+        >
           {sortedData.map((player, idx) => (
             <div
               key={player.id || idx}
@@ -170,7 +147,6 @@ const Leaderboard = () => {
                   <p className="text-body-1-alagard font-bold">
                     {player.username || player.name}
                   </p>
-                  {/* Add more player info if available */}
                 </div>
               </div>
               <div className="text-right">
@@ -188,7 +164,6 @@ const Leaderboard = () => {
           ))}
         </div>
       </div>
-      {/* ...rest of your summary cards... */}
     </div>
   );
 };

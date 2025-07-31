@@ -82,8 +82,6 @@ const Account = () => {
     try {
       console.log("=== PROFILE UPDATE START ===");
       console.log("Current profileData:", profileData);
-
-      // Create complete profile structure with all fields
       const completeProfileData = {
         username: profileData.username,
         email: emailValue || profileData.email,
@@ -109,7 +107,6 @@ const Account = () => {
         return newData;
       });
 
-      // Reset edit states
       setEditingDiscord(false);
       setEditingX(false);
       setEditingEmail(false);
@@ -148,9 +145,7 @@ const Account = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center text-white bg-[#170908] pl-6 pr-6">
-      {/* Profile Section */}
       <div className="bg-[#24110F] border border-[#392423] rounded-lg p-6 max-w-md">
-        {/* Profile Picture */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 flex items-center justify-center">
             <span className="text-4xl">👤</span>
@@ -174,7 +169,6 @@ const Account = () => {
               <Update className="w-4 h-4" />
             </button>
           </div>
-          {/* Discord */}
           <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Discord className="w-5 h-5 text-blue-500" />
@@ -232,8 +226,6 @@ const Account = () => {
               )}
             </div>
           </div>
-
-          {/* X/Twitter */}
           <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <X className="w-5 h-5 text-blue-400" />
