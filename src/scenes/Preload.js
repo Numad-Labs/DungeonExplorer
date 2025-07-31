@@ -2,6 +2,7 @@
 
 /* START-USER-IMPORTS */
 // Old integration removed - now handled by React App
+import { EventBus } from '../game/EventBus';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -88,6 +89,11 @@ export default class Preload extends Phaser.Scene {
 	}
 	
 	console.log("Preload scene complete - waiting for manual game start");
+	
+	if (window.EventBus) {
+		window.EventBus.emit('preload-complete');
+	}
+	window.dispatchEvent(new CustomEvent('gamePreloadComplete'));
 	
 	// Don't auto-start MainMapScene - wait for manual start from React
 	// this.scene.start("MainMapScene");

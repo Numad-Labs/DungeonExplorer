@@ -50,6 +50,8 @@ class Boot extends Phaser.Scene {
   }
   
   create() {
+    window.dispatchEvent(new CustomEvent('gameBootComplete'));
+    
     // Only start Preload scene, don't auto-start any game scenes
     this.scene.start("Preload");
     EventBus.emit("current-scene-ready", this);
@@ -82,6 +84,7 @@ const StartGame = (parent, gameManager = null, autoStartGame = false) => {
   game.scene.add("MiniMapLavaScene", MiniMapLavaScene);
 
   window.game = game;
+  window.EventBus = EventBus;
 
   // Set up global event handlers
   EventBus.on("return-to-menu", () => {

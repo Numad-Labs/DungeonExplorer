@@ -14,6 +14,8 @@ const MainMenu = ({ gameManager, onStartGame }) => {
   const [notification, setNotification] = useState(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showDeathScreen, setShowDeathScreen] = useState(false);
+  const [isGameLoading, setIsGameLoading] = useState(true);
+  const [loadingStage, setLoadingStage] = useState('boot');
   const [gameState, setGameState] = useState({
     gold: 500,
     passiveUpgrades: {},
@@ -78,12 +80,37 @@ const MainMenu = ({ gameManager, onStartGame }) => {
       setActiveTab("death");
     };
 
+    const handleBootComplete = () => {
+      setLoadingStage('assets');
+      addDebugLog('Boot scene complete - loading assets...');
+    };
+
+    const handlePreloadComplete = () => {
+      setIsGameLoading(false);
+      setLoadingStage('ready');
+      addDebugLog('All assets loaded - game ready to start!');
+    };
+
     window.addEventListener("gameStateUpdated", handleGameStateUpdate);
     window.addEventListener("playerDeath", handlePlayerDeath);
+    window.addEventListener("gameBootComplete", handleBootComplete);
+    window.addEventListener("gamePreloadComplete", handlePreloadComplete);
+
+    // Fallback timeout in case events don't fire
+    const loadingTimeout = setTimeout(() => {
+      if (isGameLoading) {
+        addDebugLog('Loading timeout reached - force completing loading');
+        setIsGameLoading(false);
+        setLoadingStage('ready');
+      }
+    }, 10000); // 10 second timeout
 
     return () => {
+      clearTimeout(loadingTimeout);
       window.removeEventListener("gameStateUpdated", handleGameStateUpdate);
       window.removeEventListener("playerDeath", handlePlayerDeath);
+      window.removeEventListener("gameBootComplete", handleBootComplete);
+      window.removeEventListener("gamePreloadComplete", handlePreloadComplete);
     };
   }, [gameManager]);
 
@@ -140,6 +167,12 @@ const MainMenu = ({ gameManager, onStartGame }) => {
   };
 
   const startGame = () => {
+    // Don't start if game is still loading
+    if (isGameLoading) {
+      addDebugLog("Cannot start game - still loading assets");
+      return;
+    }
+
     addDebugLog("StartGame function called");
 
     setShowDeathScreen(false);
@@ -272,8 +305,20 @@ const MainMenu = ({ gameManager, onStartGame }) => {
               {formatNumber(gameState.gold)}
             </span>
           </div>
-          <button onClick={startGame} className="mainmenu-start-btn">
-            🎮 Start Game
+          <button 
+            onClick={startGame} 
+            className={`mainmenu-start-btn${isGameLoading ? ' loading' : ''}`}
+            disabled={isGameLoading}
+          >
+            {isGameLoading ? (
+              <>
+                <span className="loading-spinner-small"></span>
+                {loadingStage === 'boot' && 'Initializing...'}
+                {loadingStage === 'assets' && 'Loading Assets...'}
+              </>
+            ) : (
+              '🎮 Start Game'
+            )}
           </button>
         </div>
       </div>
@@ -290,6 +335,29 @@ const MainMenu = ({ gameManager, onStartGame }) => {
           </button>
         ))}
       </div>
+      {isGameLoading && (
+        <div className="mainmenu-loading-overlay">
+          <div className="mainmenu-loading-content">
+            <div className="loading-spinner-large"></div>
+            <h2 className="mainmenu-loading-title">Initializing Game</h2>
+            <p className="mainmenu-loading-text">
+              {loadingStage === 'boot' && 'Starting game engine...'}
+              {loadingStage === 'assets' && 'Loading game assets...'}
+            </p>
+            <div className="mainmenu-loading-progress">
+              <div className="mainmenu-loading-progress-bar">
+                <div 
+                  className="mainmenu-loading-progress-fill"
+                  style={{
+                    width: loadingStage === 'boot' ? '30%' : '90%'
+                  }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Main Content */}
       <div className="mainmenu-content">
         {/* Upgrades Tab */}

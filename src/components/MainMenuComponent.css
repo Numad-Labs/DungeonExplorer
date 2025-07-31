@@ -63,6 +63,7 @@
   border-radius: 5px;
   margin-bottom: 20px;
   min-height: 400px;
+  position: relative;
 }
 
 /* Categories */
@@ -311,6 +312,120 @@
   cursor: pointer;
   text-transform: uppercase;
   white-space: nowrap;
+  transition: background-color 0.3s, opacity 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mainmenu-start-btn:hover:not(:disabled) {
+  background-color: #4fa04f;
+}
+
+.mainmenu-start-btn:disabled {
+  background-color: #555555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.mainmenu-start-btn.loading {
+  background-color: #666666;
+}
+
+/* Loading Spinner */
+.loading-spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #9ca3af;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.mainmenu-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.mainmenu-loading-content {
+  background-color: #333333;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid #555555;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 90%;
+}
+
+.loading-spinner-large {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #444444;
+  border-top: 4px solid #f59e0b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.mainmenu-loading-title {
+  color: #f59e0b;
+  margin: 0 0 15px;
+  font-size: 24px;
+}
+
+.mainmenu-loading-text {
+  color: #cccccc;
+  margin: 0 0 25px;
+  font-size: 16px;
+}
+
+.mainmenu-loading-progress {
+  width: 100%;
+}
+
+.mainmenu-loading-progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #444444;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.mainmenu-loading-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
 }
 
 /* Notification */
