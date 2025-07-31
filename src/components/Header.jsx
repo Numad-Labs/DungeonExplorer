@@ -17,7 +17,7 @@ const Header = () => {
       gameControls.startGame();
     } else {
       console.log("Start Game button clicked - navigating to game with auto-start!");
-      navigate("/game?autostart=true");
+      navigate("/game");
     }
   };
 
