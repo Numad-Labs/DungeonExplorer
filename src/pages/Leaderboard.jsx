@@ -92,7 +92,7 @@ const Leaderboard = () => {
     : [];
 
   return (
-    <div className="min-h-screen flex flex-col text-white bg-[#170908] pl-6 pr-6">
+    <div className="min-h-screen flex flex-col text-white pl-6 pr-6">
       <div className="flex items-center justify-between mb-6 px-8">
         <h1 className="font-alagard font-medium text-[#FFAE0B] text-3xl leading-10">
           Leaderboard

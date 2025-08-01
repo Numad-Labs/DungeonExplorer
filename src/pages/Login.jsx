@@ -5,6 +5,13 @@ import { connectWallet } from "../services/api/authApiService.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import metamaskLogo from "../images/Metamask.png";
 import vector from "../images/Vector.png";
+import flame from "../images/Flame.png";
+import flame1 from "../images/Flame-1.png";
+import flame2 from "../images/Flame-2.png";
+import cornerFrame1 from "../images/Corner-Frame-3 1.png";
+import cornerFrame2 from "../images/Corner-Frame-3 2.png";
+import cornerFrame3 from "../images/Corner-Frame-3 3.png";
+import cornerFrame4 from "../images/Corner-Frame-3 4.png";
 import "./Login.css";
 function Login() {
   const { login } = useAuth();
@@ -56,43 +63,35 @@ function Login() {
 
   return (
     <div className="login-root">
-      <img src="/src/images/flame.png" className="flame-top" alt="Flame Top" />
+      <img src={flame} className="flame-top" alt="Flame Top" />
       <img
-        src="/src/images/flame.png"
+        src={flame}
         className="flame-bottom"
         style={{ transform: "rotate(180deg)" }}
         alt="Flame Bottom"
       />
+      <img src={flame2} className="flame-left" alt="Flame Left" />
+      <img src={flame1} className="flame-right" alt="Flame Right" />
       <img
-        src="/src/images/flame-2.png"
-        className="flame-left"
-        alt="Flame Left"
-      />
-      <img
-        src="/src/images/flame-1.png"
-        className="flame-right"
-        alt="Flame Right"
-      />
-      <img
-        src="/src/images/corner-frame-3 3.png"
+        src={cornerFrame3}
         className="corner-frame corner-tl"
         style={{ width: "129px", height: "129px" }}
         alt="Corner TL"
       />
       <img
-        src="/src/images/corner-frame-3 4.png"
+        src={cornerFrame4}
         className="corner-frame corner-tr"
         style={{ width: "129px", height: "129px" }}
         alt="Corner TR"
       />
       <img
-        src="/src/images/corner-frame-3 1.png"
+        src={cornerFrame1}
         className="corner-frame corner-bl"
         style={{ width: "129px", height: "129px" }}
         alt="Corner BL"
       />
       <img
-        src="/src/images/corner-frame-3 2.png"
+        src={cornerFrame2}
         className="corner-frame corner-br"
         style={{ width: "129px", height: "129px" }}
         alt="Corner BR"
