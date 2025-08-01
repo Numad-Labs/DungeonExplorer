@@ -147,7 +147,7 @@ const Account = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center text-white bg-[#170908] pl-6 pr-6">
+    <div className="min-h-screen flex w-[700px] items-center justify-center text-white bg-[#170908] pl-6 pr-6">
       {/* Profile Section */}
       <div className="bg-[#24110F] border border-[#392423] rounded-lg p-6 max-w-md">
         {/* Profile Picture */}
