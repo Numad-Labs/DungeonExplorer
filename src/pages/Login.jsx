@@ -29,6 +29,7 @@ function Login() {
         });
         if (accounts.length > 0 && localStorage.getItem("access_token")) {
           console.log("already connected");
+          //qasdasdasdas
         }
       } catch (error) {
         console.error("Error checking wallet connection:", error);
