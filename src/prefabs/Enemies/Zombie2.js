@@ -26,7 +26,7 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
         this.isMoving = false;
         
         this.lastDirection = 'down';
-        this.createHealthBar();
+        // this.createHealthBar();
         this.createAnimations();
         this.addToZombieGroup(scene);
         this.createShadow();

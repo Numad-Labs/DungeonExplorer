@@ -444,8 +444,8 @@
             ],
             "label": "playerPrefab",
             "scope": "CLASS",
-            "x": 900,
-            "y": 100
+            "x": 1264,
+            "y": 1286
         },
         {
             "prefabId": "67b5633e-d96a-4150-9092-e838e17aa141",

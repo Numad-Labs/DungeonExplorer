@@ -13,12 +13,8 @@ const Header = () => {
 
   const startGame = () => {
     if (isOnGameRoute && gameControls?.startGame) {
-      console.log("Start Game button clicked - starting game directly!");
       gameControls.startGame();
     } else {
-      console.log(
-        "Start Game button clicked - navigating to game with auto-start!",
-      );
       navigate("/game");
     }
   };
@@ -28,7 +24,7 @@ const Header = () => {
     if (isOnGameRoute && gameControls?.gameState === "playing") {
       return "🏠 Return to Menu";
     }
-    return "🎮 Start Game";
+    return "Start Game";
   };
 
   const handleGameAction = () => {
@@ -48,24 +44,24 @@ const Header = () => {
       <div className="flex items-center space-x-4">
         {user && (
           <>
-            <div className="text-gray-300 text-sm">
-              Welcome,{" "}
+            <h1 className="text-yellow-400 text-xl">
+              <span className="text-white font-medium">Welcome, </span>
               <span className="text-yellow-400 font-medium">
-                {user.username || "Player"}
+                {user?.data?.username || user?.username || "Player"}
               </span>
-            </div>
+            </h1>
             <button
               onClick={handleGameAction}
-              className="px-4 py-2 text-sm font-bold text-white bg-green-600 hover:bg-green-700 rounded transition-colors whitespace-nowrap"
+              className="px-6 py-3 text-sm pt-4 font-bold text-white bg-red-600 hover:bg-red-700 rounded transition-colors whitespace-nowrap shadow-lg"
             >
               {getButtonText()}
             </button>
             <div className="w-px h-6 bg-gray-600"></div>
             <button
               onClick={logout}
-              className="px-3 py-1 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white rounded transition-colors"
+              className="px-6 py-3 pt-4 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded transition-colors whitespace-nowrap shadow-lg"
             >
-              🚪 Logout
+              Logout
             </button>
           </>
         )}
