@@ -32,6 +32,7 @@ const Account = () => {
   const [xUrl, setXUrl] = useState("");
   const [emailValue, setEmailValue] = useState("");
   const [usernameValue, setUsernameValue] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -91,8 +92,6 @@ const Account = () => {
       setEmailValue(data.email || "");
       setDiscordUrl(data.socials?.discord || "");
       setXUrl(data.socials?.x || "");
-
-      console.log("Profile refreshed with latest data:", data);
     } catch (error) {
       console.error("Failed to refresh profile:", error);
     }
@@ -100,8 +99,6 @@ const Account = () => {
 
   const handleUpdateProfile = async () => {
     try {
-      console.log("=== PROFILE UPDATE START ===");
-      console.log("Current profileData:", profileData);
       const completeProfileData = {
         username: usernameValue || profileData.username,
         email: emailValue || profileData.email,
@@ -110,11 +107,7 @@ const Account = () => {
           discord: discordUrl || profileData.discord,
         },
       };
-
-      console.log("Sending complete profile data:", completeProfileData);
-      console.log("Calling updateProfile API...");
       await updateProfile(completeProfileData);
-      console.log("API call successful, refreshing profile data...");
 
       // Refresh profile data from server to ensure we have the latest
       await refreshProfile();
@@ -123,20 +116,34 @@ const Account = () => {
       setEditingX(false);
       setEditingEmail(false);
       setEditingUsername(false);
-
-      console.log("=== PROFILE UPDATE SUCCESS ===");
+      setErrorMessage(""); // Clear any previous errors
     } catch (error) {
-      console.error("=== PROFILE UPDATE ERROR ===");
-      console.error("Error details:", error);
-      console.error("Error message:", error.message);
-      console.error("Error response:", error.response);
+      // Handle specific error cases
+      let errorMsg = "Failed to update profile. Please try again.";
+
+      if (error.response?.status === 409) {
+        errorMsg =
+          "Username already exists. Please choose a different username.";
+      } else if (error.response?.status === 400) {
+        errorMsg = "Invalid data provided. Please check your input.";
+      } else if (error.response?.status === 401) {
+        errorMsg = "Authentication required. Please log in again.";
+      } else if (error.response?.data?.message) {
+        errorMsg = error.response.data.message;
+      }
+
+      setErrorMessage(errorMsg);
+
+      // Reset editing state to show the original value
+      setEditingUsername(false);
+      setUsernameValue(profileData.username);
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white bg-[#170908] pl-6 pr-6">
-        <div className="bg-[#24110F] border border-[#392423] rounded-lg p-6 max-w-md">
+        <div className="w-[500px] bg-[#24110F] border border-[#392423] rounded-lg p-6">
           <div className="flex flex-col items-center">
             <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 animate-pulse"></div>
             <div className="h-8 bg-gray-600 rounded w-32 mb-6 animate-pulse"></div>
@@ -156,7 +163,14 @@ const Account = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center text-white bg-[#170908] pl-6 pr-6">
-      <div className="bg-[#24110F] border border-[#392423] rounded-lg p-6 max-w-md">
+      <div className="w-[500px] bg-[#24110F] border border-[#392423] rounded-lg p-6">
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="mb-4 p-3 bg-red-900 text-red-300 rounded text-center font-bold border border-red-600">
+            {errorMessage}
+          </div>
+        )}
+
         <div className="flex flex-col items-center mb-6">
           <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 flex items-center justify-center">
             <span className="text-4xl">👤</span>
@@ -173,7 +187,6 @@ const Account = () => {
                 />
                 <button
                   onClick={() => {
-                    console.log("✓ USERNAME SAVE BUTTON CLICKED");
                     handleUpdateProfile();
                   }}
                   className="text-green-400 hover:text-green-300 transition-colors"
@@ -184,6 +197,7 @@ const Account = () => {
                   onClick={() => {
                     setEditingUsername(false);
                     setUsernameValue(profileData.username);
+                    setErrorMessage(""); // Clear error when canceling
                   }}
                   className="text-red-400 hover:text-red-300 transition-colors"
                 >
@@ -212,43 +226,17 @@ const Account = () => {
               <div>
                 <span className="text-white font-medium block">
                   {profileData.walletAddress
-                    ? `${profileData.walletAddress.slice(0, 6)}...${profileData.walletAddress.slice(-4)}`
+                    ? `${profileData.walletAddress.slice(
+                        0,
+                        6
+                      )}...${profileData.walletAddress.slice(-4)}`
                     : "No wallet"}
                 </span>
                 <span className="text-gray-400 text-sm">Wallet Address</span>
               </div>
             </div>
-            <button
-              onClick={() => copyToClipboard(profileData.walletAddress)}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <Update className="w-4 h-4" />
-            </button>
           </div>
 
-          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 text-yellow-500 font-bold">💰</div>
-              <div>
-                <span className="text-white font-medium block">
-                  {profileData.gold?.toLocaleString() || 0}
-                </span>
-                <span className="text-gray-400 text-sm">Gold</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-5 h-5 text-blue-500 font-bold">⭐</div>
-              <div>
-                <span className="text-white font-medium block">
-                  {profileData.xp?.toLocaleString() || 0}
-                </span>
-                <span className="text-gray-400 text-sm">Experience Points</span>
-              </div>
-            </div>
-          </div>
           <div className="bg-[#2F1A18] border border-[#392423] rounded-lg p-3 flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Discord className="w-5 h-5 text-blue-500" />
@@ -271,7 +259,6 @@ const Account = () => {
                 <>
                   <button
                     onClick={() => {
-                      console.log("✓ DISCORD SAVE BUTTON CLICKED");
                       handleUpdateProfile();
                     }}
                     className="text-green-400 hover:text-green-300 transition-colors text-sm"
@@ -293,12 +280,6 @@ const Account = () => {
                   <button
                     onClick={() => setEditingDiscord(true)}
                     className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
-                  >
-                    <Update className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => copyToClipboard(profileData.discord)}
-                    className="text-gray-400 hover:text-white transition-colors"
                   >
                     <Update className="w-4 h-4" />
                   </button>
@@ -326,7 +307,6 @@ const Account = () => {
                 <>
                   <button
                     onClick={() => {
-                      console.log("✓ X SAVE BUTTON CLICKED");
                       handleUpdateProfile();
                     }}
                     className="text-green-400 hover:text-green-300 transition-colors text-sm"
@@ -348,12 +328,6 @@ const Account = () => {
                   <button
                     onClick={() => setEditingX(true)}
                     className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
-                  >
-                    <Update className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => copyToClipboard(profileData.x)}
-                    className="text-gray-400 hover:text-white transition-colors"
                   >
                     <Update className="w-4 h-4" />
                   </button>
@@ -383,7 +357,6 @@ const Account = () => {
                 <>
                   <button
                     onClick={() => {
-                      console.log("✓ EMAIL SAVE BUTTON CLICKED");
                       handleUpdateProfile();
                     }}
                     className="text-green-400 hover:text-green-300 transition-colors text-sm"
@@ -405,12 +378,6 @@ const Account = () => {
                   <button
                     onClick={() => setEditingEmail(true)}
                     className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
-                  >
-                    <Update className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => copyToClipboard(profileData.email)}
-                    className="text-gray-400 hover:text-white transition-colors"
                   >
                     <Update className="w-4 h-4" />
                   </button>
