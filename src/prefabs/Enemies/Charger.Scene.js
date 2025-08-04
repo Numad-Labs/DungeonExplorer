@@ -33,6 +33,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         this.createHealthBar();
         this.createAnimations();
         this.addToChargerGroup(scene);
+        this.createShadow();
         this.updateListener = this.update.bind(this);
         scene.events.on('update', this.updateListener);
         /* END-USER-CTR-CODE */
@@ -160,6 +161,9 @@ export default class Charger extends Phaser.GameObjects.Sprite {
             }
 
             this.updateAnimation();
+            
+            // Update shadow position
+            this.updateShadowPosition();
         } catch (error) {
             console.error("Error in Charger update:", error);
         }
@@ -369,6 +373,22 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         this.isDead = true;
         this.isCharging = false;
 
+        // Destroy shadow with animation
+        if (this.shadow) {
+         this.scene.tweens.add({
+          targets: this.shadow,
+			alpha: 0,
+			scale: 0.5,
+			duration: 400,
+			onComplete: () => {
+				if (this.shadow) {
+					this.shadow.destroy();
+					this.shadow = null;
+				}
+			}
+		});
+		}
+
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
         this.body.enable = false;
@@ -424,20 +444,44 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     }
 
     destroy(fromScene) {
-        try {
-            if (this.scene && this.updateListener) {
-                this.scene.events.off('update', this.updateListener);
-                this.updateListener = null;
-            }
-            if (this.scene && this.scene.chargerGroup && this.scene.chargerGroup.children) {
-                this.scene.chargerGroup.remove(this);
-            }
-        } catch (error) {
-            console.error("Error in destroy method:", error);
-        }
+    // Clean up shadow
+    if (this.shadow) {
+    this.shadow.destroy();
+    this.shadow = null;
+    }
+    
+    try {
+    if (this.scene && this.updateListener) {
+      this.scene.events.off('update', this.updateListener);
+     this.updateListener = null;
+     }
+			if (this.scene && this.scene.chargerGroup && this.scene.chargerGroup.children) {
+				this.scene.chargerGroup.remove(this);
+			}
+		} catch (error) {
+			console.error("Error in destroy method:", error);
+		}
 
         super.destroy(fromScene);
-    }
+        }
+
+	createShadow() {
+		this.shadow = this.scene.add.graphics();
+		this.shadow.setDepth(0);
+		this.shadow.fillStyle(0x000000, 0.2);
+		this.shadow.fillEllipse(0, -14, 20, 10);
+		this.updateShadowPosition();
+	}
+
+	updateShadowPosition() {
+		if (this.shadow && !this.isDead) {
+			this.shadow.setPosition(this.x, this.y + 18);
+			const baseScale = 1.0;
+			const moveScale = this.isMoving ? 0.9 : 1.0;
+			const chargeScale = this.isCharging ? 1.3 : 1.0;
+			this.shadow.setScale(baseScale * moveScale * chargeScale);
+		}
+	}
 
     /* END-USER-CODE */
 }
