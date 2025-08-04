@@ -6,347 +6,390 @@
 /* END-USER-IMPORTS */
 
 export default class AssassinTank extends Phaser.GameObjects.Sprite {
+  constructor(scene, x, y, texture, frame) {
+    super(scene, x ?? 32, y ?? 32, texture || "run_1", frame ?? 0);
 
-    constructor(scene, x, y, texture, frame) {
-        super(scene, x ?? 32, y ?? 32, texture || "run_1", frame ?? 0);
+    /* START-USER-CTR-CODE */
+    scene.physics.add.existing(this, false);
+    this.body.setSize(16, 16, false);
+    this.body.setOffset(14, 32);
 
-        /* START-USER-CTR-CODE */
-        scene.physics.add.existing(this, false);
-        this.body.setSize(16, 16, false);
-        this.body.setOffset(14, 32);
-        
-        this.maxHealth = 30;
-        this.health = this.maxHealth;
-        this.damage = 10;
-        this.speed = 50;
-        this.attackRange = 5;
-        this.attackCooldown = 1000;
-        this.lastAttackTime = 0;
-        this.isDead = false;
-        this.isMoving = false;
-        
-        this.lastDirection = 'down';
-        this.createHealthBar();
-        this.createAnimations();
-        this.addToZombieGroup(scene);
-        this.updateListener = this.update.bind(this);
-        scene.events.on('update', this.updateListener);
-        /* END-USER-CTR-CODE */
+    this.maxHealth = 30;
+    this.health = this.maxHealth;
+    this.damage = 10;
+    this.speed = 50;
+    this.attackRange = 5;
+    this.attackCooldown = 1000;
+    this.lastAttackTime = 0;
+    this.isDead = false;
+    this.isMoving = false;
+
+    this.lastDirection = "down";
+    // this.createHealthBar();
+    this.createAnimations();
+    this.addToZombieGroup(scene);
+    this.updateListener = this.update.bind(this);
+    scene.events.on("update", this.updateListener);
+    /* END-USER-CTR-CODE */
+  }
+
+  /* START-USER-CODE */
+
+  addToZombieGroup(scene) {
+    if (!scene.zombieGroup) {
+      scene.zombieGroup = scene.physics.add.group();
+      scene.physics.add.collider(
+        scene.zombieGroup,
+        scene.zombieGroup,
+        this.handleZombieCollision,
+        null,
+        scene
+      );
     }
+    scene.zombieGroup.add(this);
+  }
 
-    /* START-USER-CODE */
-    
-    addToZombieGroup(scene) {
-        if (!scene.zombieGroup) {
-            scene.zombieGroup = scene.physics.add.group();
-            scene.physics.add.collider(scene.zombieGroup, scene.zombieGroup, 
-                this.handleZombieCollision, null, scene);
-        }
-        scene.zombieGroup.add(this);
+  handleZombieCollision(zombie1, zombie2, assassin) {
+    const distance = Phaser.Math.Distance.Between(
+      zombie1.x,
+      zombie1.y,
+      zombie2.x,
+      zombie2.y,
+      assassin.x,
+      assassin.y
+    );
+
+    if (distance < 20) {
+      const angle = Phaser.Math.Angle.Between(
+        zombie1.x,
+        zombie1.y,
+        zombie2.x,
+        zombie2.y,
+        assassin.x,
+        assassin.y
+      );
+
+      const separationForce = 30;
+      const pushX = Math.cos(angle) * separationForce;
+      const pushY = Math.sin(angle) * separationForce;
+
+      zombie2.body.velocity.x += pushX;
+      zombie2.body.velocity.y += pushY;
+      zombie1.body.velocity.x -= pushX;
+      zombie1.body.velocity.y -= pushY;
+      assassin.body.velocity.y -= pushX;
+      assassin.body.velocity.y -= pushY;
     }
-    
-    handleZombieCollision(zombie1, zombie2, assassin) {
-        const distance = Phaser.Math.Distance.Between(
-            zombie1.x, zombie1.y, zombie2.x, zombie2.y, assassin.x, assassin.y
+  }
+
+  createAnimations() {
+    if (!this.scene.anims.exists("AssasinTank Run")) {
+      this.scene.anims.create({
+        key: "AssasinTank Run",
+        frames: this.scene.anims.generateFrameNumbers("run_1", {
+          start: 0,
+          end: 7,
+        }),
+        frameRate: 8,
+        repeat: -1,
+      });
+    }
+    if (!this.scene.anims.exists("assassinTank")) {
+      this.scene.anims.create({
+        key: "assassinTank",
+        frames: [{ key: "run_1", frame: 0 }],
+        frameRate: 1,
+        repeat: 0,
+      });
+    }
+  }
+
+  createHealthBar() {
+    this.healthBarBg = this.scene.add.rectangle(
+      this.x,
+      this.y - 20,
+      30,
+      4,
+      0xff0000
+    );
+    this.healthBarBg.setOrigin(0.5, 0.5);
+    this.healthBarBg.setDepth(1);
+
+    this.healthBarFg = this.scene.add.rectangle(
+      this.x - 15,
+      this.y - 20,
+      30,
+      4,
+      0x00ff00
+    );
+    this.healthBarFg.setOrigin(0, 0.5);
+    this.healthBarFg.setDepth(20);
+
+    this.on("destroy", () => {
+      if (this.healthBarBg) this.healthBarBg.destroy();
+      if (this.healthBarFg) this.healthBarFg.destroy();
+    });
+
+    this.updateHealthBar();
+  }
+
+  updateHealthBar() {
+    if (!this.healthBarFg || !this.healthBarBg) return;
+
+    this.healthBarBg.setPosition(this.x - 10, this.y - 10);
+    this.healthBarFg.setPosition(this.x - 25, this.y - 10);
+
+    const healthPercentage = this.health / this.maxHealth;
+
+    this.healthBarFg.width = 30 * healthPercentage;
+  }
+
+  update(time, delta) {
+    if (this.isDead || !this.active) return;
+
+    try {
+      this.updateHealthBar();
+
+      const player = this.scene.player;
+
+      if (!player) return;
+
+      const distance = Phaser.Math.Distance.Between(
+        this.x,
+        this.y,
+        player.x,
+        player.y
+      );
+
+      if (distance > this.attackRange) {
+        const angle = Phaser.Math.Angle.Between(
+          this.x,
+          this.y,
+          player.x,
+          player.y
         );
-        
-        if (distance < 20) {
-            const angle = Phaser.Math.Angle.Between(
-                zombie1.x, zombie1.y, zombie2.x, zombie2.y, assassin.x, assassin.y
-            );
-            
-            const separationForce = 30;
-            const pushX = Math.cos(angle) * separationForce;
-            const pushY = Math.sin(angle) * separationForce;
-            
-            zombie2.body.velocity.x += pushX;
-            zombie2.body.velocity.y += pushY;
-            zombie1.body.velocity.x -= pushX;
-            zombie1.body.velocity.y -= pushY;
-			assassin.body.velocity.y -= pushX;
-			assassin.body.velocity.y -= pushY;
-        }
-    }
-    
-    createAnimations() {
-        if (!this.scene.anims.exists('AssasinTank Run')) {
-            this.scene.anims.create({
-                key: 'AssasinTank Run',
-                frames: this.scene.anims.generateFrameNumbers('run_1', { start: 0, end: 7}),
-                frameRate: 8,
-                repeat: -1
-            });
-        }
-        if (!this.scene.anims.exists('assassinTank')) {
-            this.scene.anims.create({
-                key: 'assassinTank',
-                frames: [{ key: 'run_1', frame: 0 }],
-                frameRate: 1,
-                repeat: 0
-            });
-        }
-    }
-    
-    createHealthBar() {
-        this.healthBarBg = this.scene.add.rectangle(this.x, this.y - 20, 30, 4, 0xff0000);
-        this.healthBarBg.setOrigin(0.5, 0.5);
-        this.healthBarBg.setDepth(1);
-        
-        this.healthBarFg = this.scene.add.rectangle(
-            this.x - 15, this.y - 20, 30, 4, 0x00ff00
+        const forceX = Math.cos(angle) * this.speed * 0.1;
+        const forceY = Math.sin(angle) * this.speed * 0.1;
+        this.body.velocity.x += forceX;
+        this.body.velocity.y += forceY;
+        this.body.velocity.x *= 0.9;
+        this.body.velocity.y *= 0.9;
+        this.applyZombieAvoidance();
+
+        const maxSpeed = this.speed;
+        const currentSpeed = Math.sqrt(
+          this.body.velocity.x * this.body.velocity.x +
+            this.body.velocity.y * this.body.velocity.y
         );
-        this.healthBarFg.setOrigin(0, 0.5);
-        this.healthBarFg.setDepth(20);
-        
-        this.on('destroy', () => {
-            if (this.healthBarBg) this.healthBarBg.destroy();
-            if (this.healthBarFg) this.healthBarFg.destroy();
-        });
-        
-        this.updateHealthBar();
-    }
-    
-    updateHealthBar() {
-        if (!this.healthBarFg || !this.healthBarBg) return;
-        
-        this.healthBarBg.setPosition(this.x - 10, this.y - 10);
-        this.healthBarFg.setPosition(this.x - 25, this.y - 10);
-        
-        const healthPercentage = this.health / this.maxHealth;
-        
-        this.healthBarFg.width = 30 * healthPercentage;
-    }
-    
-    update(time, delta) {
-        if (this.isDead || !this.active) return;
-        
-        try {
-            this.updateHealthBar();
-            
-            const player = this.scene.player;
-            
-            if (!player) return;
-            
-            const distance = Phaser.Math.Distance.Between(
-                this.x, this.y,
-                player.x, player.y
-            );
-            
-            if (distance > this.attackRange) {
-                const angle = Phaser.Math.Angle.Between(
-                    this.x, this.y,
-                    player.x, player.y
-                );
-                const forceX = Math.cos(angle) * this.speed * 0.1;
-                const forceY = Math.sin(angle) * this.speed * 0.1;
-                this.body.velocity.x += forceX;
-                this.body.velocity.y += forceY;
-                this.body.velocity.x *= 0.9;
-                this.body.velocity.y *= 0.9;
-                this.applyZombieAvoidance();
-                
-                const maxSpeed = this.speed;
-                const currentSpeed = Math.sqrt(
-                    this.body.velocity.x * this.body.velocity.x + 
-                    this.body.velocity.y * this.body.velocity.y
-                );
-                
-                if (currentSpeed > maxSpeed) {
-                    const scale = maxSpeed / currentSpeed;
-                    this.body.velocity.x *= scale;
-                    this.body.velocity.y *= scale;
-                }
-                this.isMoving = true;
-                this.updateDirection(angle);
-            } else {
-                this.body.velocity.x *= 0.8;
-                this.body.velocity.y *= 0.8;
-                const currentSpeed = Math.sqrt(
-                    this.body.velocity.x * this.body.velocity.x + 
-                    this.body.velocity.y * this.body.velocity.y
-                );
-                this.isMoving = currentSpeed > 5; 
-                
-                if (time - this.lastAttackTime > this.attackCooldown) {
-                    this.attackPlayer(player);
-                    this.lastAttackTime = time;
-                }
-            }
-            
-            this.updateAnimation();
-        } catch (error) {
-            console.error("Error in AssassinTank update:", error);
+
+        if (currentSpeed > maxSpeed) {
+          const scale = maxSpeed / currentSpeed;
+          this.body.velocity.x *= scale;
+          this.body.velocity.y *= scale;
         }
-    }
-    
-    applyZombieAvoidance() {
-        if (!this.scene.zombieGroup) return;
-        
-        const avoidanceRadius = 25;
-        const avoidanceForce = 15;
-        let totalAvoidanceX = 0;
-        let totalAvoidanceY = 0;
-        let nearbyZombies = 0;
-        
-        this.scene.zombieGroup.children.entries.forEach(otherZombie => {
-            if (otherZombie === this || otherZombie.isDead) return;
-            
-            const distance = Phaser.Math.Distance.Between(
-                this.x, this.y, otherZombie.x, otherZombie.y
-            );
-            
-            if (distance < avoidanceRadius && distance > 0) {
-                const angle = Phaser.Math.Angle.Between(
-                    otherZombie.x, otherZombie.y, this.x, this.y
-                );
-                
-                const force = avoidanceForce * (1 - distance / avoidanceRadius);
-                totalAvoidanceX += Math.cos(angle) * force;
-                totalAvoidanceY += Math.sin(angle) * force;
-                nearbyZombies++;
-            }
-        });
-        
-        if (nearbyZombies > 0) {
-            this.body.velocity.x += totalAvoidanceX * 0.1;
-            this.body.velocity.y += totalAvoidanceY * 0.1;
+        this.isMoving = true;
+        this.updateDirection(angle);
+      } else {
+        this.body.velocity.x *= 0.8;
+        this.body.velocity.y *= 0.8;
+        const currentSpeed = Math.sqrt(
+          this.body.velocity.x * this.body.velocity.x +
+            this.body.velocity.y * this.body.velocity.y
+        );
+        this.isMoving = currentSpeed > 5;
+
+        if (time - this.lastAttackTime > this.attackCooldown) {
+          this.attackPlayer(player);
+          this.lastAttackTime = time;
         }
+      }
+
+      this.updateAnimation();
+    } catch (error) {
+      console.error("Error in AssassinTank update:", error);
     }
-    
-    updateDirection(angle) {
-        const angleInDegrees = Phaser.Math.RadToDeg(angle);
-        
-        if (angleInDegrees >= -45 && angleInDegrees < 45) {
-            this.lastDirection = 'right';
-        } else if (angleInDegrees >= 45 && angleInDegrees < 135) {
-            this.lastDirection = 'down';
-        } else if (angleInDegrees >= 135 || angleInDegrees < -135) {
-            this.lastDirection = 'left';
-        } else {
-            this.lastDirection = 'up';
-        }
+  }
+
+  applyZombieAvoidance() {
+    if (!this.scene.zombieGroup) return;
+
+    const avoidanceRadius = 25;
+    const avoidanceForce = 15;
+    let totalAvoidanceX = 0;
+    let totalAvoidanceY = 0;
+    let nearbyZombies = 0;
+
+    this.scene.zombieGroup.children.entries.forEach((otherZombie) => {
+      if (otherZombie === this || otherZombie.isDead) return;
+
+      const distance = Phaser.Math.Distance.Between(
+        this.x,
+        this.y,
+        otherZombie.x,
+        otherZombie.y
+      );
+
+      if (distance < avoidanceRadius && distance > 0) {
+        const angle = Phaser.Math.Angle.Between(
+          otherZombie.x,
+          otherZombie.y,
+          this.x,
+          this.y
+        );
+
+        const force = avoidanceForce * (1 - distance / avoidanceRadius);
+        totalAvoidanceX += Math.cos(angle) * force;
+        totalAvoidanceY += Math.sin(angle) * force;
+        nearbyZombies++;
+      }
+    });
+
+    if (nearbyZombies > 0) {
+      this.body.velocity.x += totalAvoidanceX * 0.1;
+      this.body.velocity.y += totalAvoidanceY * 0.1;
     }
-    
-    updateAnimation() {
-        if (this.isMoving) {
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'AssasinTank Run') {
-                this.play('AssasinTank Run');
-            }
-            if (this.lastDirection === 'right') {
-                this.setFlipX(false);
-            } else if (this.lastDirection === 'left') {
-                this.setFlipX(true);
-            }
-        } else {
-            if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'assassinTank') {
-                this.play('assassinTank');
-            }
-        }
+  }
+
+  updateDirection(angle) {
+    const angleInDegrees = Phaser.Math.RadToDeg(angle);
+
+    if (angleInDegrees >= -45 && angleInDegrees < 45) {
+      this.lastDirection = "right";
+    } else if (angleInDegrees >= 45 && angleInDegrees < 135) {
+      this.lastDirection = "down";
+    } else if (angleInDegrees >= 135 || angleInDegrees < -135) {
+      this.lastDirection = "left";
+    } else {
+      this.lastDirection = "up";
     }
-    
-    attackPlayer(player) {
-        if (!player || !player.takeDamage) return;
-        
-        player.takeDamage(this.damage);
-        
-        this.setTint(0xff0000);
-        this.scene.time.delayedCall(150, () => {
-            this.clearTint();
-        });
-        
-        this.lastAttackTime = this.scene.time.now;
+  }
+
+  updateAnimation() {
+    if (this.isMoving) {
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "AssasinTank Run"
+      ) {
+        this.play("AssasinTank Run");
+      }
+      if (this.lastDirection === "right") {
+        this.setFlipX(false);
+      } else if (this.lastDirection === "left") {
+        this.setFlipX(true);
+      }
+    } else {
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "assassinTank"
+      ) {
+        this.play("assassinTank");
+      }
     }
-    
-    takeDamage(amount) {
-        this.health -= amount;
-        this.updateHealthBar();
-        
-        this.setTint(0xff0000);
-        this.scene.time.delayedCall(100, () => {
-            this.clearTint();
-        });
-        
-        if (this.health <= 0) {
-            this.die();
-        }
+  }
+
+  attackPlayer(player) {
+    if (!player || !player.takeDamage) return;
+
+    player.takeDamage(this.damage);
+
+    this.setTint(0xff0000);
+    this.scene.time.delayedCall(150, () => {
+      this.clearTint();
+    });
+
+    this.lastAttackTime = this.scene.time.now;
+  }
+
+  takeDamage(amount) {
+    this.health -= amount;
+    this.updateHealthBar();
+
+    this.setTint(0xff0000);
+    this.scene.time.delayedCall(100, () => {
+      this.clearTint();
+    });
+
+    if (this.health <= 0) {
+      this.die();
     }
-    
-    die() {
-        if (this.isDead) return;
-        
-        this.isDead = true;
-        
-        this.body.velocity.x = 0;
-        this.body.velocity.y = 0;
-        this.body.enable = false;
-        this.stop();
-        
-        if (this.scene.zombieGroup) {
-            this.scene.zombieGroup.remove(this);
-        }
-        
-        this.scene.tweens.add({
-            targets: this,
-            alpha: 0,
-            scale: 0.8,
-            duration: 300,
-            onComplete: () => this.cleanupAndDestroy()
-        });
-        
-        this.spawnRewards();
-    }
-    
-    spawnRewards() {
-        try {
-            if (this.scene.spawnExperienceOrb) {
-                const orbCount = Phaser.Math.Between(1, 3);
-                
-                for (let i = 0; i < orbCount; i++) {
-                    const xOffset = Phaser.Math.Between(-10, 10);
-                    const yOffset = Phaser.Math.Between(-10, 10);
-                    
-                    this.scene.spawnExperienceOrb(
-                        this.x + xOffset, 
-                        this.y + yOffset, 
-                        1
-                    );
-                }
-            }
-        } catch (error) {
-            console.error("Error spawning rewards:", error);
-        }
-    }
-    
-    cleanupAndDestroy() {
-        try {
-            if (this.scene && this.updateListener) {
-                this.scene.events.off('update', this.updateListener);
-                this.updateListener = null;
-            }
-        } catch (error) {
-            console.error("Error removing update listener:", error);
-        }
-        
-        this.destroy();
-    }
-    
-    destroy(fromScene) {
-        try {
-            if (this.scene && this.updateListener) {
-                this.scene.events.off('update', this.updateListener);
-                this.updateListener = null;
-            }
-            if (this.scene && this.scene.zombieGroup && this.scene.zombieGroup.children) {
-                this.scene.zombieGroup.remove(this);
-            }
-        } catch (error) {
-            console.error("Error in destroy method:", error);
-        }
-        
-        super.destroy(fromScene);
+  }
+
+  die() {
+    if (this.isDead) return;
+
+    this.isDead = true;
+
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+    this.body.enable = false;
+    this.stop();
+
+    if (this.scene.zombieGroup) {
+      this.scene.zombieGroup.remove(this);
     }
 
-    /* END-USER-CODE */
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 0,
+      scale: 0.8,
+      duration: 300,
+      onComplete: () => this.cleanupAndDestroy(),
+    });
+
+    this.spawnRewards();
+  }
+
+  spawnRewards() {
+    try {
+      if (this.scene.spawnExperienceOrb) {
+        const orbCount = Phaser.Math.Between(1, 3);
+
+        for (let i = 0; i < orbCount; i++) {
+          const xOffset = Phaser.Math.Between(-10, 10);
+          const yOffset = Phaser.Math.Between(-10, 10);
+
+          this.scene.spawnExperienceOrb(this.x + xOffset, this.y + yOffset, 1);
+        }
+      }
+    } catch (error) {
+      console.error("Error spawning rewards:", error);
+    }
+  }
+
+  cleanupAndDestroy() {
+    try {
+      if (this.scene && this.updateListener) {
+        this.scene.events.off("update", this.updateListener);
+        this.updateListener = null;
+      }
+    } catch (error) {
+      console.error("Error removing update listener:", error);
+    }
+
+    this.destroy();
+  }
+
+  destroy(fromScene) {
+    try {
+      if (this.scene && this.updateListener) {
+        this.scene.events.off("update", this.updateListener);
+        this.updateListener = null;
+      }
+      if (
+        this.scene &&
+        this.scene.zombieGroup &&
+        this.scene.zombieGroup.children
+      ) {
+        this.scene.zombieGroup.remove(this);
+      }
+    } catch (error) {
+      console.error("Error in destroy method:", error);
+    }
+
+    super.destroy(fromScene);
+  }
+
+  /* END-USER-CODE */
 }
 
 /* END OF COMPILED CODE */

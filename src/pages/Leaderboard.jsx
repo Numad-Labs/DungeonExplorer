@@ -145,7 +145,7 @@ const Leaderboard = () => {
             >
               <div className="flex items-center space-x-4">
                 <div className="flex items-center justify-center border-2 border-[#392423] bg-[#2F1A18] p-1 w-12 h-9">
-                  {player.rank || idx + 1}
+                  {idx + 1}
                 </div>
                 <div>
                   <p className="text-body-1-alagard font-bold">
