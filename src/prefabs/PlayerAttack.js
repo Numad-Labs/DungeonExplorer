@@ -11,6 +11,11 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         super(scene, 0, 0);
 
         /* START-USER-CTR-CODE */
+        if (!player) {
+            console.error("PlayerAttack: No player provided to constructor!");
+            return;
+        }
+        
         this.player = player;
         
         scene.add.existing(this);
@@ -70,11 +75,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         // Attack types enabled
         this.attackTypes = {
             slash: true,
-            fireBullet: true,
-            fireBomb: true,
-            ice: true,
-            lightning: true,
-            blindingLight: true
+            fireBullet: false,
+            fireBomb: false,
+            ice: false,
+            lightning: false,
+            blindingLight: false,
+            marksman: false
         };
         
         this.setupWeaponVisuals();
@@ -82,11 +88,129 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.createProjectileGroups();
         this.startAttackTimers();
         
+        scene.events.on('update', this.update, this);
         scene.playerAttack = this;
+        
+        this.connectToSkillSystem();
         /* END-USER-CTR-CODE */
     }
 
     /* START-USER-CODE */
+    
+    connectToSkillSystem() {
+        try {
+            this.scene.time.delayedCall(200, () => {
+                if (this.scene.powerUpManager?.skillUpgradeManager) {
+                    const skillManager = this.scene.powerUpManager.skillUpgradeManager;
+                    
+                    Object.keys(this.attackTypes).forEach(attackType => {
+                        const skillKey = this.mapAttackTypeToSkill(attackType);
+                        if (skillKey && skillManager.getSkillLevel(skillKey) > 0) {
+                            this.attackTypes[attackType] = true;
+                        }
+                    });
+                    
+                    this.restartAttackTimers();
+                    
+                } else {
+                    console.log('PlayerAttack: Skill upgrade system not available yet');
+                }
+            });
+        } catch (error) {
+            console.error('PlayerAttack: Error connecting to skill system:', error);
+        }
+    }
+    
+    mapAttackTypeToSkill(attackType) {
+        const mapping = {
+            'fireBullet': 'fireBullet',
+            'fireBomb': 'fireBomb',
+            'ice': 'ice',
+            'lightning': 'lightning',
+            'blindingLight': 'blindingLight',
+            'marksman': 'marksman'
+        };
+        return mapping[attackType];
+    }
+    
+    enableAttackType(attackType) {
+        if (this.attackTypes.hasOwnProperty(attackType)) {
+            this.attackTypes[attackType] = true;
+            this.restartAttackTimers();
+        }
+    }
+    
+    restartAttackTimers() {
+        if (this.fireBulletTimer) this.fireBulletTimer.destroy();
+        if (this.fireBombTimer) this.fireBombTimer.destroy();
+        if (this.iceTimer) this.iceTimer.destroy();
+        if (this.lightningTimer) this.lightningTimer.destroy();
+        if (this.blindingLightTimer) this.blindingLightTimer.destroy();
+        if (this.marksmanTimer) this.marksmanTimer.destroy();
+        this.startAttackTimers();
+    }
+    
+    initializeMarksmanAttack() {
+        this.marksmanDamage = this.player.marksmanDamage || 35;
+        this.marksmanFireRate = this.player.marksmanFireRate || 0.3;
+        this.marksmanRange = this.player.marksmanRange || 400;
+        this.marksmanCooldown = 1000 / this.marksmanFireRate;
+        this.lastMarksmanTime = 0;
+        this.marksmanSpeed = 400;
+    }
+    
+    // MARKSMAN ATTACK
+    attemptMarksmanAttack() {
+        const currentTime = this.scene.time.now;
+        if (currentTime - this.lastMarksmanTime < this.marksmanCooldown) return;
+        
+        const target = this.findNearestEnemyInRange(this.marksmanRange);
+        if (target) {
+            this.marksmanAttack(target);
+        }
+    }
+    
+    marksmanAttack(target) {
+        this.lastMarksmanTime = this.scene.time.now;
+        
+        const marksmanProjectile = this.scene.add.circle(this.player.x, this.player.y, 3, 0xffffff);
+        this.scene.physics.add.existing(marksmanProjectile);
+        
+        marksmanProjectile.setDepth(19);
+        const trail = this.scene.add.rectangle(this.player.x, this.player.y, 20, 2, 0xffffff, 0.8);
+        this.scene.physics.add.existing(trail);
+        trail.setDepth(18);
+        
+        const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
+        marksmanProjectile.setRotation(angle);
+        trail.setRotation(angle);
+        
+        marksmanProjectile.body.setVelocity(
+            Math.cos(angle) * this.marksmanSpeed,
+            Math.sin(angle) * this.marksmanSpeed
+        );
+        
+        trail.body.setVelocity(
+            Math.cos(angle) * this.marksmanSpeed,
+            Math.sin(angle) * this.marksmanSpeed
+        );
+        
+        marksmanProjectile.damage = this.marksmanDamage;
+        marksmanProjectile.startX = this.player.x;
+        marksmanProjectile.startY = this.player.y;
+        marksmanProjectile.maxRange = this.marksmanRange;
+        marksmanProjectile.isMarksmanProjectile = true;
+        marksmanProjectile.trail = trail;
+        
+        this.lightningProjectiles.add(marksmanProjectile);
+        
+        this.scene.time.delayedCall(2000, () => {
+            if (marksmanProjectile.active) {
+                marksmanProjectile.destroy();
+                if (trail && trail.active) trail.destroy();
+            }
+        });
+    }
     
     setupWeaponVisuals() {
         this.slashVisual = this.scene.add.arc(0, 0, this.slashRange, 0, Math.PI / 2, false, 0x00ff00, 0.3);
@@ -94,14 +218,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashVisual.setDepth(17);
         this.add(this.slashVisual);
         
-        // Slash attack sprite
         this.slashSprite = this.scene.add.sprite(0, 0, 'AOE_Basic_Slash_Attack_V01');
         this.slashSprite.setVisible(false);
         this.slashSprite.setOrigin(0.5, 0.5);
         this.slashSprite.setDepth(18);
         this.add(this.slashSprite);
         
-        // Blinding Light visual
         this.blindingLightVisual = this.scene.add.circle(0, 0, this.blindingLightRange, 0xffffff, 0);
         this.blindingLightVisual.setStrokeStyle(6, 0xffffff, 0.8);
         this.blindingLightVisual.setVisible(false);
@@ -122,7 +244,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     createAttackAnimations() {
-        // Slash animations
         if (!this.scene.anims.exists('slash_attack_v01')) {
             this.scene.anims.create({
                 key: 'slash_attack_v01',
@@ -226,6 +347,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 callbackScope: this,
                 loop: true
             });
+            console.log(`PlayerAttack: Slash timer created with ${this.slashCooldown}ms delay`);
         }
         
         if (this.attackTypes.fireBullet) {
@@ -272,6 +394,15 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 loop: true
             });
         }
+        
+        if (this.attackTypes.marksman) {
+            this.marksmanTimer = this.scene.time.addEvent({
+                delay: this.marksmanCooldown,
+                callback: this.attemptMarksmanAttack,
+                callbackScope: this,
+                loop: true
+            });
+        }
     }
     
     // SLASH ATTACK
@@ -286,80 +417,111 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findEnemiesInSlashRange() {
-    if (!this.player) return [];
+        if (!this.player) {
+            return [];
+        }
+        
+        if (this.player.x === undefined || this.player.y === undefined) {
+            return [];
+        }
     
-    const enemiesInRange = [];
-    
-    // Find enemies with safety check
-    if (this.scene.enemies && this.scene.enemies.children) {
-    const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-    
-    enemies.forEach(enemy => {
-    const distance = Phaser.Math.Distance.Between(
-    this.player.x, this.player.y,
-    enemy.x, enemy.y
-    );
-    
-    if (distance <= this.slashRange) {
-    enemiesInRange.push({ enemy: enemy, distance: distance });
-    }
-    });
-    }
-    
-    // Find breakable vases with safety check
-    if (this.scene.breakableVases && this.scene.breakableVases.children) {
-    const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
-    
-    vases.forEach(vase => {
-    const distance = Phaser.Math.Distance.Between(
-    this.player.x, this.player.y,
-    vase.x, vase.y
-    );
-    
-    if (distance <= this.slashRange) {
-    enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
-    }
-    });
-    }
-    
-    if (this.scene.children && this.scene.children.list) {
-        this.scene.children.list.forEach(child => {
-            const isVase = child && 
-                          child.active && 
-                          !child.isBroken && 
-                          child.canBeAttacked &&
-                          (child.constructor.name === 'BreakableVase' || 
-                           child.texture?.key === 'Vase' ||
-                           child.onPlayerAttack ||
-                           (child.takeDamage && child.dropLoot));
-                           
-            if (isVase) {
+        const enemiesInRange = [];
+        
+        if (this.scene.enemies && this.scene.enemies.children) {
+            const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+            
+            enemies.forEach(enemy => {
+                if (!enemy || enemy.x === undefined || enemy.y === undefined) {
+                    console.warn("PlayerAttack: Invalid enemy found:", enemy);
+                    return;
+                }
+                
                 const distance = Phaser.Math.Distance.Between(
                     this.player.x, this.player.y,
-                    child.x, child.y
+                    enemy.x, enemy.y
                 );
                 
                 if (distance <= this.slashRange) {
-                    // Check if we already found this vase to avoid duplicates
-                    const alreadyFound = enemiesInRange.some(item => item.enemy === child);
-                    if (!alreadyFound) {
-                        enemiesInRange.push({ enemy: child, distance: distance, isVase: true });
+                    enemiesInRange.push({ enemy: enemy, distance: distance });
+                }
+            });
+        } else {
+            console.log("PlayerAttack: No scene.enemies group found or it's empty");
+        }
+    
+        if (this.scene.breakableVases && this.scene.breakableVases.children) {
+            const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
+            
+            vases.forEach(vase => {
+                if (!vase || vase.x === undefined || vase.y === undefined) {
+                    console.warn("PlayerAttack: Invalid vase found:", vase);
+                    return;
+                }
+                
+                const distance = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    vase.x, vase.y
+                );
+                
+                if (distance <= this.slashRange) {
+                    enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
+                }
+            });
+        }
+        
+        if (this.scene.children && this.scene.children.list) {
+            this.scene.children.list.forEach(child => {
+                const isVase = child && 
+                              child.active && 
+                              !child.isBroken && 
+                              child.canBeAttacked &&
+                              (child.constructor.name === 'BreakableVase' || 
+                               child.texture?.key === 'Vase' ||
+                               child.onPlayerAttack ||
+                               (child.takeDamage && child.dropLoot));
+                               
+                if (isVase && child.x !== undefined && child.y !== undefined) {
+                    const distance = Phaser.Math.Distance.Between(
+                        this.player.x, this.player.y,
+                        child.x, child.y
+                    );
+                    
+                    if (distance <= this.slashRange) {
+                        const alreadyFound = enemiesInRange.some(item => item.enemy === child);
+                        if (!alreadyFound) {
+                            enemiesInRange.push({ enemy: child, distance: distance, isVase: true });
+                        }
                     }
                 }
-            }
-        });
-    }
-    
-    return enemiesInRange;
+            });
+        }
+        return enemiesInRange;
     }
     
     slashAttack(enemiesInRange) {
         this.lastSlashTime = this.scene.time.now;
         
+        this.showSlashIndicator();
         this.x = this.player.x;
         this.y = this.player.y;
         
         this.slashSprite.setPosition(0, 0);
+        this.slashSprite.setVisible(true);
+        this.slashSprite.play('slash_attack_v01');
+        
+        enemiesInRange.forEach(({ enemy, distance, isVase }) => {
+            if (isVase && enemy.onPlayerAttack) {
+                enemy.onPlayerAttack(this.slashDamage);
+            } else if (enemy.takeDamage) {
+                enemy.takeDamage(this.slashDamage);
+            } else {
+                console.warn("PlayerAttack: Enemy has no takeDamage method!", enemy);
+            }
+        });
+        
+        this.scene.time.delayedCall(300, () => {
+            this.slashSprite.setVisible(false);
+        });
         this.slashSprite.setVisible(true);
         this.slashSprite.setScale(1.4);
         this.slashSprite.setDepth(18);

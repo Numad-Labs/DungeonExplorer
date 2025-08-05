@@ -440,6 +440,13 @@ export default class GameManager {
         }
     }
     
+    trackEnemyKill() {
+        if (this.isGameRunning) {
+            this.currentRunStats.enemiesKilled++;
+            console.log(`GameManager: Enemy killed, total: ${this.currentRunStats.enemiesKilled}`);
+        }
+    }
+    
     // Difficulty system
     updateDifficulty(deltaTime) {
         this.gameProgress.gameTime += deltaTime / 1000;
