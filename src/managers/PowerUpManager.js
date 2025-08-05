@@ -1,6 +1,6 @@
-import PowerUpSelection from "../prefabs/PowerUpSelection";
+import SkillUpgradeManager from "./SkillUpgradeManager";
 
-const POWER_UPS = {
+const LEGACY_POWER_UPS = {
     speed: { base: 20, color: 0x00ff00, apply: (p, v) => p.moveSpeed *= (1 + v/100) },
     damage: { base: 15, color: 0xff0000, apply: (p, v) => { p.damage *= (1 + v/100); p.scene.playerAttackSystem?.updateStats(); }},
     health: { base: 10, color: 0x0000ff, apply: (p, v) => { p.maxHealth += 50; p.health += 50; }},
@@ -9,19 +9,11 @@ const POWER_UPS = {
     magnet: { base: 20, color: 0xff00ff, apply: (p, v) => p.pickupRange *= (1 + v/100) }
 };
 
-const ICONS = {
-    speed: (g) => { g.fillTriangle(20,15,32,30,25,32); g.fillTriangle(25,32,44,50,32,30); },
-    damage: (g) => { g.fillRect(20,20,24,4); g.fillTriangle(44,20,44,24,52,22); },
-    health: (g) => { g.fillRect(22,30,20,4); g.fillRect(30,22,4,20); },
-    fireRate: (g) => g.fillTriangle(25,45,32,15,39,45),
-    range: (g) => { g.lineStyle(3,0xffffff,1); g.strokeCircle(32,32,15); g.fillCircle(32,32,5); },
-    magnet: (g) => { g.fillRect(22,20,7,24); g.fillRect(35,20,7,24); g.fillRect(22,20,20,7); }
-};
-
 export default class PowerUpManager {
     constructor(scene) {
         this.scene = scene;
-        this.powerUps = Object.keys(POWER_UPS).reduce((acc, key) => ({ ...acc, [key]: 0 }), {});
+        this.skillUpgradeManager = new SkillUpgradeManager(scene);
+        this.powerUps = Object.keys(LEGACY_POWER_UPS).reduce((acc, key) => ({ ...acc, [key]: 0 }), {});
         this.isActive = false;
         this.pendingLevelUps = 0;
         this.storedState = { timers: [], entities: [] };
@@ -29,6 +21,7 @@ export default class PowerUpManager {
     }
     
     initialize() {
+        this.skillUpgradeManager.initialize();
         this.createTextures();
     }
     
@@ -41,28 +34,21 @@ export default class PowerUpManager {
             g.destroy();
         }
         
-        Object.entries(POWER_UPS).forEach(([type, config]) => {
+        Object.entries(LEGACY_POWER_UPS).forEach(([type, config]) => {
             const iconName = `${type}_icon`;
             if (this.scene.textures.exists(iconName)) return;
             
             const g = this.scene.add.graphics();
             g.fillStyle(config.color, 1).fillCircle(32, 32, 32);
             g.fillStyle(0xffffff, 1);
-            ICONS[type](g);
+            g.fillCircle(32, 32, 15);
             g.generateTexture(iconName, 64, 64);
             g.destroy();
         });
     }
     
     showPowerUpSelection() {
-        if (this.isActive) {
-            this.pendingLevelUps++;
-            return;
-        }
-        
-        this.isActive = true;
-        this.pauseGame();
-        this.createUI();
+        this.skillUpgradeManager.showSkillUpgradeSelection();
     }
     
     pauseGame() {
@@ -102,22 +88,27 @@ export default class PowerUpManager {
         
         this.container = this.scene.add.container(0, 0).setDepth(1001).setScrollFactor(0);
         
-        const options = Object.keys(POWER_UPS).sort(() => 0.5 - Math.random()).slice(0, 3);
+        const options = Object.keys(LEGACY_POWER_UPS).sort(() => 0.5 - Math.random()).slice(0, 3);
         const positions = [-220, 0, 220].map(x => ({ x: cam.width/2 + x, y: cam.height/2 }));
         
         options.forEach((type, i) => {
-            const card = new PowerUpSelection(this.scene, positions[i].x, positions[i].y, type, this.powerUps[type] + 1);
-            card.setScale(0.7).setScrollFactor(0).setDepth(1002);
-            card.setOnSelectCallback(() => this.selectPowerUp(type));
+            const card = this.scene.add.rectangle(positions[i].x, positions[i].y, 150, 200, 0x333333);
+            card.setStrokeStyle(2, 0xffffff);
             card.setInteractive({ useHandCursor: true });
-            this.container.add(card);
+            card.on('pointerdown', () => this.selectPowerUp(type));
+            
+            const text = this.scene.add.text(positions[i].x, positions[i].y, type, {
+                fontFamily: 'Arial', fontSize: '16px', color: '#ffffff'
+            }).setOrigin(0.5);
+            
+            this.container.add([card, text]);
         });
     }
     
     selectPowerUp(type) {
         this.powerUps[type]++;
         
-        const config = POWER_UPS[type];
+        const config = LEGACY_POWER_UPS[type];
         const value = config.base * (1 + (this.powerUps[type] - 1) * 0.5);
         config.apply(this.scene.player, value);
         
@@ -182,7 +173,33 @@ export default class PowerUpManager {
     }
     
     shutdown() {
+        if (this.skillUpgradeManager) {
+            this.skillUpgradeManager.shutdown();
+        }
+        
         [this.overlay, this.title, this.container].forEach(el => el?.destroy());
         if (this.originalUpdate) this.scene.update = this.originalUpdate;
+    }
+    
+    getSkillLevel(skillKey) {
+        return this.skillUpgradeManager ? this.skillUpgradeManager.getSkillLevel(skillKey) : 0;
+    }
+    
+    getSkillInfo(skillKey) {
+        return this.skillUpgradeManager ? this.skillUpgradeManager.getSkillInfo(skillKey) : null;
+    }
+    
+    getPlayerLevel() {
+        return this.skillUpgradeManager ? this.skillUpgradeManager.getPlayerLevel() : 1;
+    }
+    
+    getSaveData() {
+        return this.skillUpgradeManager ? this.skillUpgradeManager.getSaveData() : {};
+    }
+    
+    loadSaveData(data) {
+        if (this.skillUpgradeManager) {
+            this.skillUpgradeManager.loadSaveData(data);
+        }
     }
 }

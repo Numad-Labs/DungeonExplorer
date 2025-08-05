@@ -70,6 +70,17 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		scene.events.on('update', this.update, this);
 		scene.add.existing(this);
+
+		this.baseMoveSpeed = this.moveSpeed;
+		this.basePickupRange = this.pickupRange;
+
+		scene.player = this;
+		
+		if (scene.onPlayerCreated && typeof scene.onPlayerCreated === 'function') {
+			scene.onPlayerCreated(this);
+		} else {
+			console.log("PlayerPrefab: Scene does not have onPlayerCreated method, but scene.player is set");
+		}
 		/* END-USER-CTR-CODE */
 	}
 
