@@ -462,6 +462,7 @@ export default class MainMapScene extends BaseGameScene {
 			// Initialize UI and MobManager last
 			this.initializeUIManager();
 			this.initializeMobManager();
+			this.setupLavaAnimations()
 			
 			// Ensure enemy groups exist for attack system after everything is set up
 			this.ensureEnemyGroups();
@@ -470,6 +471,21 @@ export default class MainMapScene extends BaseGameScene {
 			this.startEnemySpawning();
 		} catch (error) {
 			console.error("Error in MainMapScene create:", error);
+		}
+	}
+
+	
+		setupLavaAnimations() {
+		try {
+			const waterTiles = this.backGround.getTilesWithin();
+			waterTiles.forEach(tile => {
+				if (tile && tile.index === 6956) {
+					const sprite = this.add.sprite(tile.pixelX + tile.width/2, tile.pixelY + tile.height/2, 'lava0');
+					sprite.play('lava0');
+				}
+			});
+		} catch (error) {
+			console.error("Error setting up water animations:", error);
 		}
 	}
 	
