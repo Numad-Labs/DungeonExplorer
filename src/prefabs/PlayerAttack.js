@@ -3,6 +3,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { EventBus } from '../game/EventBus';
 /* END-USER-IMPORTS */
 
 export default class PlayerAttack extends Phaser.GameObjects.Container {
@@ -25,14 +26,14 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashDamage = player.slashDamage || 10;
         this.slashFireRate = player.slashFireRate || 1;
         this.slashRange = player.slashRange || 70;
-        this.slashCooldown = 1000 / this.slashFireRate;
+        this.slashCooldown = 2000 / this.slashFireRate;
         this.lastSlashTime = 0;
         
         // Fire bullet attack (piercing)
         this.fireBulletDamage = player.fireBulletDamage || 8;
         this.fireBulletFireRate = player.fireBulletFireRate || 1.2;
-        this.fireBulletRange = player.fireBulletRange || 300;
-        this.fireBulletCooldown = 1000 / this.fireBulletFireRate;
+        this.fireBulletRange = player.fireBulletRange || 200;
+        this.fireBulletCooldown = 4000 / this.fireBulletFireRate;
         this.lastFireBulletTime = 0;
         this.fireBulletSpeed = 250;
         this.fireBulletDotDuration = 4000;
@@ -41,7 +42,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.fireBombDamage = player.fireBombDamage || 18;
         this.fireBombFireRate = player.fireBombFireRate || 0.4;
         this.fireBombRange = player.fireBombRange || 80;
-        this.fireBombCooldown = 1000 / this.fireBombFireRate;
+        this.fireBombCooldown = 6000 / this.fireBombFireRate;
         this.lastFireBombTime = 0;
         this.fireBombSpeed = 120;
         this.fireBombExplosionRadius = 50;
@@ -51,7 +52,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.iceDamage = player.iceDamage || 12;
         this.iceFireRate = player.iceFireRate || 0.6;
         this.iceRange = player.iceRange || 180;
-        this.iceCooldown = 1000 / this.iceFireRate;
+        this.iceCooldown = 4000 / this.iceFireRate;
         this.lastIceTime = 0;
         this.iceProjectileSpeed = 120;
         
@@ -59,7 +60,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.lightningDamage = player.lightningDamage || 20;
         this.lightningFireRate = player.lightningFireRate || 0.5;
         this.lightningRange = player.lightningRange || 250;
-        this.lightningCooldown = 1000 / this.lightningFireRate;
+        this.lightningCooldown = 5000 / this.lightningFireRate;
         this.lastLightningTime = 0;
         this.lightningProjectileSpeed = 200;
         this.lightningChainCount = player.lightningChainCount || 10;
@@ -68,7 +69,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         // Blinding Light attack
         this.blindingLightRange = player.blindingLightRange || 300;
         this.blindingLightFireRate = player.blindingLightFireRate || 0.15;
-        this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
+        this.blindingLightCooldown = 20000 / this.blindingLightFireRate;
         this.lastBlindingLightTime = 0;
         this.blindingLightDisableDuration = 4000;
         
@@ -161,9 +162,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     // MARKSMAN ATTACK
     attemptMarksmanAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastMarksmanTime < this.marksmanCooldown) return;
-        
         const target = this.findNearestEnemyInRange(this.marksmanRange);
         if (target) {
             this.marksmanAttack(target);
@@ -172,6 +170,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     marksmanAttack(target) {
         this.lastMarksmanTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'marksman',
+            cooldown: this.marksmanCooldown
+        });
         
         const marksmanProjectile = this.scene.add.circle(this.player.x, this.player.y, 3, 0xffffff);
         this.scene.physics.add.existing(marksmanProjectile);
@@ -407,9 +411,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     // SLASH ATTACK
     attemptSlashAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastSlashTime < this.slashCooldown) return;
-        
         const enemiesInRange = this.findEnemiesInSlashRange();
         if (enemiesInRange.length > 0) {
             this.slashAttack(enemiesInRange);
@@ -501,6 +502,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     slashAttack(enemiesInRange) {
         this.lastSlashTime = this.scene.time.now;
         
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'slash',
+            cooldown: this.slashCooldown
+        });
+        
         this.showSlashIndicator();
         this.x = this.player.x;
         this.y = this.player.y;
@@ -550,9 +557,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     attemptBlindingLightAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastBlindingLightTime < this.blindingLightCooldown) return;
-        
         const enemiesInRange = this.findEnemiesInBlindingLightRange();
         if (enemiesInRange.length > 0) {
             this.blindingLightAttack(enemiesInRange);
@@ -601,6 +605,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     blindingLightAttack(enemiesInRange) {
         this.lastBlindingLightTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'blindingLight',
+            cooldown: this.blindingLightCooldown
+        });
         
         this.x = this.player.x;
         this.y = this.player.y;
@@ -806,6 +816,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     fireBulletAttack(target) {
         this.lastFireBulletTime = this.scene.time.now;
         
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'fireBullet',
+            cooldown: this.fireBulletCooldown
+        });
+        
         const fireBullet = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Fire_Ball_Projectile_VFX_V01');
         this.scene.physics.add.existing(fireBullet);
         
@@ -843,6 +859,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     fireBombAttack(target) {
         this.lastFireBombTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'fireBomb',
+            cooldown: this.fireBombCooldown
+        });
         
         const fireBomb = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Fire_Ball_Projectile_VFX_V01');
         this.scene.physics.add.existing(fireBomb);
@@ -923,6 +945,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     iceProjectileAttack(target) {
         this.lastIceTime = this.scene.time.now;
         
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'ice',
+            cooldown: this.iceCooldown
+        });
+        
         const iceProjectile = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Ice_Shard_Projectile_VFX_V01');
         this.scene.physics.add.existing(iceProjectile);
         
@@ -971,6 +999,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     lightningChainAttack(initialTarget) {
         this.lastLightningTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'lightning',
+            cooldown: this.lightningCooldown
+        });
+        
         this.performLightningChain(this.player, initialTarget, 0, []);
     }
     

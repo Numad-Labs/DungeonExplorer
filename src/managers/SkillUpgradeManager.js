@@ -1,4 +1,5 @@
 import SkillCard from "../prefabs/SkillCard";
+import { EventBus } from '../game/EventBus';
 
 const SKILLS = {
     slash: {
@@ -431,6 +432,9 @@ export default class SkillUpgradeManager {
             if (this.scene.playerAttackSystem) {
                 this.scene.playerAttackSystem.updateStats();
             }
+            
+            // Emit initial skill levels to UI
+            EventBus.emit('skill-levels-updated', { skillLevels: this.skillLevels });
         } else {
             console.warn("SkillUpgradeManager: Player not found, deferring initial skill setup");
         }
@@ -589,6 +593,9 @@ export default class SkillUpgradeManager {
             }
         }
         
+        // Emit skill update event for UI components
+        EventBus.emit('skill-levels-updated', { skillLevels: this.skillLevels });
+        
         this.showSkillFeedback(skillKey, newLevel);
         this.scene.tweens.add({
             targets: [this.overlay, this.title, this.levelText, this.container],
@@ -730,6 +737,9 @@ export default class SkillUpgradeManager {
             if (this.scene.playerAttackSystem) {
                 this.scene.playerAttackSystem.updateStats();
             }
+            
+            // Emit updated skill levels to UI after loading
+            EventBus.emit('skill-levels-updated', { skillLevels: this.skillLevels });
         }
     }
     
