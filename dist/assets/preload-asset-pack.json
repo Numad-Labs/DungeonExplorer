@@ -1192,7 +1192,7 @@
                 "key": "mainMap"
             },
             {
-                "url": "assets/Map/MainMap.json",
+                "url": "assets/Map/mainMap.json",
                 "type": "tilemapTiledJSON",
                 "key": "MainMap"
             },
@@ -1737,7 +1737,7 @@
                 "key": "run_2"
             },
             {
-                "url": "assets/Hero/saber/saber_attack_53x53_v01.png",
+                "url": "assets/Hero/saber/saber_attack_53x53_v01 (2).png",
                 "frameConfig": {
                     "frameWidth": 53,
                     "frameHeight": 53,
