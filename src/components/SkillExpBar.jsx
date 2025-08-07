@@ -18,50 +18,50 @@ const SkillExpBar = () => {
     const ACTIONABLE_SKILLS = {
         slash: {
             name: "Slash Attack",
-            icon: "./assets/Card/Icon/icon normal/icon_slash.png",
-            glowIcon: "./assets/Card/Icon/glow effect/icon_slash_glow_effect.png",
+            icon: "/upgrade-icon/icon_slash.png",
+            glowIcon: "/upgrade-icon/icon_slash_glow_effect.png",
             defaultCooldown: 1000,
             keybind: '1'
         },
         fireBullet: {
             name: "Fire Arrow",
-            icon: "./assets/Card/Icon/icon normal/icon_fire_arrow.png",
-            glowIcon: "./assets/Card/Icon/glow effect/icon_fire_arrow_glow_effect.png",
+            icon: "/upgrade-icon/icon_fire_arrow.png",
+            glowIcon: "/upgrade-icon/icon_fire_arrow_glow_effect.png",
             defaultCooldown: 800,
             keybind: '2'
         },
         fireBomb: {
             name: "Fire Ball",
-            icon: "./assets/Card/Icon/icon normal/icon_fire_ball.png",
-            glowIcon: "./assets/Card/Icon/glow effect/icon_fire_ball_glow_effect.png",
+            icon: "/upgrade-icon/icon_fire_ball.png",
+            glowIcon: "/upgrade-icon/icon_fire_ball_glow_effect.png",
             defaultCooldown: 2500,
             keybind: '3'
         },
         ice: {
             name: "Ice Shard",
-            icon: "./assets/Card/Icon/icon normal/icon_ice_shard.png",
-            glowIcon: "./assets/Card/Icon/glow effect/icon_ice_shard_glow_effect.png",
+            icon: "/upgrade-icon/icon_ice_shard.png",
+            glowIcon: "/upgrade-icon/icon_ice_shard_glow_effect.png",
             defaultCooldown: 1600,
             keybind: '4'
         },
         lightning: {
             name: "Lightning Chain",
-            icon: "./assets/Card/Icon/icon normal/icon_lightning_chain.png",
-            glowIcon: "./assets/Card/Icon/glow effect/icon_lightning_chain_glow_effect.png",
+            icon: "/upgrade-icon/icon_lightning_chain.png",
+            glowIcon: "/upgrade-icon/icon_lightning_chain_glow_effect.png",
             defaultCooldown: 2000,
             keybind: '5'
         },
         blindingLight: {
             name: "Holy Light",
-            icon: "./assets/Card/Icon/icon normal/icon_holy_light-.png",
-            glowIcon: "./assets/Card/Icon/glow effect/icon_holy_light_glow_effect.png",
+            icon: "/upgrade-icon/icon_holy_light-.png",
+            glowIcon: "/upgrade-icon/icon_holy_light_glow_effect.png",
             defaultCooldown: 6000,
             keybind: '6'
         },
         marksman: {
             name: "Marksman Shot",
-            icon: "./assets/Card/Icon/icon normal/icon_marksman.png",
-            glowIcon: "./assets/Card/Icon/glow effect/icon_marksman_glow_effect.png",
+            icon: "/upgrade-icon/icon_marksman.png",
+            glowIcon: "/upgrade-icon/icon_marksman_glow_effect.png",
             defaultCooldown: 3300,
             keybind: '7'
         }
@@ -314,7 +314,7 @@ const SkillExpBar = () => {
                     left: '0px',
                     width: '100%',
                     height: '100%',
-                    backgroundImage: 'url(./assets/HUD/HUD_Skill_Table_XP_BG_V01.png)',
+                    backgroundImage: 'url(/assets/HUD/HUD_Skill_Table_XP_BG_V01.png),',
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
                     zIndex: 2
@@ -327,7 +327,7 @@ const SkillExpBar = () => {
                     top: '26px', 
                     width: `calc((26.3vw) * ${expPercentage / 100})`,
                     height: '24px',
-                    backgroundImage: 'url(./assets/HUD/HUD_Skill_Table_XP_Indicator_Animation_V01.png)',
+                    backgroundImage: 'url(/assets/HUD/HUD_Skill_Table_XP_Indicator_Animation_V01.png)',
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
                     zIndex: 1,
