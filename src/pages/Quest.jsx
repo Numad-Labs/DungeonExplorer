@@ -1,7 +1,7 @@
 const Quest = () => {
   return (
-    <div>
-      <h1 className="text-display-1-alagard-bold flex flex-col items-center justify-center h-screen text-center text-[#FFAE0B]">
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-display-1-alagard-bold text-center text-[#FFAE0B]">
         Coming soon
       </h1>
     </div>
