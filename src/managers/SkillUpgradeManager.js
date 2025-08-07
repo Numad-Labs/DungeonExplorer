@@ -382,14 +382,14 @@ export default class SkillUpgradeManager {
             'icon_lightning_chain_glow_effect',
             'icon_holy_light_glow_effect',
             'icon_marksman_glow_effect',
-            'icon_armor_glow_effect2',
-            'icon_attack_damage_glow_effect2',
-            'icon_attack_speed_glow_effect2',
-            'icon_exp_gain_glow_effect2',
-            'icon_gold_gain_glow_effect2',
-            'icon_max_healt_glow_effect2',
-            'icon_movement_speed_glow_effect2',
-            'icon_pickup_range_glow_effect2'
+            'icon_armor_glow_effect1',
+            'icon_attack_damage_glow_effect1',
+            'icon_attack_speed_glow_effect1',
+            'icon_exp_gain_glow_effect1',
+            'icon_gold_gain_glow_effect1',
+            'icon_max_healt_glow_effect1',
+            'icon_movement_speed_glow_effect1',
+            'icon_pickup_range_glow_effect1'
         ];
         
         const normalIcons = [
