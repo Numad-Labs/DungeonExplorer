@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Strength",
+    "type": "stats",
+    "effect": "increase max health",
+    "maxLevel": 10,
+    "tierProgress": "",
+    "upgradeToGodSkill": ""
+  },
+  {
+    "name": "Agility",
+    "type": "stats",
+    "effect": "increase  Movespeed",
+    "maxLevel": 10,
+    "tierProgress": "",
+    "upgradeToGodSkill": ""
+  },
+  {
+    "name": "Intelligence",
+    "type": "stats",
+    "effect": "Decresce cool down",
+    "maxLevel": 10,
+    "tierProgress": "",
+    "upgradeToGodSkill": ""
+  },
+  {
+    "name": "Attack Damage",
+    "type": "stats",
+    "effect": "Increase max damage",
+    "maxLevel": 10,
+    "tierProgress": "",
+    "upgradeToGodSkill": ""
+  },
+  {
+    "name": "Attack Range",
+    "type": "stats",
+    "effect": "Increase Attack Range",
+    "maxLevel": 10,
+    "tierProgress": "",
+    "upgradeToGodSkill": ""
+  },
+  {
+    "name": "Pick up radius",
+    "type": "stats",
+    "effect": "increase max range for item or exp etc",
+    "maxLevel": 10,
+    "tierProgress": "",
+    "upgradeToGodSkill": ""
+  },
+  {
+    "name": "HP regen",
+    "type": "stats",
+    "effect": "Increase HP regen",
+    "maxLevel": 10,
+    "tierProgress": "",
+    "upgradeToGodSkill": ""
+  },
+  {
+    "name": "Slash",
+    "type": "basic attack",
+    "effect": "AoEffect Slashes through enemies",
+    "maxLevel": 10,
+    "tierProgress": "Tier1[I-III] | Tier2[IV-V] | Tier3[VI-VII] | Tier4 [VIII-IX ] | Tier 5 [X]",
+    "upgradeToGodSkill": "Swordsman God"
+  },
+  {
+    "name": "Marksman",
+    "type": "basic attack",
+    "effect": "Single-target pistol rounds eliments",
+    "maxLevel": 10,
+    "tierProgress": "Tier1[I-III] | Tier2[IV-V] | Tier3[VI-VII] | Tier4 [VIII-IX ] | Tier 5 [X]",
+    "upgradeToGodSkill": "Barrage"
+  },
+  {
+    "name": "Fire Ball",
+    "type": "Fire",
+    "effect": "projectile Exploted when hits the enemy AoE burning effect",
+    "maxLevel": 10,
+    "tierProgress": "Tier1[I-III] | Tier2[IV-V] | Tier3[VI-VII] | Tier4 [VIII-IX ] | Tier 5 [X]",
+    "upgradeToGodSkill": "Inferno"
+  },
+  {
+    "name": "Fire arrow",
+    "type": "Fire",
+    "effect": "projectile go through and burning effect",
+    "maxLevel": 10,
+    "tierProgress": "Tier1[I-III] | Tier2[IV-V] | Tier3[VI-VII] | Tier4 [VIII-IX ] | Tier 5 [X]",
+    "upgradeToGodSkill": "Split Fire"
+  },
+  {
+    "name": "Ice shard",
+    "type": "Ice",
+    "effect": "Target skill",
+    "maxLevel": 10,
+    "tierProgress": "Tier1[I-III] | Tier2[IV-V] | Tier3[VI-VII] | Tier4 [VIII-IX ] | Tier 5 [X]",
+    "upgradeToGodSkill": "Freezing Field"
+  },
+  {
+    "name": "Lightnig chain",
+    "type": "Lightning",
+    "effect": "Hurls a bolt of lightning that leaps through nearby enemy units.",
+    "maxLevel": 10,
+    "tierProgress": "Tier1[I-III] | Tier2[IV-V] | Tier3[VI-VII] | Tier4 [VIII-IX ] | Tier 5 [X]",
+    "upgradeToGodSkill": "Surge of Lightning"
+  },
+  {
+    "name": "Holy light",
+    "type": "Light",
+    "effect": "Flashes holy light blindes the enemy in range to not able to hit for temporaly",
+    "maxLevel": 10,
+    "tierProgress": "Tier1[I-III] | Tier2[IV-V] | Tier3[VI-VII] | Tier4 [VIII-IX ] | Tier 5 [X]",
+    "upgradeToGodSkill": "God's Blessing"
+  }
+]

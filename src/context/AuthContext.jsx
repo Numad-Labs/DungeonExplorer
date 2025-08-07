@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { connectWallet } from "../services/api/authApiService.js";
+import { networkUtils } from "../config/networks.js";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [networkStatus, setNetworkStatus] = useState('checking');
 
   // Initialize auth state on mount
   useEffect(() => {
@@ -15,7 +17,43 @@ export const AuthProvider = ({ children }) => {
       setUser({ ...JSON.parse(userData), token });
     }
     setIsLoading(false);
+    checkNetworkStatus();
   }, []);
+
+  // Check network status on wallet events
+  useEffect(() => {
+    if (window.ethereum) {
+      const handleChainChanged = () => {
+        checkNetworkStatus();
+      };
+
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length === 0) {
+          logout();
+        } else {
+          checkNetworkStatus();
+        }
+      };
+
+      window.ethereum.on('chainChanged', handleChainChanged);
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+      return () => {
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
+  }, []);
+
+  const checkNetworkStatus = async () => {
+    try {
+      const isCorrect = await networkUtils.isCorrectNetwork();
+      setNetworkStatus(isCorrect ? 'correct' : 'wrong');
+    } catch (error) {
+      console.error('Error checking network:', error);
+      setNetworkStatus('error');
+    }
+  };
 
   const login = async ({ walletAddress, signature, message }) => {
     try {
@@ -47,7 +85,15 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      isLoading, 
+      networkStatus, 
+      checkNetworkStatus,
+      switchToCorrectNetwork: networkUtils.switchToCorrectNetwork
+    }}>
       {children}
     </AuthContext.Provider>
   );
