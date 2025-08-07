@@ -8,7 +8,10 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { GameControlsProvider, useGameControls } from "./context/GameControlsContext";
+import {
+  GameControlsProvider,
+  useGameControls,
+} from "./context/GameControlsContext";
 import Login from "./pages/Login.jsx";
 import MainMenu from "./pages/MainMenu.jsx";
 import Sidebar from "./components/SideBar.jsx";
@@ -27,6 +30,7 @@ import Timer from "./components/Timer.jsx";
 import GameNotifications from "./components/GameNotifications.jsx";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { getBridge } from "./bridge/GameBridge.js";
+import DeathLoadingScreen from "./components/DeathLoadingScreen.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -61,6 +65,11 @@ function GameRoute() {
   const [gameState, setGameState] = useState("menu");
   const [showHPBar, setShowHPBar] = useState(false);
   const [phaserInstance, setPhaserInstance] = useState(null);
+
+  // Death loading screen state
+  const [showDeathLoading, setShowDeathLoading] = useState(false);
+  const [deathData, setDeathData] = useState(null);
+
   const { setGameControls } = useGameControls();
   const location = useLocation();
   const navigate = useNavigate();
@@ -73,7 +82,10 @@ function GameRoute() {
         setGameState("paused");
         break;
       case "GAME_OVER":
-        setGameState("menu");
+        // Show death loading screen
+        console.log("Game over - showing death loading screen", modalData);
+        setDeathData(modalData);
+        setShowDeathLoading(true);
         setShowHPBar(false);
         break;
       case "SETTINGS":
@@ -107,6 +119,16 @@ function GameRoute() {
     }
   };
 
+  // Handle death loading completion
+  const handleDeathLoadingComplete = () => {
+    console.log("Death loading complete - navigating to dashboard");
+    setShowDeathLoading(false);
+    setDeathData(null);
+    setGameState("menu");
+    // Navigate to dashboard after death loading
+    navigate("/");
+  };
+
   // Register game controls with context
   useEffect(() => {
     if (setGameControls) {
@@ -121,9 +143,8 @@ function GameRoute() {
   // Auto-start game if autostart parameter is present
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get('autostart') === 'true' && gameState === 'menu') {
+    if (searchParams.get("autostart") === "true" && gameState === "menu") {
       console.log("Auto-starting game from URL parameter");
-      // Small delay to ensure PhaserGame is mounted
       setTimeout(() => {
         startGame();
       }, 500);
@@ -136,12 +157,12 @@ function GameRoute() {
       setShowHPBar(true);
     };
 
-    const handleGameOver = () => {
-      setGameState("menu");
+    const handleGameOver = (gameOverData) => {
+      console.log("Game over event received:", gameOverData);
+      // Show death loading screen
+      setDeathData(gameOverData);
+      setShowDeathLoading(true);
       setShowHPBar(false);
-      // Navigate to dashboard after death
-      console.log("Game over - navigating to dashboard");
-      navigate("/");
     };
 
     const handleReturnToMenu = () => {
@@ -166,7 +187,7 @@ function GameRoute() {
       EventBus.removeListener("return-to-menu", handleReturnToMenu);
       document.removeEventListener("keydown", handleKeyPress);
     };
-  }, [gameState]);
+  }, [gameState, navigate]);
 
   return (
     <div
@@ -177,7 +198,7 @@ function GameRoute() {
         overflow: "hidden",
       }}
     >
-      {gameState === "menu" && (
+      {gameState === "menu" && !showDeathLoading && (
         <div
           style={{
             position: "absolute",
@@ -191,6 +212,7 @@ function GameRoute() {
           <MainMenu onStartGame={startGame} />
         </div>
       )}
+
       <div
         style={{
           position: "absolute",
@@ -211,7 +233,7 @@ function GameRoute() {
         />
       </div>
 
-      {gameState === "playing" && (
+      {gameState === "playing" && !showDeathLoading && (
         <>
           {showHPBar && <HPBar showGoldIcon={true} />}
           {showHPBar && <SkillExpBar />}
@@ -221,8 +243,8 @@ function GameRoute() {
           <div
             style={{
               position: "fixed",
-              top: "2vh", // Responsive top position
-              right: "2vw", // Responsive right position
+              top: "2vh",
+              right: "2vw",
               color: "white",
               fontSize: "14px",
               background: "rgba(0,0,0,0.7)",
@@ -236,7 +258,7 @@ function GameRoute() {
         </>
       )}
 
-      {gameState === "paused" && (
+      {gameState === "paused" && !showDeathLoading && (
         <div
           style={{
             position: "fixed",
@@ -276,6 +298,13 @@ function GameRoute() {
           </div>
         </div>
       )}
+
+      {/* Death Loading Screen */}
+      <DeathLoadingScreen
+        isVisible={showDeathLoading}
+        deathData={deathData}
+        onComplete={handleDeathLoadingComplete}
+      />
     </div>
   );
 }
@@ -316,17 +345,14 @@ function AppRoutes() {
                   <h1 className="text-display-1-pixelify-bold">
                     Pixelify title
                   </h1>
-                  // Heading Typography
                   <h2 className="text-heading-1-alagard">Alagard heading</h2>
                   <h2 className="text-heading-1-pixelify-bold">
                     Pixelify heading
                   </h2>
-                  // Body Typography
                   <p className="text-body-1-alagard">Alagard body text</p>
                   <p className="text-body-2-pixelify-bold">
                     Pixelify body text
                   </p>
-                  // Button Typography
                   <button className="text-button-56-alagard">
                     Alagard button
                   </button>
@@ -380,7 +406,7 @@ function AppRoutes() {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       retry: 1,
     },
   },
