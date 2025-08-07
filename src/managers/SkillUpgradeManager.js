@@ -345,22 +345,22 @@ export default class SkillUpgradeManager {
     
     loadCardAssets() {
         if (!this.scene.textures.exists('card_basic_attack')) {
-            this.scene.load.image('card_basic_attack', 'assets/Card/CardBackground/card_basic_attack.png');
+            this.scene.load.image('card_basic_attack', './assets/Card/CardBackground/card_basic_attack.png');
         }
         if (!this.scene.textures.exists('card_basic_stats')) {
-            this.scene.load.image('card_basic_stats', 'assets/Card/CardBackground/card_basic_stats.png');
+            this.scene.load.image('card_basic_stats', './assets/Card/CardBackground/card_basic_stats.png');
         }
         if (!this.scene.textures.exists('card_magic_fire')) {
-            this.scene.load.image('card_magic_fire', 'assets/Card/CardBackground/card_magic _fire.png');
+            this.scene.load.image('card_magic_fire', './assets/Card/CardBackground/card_magic _fire.png');
         }
         if (!this.scene.textures.exists('card_magic_order')) {
-            this.scene.load.image('card_magic_order', 'assets/Card/CardBackground/card_magic_order.png');
+            this.scene.load.image('card_magic_order', './assets/Card/CardBackground/card_magic_order.png');
         }
         
         for (let i = 1; i <= 10; i++) {
             const key = `Roman_${i}`;
             if (!this.scene.textures.exists(key)) {
-                this.scene.load.image(key, `assets/Card/RomanNumber/Roman_${i}.png`);
+                this.scene.load.image(key, `./assets/Card/RomanNumber/Roman_${i}.png`);
             }
         }
         
@@ -412,14 +412,14 @@ export default class SkillUpgradeManager {
         
         glowEffectIcons.forEach(iconKey => {
             if (!this.scene.textures.exists(iconKey)) {
-                this.scene.load.image(iconKey, `assets/Card/Icon/glow effect/${iconKey}.png`);
+                this.scene.load.image(iconKey, `./assets/Card/Icon/glow effect/${iconKey}.png`);
             }
         });
         
         normalIcons.forEach(iconKey => {
             if (!this.scene.textures.exists(iconKey)) {
                 const filename = iconKey === 'icon_holy_light' ? 'icon_holy_light-.png' : `${iconKey}.png`;
-                this.scene.load.image(iconKey, `assets/Card/Icon/icon normal/${filename}`);
+                this.scene.load.image(iconKey, `./assets/Card/Icon/icon normal/${filename}`);
             }
         });
     }

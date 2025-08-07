@@ -45,17 +45,17 @@ export default class BaseGameScene extends Phaser.Scene {
     }
     
     preload() {
-        this.load.spritesheet('AOE_Fire_Ball_Projectile_VFX_V01', 'assets/Hero/AttackPatterns/fire_ball.png', {
+        this.load.spritesheet('AOE_Fire_Ball_Projectile_VFX_V01', './assets/Hero/AttackPatterns/fire_ball.png', {
             frameWidth: 32,
             frameHeight: 32
         });
         
-        this.load.spritesheet('AOE_Fire_Blast_Attack_VFX_V01', 'assets/Hero/AttackPatterns/fire_blast.png', {
+        this.load.spritesheet('AOE_Fire_Blast_Attack_VFX_V01', './assets/Hero/AttackPatterns/fire_blast.png', {
             frameWidth: 48,
             frameHeight: 48
         });
         
-        this.load.spritesheet('AOE_Ice_Shard_Projectile_VFX_V01', 'assets/Hero/AttackPatterns/ice_shard.png', {
+        this.load.spritesheet('AOE_Ice_Shard_Projectile_VFX_V01', './assets/Hero/AttackPatterns/ice_shard.png', {
             frameWidth: 32,
             frameHeight: 32
         });

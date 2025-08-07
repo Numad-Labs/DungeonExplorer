@@ -17,7 +17,7 @@ export default class Preload extends Phaser.Scene {
 
 	/** @returns {void} */
 	editorPreload() {
-		this.load.pack("asset-pack", "assets/asset-pack.json");
+		this.load.pack("asset-pack", "./assets/asset-pack.json");
 	}
 
 	/** @returns {void} */
@@ -62,7 +62,7 @@ export default class Preload extends Phaser.Scene {
 			const width = this.progressBar.width;
 			
 			try {
-				this.load.image('Exp', 'assets/images/exp_orb.png');
+				this.load.image('Exp', './assets/PickUp/Exp.png');
 				console.log("Started loading Exp texture");
 			} catch (error) {
 				console.error("Error loading Exp texture:", error);
