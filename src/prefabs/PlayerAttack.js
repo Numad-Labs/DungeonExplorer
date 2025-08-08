@@ -26,15 +26,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashDamage = player.slashDamage || 10;
         this.slashFireRate = player.slashFireRate || 1;
         this.slashRange = player.slashRange || 70;
-        this.slashCooldown = 2000 / this.slashFireRate;
-        this.lastSlashTime = 0;
+        this.slashCooldown = 2000 / this.slashFireRate; 
         
         // Fire bullet attack (piercing)
         this.fireBulletDamage = player.fireBulletDamage || 8;
         this.fireBulletFireRate = player.fireBulletFireRate || 1.2;
         this.fireBulletRange = player.fireBulletRange || 200;
-        this.fireBulletCooldown = 4000 / this.fireBulletFireRate;
-        this.lastFireBulletTime = 0;
+        this.fireBulletCooldown = 2500 / this.fireBulletFireRate;
         this.fireBulletSpeed = 250;
         this.fireBulletDotDuration = 4000;
         
@@ -42,8 +40,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.fireBombDamage = player.fireBombDamage || 18;
         this.fireBombFireRate = player.fireBombFireRate || 0.4;
         this.fireBombRange = player.fireBombRange || 80;
-        this.fireBombCooldown = 6000 / this.fireBombFireRate;
-        this.lastFireBombTime = 0;
+        this.fireBombCooldown = 3000 / this.fireBombFireRate;
         this.fireBombSpeed = 120;
         this.fireBombExplosionRadius = 50;
         this.fireBombDotDuration = 5000;
@@ -52,16 +49,14 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.iceDamage = player.iceDamage || 12;
         this.iceFireRate = player.iceFireRate || 0.6;
         this.iceRange = player.iceRange || 180;
-        this.iceCooldown = 4000 / this.iceFireRate;
-        this.lastIceTime = 0;
+        this.iceCooldown = 2800 / this.iceFireRate;
         this.iceProjectileSpeed = 120;
         
         // Lightning chain attack
         this.lightningDamage = player.lightningDamage || 20;
         this.lightningFireRate = player.lightningFireRate || 0.5;
         this.lightningRange = player.lightningRange || 250;
-        this.lightningCooldown = 5000 / this.lightningFireRate;
-        this.lastLightningTime = 0;
+        this.lightningCooldown = 4000 / this.lightningFireRate;
         this.lightningProjectileSpeed = 200;
         this.lightningChainCount = player.lightningChainCount || 10;
         this.lightningChainRange = 100;
@@ -69,9 +64,15 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         // Blinding Light attack
         this.blindingLightRange = player.blindingLightRange || 300;
         this.blindingLightFireRate = player.blindingLightFireRate || 0.15;
-        this.blindingLightCooldown = 20000 / this.blindingLightFireRate;
-        this.lastBlindingLightTime = 0;
+        this.blindingLightCooldown = 10000 / this.blindingLightFireRate;
         this.blindingLightDisableDuration = 4000;
+        
+        // Marksman attack
+        this.marksmanDamage = player.marksmanDamage || 35;
+        this.marksmanFireRate = player.marksmanFireRate || 0.3;
+        this.marksmanRange = player.marksmanRange || 400;
+        this.marksmanCooldown = 1500 / this.marksmanFireRate;
+        this.marksmanSpeed = 400;
         
         // Attack types enabled
         this.attackTypes = {
@@ -137,7 +138,133 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     enableAttackType(attackType) {
         if (this.attackTypes.hasOwnProperty(attackType)) {
             this.attackTypes[attackType] = true;
-            this.restartAttackTimers();
+            this.createTimerForAttackType(attackType, true);
+        }
+    }
+    
+    createTimerForAttackType(attackType, immediate = false) {
+        const cooldown = this.getCooldownForAttackType(attackType);
+        
+        if (immediate) {
+            this.scene.time.delayedCall(100, () => {
+                this.triggerAttackByType(attackType);
+                this.createNormalTimerForAttackType(attackType, cooldown);
+            });
+        } else {
+            this.createNormalTimerForAttackType(attackType, cooldown);
+        }
+    }
+    
+    createNormalTimerForAttackType(attackType, cooldown) {
+        switch(attackType) {
+            case 'slash':
+                if (this.slashTimer) this.slashTimer.destroy();
+                this.slashTimer = this.scene.time.addEvent({
+                    delay: cooldown,
+                    callback: this.attemptSlashAttack,
+                    callbackScope: this,
+                    loop: true
+                });
+                break;
+                
+            case 'fireBullet':
+                if (this.fireBulletTimer) this.fireBulletTimer.destroy();
+                this.fireBulletTimer = this.scene.time.addEvent({
+                    delay: cooldown,
+                    callback: this.attemptFireBulletAttack,
+                    callbackScope: this,
+                    loop: true
+                });
+                break;
+                
+            case 'fireBomb':
+                if (this.fireBombTimer) this.fireBombTimer.destroy();
+                this.fireBombTimer = this.scene.time.addEvent({
+                    delay: cooldown,
+                    callback: this.attemptFireBombAttack,
+                    callbackScope: this,
+                    loop: true
+                });
+                break;
+                
+            case 'ice':
+                if (this.iceTimer) this.iceTimer.destroy();
+                this.iceTimer = this.scene.time.addEvent({
+                    delay: cooldown,
+                    callback: this.attemptIceAttack,
+                    callbackScope: this,
+                    loop: true
+                });
+                break;
+                
+            case 'lightning':
+                if (this.lightningTimer) this.lightningTimer.destroy();
+                this.lightningTimer = this.scene.time.addEvent({
+                    delay: cooldown,
+                    callback: this.attemptLightningAttack,
+                    callbackScope: this,
+                    loop: true
+                });
+                break;
+                
+            case 'blindingLight':
+                if (this.blindingLightTimer) this.blindingLightTimer.destroy();
+                this.blindingLightTimer = this.scene.time.addEvent({
+                    delay: cooldown,
+                    callback: this.attemptBlindingLightAttack,
+                    callbackScope: this,
+                    loop: true
+                });
+                break;
+                
+            case 'marksman':
+                if (this.marksmanTimer) this.marksmanTimer.destroy();
+                this.marksmanTimer = this.scene.time.addEvent({
+                    delay: cooldown,
+                    callback: this.attemptMarksmanAttack,
+                    callbackScope: this,
+                    loop: true
+                });
+                break;
+        }
+    }
+    
+    triggerAttackByType(attackType) {
+        switch(attackType) {
+            case 'slash':
+                this.attemptSlashAttack();
+                break;
+            case 'fireBullet':
+                this.attemptFireBulletAttack();
+                break;
+            case 'fireBomb':
+                this.attemptFireBombAttack();
+                break;
+            case 'ice':
+                this.attemptIceAttack();
+                break;
+            case 'lightning':
+                this.attemptLightningAttack();
+                break;
+            case 'blindingLight':
+                this.attemptBlindingLightAttack();
+                break;
+            case 'marksman':
+                this.attemptMarksmanAttack();
+                break;
+        }
+    }
+    
+    getCooldownForAttackType(attackType) {
+        switch(attackType) {
+            case 'slash': return this.slashCooldown;
+            case 'fireBullet': return this.fireBulletCooldown;
+            case 'fireBomb': return this.fireBombCooldown;
+            case 'ice': return this.iceCooldown;
+            case 'lightning': return this.lightningCooldown;
+            case 'blindingLight': return this.blindingLightCooldown;
+            case 'marksman': return this.marksmanCooldown;
+            default: return 1000;
         }
     }
     
@@ -151,14 +278,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.startAttackTimers();
     }
     
-    initializeMarksmanAttack() {
-        this.marksmanDamage = this.player.marksmanDamage || 35;
-        this.marksmanFireRate = this.player.marksmanFireRate || 0.3;
-        this.marksmanRange = this.player.marksmanRange || 400;
-        this.marksmanCooldown = 1000 / this.marksmanFireRate;
-        this.lastMarksmanTime = 0;
-        this.marksmanSpeed = 400;
-    }
+
     
     // MARKSMAN ATTACK
     attemptMarksmanAttack() {
@@ -169,8 +289,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     marksmanAttack(target) {
-        this.lastMarksmanTime = this.scene.time.now;
-        
         // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'marksman',
@@ -500,8 +618,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     slashAttack(enemiesInRange) {
-        this.lastSlashTime = this.scene.time.now;
-        
         // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'slash',
@@ -604,8 +720,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
 	}
     
     blindingLightAttack(enemiesInRange) {
-        this.lastBlindingLightTime = this.scene.time.now;
-        
         // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'blindingLight',
@@ -804,9 +918,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     // FIRE BULLET ATTACK (Fast piercing)
     attemptFireBulletAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastFireBulletTime < this.fireBulletCooldown) return;
-        
         const target = this.findNearestEnemyInRange(this.fireBulletRange);
         if (target) {
             this.fireBulletAttack(target);
@@ -814,8 +925,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     fireBulletAttack(target) {
-        this.lastFireBulletTime = this.scene.time.now;
-        
         // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'fireBullet',
@@ -848,9 +957,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     // FIRE BOMB ATTACK (Delayed AOE explosion)
     attemptFireBombAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastFireBombTime < this.fireBombCooldown) return;
-        
         const target = this.findNearestEnemyInRange(this.fireBombRange);
         if (target) {
             this.fireBombAttack(target);
@@ -858,8 +964,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     fireBombAttack(target) {
-        this.lastFireBombTime = this.scene.time.now;
-        
         // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'fireBomb',
@@ -933,9 +1037,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     // ICE PROJECTILE ATTACK
     attemptIceAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastIceTime < this.iceCooldown) return;
-        
         const target = this.findNearestEnemyInRange(this.iceRange);
         if (target) {
             this.iceProjectileAttack(target);
@@ -943,8 +1044,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     iceProjectileAttack(target) {
-        this.lastIceTime = this.scene.time.now;
-        
         // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'ice',
@@ -988,9 +1087,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     // LIGHTNING CHAIN ATTACK
     attemptLightningAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastLightningTime < this.lightningCooldown) return;
-        
         const target = this.findNearestEnemyInRange(this.lightningRange);
         if (target) {
             this.lightningChainAttack(target);
@@ -998,8 +1094,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     lightningChainAttack(initialTarget) {
-        this.lastLightningTime = this.scene.time.now;
-        
         // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'lightning',
@@ -1300,7 +1394,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashVisual.setAlpha(0.5);
         
         const ringEffect = this.scene.add.circle(this.player.x, this.player.y, 10, 0x00ff00, 0);
-        ringEffect.setStrokeStyle(4, 0x00ff00, 0.8);
+        ringEffect.setStrokeStyle(1, 0xffff00, 0.8);
         ringEffect.setDepth(17);
         
         this.scene.tweens.add({
@@ -1479,33 +1573,39 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashDamage = this.player.slashDamage || 10;
         this.slashFireRate = this.player.slashFireRate || 1;
         this.slashRange = this.player.slashRange || 70;
-        this.slashCooldown = 1000 / this.slashFireRate;
+        this.slashCooldown = 2000 / this.slashFireRate;
         
         this.fireBulletDamage = this.player.fireBulletDamage || 8;
         this.fireBulletFireRate = this.player.fireBulletFireRate || 1.2;
         this.fireBulletRange = this.player.fireBulletRange || 300;
-        this.fireBulletCooldown = 1000 / this.fireBulletFireRate;
+        this.fireBulletCooldown = 2500 / this.fireBulletFireRate;
         
         this.fireBombDamage = this.player.fireBombDamage || 18;
         this.fireBombFireRate = this.player.fireBombFireRate || 0.4;
         this.fireBombRange = this.player.fireBombRange || 220;
-        this.fireBombCooldown = 1000 / this.fireBombFireRate;
+        this.fireBombCooldown = 3000 / this.fireBombFireRate;
         
         this.iceDamage = this.player.iceDamage || 12;
         this.iceFireRate = this.player.iceFireRate || 0.6;
         this.iceRange = this.player.iceRange || 180;
-        this.iceCooldown = 1000 / this.iceFireRate;
+        this.iceCooldown = 2800 / this.iceFireRate;
         
         this.lightningDamage = this.player.lightningDamage || 20;
         this.lightningFireRate = this.player.lightningFireRate || 0.5;
         this.lightningRange = this.player.lightningRange || 250;
-        this.lightningCooldown = 1000 / this.lightningFireRate;
+        this.lightningCooldown = 4000 / this.lightningFireRate;
         this.lightningChainCount = this.player.lightningChainCount || 10;
         
         this.blindingLightRange = this.player.blindingLightRange || 300;
         this.blindingLightFireRate = this.player.blindingLightFireRate || 0.15;
-        this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
+        this.blindingLightCooldown = 10000 / this.blindingLightFireRate;
         this.blindingLightDisableDuration = this.player.blindingLightDisableDuration || 4000;
+        
+        // Marksman attack
+        this.marksmanDamage = this.player.marksmanDamage || 35;
+        this.marksmanFireRate = this.player.marksmanFireRate || 0.3;
+        this.marksmanRange = this.player.marksmanRange || 400;
+        this.marksmanCooldown = 1500 / this.marksmanFireRate;
         
         if (this.slashTimer) this.slashTimer.delay = this.slashCooldown;
         if (this.fireBulletTimer) this.fireBulletTimer.delay = this.fireBulletCooldown;
@@ -1513,6 +1613,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         if (this.iceTimer) this.iceTimer.delay = this.iceCooldown;
         if (this.lightningTimer) this.lightningTimer.delay = this.lightningCooldown;
         if (this.blindingLightTimer) this.blindingLightTimer.delay = this.blindingLightCooldown;
+        if (this.marksmanTimer) this.marksmanTimer.delay = this.marksmanCooldown;
         
         if (this.slashVisual && this.slashVisual.setRadius && typeof this.slashVisual.setRadius === 'function') {
             try {
@@ -1541,6 +1642,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         if (this.iceTimer) this.iceTimer.destroy();
         if (this.lightningTimer) this.lightningTimer.destroy();
         if (this.blindingLightTimer) this.blindingLightTimer.destroy();
+        if (this.marksmanTimer) this.marksmanTimer.destroy();
         
         if (this.scene.enemies) {
             this.scene.enemies.getChildren().forEach(enemy => {
