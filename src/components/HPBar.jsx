@@ -143,7 +143,7 @@ const HPBar = ({ showGoldIcon = true }) => {
                     left: '0px',
                     width: '200%',
                     height: '250%',
-                    backgroundImage: 'url(/assets/HUD/HUD_HP_BG_V01.png),',
+                    backgroundImage: 'url(/assets/HUD/HUD_HP_BG_V01.png)',
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
                     zIndex: 1
@@ -167,7 +167,7 @@ const HPBar = ({ showGoldIcon = true }) => {
                     left: '60px',
                     width: '160%',
                     height: '140%',
-                    backgroundImage: 'url(/assets/HUD/HUD_HP_Indicator_Frame_V01.png),',
+                    backgroundImage: 'url(./assets/HUD/HUD_HP_Indicator_Frame_V01.png)',
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
                     zIndex: 3
@@ -220,7 +220,7 @@ const HPBar = ({ showGoldIcon = true }) => {
                     <div style={{
                         width: '30px',
                         height: '30px',
-                        backgroundImage: 'url(/assets/HUD/HUD_Gold_Icon_V01.png)',
+                        backgroundImage: 'url(./assets/HUD/HUD_Gold_Icon_V01.png)',
                         backgroundSize: 'contain',
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center'

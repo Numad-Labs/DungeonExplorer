@@ -314,7 +314,7 @@ const SkillExpBar = () => {
                     left: '0px',
                     width: '100%',
                     height: '100%',
-                    backgroundImage: 'url(/assets/HUD/HUD_Skill_Table_XP_BG_V01.png),',
+                    backgroundImage: 'url(/assets/HUD/HUD_Skill_Table_XP_BG_V01.png)',
                     backgroundSize: '100% 100%',
                     backgroundRepeat: 'no-repeat',
                     zIndex: 2
