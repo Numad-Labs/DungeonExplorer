@@ -2,7 +2,7 @@ import axios from "axios";
 import { refreshToken } from "./authApiService.js";
 
 const api = axios.create({
-  baseURL: "https://insomnus-backend-aa250a74a37c.herokuapp.com/api",
+  baseURL: "https://insomnus-backend-production-8a4c3b46c656.herokuapp.com/api",
   withCredentials: true,
 });
 
@@ -18,9 +18,9 @@ const processQueue = (error, token = null) => {
 
 api.interceptors.request.use((config) => {
   // Skip adding token for auth endpoints
-  const isAuthEndpoint = config.url?.includes('/auth/');
+  const isAuthEndpoint = config.url?.includes("/auth/");
   const token = localStorage.getItem("access_token");
-  
+
   if (token && !isAuthEndpoint) {
     config.headers["Authorization"] = `Bearer ${token}`;
   }

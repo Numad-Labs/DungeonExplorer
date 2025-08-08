@@ -335,7 +335,7 @@ function AppRoutes() {
           <Route path="quest" element={<Quest />} />
           <Route path="market" element={<Market />} />
           <Route path="guide" element={<Guide />} />
-          <Route path="account" element={<Account />} />
+
           <Route
             path="about"
             element={
@@ -363,28 +363,7 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="profile"
-            element={
-              <ProtectedRoute>
-                <div className="p-8">
-                  <h1 className="text-2xl font-bold mb-4">Profile</h1>
-                  <p>This is your profile page. Only accessible after login.</p>
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="settings"
-            element={
-              <ProtectedRoute>
-                <div className="p-8">
-                  <h1 className="text-2xl font-bold mb-4">Settings</h1>
-                  <p>This is the settings page. Only accessible after login.</p>
-                </div>
-              </ProtectedRoute>
-            }
-          />
+          <Route path="account" element={<Account />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
 
