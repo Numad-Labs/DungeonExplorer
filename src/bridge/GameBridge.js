@@ -4,7 +4,9 @@ import {
   saveCheckpoint,
   endGameSession,
 } from "../services/api/gameApiService";
+import { getAllMaps } from "../services/api/gameApiService";
 import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 /**
  * Simple Game Bridge for DungeonExplorer - enhances existing EventBus communication
@@ -18,8 +20,12 @@ class GameBridge {
     this.sessionEnding = false;
     this.lastSyncTime = 0;
     this.syncInterval = 5000; // 5 seconds
+    this.maps = [];
+    this.mapsLoading = false;
+    this.mapsError = null;
     this.setupMutations();
     this.init();
+    this.fetchMaps();
   }
 
   init() {
@@ -288,10 +294,15 @@ class GameBridge {
   async startSession() {
     try {
       console.log("GameBridge: Starting session...");
+      
+      // Get main map ID from fetched maps
+      const mainMap = this.getMainMap();
+      const mapId = mainMap ? mainMap.id : "87224afa-25e3-4bce-8fce-0981f854e6b6"; // fallback to hardcoded ID
+      
       // Format session start payload according to backend requirements
       const sessionData = {
         userId: this.getCurrentUserId(),
-        mapId: "87224afa-25e3-4bce-8fce-0981f854e6b6",
+        mapId: mapId,
       };
 
       console.log("GameBridge: Session data prepared", sessionData);
@@ -378,16 +389,20 @@ class GameBridge {
   async endSession(deathData = {}) {
     // Prevent multiple calls to endSession
     if (this.sessionEnding) {
-      console.log("GameBridge: Session already ending, ignoring duplicate call");
+      console.log(
+        "GameBridge: Session already ending, ignoring duplicate call",
+      );
       return;
     }
-    
+
     if (!this.sessionId) {
-      console.log("GameBridge: No session ID available, but still sending death data");
+      console.log(
+        "GameBridge: No session ID available, but still sending death data",
+      );
     }
 
     this.sessionEnding = true;
-    
+
     try {
       console.log("GameBridge: Ending session...", deathData);
       // Format death payload according to backend requirements
@@ -415,11 +430,11 @@ class GameBridge {
         sessionId: this.sessionId,
         deathData: deathPayload,
       });
-      
+
       // Invalidate Dashboard data after session ends
       EventBus.emit("invalidate-dashboard-data");
       console.log("GameBridge: Dashboard data invalidation requested");
-      
+
       this.sessionId = null;
     } catch (error) {
       console.error("GameBridge: Failed to end session", error);
@@ -557,6 +572,58 @@ class GameBridge {
     return points;
   }
 
+  // Map fetching methods
+  async fetchMaps() {
+    this.mapsLoading = true;
+    this.mapsError = null;
+
+    try {
+      console.log("GameBridge: Fetching maps...");
+      const maps = await getAllMaps();
+      this.maps = maps || [];
+      console.log("GameBridge: Maps fetched successfully", this.maps.data);
+      EventBus.emit("bridge-maps-loaded", this.maps);
+    } catch (error) {
+      console.error("GameBridge: Failed to fetch maps", error);
+      this.mapsError = error.message || "Failed to fetch maps";
+      EventBus.emit("bridge-maps-error", this.mapsError);
+    } finally {
+      this.mapsLoading = false;
+    }
+  }
+
+  getMaps() {
+    return {
+      data: this.maps,
+      loading: this.mapsLoading,
+      error: this.mapsError,
+    };
+  }
+
+  getMapById(mapId) {
+    return this.maps.find((map) => map.id === mapId) || null;
+  }
+
+  getMainMap() {
+    // Find the main map - look for maps with isMain flag or name containing "main"
+    const mapsData = Array.isArray(this.maps) ? this.maps : this.maps?.data || [];
+    
+    return mapsData.find((map) => 
+      map.isMain || 
+      map.name?.toLowerCase().includes('main') ||
+      map.type?.toLowerCase() === 'main'
+    ) || mapsData[0]; // fallback to first map if no main map found
+  }
+
+  getCurrentMap() {
+    const currentMapId = this.getCurrentMapId();
+    return this.getMapById(currentMapId);
+  }
+
+  async refreshMaps() {
+    await this.fetchMaps();
+  }
+
   // Methods for React components
   getGameState() {
     return {
@@ -564,6 +631,7 @@ class GameBridge {
       progress: this.getGameProgress(),
       connected: this.isConnected,
       sessionId: this.sessionId,
+      maps: this.getMaps(),
     };
   }
 
