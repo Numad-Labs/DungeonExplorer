@@ -61,7 +61,7 @@ const Sidebar = () => {
   return (
     <div className="min-h-screen text-white flex ">
       {/* Left Sidebar Navigation */}
-      <nav className="bg-dark-secondary border-r-2  border-r-dark-tertiary w-64 min-h-screen relative">
+      <nav className="bg-dark-secondary border-r-2 pb-4  border-r-dark-tertiary w-64 min-h-screen relative">
         <div className="p-4 flex flex-col">
           <div className="mb-16 flex flex-col gap-3 justify-center items-center">
             <img src="/logo.svg" alt="Logo" draggable="false" />
