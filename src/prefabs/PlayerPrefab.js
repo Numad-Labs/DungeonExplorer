@@ -62,6 +62,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		this.updateHPBar();
 		this.createAnimations();
+		this.createShadow();
 		this.setupMouseTracking();
 
 		this.scene.input.on('pointerdown', this.handlePointerDown, this);
@@ -69,6 +70,17 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		scene.events.on('update', this.update, this);
 		scene.add.existing(this);
+
+		this.baseMoveSpeed = this.moveSpeed;
+		this.basePickupRange = this.pickupRange;
+
+		scene.player = this;
+		
+		if (scene.onPlayerCreated && typeof scene.onPlayerCreated === 'function') {
+			scene.onPlayerCreated(this);
+		} else {
+			console.log("PlayerPrefab: Scene does not have onPlayerCreated method, but scene.player is set");
+		}
 		/* END-USER-CTR-CODE */
 	}
 
@@ -252,6 +264,9 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		if (wasMoving !== this.isMoving) {
 			this.updatePlayerFrame();
 		}
+
+		// Update shadow position
+		this.updateShadowPosition();
 	}
 
 	updatePlayerAnimation(time, delta) {
@@ -412,6 +427,21 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		this.isDead = true;
 		this.health = 0;
 		
+		// Clean up shadow
+		if (this.shadow) {
+			this.scene.tweens.add({
+				targets: this.shadow,
+				alpha: 0,
+				duration: 500,
+				onComplete: () => {
+					if (this.shadow) {
+						this.shadow.destroy();
+						this.shadow = null;
+					}
+				}
+			});
+		}
+		
 		this.updateHPBar();
 		
 		this.body.velocity.x = 0;
@@ -455,6 +485,11 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 	}
 
 	applyDeathEffects() {
+		if (this.shadow) {
+			this.shadow.destroy();
+			this.shadow = null;
+		}
+		
 		this.scene.tweens.add({
 			targets: this,
 			angle: 90,
@@ -527,6 +562,23 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 		} catch (error) {
 			console.error("Error showing heal effect:", error);
+		}
+	}
+
+	createShadow() {
+		this.shadow = this.scene.add.graphics();
+		this.shadow.setDepth(0);
+		this.shadow.fillStyle(0x000000, 0.2);
+		this.shadow.fillEllipse(0, 0, 20, 8);
+		this.updateShadowPosition();
+	}
+
+	updateShadowPosition() {
+		if (this.shadow && !this.isDead) {
+			this.shadow.setPosition(this.x, this.y + 12);
+			const baseScale = 1.0;
+			const moveScale = this.isMoving ? 0.9 : 1.0;
+			this.shadow.setScale(baseScale * moveScale);
 		}
 	}
 

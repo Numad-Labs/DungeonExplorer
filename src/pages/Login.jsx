@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { useNavigate } from "react-router-dom";
 import { connectWallet } from "../services/api/authApiService.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { networkUtils } from "../config/networks.js";
 import metamaskLogo from "../images/Metamask.png";
 import vector from "../images/Vector.png";
 import flame from "../images/Flame.png";
@@ -16,10 +17,23 @@ import "./Login.css";
 function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [networkStatus, setNetworkStatus] = useState('checking');
 
   useEffect(() => {
     checkExistingConnection();
+    checkNetworkStatus();
   }, []);
+
+  const checkNetworkStatus = async () => {
+    try {
+      const isCorrect = await networkUtils.isCorrectNetwork();
+      setNetworkStatus(isCorrect ? 'correct' : 'wrong');
+    } catch (error) {
+      console.error('Error checking network:', error);
+      setNetworkStatus('error');
+    }
+  };
 
   const checkExistingConnection = async () => {
     if (window.ethereum) {
@@ -43,7 +57,22 @@ function Login() {
       return;
     }
 
+    setIsConnecting(true);
+
     try {
+      // Check and switch to correct network first
+      const isCorrectNetwork = await networkUtils.isCorrectNetwork();
+      if (!isCorrectNetwork) {
+        try {
+          await networkUtils.switchToCorrectNetwork();
+          setNetworkStatus('correct');
+        } catch (networkError) {
+          alert(`Please switch to Somnia Testnet in MetaMask to continue.\n\nNetwork Error: ${networkError.message}`);
+          setIsConnecting(false);
+          return;
+        }
+      }
+
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const walletAddress = await signer.getAddress();
@@ -59,6 +88,8 @@ function Login() {
     } catch (error) {
       console.error("Login failed:", error);
       alert("Failed to connect wallet. Please try again.");
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -100,13 +131,26 @@ function Login() {
       <div className="login-box">
         <img src={vector} alt="vector" className="login-vector" />
         <h2 className="login-title">Log In or Sign Up</h2>
-        <button onClick={openLogin} className="login-metamask-btn">
+        {networkStatus === 'wrong' && (
+          <div style={{ color: '#ff6b6b', marginBottom: '10px', fontSize: '14px', textAlign: 'center' }}>
+            ⚠️ Please switch to Somnia Testnet
+          </div>
+        )}
+        
+        <button 
+          onClick={openLogin} 
+          className="login-metamask-btn"
+          disabled={isConnecting}
+          style={{ opacity: isConnecting ? 0.7 : 1 }}
+        >
           <img
             src={metamaskLogo}
             alt="MetaMask Logo"
             className="login-metamask-logo"
           />
-          <p className="login-metamask-text">Connect Metamask</p>
+          <p className="login-metamask-text">
+            {isConnecting ? 'Connecting...' : 'Connect Metamask'}
+          </p>
         </button>
       </div>
     </div>

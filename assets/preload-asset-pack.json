@@ -2996,6 +2996,226 @@
                 },
                 "type": "spritesheet",
                 "key": "zombierun"
+            },
+            {
+                "url": "assets/Card/CardBackground/card_basic_attack.png",
+                "type": "image",
+                "key": "card_basic_attack"
+            },
+            {
+                "url": "assets/Card/CardBackground/card_basic_stats.png",
+                "type": "image",
+                "key": "card_basic_stats"
+            },
+            {
+                "url": "assets/Card/CardBackground/card_magic _fire.png",
+                "type": "image",
+                "key": "card_magic _fire"
+            },
+            {
+                "url": "assets/Card/CardBackground/card_magic_order.png",
+                "type": "image",
+                "key": "card_magic_order"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_1.png",
+                "type": "image",
+                "key": "Roman_1"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_2.png",
+                "type": "image",
+                "key": "Roman_2"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_3.png",
+                "type": "image",
+                "key": "Roman_3"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_4.png",
+                "type": "image",
+                "key": "Roman_4"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_5.png",
+                "type": "image",
+                "key": "Roman_5"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_6.png",
+                "type": "image",
+                "key": "Roman_6"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_7.png",
+                "type": "image",
+                "key": "Roman_7"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_8.png",
+                "type": "image",
+                "key": "Roman_8"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_9.png",
+                "type": "image",
+                "key": "Roman_9"
+            },
+            {
+                "url": "assets/Card/RomanNumber/Roman_10.png",
+                "type": "image",
+                "key": "Roman_10"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_slash_glow_effect.png",
+                "type": "image",
+                "key": "icon_slash_glow_effect"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_fire_arrow_glow_effect.png",
+                "type": "image",
+                "key": "icon_fire_arrow_glow_effect"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_fire_ball_glow_effect.png",
+                "type": "image",
+                "key": "icon_fire_ball_glow_effect"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_ice_shard_glow_effect.png",
+                "type": "image",
+                "key": "icon_ice_shard_glow_effect"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_lightning_chain_glow_effect.png",
+                "type": "image",
+                "key": "icon_lightning_chain_glow_effect"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_holy_light_glow_effect.png",
+                "type": "image",
+                "key": "icon_holy_light_glow_effect"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_max_healt_glow_effect2.png",
+                "type": "image",
+                "key": "icon_max_healt_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_attack_damage_glow_effect2.png",
+                "type": "image",
+                "key": "icon_attack_damage_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_movement_speed_glow_effect2.png",
+                "type": "image",
+                "key": "icon_movement_speed_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_pickup_range_glow_effect2.png",
+                "type": "image",
+                "key": "icon_pickup_range_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_slash.png",
+                "type": "image",
+                "key": "icon_slash"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_fire_arrow.png",
+                "type": "image",
+                "key": "icon_fire_arrow"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_fire_ball.png",
+                "type": "image",
+                "key": "icon_fire_ball"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_ice_shard.png",
+                "type": "image",
+                "key": "icon_ice_shard"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_lightning_chain.png",
+                "type": "image",
+                "key": "icon_lightning_chain"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_holy_light-.png",
+                "type": "image",
+                "key": "icon_holy_light-"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_max_healt.png",
+                "type": "image",
+                "key": "icon_max_healt"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_attack_damage.png",
+                "type": "image",
+                "key": "icon_attack_damage"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_movement_speed.png",
+                "type": "image",
+                "key": "icon_movement_speed"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_pickup_range.png",
+                "type": "image",
+                "key": "icon_pickup_range"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_marksman_glow_effect.png",
+                "type": "image",
+                "key": "icon_marksman_glow_effect"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_armor_glow_effect2.png",
+                "type": "image",
+                "key": "icon_armor_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_attack_speed_glow_effect2.png",
+                "type": "image",
+                "key": "icon_attack_speed_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_exp_gain_glow_effect2.png",
+                "type": "image",
+                "key": "icon_exp_gain_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/glow effect/icon_gold_gain_glow_effect2.png",
+                "type": "image",
+                "key": "icon_gold_gain_glow_effect2"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_marksman.png",
+                "type": "image",
+                "key": "icon_marksman"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_armor.png",
+                "type": "image",
+                "key": "icon_armor"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_attack_speed.png",
+                "type": "image",
+                "key": "icon_attack_speed"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_exp_gain.png",
+                "type": "image",
+                "key": "icon_exp_gain"
+            },
+            {
+                "url": "assets/Card/Icon/icon normal/icon_gold_gain.png",
+                "type": "image",
+                "key": "icon_gold_gain"
             }
         ]
     },

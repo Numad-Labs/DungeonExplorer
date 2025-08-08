@@ -3,6 +3,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { EventBus } from '../game/EventBus';
 /* END-USER-IMPORTS */
 
 export default class PlayerAttack extends Phaser.GameObjects.Container {
@@ -11,6 +12,11 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         super(scene, 0, 0);
 
         /* START-USER-CTR-CODE */
+        if (!player) {
+            console.error("PlayerAttack: No player provided to constructor!");
+            return;
+        }
+        
         this.player = player;
         
         scene.add.existing(this);
@@ -20,14 +26,14 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashDamage = player.slashDamage || 10;
         this.slashFireRate = player.slashFireRate || 1;
         this.slashRange = player.slashRange || 70;
-        this.slashCooldown = 1000 / this.slashFireRate;
+        this.slashCooldown = 2000 / this.slashFireRate;
         this.lastSlashTime = 0;
         
         // Fire bullet attack (piercing)
         this.fireBulletDamage = player.fireBulletDamage || 8;
         this.fireBulletFireRate = player.fireBulletFireRate || 1.2;
-        this.fireBulletRange = player.fireBulletRange || 300;
-        this.fireBulletCooldown = 1000 / this.fireBulletFireRate;
+        this.fireBulletRange = player.fireBulletRange || 200;
+        this.fireBulletCooldown = 4000 / this.fireBulletFireRate;
         this.lastFireBulletTime = 0;
         this.fireBulletSpeed = 250;
         this.fireBulletDotDuration = 4000;
@@ -36,7 +42,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.fireBombDamage = player.fireBombDamage || 18;
         this.fireBombFireRate = player.fireBombFireRate || 0.4;
         this.fireBombRange = player.fireBombRange || 80;
-        this.fireBombCooldown = 1000 / this.fireBombFireRate;
+        this.fireBombCooldown = 6000 / this.fireBombFireRate;
         this.lastFireBombTime = 0;
         this.fireBombSpeed = 120;
         this.fireBombExplosionRadius = 50;
@@ -46,7 +52,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.iceDamage = player.iceDamage || 12;
         this.iceFireRate = player.iceFireRate || 0.6;
         this.iceRange = player.iceRange || 180;
-        this.iceCooldown = 1000 / this.iceFireRate;
+        this.iceCooldown = 4000 / this.iceFireRate;
         this.lastIceTime = 0;
         this.iceProjectileSpeed = 120;
         
@@ -54,7 +60,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.lightningDamage = player.lightningDamage || 20;
         this.lightningFireRate = player.lightningFireRate || 0.5;
         this.lightningRange = player.lightningRange || 250;
-        this.lightningCooldown = 1000 / this.lightningFireRate;
+        this.lightningCooldown = 5000 / this.lightningFireRate;
         this.lastLightningTime = 0;
         this.lightningProjectileSpeed = 200;
         this.lightningChainCount = player.lightningChainCount || 10;
@@ -63,18 +69,19 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         // Blinding Light attack
         this.blindingLightRange = player.blindingLightRange || 300;
         this.blindingLightFireRate = player.blindingLightFireRate || 0.15;
-        this.blindingLightCooldown = 1000 / this.blindingLightFireRate;
+        this.blindingLightCooldown = 20000 / this.blindingLightFireRate;
         this.lastBlindingLightTime = 0;
         this.blindingLightDisableDuration = 4000;
         
         // Attack types enabled
         this.attackTypes = {
             slash: true,
-            fireBullet: true,
-            fireBomb: true,
-            ice: true,
-            lightning: true,
-            blindingLight: true
+            fireBullet: false,
+            fireBomb: false,
+            ice: false,
+            lightning: false,
+            blindingLight: false,
+            marksman: false
         };
         
         this.setupWeaponVisuals();
@@ -82,11 +89,132 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.createProjectileGroups();
         this.startAttackTimers();
         
+        scene.events.on('update', this.update, this);
         scene.playerAttack = this;
+        
+        this.connectToSkillSystem();
         /* END-USER-CTR-CODE */
     }
 
     /* START-USER-CODE */
+    
+    connectToSkillSystem() {
+        try {
+            this.scene.time.delayedCall(200, () => {
+                if (this.scene.powerUpManager?.skillUpgradeManager) {
+                    const skillManager = this.scene.powerUpManager.skillUpgradeManager;
+                    
+                    Object.keys(this.attackTypes).forEach(attackType => {
+                        const skillKey = this.mapAttackTypeToSkill(attackType);
+                        if (skillKey && skillManager.getSkillLevel(skillKey) > 0) {
+                            this.attackTypes[attackType] = true;
+                        }
+                    });
+                    
+                    this.restartAttackTimers();
+                    
+                } else {
+                    console.log('PlayerAttack: Skill upgrade system not available yet');
+                }
+            });
+        } catch (error) {
+            console.error('PlayerAttack: Error connecting to skill system:', error);
+        }
+    }
+    
+    mapAttackTypeToSkill(attackType) {
+        const mapping = {
+            'fireBullet': 'fireBullet',
+            'fireBomb': 'fireBomb',
+            'ice': 'ice',
+            'lightning': 'lightning',
+            'blindingLight': 'blindingLight',
+            'marksman': 'marksman'
+        };
+        return mapping[attackType];
+    }
+    
+    enableAttackType(attackType) {
+        if (this.attackTypes.hasOwnProperty(attackType)) {
+            this.attackTypes[attackType] = true;
+            this.restartAttackTimers();
+        }
+    }
+    
+    restartAttackTimers() {
+        if (this.fireBulletTimer) this.fireBulletTimer.destroy();
+        if (this.fireBombTimer) this.fireBombTimer.destroy();
+        if (this.iceTimer) this.iceTimer.destroy();
+        if (this.lightningTimer) this.lightningTimer.destroy();
+        if (this.blindingLightTimer) this.blindingLightTimer.destroy();
+        if (this.marksmanTimer) this.marksmanTimer.destroy();
+        this.startAttackTimers();
+    }
+    
+    initializeMarksmanAttack() {
+        this.marksmanDamage = this.player.marksmanDamage || 35;
+        this.marksmanFireRate = this.player.marksmanFireRate || 0.3;
+        this.marksmanRange = this.player.marksmanRange || 400;
+        this.marksmanCooldown = 1000 / this.marksmanFireRate;
+        this.lastMarksmanTime = 0;
+        this.marksmanSpeed = 400;
+    }
+    
+    // MARKSMAN ATTACK
+    attemptMarksmanAttack() {
+        const target = this.findNearestEnemyInRange(this.marksmanRange);
+        if (target) {
+            this.marksmanAttack(target);
+        }
+    }
+    
+    marksmanAttack(target) {
+        this.lastMarksmanTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'marksman',
+            cooldown: this.marksmanCooldown
+        });
+        
+        const marksmanProjectile = this.scene.add.circle(this.player.x, this.player.y, 3, 0xffffff);
+        this.scene.physics.add.existing(marksmanProjectile);
+        
+        marksmanProjectile.setDepth(19);
+        const trail = this.scene.add.rectangle(this.player.x, this.player.y, 20, 2, 0xffffff, 0.8);
+        this.scene.physics.add.existing(trail);
+        trail.setDepth(18);
+        
+        const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
+        marksmanProjectile.setRotation(angle);
+        trail.setRotation(angle);
+        
+        marksmanProjectile.body.setVelocity(
+            Math.cos(angle) * this.marksmanSpeed,
+            Math.sin(angle) * this.marksmanSpeed
+        );
+        
+        trail.body.setVelocity(
+            Math.cos(angle) * this.marksmanSpeed,
+            Math.sin(angle) * this.marksmanSpeed
+        );
+        
+        marksmanProjectile.damage = this.marksmanDamage;
+        marksmanProjectile.startX = this.player.x;
+        marksmanProjectile.startY = this.player.y;
+        marksmanProjectile.maxRange = this.marksmanRange;
+        marksmanProjectile.isMarksmanProjectile = true;
+        marksmanProjectile.trail = trail;
+        
+        this.lightningProjectiles.add(marksmanProjectile);
+        
+        this.scene.time.delayedCall(2000, () => {
+            if (marksmanProjectile.active) {
+                marksmanProjectile.destroy();
+                if (trail && trail.active) trail.destroy();
+            }
+        });
+    }
     
     setupWeaponVisuals() {
         this.slashVisual = this.scene.add.arc(0, 0, this.slashRange, 0, Math.PI / 2, false, 0x00ff00, 0.3);
@@ -94,14 +222,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.slashVisual.setDepth(17);
         this.add(this.slashVisual);
         
-        // Slash attack sprite
         this.slashSprite = this.scene.add.sprite(0, 0, 'AOE_Basic_Slash_Attack_V01');
         this.slashSprite.setVisible(false);
         this.slashSprite.setOrigin(0.5, 0.5);
         this.slashSprite.setDepth(18);
         this.add(this.slashSprite);
         
-        // Blinding Light visual
         this.blindingLightVisual = this.scene.add.circle(0, 0, this.blindingLightRange, 0xffffff, 0);
         this.blindingLightVisual.setStrokeStyle(6, 0xffffff, 0.8);
         this.blindingLightVisual.setVisible(false);
@@ -122,7 +248,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     createAttackAnimations() {
-        // Slash animations
         if (!this.scene.anims.exists('slash_attack_v01')) {
             this.scene.anims.create({
                 key: 'slash_attack_v01',
@@ -226,6 +351,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 callbackScope: this,
                 loop: true
             });
+            console.log(`PlayerAttack: Slash timer created with ${this.slashCooldown}ms delay`);
         }
         
         if (this.attackTypes.fireBullet) {
@@ -272,13 +398,19 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
                 loop: true
             });
         }
+        
+        if (this.attackTypes.marksman) {
+            this.marksmanTimer = this.scene.time.addEvent({
+                delay: this.marksmanCooldown,
+                callback: this.attemptMarksmanAttack,
+                callbackScope: this,
+                loop: true
+            });
+        }
     }
     
     // SLASH ATTACK
     attemptSlashAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastSlashTime < this.slashCooldown) return;
-        
         const enemiesInRange = this.findEnemiesInSlashRange();
         if (enemiesInRange.length > 0) {
             this.slashAttack(enemiesInRange);
@@ -286,80 +418,117 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     findEnemiesInSlashRange() {
-    if (!this.player) return [];
+        if (!this.player) {
+            return [];
+        }
+        
+        if (this.player.x === undefined || this.player.y === undefined) {
+            return [];
+        }
     
-    const enemiesInRange = [];
-    
-    // Find enemies with safety check
-    if (this.scene.enemies && this.scene.enemies.children) {
-    const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
-    
-    enemies.forEach(enemy => {
-    const distance = Phaser.Math.Distance.Between(
-    this.player.x, this.player.y,
-    enemy.x, enemy.y
-    );
-    
-    if (distance <= this.slashRange) {
-    enemiesInRange.push({ enemy: enemy, distance: distance });
-    }
-    });
-    }
-    
-    // Find breakable vases with safety check
-    if (this.scene.breakableVases && this.scene.breakableVases.children) {
-    const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
-    
-    vases.forEach(vase => {
-    const distance = Phaser.Math.Distance.Between(
-    this.player.x, this.player.y,
-    vase.x, vase.y
-    );
-    
-    if (distance <= this.slashRange) {
-    enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
-    }
-    });
-    }
-    
-    if (this.scene.children && this.scene.children.list) {
-        this.scene.children.list.forEach(child => {
-            const isVase = child && 
-                          child.active && 
-                          !child.isBroken && 
-                          child.canBeAttacked &&
-                          (child.constructor.name === 'BreakableVase' || 
-                           child.texture?.key === 'Vase' ||
-                           child.onPlayerAttack ||
-                           (child.takeDamage && child.dropLoot));
-                           
-            if (isVase) {
+        const enemiesInRange = [];
+        
+        if (this.scene.enemies && this.scene.enemies.children) {
+            const enemies = this.scene.enemies.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+            
+            enemies.forEach(enemy => {
+                if (!enemy || enemy.x === undefined || enemy.y === undefined) {
+                    console.warn("PlayerAttack: Invalid enemy found:", enemy);
+                    return;
+                }
+                
                 const distance = Phaser.Math.Distance.Between(
                     this.player.x, this.player.y,
-                    child.x, child.y
+                    enemy.x, enemy.y
                 );
                 
                 if (distance <= this.slashRange) {
-                    // Check if we already found this vase to avoid duplicates
-                    const alreadyFound = enemiesInRange.some(item => item.enemy === child);
-                    if (!alreadyFound) {
-                        enemiesInRange.push({ enemy: child, distance: distance, isVase: true });
+                    enemiesInRange.push({ enemy: enemy, distance: distance });
+                }
+            });
+        } else {
+            console.log("PlayerAttack: No scene.enemies group found or it's empty");
+        }
+    
+        if (this.scene.breakableVases && this.scene.breakableVases.children) {
+            const vases = this.scene.breakableVases.getChildren().filter(vase => vase.active && !vase.isBroken);
+            
+            vases.forEach(vase => {
+                if (!vase || vase.x === undefined || vase.y === undefined) {
+                    console.warn("PlayerAttack: Invalid vase found:", vase);
+                    return;
+                }
+                
+                const distance = Phaser.Math.Distance.Between(
+                    this.player.x, this.player.y,
+                    vase.x, vase.y
+                );
+                
+                if (distance <= this.slashRange) {
+                    enemiesInRange.push({ enemy: vase, distance: distance, isVase: true });
+                }
+            });
+        }
+        
+        if (this.scene.children && this.scene.children.list) {
+            this.scene.children.list.forEach(child => {
+                const isVase = child && 
+                              child.active && 
+                              !child.isBroken && 
+                              child.canBeAttacked &&
+                              (child.constructor.name === 'BreakableVase' || 
+                               child.texture?.key === 'Vase' ||
+                               child.onPlayerAttack ||
+                               (child.takeDamage && child.dropLoot));
+                               
+                if (isVase && child.x !== undefined && child.y !== undefined) {
+                    const distance = Phaser.Math.Distance.Between(
+                        this.player.x, this.player.y,
+                        child.x, child.y
+                    );
+                    
+                    if (distance <= this.slashRange) {
+                        const alreadyFound = enemiesInRange.some(item => item.enemy === child);
+                        if (!alreadyFound) {
+                            enemiesInRange.push({ enemy: child, distance: distance, isVase: true });
+                        }
                     }
                 }
-            }
-        });
-    }
-    
-    return enemiesInRange;
+            });
+        }
+        return enemiesInRange;
     }
     
     slashAttack(enemiesInRange) {
         this.lastSlashTime = this.scene.time.now;
         
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'slash',
+            cooldown: this.slashCooldown
+        });
+        
+        this.showSlashIndicator();
         this.x = this.player.x;
         this.y = this.player.y;
         
         this.slashSprite.setPosition(0, 0);
+        this.slashSprite.setVisible(true);
+        this.slashSprite.play('slash_attack_v01');
+        
+        enemiesInRange.forEach(({ enemy, distance, isVase }) => {
+            if (isVase && enemy.onPlayerAttack) {
+                enemy.onPlayerAttack(this.slashDamage);
+            } else if (enemy.takeDamage) {
+                enemy.takeDamage(this.slashDamage);
+            } else {
+                console.warn("PlayerAttack: Enemy has no takeDamage method!", enemy);
+            }
+        });
+        
+        this.scene.time.delayedCall(300, () => {
+            this.slashSprite.setVisible(false);
+        });
         this.slashSprite.setVisible(true);
         this.slashSprite.setScale(1.4);
         this.slashSprite.setDepth(18);
@@ -388,9 +557,6 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     attemptBlindingLightAttack() {
-        const currentTime = this.scene.time.now;
-        if (currentTime - this.lastBlindingLightTime < this.blindingLightCooldown) return;
-        
         const enemiesInRange = this.findEnemiesInBlindingLightRange();
         if (enemiesInRange.length > 0) {
             this.blindingLightAttack(enemiesInRange);
@@ -439,6 +605,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     blindingLightAttack(enemiesInRange) {
         this.lastBlindingLightTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'blindingLight',
+            cooldown: this.blindingLightCooldown
+        });
         
         this.x = this.player.x;
         this.y = this.player.y;
@@ -644,6 +816,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     fireBulletAttack(target) {
         this.lastFireBulletTime = this.scene.time.now;
         
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'fireBullet',
+            cooldown: this.fireBulletCooldown
+        });
+        
         const fireBullet = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Fire_Ball_Projectile_VFX_V01');
         this.scene.physics.add.existing(fireBullet);
         
@@ -681,6 +859,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     fireBombAttack(target) {
         this.lastFireBombTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'fireBomb',
+            cooldown: this.fireBombCooldown
+        });
         
         const fireBomb = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Fire_Ball_Projectile_VFX_V01');
         this.scene.physics.add.existing(fireBomb);
@@ -761,6 +945,12 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     iceProjectileAttack(target) {
         this.lastIceTime = this.scene.time.now;
         
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'ice',
+            cooldown: this.iceCooldown
+        });
+        
         const iceProjectile = this.scene.add.sprite(this.player.x, this.player.y, 'AOE_Ice_Shard_Projectile_VFX_V01');
         this.scene.physics.add.existing(iceProjectile);
         
@@ -809,6 +999,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     
     lightningChainAttack(initialTarget) {
         this.lastLightningTime = this.scene.time.now;
+        
+        // Emit event for UI cooldown display
+        EventBus.emit('attack-used', {
+            attackType: 'lightning',
+            cooldown: this.lightningCooldown
+        });
+        
         this.performLightningChain(this.player, initialTarget, 0, []);
     }
     

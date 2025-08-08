@@ -558,7 +558,7 @@ export default class GameplayManager {
       }
     });
 
-    keyboard.on("keydown-W", () => {
+    keyboard.on("keydown-[", () => {
       this.spawnWave();
     });
 
