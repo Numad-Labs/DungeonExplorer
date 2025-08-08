@@ -59,7 +59,7 @@ export default class PowerUpSelection extends Phaser.GameObjects.Container {
 		levelBg.setOrigin(0.5);
 		this.add(levelBg);
 		
-		this.levelText = scene.add.text(0, 95, "Level 1", {
+		this.levelText = scene.add.text(0, 95, "Level 10", {
 			fontFamily: 'Arial, sans-serif',
 			fontSize: '22px',
 			color: '#ffff00',

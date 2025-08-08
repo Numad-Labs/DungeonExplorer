@@ -32,26 +32,25 @@ export default class SkillCard extends Phaser.GameObjects.Container {
             this.createFallbackBackground();
         } else {
             this.cardBackground = this.scene.add.image(0, 0, backgroundKey);
-            this.cardBackground.setScale(1.2);
+            this.cardBackground.setScale(1.4);
             this.add(this.cardBackground);
         }
         
         // Create glow effect for hover
         if (this.cardBackground) {
             this.glowBackground = this.scene.add.image(0, 0, backgroundKey);
-            this.glowBackground.setScale(1.3);
+            this.glowBackground.setScale(1.1);
             this.glowBackground.setAlpha(0);
             this.glowBackground.setTint(0xffffff);
             this.glowBackground.setBlendMode(Phaser.BlendModes.ADD);
             this.addAt(this.glowBackground, 0);
         }
         
+        this.addSkillName();
         this.addRomanNumeral();
         this.addSkillIcon();
-        this.addSkillName();
         this.addSkillDescription();
-        this.addLevelIndicator();
-        this.addUpgradePreview();
+        // this.addUpgradePreview();
         this.setSize(240, 320);
     }
     
@@ -78,7 +77,7 @@ export default class SkillCard extends Phaser.GameObjects.Container {
             const romanKey = `Roman_${this.newLevel}`;
             
             if (this.scene.textures.exists(romanKey)) {
-                this.romanNumeral = this.scene.add.image(-90, -130, romanKey);
+                this.romanNumeral = this.scene.add.image(-53, -75, romanKey);
                 this.romanNumeral.setScale(0.8);
                 this.romanNumeral.setTint(0xffd700);
                 this.add(this.romanNumeral);
@@ -149,95 +148,79 @@ export default class SkillCard extends Phaser.GameObjects.Container {
     }
     
     addSkillName() {
-        const nameColor = this.isNewSkill ? '#00ff00' : '#ffff00';
-        const namePrefix = this.isNewSkill ? 'UNLOCK: ' : '';
+        const nameColor = this.isNewSkill ? '#ffff00' : '#ffff00';
+        const namePrefix = this.isNewSkill ? '' : '';
         
-        this.skillName = this.scene.add.text(0, 30, namePrefix + this.skillData.name, {
-            fontFamily: 'Arial',
-            fontSize: '18px',
+        this.skillName = this.scene.add.text(10, -83, namePrefix + this.skillData.name, {
+            fontSize: '14px',
+            fontFamily: 'alagard',
             color: nameColor,
             stroke: '#000000',
-            strokeThickness: 3,
-            align: 'center',
+            strokeThickness: 2,
+            align: 'left',
             wordWrap: { width: 200 }
         }).setOrigin(0.5);
         this.add(this.skillName);
     }
     
     addSkillDescription() {
-        this.description = this.scene.add.text(0, 60, this.skillData.description, {
-            fontFamily: 'Arial',
-            fontSize: '14px',
+        this.description = this.scene.add.text(0, 40, this.skillData.description, {
+            fontFamily: 'alagard',
+            fontSize: '12px',
             color: '#ffffff',
             stroke: '#000000',
             strokeThickness: 2,
             align: 'center',
-            wordWrap: { width: 180 }
+            wordWrap: { width: 100 }
         }).setOrigin(0.5);
         this.add(this.description);
     }
     
-    addLevelIndicator() {
-        const levelText = this.isNewSkill ? 
-            'NEW SKILL!' : 
-            `Level ${this.currentLevel} → ${this.newLevel}`;
-        
-        const levelColor = this.isNewSkill ? '#00ff00' : '#ffd700';
-        
-        this.levelIndicator = this.scene.add.text(0, 95, levelText, {
-            fontFamily: 'Arial',
-            fontSize: '16px',
-            color: levelColor,
-            stroke: '#000000',
-            strokeThickness: 3,
-            align: 'center'
-        }).setOrigin(0.5);
-        this.add(this.levelIndicator);
-    }
     
-    addUpgradePreview() {
-        if (!this.skillData.stats) return;
+    
+    // addUpgradePreview() {
+    //     if (!this.skillData.stats) return;
         
-        let previewText = '';
-        const stats = this.skillData.stats;
+    //     let previewText = '';
+    //     const stats = this.skillData.stats;
         
-        Object.keys(stats).forEach((statKey, index) => {
-            const stat = stats[statKey];
-            let currentValue, newValue;
+    //     Object.keys(stats).forEach((statKey, index) => {
+    //         const stat = stats[statKey];
+    //         let currentValue, newValue;
             
-            if (this.isNewSkill) {
-                currentValue = 0;
-                newValue = stat.base;
-            } else {
-                currentValue = stat.base + (this.currentLevel - 1) * stat.perLevel;
-                newValue = stat.base + (this.newLevel - 1) * stat.perLevel;
-            }
+    //         if (this.isNewSkill) {
+    //             currentValue = 0;
+    //             newValue = stat.base;
+    //         } else {
+    //             currentValue = stat.base + (this.currentLevel - 1) * stat.perLevel;
+    //             newValue = stat.base + (this.newLevel - 1) * stat.perLevel;
+    //         }
             
-            const displayName = this.formatStatName(statKey);
+    //         const displayName = this.formatStatName(statKey);
             
-            if (index > 0) previewText += '\n';
+    //         if (index > 0) previewText += '\n';
             
-            if (this.isNewSkill) {
-                previewText += `${displayName}: ${this.formatStatValue(statKey, newValue)}`;
-            } else {
-                const increase = newValue - currentValue;
-                previewText += `${displayName}: +${this.formatStatValue(statKey, increase)}`;
-            }
-        });
+    //         if (this.isNewSkill) {
+    //             previewText += `${displayName}: ${this.formatStatValue(statKey, newValue)}`;
+    //         } else {
+    //             const increase = newValue - currentValue;
+    //             previewText += `${displayName}: +${this.formatStatValue(statKey, increase)}`;
+    //         }
+    //     });
         
-        if (previewText) {
-            this.upgradePreview = this.scene.add.text(0, 125, previewText, {
-                fontFamily: 'Arial',
-                fontSize: '12px',
-                color: '#cccccc',
-                stroke: '#000000',
-                strokeThickness: 2,
-                align: 'center',
-                wordWrap: { width: 180 }
-            }).setOrigin(0.5);
-            this.add(this.upgradePreview);
-        }
-    }
+    //     if (previewText) {
+    //         this.upgradePreview = this.scene.add.text(0, 65, previewText, {
+    //             fontFamily: 'alagard',
+    //             fontSize: '8px',
+    //             color: '#cccccc',
+    //             stroke: '#000000',
+    //             strokeThickness: 2,
+    //             align: 'center',
+    //             wordWrap: { width: 180 }
+    //         }).setOrigin(0.5);
+    //         this.add(this.upgradePreview);
+    //     }
+    // }
     
     formatStatName(statKey) {
         const nameMap = {
@@ -282,38 +265,28 @@ export default class SkillCard extends Phaser.GameObjects.Container {
     onPointerOver() {
         this.scene.tweens.add({
             targets: this,
-            scaleX: 0.9,
-            scaleY: 0.9,
-            duration: 150,
+            scaleX: 0.99,
+            scaleY: 0.99,
+            duration: 100,
             ease: 'Back.easeOut'
         });
         
         this.scene.tweens.add({
             targets: this.glowBackground,
             alpha: 0.4,
-            scaleX: 1.35,
-            scaleY: 1.35,
-            duration: 150,
+            scaleX: 1.05,
+            scaleY: 1.05,
+            duration: 100,
             ease: 'Power2'
         });
         
         if (this.skillIcon) {
             this.scene.tweens.add({
                 targets: this.skillIcon,
-                scaleX: 1.15,
-                scaleY: 1.15,
-                y: this.skillIcon.y - 5,
+                scaleX: 1.01,
+                scaleY: 1.01,
                 duration: 150,
                 ease: 'Power2'
-            });
-            
-            this.iconPulse = this.scene.tweens.add({
-                targets: this.skillIcon,
-                alpha: 0.8,
-                duration: 800,
-                ease: 'Sine.easeInOut',
-                yoyo: true,
-                repeat: -1
             });
         }
         
@@ -325,10 +298,6 @@ export default class SkillCard extends Phaser.GameObjects.Container {
                 duration: 150,
                 ease: 'Power2'
             });
-        }
-        
-        if (this.isNewSkill) {
-            this.createHoverParticles();
         }
         
         if (this.skillName) {
@@ -365,16 +334,10 @@ export default class SkillCard extends Phaser.GameObjects.Container {
                 targets: this.skillIcon,
                 scaleX: 1.0,
                 scaleY: 1.0,
-                y: -20,
                 alpha: 1,
                 duration: 150,
                 ease: 'Power2'
             });
-            
-            if (this.iconPulse) {
-                this.iconPulse.stop();
-                this.iconPulse = null;
-            }
         }
         
         if (this.romanNumeral) {
@@ -386,8 +349,6 @@ export default class SkillCard extends Phaser.GameObjects.Container {
                 ease: 'Power2'
             });
         }
-        
-        this.cleanupHoverParticles();
         
         if (this.skillName) {
             this.scene.tweens.add({
@@ -468,45 +429,6 @@ export default class SkillCard extends Phaser.GameObjects.Container {
         return this;
     }
     
-    createHoverParticles() {
-        if (this.hoverParticles) return;
-        
-        this.hoverParticles = [];
-        for (let i = 0; i < 6; i++) {
-            const particle = this.scene.add.circle(
-                this.x + (Math.random() - 0.5) * 200,
-                this.y + (Math.random() - 0.5) * 200,
-                2 + Math.random() * 3,
-                this.isNewSkill ? 0x00ff00 : 0xffd700,
-                0.7
-            );
-            
-            particle.setDepth(999);
-            
-            this.scene.tweens.add({
-                targets: particle,
-                y: particle.y - 20 - Math.random() * 30,
-                alpha: 0,
-                duration: 1000 + Math.random() * 1000,
-                ease: 'Power2',
-                onComplete: () => particle.destroy()
-            });
-            
-            this.hoverParticles.push(particle);
-        }
-    }
-    
-    cleanupHoverParticles() {
-        if (this.hoverParticles) {
-            this.hoverParticles.forEach(particle => {
-                if (particle && particle.active) {
-                    particle.destroy();
-                }
-            });
-            this.hoverParticles = null;
-        }
-    }
-    
     createSelectionEffect() {
         for (let i = 0; i < 12; i++) {
             const angle = (i / 12) * Math.PI * 2;
@@ -555,13 +477,6 @@ export default class SkillCard extends Phaser.GameObjects.Container {
         if (this.skillIcon) this.scene.tweens.killTweensOf(this.skillIcon);
         if (this.romanNumeral) this.scene.tweens.killTweensOf(this.romanNumeral);
         if (this.skillName) this.scene.tweens.killTweensOf(this.skillName);
-        
-        if (this.iconPulse) {
-            this.iconPulse.stop();
-            this.iconPulse = null;
-        }
-        
-        this.cleanupHoverParticles();
         
         super.destroy();
     }
