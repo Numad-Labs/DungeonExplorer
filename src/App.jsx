@@ -264,37 +264,37 @@ function GameRoute() {
             position: "fixed",
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.8)",
+            width: "100vw",
+            height: "100vh",
+            background: "linear-gradient(45deg, #1a1a1a, #2d1b1b, #1a1a1a)",
+            backgroundSize: "400% 400%",
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
+            alignItems: "center",
             zIndex: 1000,
+            animation: "backgroundShift 4s ease-in-out infinite",
           }}
         >
-          <div
-            style={{
-              background: "#333",
-              padding: "20px",
-              borderRadius: "8px",
-              color: "white",
-              textAlign: "center",
-            }}
-          >
-            <h2>Game Paused</h2>
-            <button
-              onClick={() => setGameState("playing")}
-              style={{ margin: "10px", padding: "10px 20px" }}
-            >
-              Resume
-            </button>
-            <button
-              onClick={returnToMenu}
-              style={{ margin: "10px", padding: "10px 20px" }}
-            >
-              Return to Menu
-            </button>
+          <div className="bg-cover p-5 rounded-lg text-white text-center w-[500px] h-[200px] flex flex-col justify-center items-center gap-[32px]">
+            <div>
+              <img src="GamePause.png" className="w-140 h-auto" alt="" />
+            </div>
+            <div className=" flex gap-[10px]">
+              <button
+                onClick={() => setGameState("playing")}
+                className="bg-cover bg-center bg-no-repeat w-[200px] h-[50px] border-none cursor-pointer transition-transform duration-200  hover:scale-105 "
+                style={{
+                  backgroundImage: "url('./Resume.png')",
+                }}
+              ></button>
+              <button
+                onClick={returnToMenu}
+                className="bg-cover bg-center bg-no-repeat w-[200px] pr-50 h-[50px] border-none cursor-pointer transition-transform duration-200  hover:scale-105 "
+                style={{
+                  backgroundImage: "url('./PauseGame.png')",
+                }}
+              ></button>
+            </div>
           </div>
         </div>
       )}
