@@ -70,6 +70,9 @@ function GameRoute() {
   const [showDeathLoading, setShowDeathLoading] = useState(false);
   const [deathData, setDeathData] = useState(null);
 
+  // Auto-resume pause state
+  const [pauseCountdown, setPauseCountdown] = useState(3);
+
   const { setGameControls } = useGameControls();
   const location = useLocation();
   const navigate = useNavigate();
@@ -150,6 +153,50 @@ function GameRoute() {
       }, 500);
     }
   }, [location.search, gameState]);
+
+  // Auto-resume pause after 3 seconds
+  useEffect(() => {
+    let pauseTimer;
+
+    if (gameState === "paused") {
+      // Set a 3-second timer to auto-resume
+      pauseTimer = setTimeout(() => {
+        setGameState("playing");
+      }, 3000);
+    }
+
+    // Cleanup timer if component unmounts or gameState changes
+    return () => {
+      if (pauseTimer) {
+        clearTimeout(pauseTimer);
+      }
+    };
+  }, [gameState]);
+
+  // Handle countdown display for pause screen
+  useEffect(() => {
+    let countdownInterval;
+
+    if (gameState === "paused") {
+      setPauseCountdown(3);
+
+      countdownInterval = setInterval(() => {
+        setPauseCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+    };
+  }, [gameState]);
 
   useEffect(() => {
     const handleGameStart = () => {
@@ -279,17 +326,23 @@ function GameRoute() {
             <div>
               <img src="GamePause.png" className="w-140 h-auto" alt="" />
             </div>
-            <div className=" flex gap-[10px]">
+
+            {/* Add countdown display */}
+            <div className="text-2xl text-yellow-400 font-bold">
+              {pauseCountdown}
+            </div>
+
+            <div className="flex gap-[10px]">
               <button
                 onClick={() => setGameState("playing")}
-                className="bg-cover bg-center bg-no-repeat w-[200px] h-[50px] border-none cursor-pointer transition-transform duration-200  hover:scale-105 "
+                className="bg-cover bg-center bg-no-repeat w-[200px] h-[50px] border-none cursor-pointer transition-transform duration-200 hover:scale-105"
                 style={{
                   backgroundImage: "url('./Resume.png')",
                 }}
               ></button>
               <button
                 onClick={returnToMenu}
-                className="bg-cover bg-center bg-no-repeat w-[200px] pr-50 h-[50px] border-none cursor-pointer transition-transform duration-200  hover:scale-105 "
+                className="bg-cover bg-center bg-no-repeat w-[200px] pr-50 h-[50px] border-none cursor-pointer transition-transform duration-200 hover:scale-105"
                 style={{
                   backgroundImage: "url('./PauseGame.png')",
                 }}
