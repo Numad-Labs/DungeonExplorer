@@ -106,24 +106,22 @@ export default class PowerUpManager {
     }
     
     selectPowerUp(type) {
-        this.powerUps[type]++;
-        
-        const config = LEGACY_POWER_UPS[type];
-        const value = config.base * (1 + (this.powerUps[type] - 1) * 0.5);
-        config.apply(this.scene.player, value);
-        
-        this.showFeedback(type, value);
-        
-        this.scene.tweens.add({
-            targets: [this.overlay, this.title, this.container],
-            alpha: 0,
-            duration: 300,
-            onComplete: () => {
-                [this.overlay, this.title, this.container].forEach(el => el?.destroy());
-                this.resumeGame();
-                this.handlePending();
-            }
-        });
+    this.powerUps[type]++;
+    
+    const config = LEGACY_POWER_UPS[type];
+    const value = config.base * (1 + (this.powerUps[type] - 1) * 0.5);
+    config.apply(this.scene.player, value);
+    
+    this.scene.tweens.add({
+     targets: [this.overlay, this.title, this.container],
+     alpha: 0,
+    duration: 300,
+    onComplete: () => {
+     [this.overlay, this.title, this.container].forEach(el => el?.destroy());
+     this.resumeGame();
+    this.handlePending();
+    }
+    });
     }
     
     resumeGame() {
@@ -151,26 +149,7 @@ export default class PowerUpManager {
         }
     }
     
-    showFeedback(type, value) {
-        const player = this.scene.player;
-        if (!player) return;
-        
-        const message = type === 'health' ? 'Max Health +50' : 
-            `${type.charAt(0).toUpperCase() + type.slice(1)} +${value.toFixed(0)}%`;
-        
-        const text = this.scene.add.text(player.x, player.y - 50, message, {
-            fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', 
-            stroke: '#000000', strokeThickness: 4, align: 'center'
-        }).setOrigin(0.5);
-        
-        this.scene.tweens.add({
-            targets: text,
-            y: text.y - 100,
-            alpha: 0,
-            duration: 2000,
-            onComplete: () => text.destroy()
-        });
-    }
+    
     
     shutdown() {
         if (this.skillUpgradeManager) {

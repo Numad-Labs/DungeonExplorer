@@ -70,7 +70,6 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			this.checkLevelUp();
 			this.updateText();
 			this.updateExpBar();
-			this.createFloatingText(`+${amount} EXP`);
 			
 			return this;
 		} catch (error) {
@@ -85,7 +84,6 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			this.experience -= this.nextLevelExp;
 			this.nextLevelExp = Math.floor(100 * Math.pow(1.2, this.level - 1));
 			
-			this.levelUpEffect();
 			try {
 				this.onLevelUpCallbacks.forEach(callback => callback(this.level));
 			} catch (error) {
@@ -111,113 +109,9 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			this.updateExpBar();
 	}
 	
-	createFloatingText(message) {
-		try {
-			const player = this.scene.player;
-			if (!player) {
-				console.warn("Player not found for floating text");
-				return;
-			}
-			
-			const floatingText = this.scene.add.text(
-				player.x,
-				player.y - 30,
-				message,
-				{
-					fontFamily: 'Arial, sans-serif',
-					fontSize: '10px',
-					color: '#FFD700',
-					stroke: '#000000',
-					strokeThickness: 2
-				}
-			);
-			floatingText.setOrigin(0.5);
-			
-			this.scene.tweens.add({
-				targets: floatingText,
-				y: floatingText.y - 60,
-				alpha: 0,
-				duration: 1500,
-				onComplete: () => {
-					floatingText.destroy();
-				}
-			});
-		} catch (error) {
-			console.error("Error creating floating text:", error);
-		}
-	}
+
 	
-	levelUpEffect() {
-		try {
-			const player = this.scene.player;
-			if (!player) {
-				console.warn("Player not found for level up effect");
-				return;
-			}
-			const levelUpText = this.scene.add.text(
-				player.x,
-				player.y - 40,
-				'LEVEL UP!',
-				{
-					fontFamily: 'Arial, sans-serif',
-					fontSize: '28px',
-					color: '#00FF00',
-					stroke: '#000000',
-					strokeThickness: 5
-				}
-			);
-			levelUpText.setOrigin(0.5);
-			
-			for (let i = 0; i < 20; i++) {
-				const angle = Math.random() * Math.PI * 2;
-				const distance = 20 + Math.random() * 40;
-				const size = 5 + Math.random() * 10;
-				
-				const circle = this.scene.add.circle(
-					player.x,
-					player.y,
-					size,
-					0x00FF00,
-					0.8
-				);
-				
-				this.scene.tweens.add({
-					targets: circle,
-					x: player.x + Math.cos(angle) * distance,
-					y: player.y + Math.sin(angle) * distance,
-					alpha: 0,
-					scale: 0.5,
-					duration: 1000,
-					ease: 'Power1',
-					onComplete: () => {
-						circle.destroy();
-					}
-				});
-			}
-			
-			this.scene.tweens.add({
-				targets: levelUpText,
-				scaleX: 1.5,
-				scaleY: 1.5,
-				duration: 200,
-				yoyo: true,
-				repeat: 1,
-				onComplete: () => {
-					this.scene.tweens.add({
-						targets: levelUpText,
-						alpha: 0,
-						y: levelUpText.y - 50,
-						duration: 1000,
-						onComplete: () => {
-							levelUpText.destroy();
-						}
-					});
-				}
-			});
-		} catch (error) {
-			console.error("Error creating level up effect:", error);
-		}
-	}
+
 	
 	onLevelUp(callback) {
 		if (typeof callback === 'function') {

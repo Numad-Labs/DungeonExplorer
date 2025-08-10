@@ -519,48 +519,10 @@ export default class MainMapScene extends BaseGameScene {
 			this.uiManager.updateScoreboard();
 		}
 		
-		this.showWaveNotification();
-		EventBus.emit('wave-notification', { wave: this.currentWave });
 		EventBus.emit('wave-updated', { wave: this.currentWave });
 	}
 	
-	showWaveNotification() {
-		if (!this.cameras || !this.cameras.main) return;
 
-		const centerX = this.cameras.main.centerX;
-		const centerY = this.cameras.main.centerY;
-
-		const notification = this.add.text(centerX, centerY - 50, `WAVE ${this.currentWave}`, {
-			fontFamily: 'Arial',
-			fontSize: '48px',
-			color: '#FFD700',
-			stroke: '#000000',
-			strokeThickness: 4,
-			fontStyle: 'bold'
-		});
-		notification.setOrigin(0.5);
-		notification.setScrollFactor(0);
-		notification.setDepth(1000);
-
-		this.tweens.add({
-			targets: notification,
-			scale: { from: 0, to: 1.2 },
-			alpha: { from: 0, to: 1 },
-			duration: 500,
-			ease: 'Back.easeOut',
-			onComplete: () => {
-				this.time.delayedCall(1500, () => {
-					this.tweens.add({
-						targets: notification,
-						alpha: 0,
-						scale: 0.8,
-						duration: 800,
-						onComplete: () => notification.destroy()
-					});
-				});
-			}
-		});
-	}
 
 	setupPortalSystem() {
 		try {
@@ -646,7 +608,6 @@ export default class MainMapScene extends BaseGameScene {
 			const destinationScene = this.availableScenes[randomSceneIndex];
 
 			this.activatePortal(selectedPortal, destinationScene);
-			this.showPortalNotification(selectedPortal, destinationScene);
 		} catch (error) {
 			console.error("Error activating random portal:", error);
 		}
@@ -815,55 +776,7 @@ export default class MainMapScene extends BaseGameScene {
 		}
 	}
 
-	showPortalNotification(portal, destinationScene) {
-		try {
-			if (!this.cameras || !this.cameras.main) return;
 
-			const centerX = this.cameras.main.centerX;
-			const centerY = this.cameras.main.centerY;
-
-			const notification = this.add.text(centerX, centerY, 'PORTAL ACTIVATED!', {
-				fontFamily: 'Arial',
-				fontSize: '32px',
-				color: '#00ff00',
-				stroke: '#000000',
-				strokeThickness: 3,
-				fontStyle: 'bold'
-			});
-			notification.setOrigin(0.5);
-			notification.setScrollFactor(0);
-			notification.setDepth(1000);
-
-			this.tweens.add({
-				targets: notification,
-				scale: { from: 0, to: 1 },
-				alpha: { from: 0, to: 1 },
-				duration: 500,
-				ease: 'Back.easeOut',
-				onComplete: () => {
-					if (this.time && notification.active) {
-						this.time.delayedCall(2000, () => {
-							if (notification.active && this.tweens) {
-								this.tweens.add({
-									targets: notification,
-									alpha: 0,
-									duration: 800,
-									onComplete: () => {
-										if (notification.active) {
-											notification.destroy();
-										}
-									}
-								});
-							}
-						});
-					}
-				}
-			});
-
-		} catch (error) {
-			console.error("Error showing portal notification:", error);
-		}
-	}
 
 	setupZombieCollisionSystem() {
 		try {
@@ -1017,12 +930,7 @@ export default class MainMapScene extends BaseGameScene {
 					}
 				});
 				
-				this.input.keyboard.on('keydown-N', () => {
-					if (this.gameManager && this.gameManager.debugMode) {
-						console.log('Testing wave notification...');
-						EventBus.emit('wave-notification', { wave: 99 });
-					}
-				});
+
 				
 				// Test vase breaking
 				this.input.keyboard.on('keydown-X', () => {
@@ -1053,7 +961,6 @@ export default class MainMapScene extends BaseGameScene {
 						console.log('E - Add experience');
 						console.log('G - Add gold');
 						console.log('T - Reset timer | Y - Start timer | U - Stop timer');
-						console.log('N - Test wave notification');
 						console.log('F1 - Show this help');
 					}
 				});

@@ -574,39 +574,38 @@ export default class SkillUpgradeManager {
     }
     
     selectSkill(skillKey) {
-        // Level up the skill
-        this.skillLevels[skillKey]++;
-        this.playerLevel++;
-        
-        // Apply the skill upgrade
-        const skill = SKILLS[skillKey];
-        const newLevel = this.skillLevels[skillKey];
-        
-        if (this.scene.player) {
-            skill.apply(this.scene.player, newLevel);
-            
-            if (this.scene.playerAttackSystem) {
-                this.scene.playerAttackSystem.updateStats();
-            }
-            if (newLevel === 1 && skill.type !== 'stat') {
-                this.enableSkillInAttackSystem(skillKey);
-            }
-        }
-        
-        // Emit skill update event for UI components
-        EventBus.emit('skill-levels-updated', { skillLevels: this.skillLevels });
-        
-        this.showSkillFeedback(skillKey, newLevel);
-        this.scene.tweens.add({
-            targets: [this.overlay, this.title, this.levelText, this.container],
-            alpha: 0,
-            duration: 300,
-            onComplete: () => {
-                [this.overlay, this.title, this.levelText, this.container].forEach(el => el?.destroy());
-                this.resumeGame();
-                this.handlePending();
-            }
-        });
+    // Level up the skill
+    this.skillLevels[skillKey]++;
+    this.playerLevel++;
+    
+    // Apply the skill upgrade
+    const skill = SKILLS[skillKey];
+    const newLevel = this.skillLevels[skillKey];
+    
+    if (this.scene.player) {
+    skill.apply(this.scene.player, newLevel);
+    
+    if (this.scene.playerAttackSystem) {
+    this.scene.playerAttackSystem.updateStats();
+    }
+    if (newLevel === 1 && skill.type !== 'stat') {
+    this.enableSkillInAttackSystem(skillKey);
+    }
+    }
+    
+    // Emit skill update event for UI components
+    EventBus.emit('skill-levels-updated', { skillLevels: this.skillLevels });
+    
+    this.scene.tweens.add({
+     targets: [this.overlay, this.title, this.levelText, this.container],
+    alpha: 0,
+    duration: 300,
+    onComplete: () => {
+     [this.overlay, this.title, this.levelText, this.container].forEach(el => el?.destroy());
+    this.resumeGame();
+    this.handlePending();
+    }
+    });
     }
     
     enableSkillInAttackSystem(skillKey) {
@@ -647,32 +646,7 @@ export default class SkillUpgradeManager {
         }
     }
     
-    showSkillFeedback(skillKey, level) {
-        if (!this.scene.player) return;
-        
-        const skill = SKILLS[skillKey];
-        const message = level === 1 ? 
-            `${skill.name} Unlocked!` : 
-            `${skill.name} Level ${level}!`;
-        
-        const text = this.scene.add.text(this.scene.player.x, this.scene.player.y - 60, message, {
-            fontFamily: 'Arial',
-            fontSize: '24px',
-            color: '#ffff00',
-            stroke: '#000000',
-            strokeThickness: 4,
-            align: 'center'
-        }).setOrigin(0.5);
-        
-        this.scene.tweens.add({
-            targets: text,
-            y: text.y - 80,
-            alpha: 0,
-            duration: 2000,
-            ease: 'Power2',
-            onComplete: () => text.destroy()
-        });
-    }
+    
     
     resumeGame() {
         this.storedState.timers.forEach(({ name, paused }) => {
