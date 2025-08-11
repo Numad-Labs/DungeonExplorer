@@ -646,10 +646,10 @@ const Guide = () => {
   };
 
   const scrollbarClass = `
-    scrollbar-thin 
-    scrollbar-track-gray-800 
-    scrollbar-thumb-[#FFAE0B] 
-    scrollbar-thumb-rounded-full 
+    scrollbar-thin
+    scrollbar-track-gray-800
+    scrollbar-thumb-[#FFAE0B]
+    scrollbar-thumb-rounded-full
     hover:scrollbar-thumb-[#FFAE0B]/80
     [&::-webkit-scrollbar]:w-2
     [&::-webkit-scrollbar-track]:bg-gray-800
@@ -661,7 +661,7 @@ const Guide = () => {
   const tabContent = {
     faq: {
       content: (
-        <div className="space-y-8 bg-dark-secondary">
+        <div className="space-y-8 bg-dark-primary">
           <div>
             <h3 className="text-heading-1-pixelify-bold mb-4">How to play?</h3>
             <div className="space-y-4">
@@ -789,7 +789,7 @@ const Guide = () => {
     },
     skill: {
       content: (
-        <div className="flex bg-dark-secondary gap-8 h-full">
+        <div className="flex bg-dark-primary gap-8 h-full">
           {/* Skill Cards Grid */}
           <div
             className="grid grid-cols-3 gap-4 overflow-y-auto max-h-[600px] w-1/2 pr-2"
@@ -808,7 +808,7 @@ const Guide = () => {
                   setSelectedSkill(
                     selectedSkill && selectedSkill.id === skill.id
                       ? null
-                      : skill
+                      : skill,
                   )
                 }
               >
@@ -825,7 +825,7 @@ const Guide = () => {
           {selectedSkill && (
             <div
               ref={descriptionRef}
-              className="flex-1 bg-dark-secondary rounded-lg p-6 max-h-[600px] border-2 border-[#FFAE0B] overflow-y-auto scrollbar-invisible"
+              className="flex-1 bg-dark-primary rounded-lg p-6 max-h-[600px] border-2 border-[#FFAE0B] overflow-y-auto scrollbar-invisible"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               <style>{`.scrollbar-invisible::-webkit-scrollbar { display: none; }`}</style>
@@ -869,8 +869,8 @@ const Guide = () => {
   ];
 
   return (
-    <div className="flex items-center justify-center h-screen w-full bg-dark-secondary">
-      <div className="text-white flex flex-col w-[1176px] h-[944px] bg-dark-secondary pt-12 pr-6 pb-12 pl-6 gap-6">
+    <div className="min-h-screen bg-dark-primary flex flex-col text-white pl-6 pr-6">
+      <div className="text-white flex flex-col w-full bg-dark-primary pt-12 pr-6 pb-12 pl-6 gap-6">
         <h1 className="text-display-1-alagard-bold text-left text-[#FFAE0B]">
           Guide
         </h1>
