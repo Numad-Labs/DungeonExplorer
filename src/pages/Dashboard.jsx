@@ -17,6 +17,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [responseMessage, setResponseMessage] = useState("");
+  const [loadingUpgradeId, setLoadingUpgradeId] = useState(null);
 
   const scrollbarStyles = {
     scrollbarWidth: "thin",
@@ -24,10 +25,10 @@ const Dashboard = () => {
   };
 
   const scrollbarClass = `
-    scrollbar-thin 
-    scrollbar-track-gray-800 
-    scrollbar-thumb-[#FFAE0B] 
-    scrollbar-thumb-rounded-full 
+    scrollbar-thin
+    scrollbar-track-gray-800
+    scrollbar-thumb-[#FFAE0B]
+    scrollbar-thumb-rounded-full
     hover:scrollbar-thumb-[#FFAE0B]/80
     [&::-webkit-scrollbar]:w-2
     [&::-webkit-scrollbar-track]:bg-gray-800
@@ -79,7 +80,7 @@ const Dashboard = () => {
             player.userId === user?.id ||
             player.id === user?.id ||
             player.username === user?.data?.username ||
-            player.username === user?.username
+            player.username === user?.username,
         );
 
         console.log("User rank found:", userRank);
@@ -96,7 +97,11 @@ const Dashboard = () => {
 
   const upgradeMutation = useMutation({
     mutationFn: buyUpgrade,
+    onMutate: (upgradeId) => {
+      setLoadingUpgradeId(upgradeId);
+    },
     onSuccess: () => {
+      setLoadingUpgradeId(null);
       queryClient.invalidateQueries({ queryKey: ["user-upgrades"] });
       queryClient.invalidateQueries({ queryKey: ["user-stats"] });
       queryClient.invalidateQueries({ queryKey: ["user", user.id] });
@@ -110,6 +115,7 @@ const Dashboard = () => {
       setTimeout(() => setResponseMessage(""), 3000);
     },
     onError: (error) => {
+      setLoadingUpgradeId(null);
       console.error("Failed to upgrade:", error);
 
       // Show specific error message based on the response
@@ -158,7 +164,7 @@ const Dashboard = () => {
     return () => {
       EventBus.removeListener(
         "invalidate-dashboard-data",
-        handleDashboardInvalidation
+        handleDashboardInvalidation,
       );
     };
   }, [queryClient]);
@@ -167,66 +173,74 @@ const Dashboard = () => {
   if (error) return <div>Error loading user data</div>;
 
   return (
-    <div className="min-h-screen flex flex-col text-white pl-6 pr-6">
+    <div className="bg-dark-primary flex flex-col text-white pl-6 pr-6">
       {/* Response message */}
       {responseMessage && (
-        <div className="p-4 mb-4 bg-yellow-900 text-[#ffae0b] rounded text-center font-bold shadow border border-[#ffae0b]">
+        <div className="p-4 mb-4 bg-yellow-900 text-[#ffae0b] rounded text-center font-bold shadow border border-[#ffae0b] animate-in slide-in-from-top-8 fade-in duration-700">
           {responseMessage}
         </div>
       )}
 
       {/* Stats part */}
-      <div className="p-6 flex flex-col gap-6 border border-[#24110F] rounded-lg bg-dark-secondary mb-6">
+      <div className="p-6 flex flex-col gap-6 rounded-lg bg-dark-primary mb-6">
         <h1 className="text-heading-3-alagard" style={{ color: "#ffae0b" }}>
-          Statistics
+          Dashboard
         </h1>
-        <div className="grid grid-cols-2 minh-screen md:grid-cols-3 gap-6">
-          <StatCard
-            title={"Current Gold"}
-            value={userData?.data?.gold?.toLocaleString() || 0}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
-          <StatCard
-            title={"Global Rank"}
-            value={globalRank || "Loading..."}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
-          <StatCard
-            title={"Total Runs"}
-            value={userStats?.totalRuns || 0}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
-          <StatCard
-            title={"Highest level"}
-            value={userStats?.maxSkillLevel || 0}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
-          <StatCard
-            title={"Total Gold Earned"}
-            value={userStats?.totalGoldEarned?.toLocaleString() || 0}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
-          <StatCard
-            title={"Enemies Killed"}
-            value={userStats?.totalKillPoints || 0}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
-          <StatCard
-            title={"Average survival"}
-            value={userStats?.averageSurvival || "00:00"}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
-          <StatCard
-            title={"Longest Survival"}
-            value={userStats?.longestSurvival || "00:00"}
-            titleStyle="text-body-2-pixelify text-[#ffae0b]"
-          />
+        <div className="flex gap-9">
+          <div className="flex flex-col p-[30px] justify-center items-center gap-4">
+            <div className="w-30 h-30 rounded-full overflow-hidden">
+              <img
+                src="/portraits/1.png"
+                alt="User Portrait"
+                draggable="false"
+                className="w-full h-full object-cover scale-110"
+              />
+            </div>
+            <p className="text-heading-3-alagard">{userData?.data?.username}</p>
+          </div>
+          <div className="flex flex-1 w-full">
+            <div className="grid grid-cols-3 gap-6 w-full flex-1">
+              <StatCard
+                title={"Current Gold"}
+                value={userData?.data?.gold?.toLocaleString() || 0}
+                titleStyle="text-body-2-pixelify text-light-primary"
+              />
+
+              <StatCard
+                title={"Total Runs"}
+                value={userStats?.totalRuns || 0}
+                titleStyle="text-body-2-pixelify text-light-primary"
+              />
+
+              <StatCard
+                title={"Global Rank"}
+                value={globalRank || "Loading..."}
+                titleStyle="text-body-2-pixelify text-light-primary"
+              />
+
+              <StatCard
+                title={"Highest level"}
+                value={userStats?.maxSkillLevel || 0}
+                titleStyle="text-body-2-pixelify text-light-primary"
+              />
+              <StatCard
+                title={"Longest Survival"}
+                value={userStats?.longestSurvival || "00:00"}
+                titleStyle="text-body-2-pixelify text-light-primary"
+              />
+              <StatCard
+                title={"Enemies Killed"}
+                value={userStats?.totalKillPoints || 0}
+                titleStyle="text-body-2-pixelify text-light-primary"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Upgrade */}
-      <div className="bg-dark-secondary border border-[#24110F] rounded-lg overflow-hidden w-full">
-        <div className="bg-[#24110F] border-b border-[#2F1A18]">
+      <div className="bg-dark-primary  rounded-lg overflow-hidden w-full">
+        <div className="bg-dark-primary ">
           <h2 className="text-heading-1-pixelify-bold text-[#FFAE0B]">
             Upgrades
           </h2>
@@ -247,37 +261,9 @@ const Dashboard = () => {
                 isMaxed={upgrade.isMaxed}
                 upgradeId={upgrade.id}
                 upgradeCost={upgrade.cost || upgrade.upgradeCost || 0}
+                isLoading={loadingUpgradeId === upgrade.id}
               />
-            )) || (
-              <>
-                <UpgradeCard
-                  title={"Weapon"}
-                  value={"Sword"}
-                  upgradeCost={100}
-                />
-                <UpgradeCard
-                  title={"Armor"}
-                  value={"Leather"}
-                  upgradeCost={150}
-                />
-                <UpgradeCard
-                  title={"Shield"}
-                  value={"Wooden"}
-                  upgradeCost={120}
-                />
-                <UpgradeCard
-                  title={"Potion"}
-                  value={"Health"}
-                  upgradeCost={80}
-                />
-                <UpgradeCard
-                  title={"Spell"}
-                  value={"Fireball"}
-                  upgradeCost={200}
-                />
-                <UpgradeCard title={"Pet"} value={"Wolf"} upgradeCost={300} />
-              </>
-            )}
+            ))}
           </div>
         </div>
       </div>
