@@ -504,6 +504,12 @@ export default class GameplayManager {
       this.spawnEnemy(world.x, world.y, "charger");
     });
 
+    keyboard.on("keydown-C", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "assassinArcher");
+    });
+
     keyboard.on("keydown-V", () => {
       const pointer = this.scene.input.activePointer;
       const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);

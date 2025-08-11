@@ -52,6 +52,10 @@ export const PhaserGame = forwardRef(function PhaserGame(
 
               setTimeout(() => {
                 game.current.scene.start("MainMapScene");
+                // game.current.scene.start("MiniMapBeachScene");
+                // game.current.scene.start("MiniMapBossFightScene");
+                // game.current.scene.start("MiniMapDarkForastScene");
+                // game.current.scene.start("MiniMapLavaScene");
                 EventBus.emit("game-started");
               }, 100);
             }
