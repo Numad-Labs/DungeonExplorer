@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>Insomnus</title>
+    <meta
+      name="description"
+      content="Embark on an epic adventure through mysterious dungeons in this action-packed RPG"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <!-- Fallback for browsers that don't support SVG favicons -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Phaser CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@v3.88.2/dist/phaser.min.js"></script>
+
+    <style>
+      @font-face {
+        font-family: "Alagard";
+        src: url("alagard.ttf") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+    </style>
+
+    <style>
+      /* Loading screen styles */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid #6b7280;
+        border-top: 3px solid #f59e0b;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        color: #f59e0b;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .loading-subtext {
+        color: #9ca3af;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      /* Hide loading screen when app is ready */
+      #loading-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-BXcOdC4A.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/phaser-CPm-u6kw.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-DASPkM-O.css">
+  </head>
+
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">DungeonExplorer</div>
+      <div class="loading-subtext">Loading your adventure...</div>
+    </div>
+
+    <!-- React App Root -->
+    <div id="root"></div>
+
+    <!-- Main React Entry Point -->
+
+    <script>
+      // Hide loading screen when React app is ready
+      window.addEventListener("load", function () {
+        setTimeout(() => {
+          const loadingScreen = document.getElementById("loading-screen");
+          if (loadingScreen) {
+            loadingScreen.classList.add("hidden");
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
