@@ -28,7 +28,7 @@ export default class GameplayManager {
     this.createTextures();
     this.setupCollisions();
     this.setupTimers();
-    this.setupControls();
+    // this.setupControls();
 
     this.scene.spawnExperienceOrb = (x, y, value) =>
       this.spawnExperienceOrb(x, y, value);
