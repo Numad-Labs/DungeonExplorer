@@ -3,6 +3,8 @@ import { useAuth } from "../context/AuthContext.jsx";
 import {
   getCurrentUserProfile,
   updateProfile,
+  checkMintEligible,
+  mintAchievementNFT,
 } from "../services/api/gameApiService";
 import Mail from "../components/icons/Mail.jsx";
 import Connection from "../components/icons/Connection.jsx";
@@ -10,10 +12,23 @@ import Discord from "../components/icons/Discord.jsx";
 import Wallet from "../components/icons/Wallet.jsx";
 import X from "../components/icons/X.jsx";
 import Update from "../components/icons/Update.jsx";
-import { getUserAchievements } from "../services/api/gameApiService";
+import {
+  getUserAchievements,
+  getAllAchievements,
+} from "../services/api/gameApiService";
 import { useQuery } from "@tanstack/react-query";
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  custom,
+  getContract,
+} from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { somniaTestnet } from "viem/chains";
+import ShapeTownAchievementsABI from "../../ShapeTownAchievementsABI.json";
 
-const AchievementImage = ({ tokenId, title }) => {
+const AchievementImage = ({ tokenId, title, useStarImage = false }) => {
   const { data: imageData, isLoading } = useQuery({
     queryKey: ["achievementImage", tokenId],
     queryFn: async () => {
@@ -22,8 +37,18 @@ const AchievementImage = ({ tokenId, title }) => {
       );
       return response.json();
     },
-    enabled: !!tokenId,
+    enabled: !!tokenId && !useStarImage,
   });
+
+  if (useStarImage) {
+    return (
+      <img
+        src="/star.png"
+        alt={title}
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] object-contain z-10"
+      />
+    );
+  }
 
   if (isLoading) {
     return (
@@ -59,6 +84,19 @@ const AchievementImage = ({ tokenId, title }) => {
 
 const Account = () => {
   const { user } = useAuth();
+  
+  // Add styles for subtle shiny border animation
+  const shinyBorderStyle = `
+    @keyframes subtle-glow {
+      0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.3); }
+    }
+    .shiny-border {
+      animation: subtle-glow 3s ease-in-out infinite;
+      border: 1px solid rgba(255, 215, 0, 0.4);
+    }
+  `;
+
   const [profileData, setProfileData] = useState({
     username: "",
     email: "",
@@ -81,7 +119,26 @@ const Account = () => {
     enabled: !!user?.id,
   });
 
+  const { data: allAchievements, isLoading: allAchievementsLoading } = useQuery(
+    {
+      queryKey: ["allAchievements"],
+      queryFn: () => getAllAchievements(),
+    },
+  );
+
+  const { data: mintEligibleData } = useQuery({
+    queryKey: ["mintableItems"],
+    queryFn: async () => checkMintEligible(),
+  });
+
+  console.log(mintEligibleData, "mint");
+
   const achievements = achievementsResponse?.data || [];
+
+  console.log(allAchievements, "all achievements");
+
+  // Get mintable items from API (up to 6 items)
+  const eligibleItems = mintEligibleData?.slice(0, 6) || [];
   const [editingDiscord, setEditingDiscord] = useState(false);
   const [editingX, setEditingX] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
@@ -91,6 +148,97 @@ const Account = () => {
   const [emailValue, setEmailValue] = useState("");
   const [usernameValue, setUsernameValue] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [selectedAchievement, setSelectedAchievement] = useState(null);
+  const [isModalClosing, setIsModalClosing] = useState(false);
+  const [isMinting, setIsMinting] = useState(false);
+  const [mintStatus, setMintStatus] = useState("");
+  const [mintedItems, setMintedItems] = useState(new Set());
+
+  const CONTRACT_ADDRESS = "0x3A711d5E7e4d69eBef1B7e1b3715f463619A254c";
+
+  const handleCloseModal = () => {
+    setIsModalClosing(true);
+    setTimeout(() => {
+      setSelectedAchievement(null);
+      setIsModalClosing(false);
+      setMintStatus("");
+    }, 200);
+  };
+
+  const mintAchievement = async (tokenId) => {
+    try {
+      setIsMinting(true);
+      setMintStatus("Connecting to wallet...");
+
+      if (!window.ethereum) {
+        setMintStatus("Please install MetaMask to mint achievements");
+        setTimeout(() => setMintStatus(""), 5000);
+        return;
+      }
+
+      // Request account access - this shows MetaMask prompt
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const userAddress = accounts[0];
+
+      setMintStatus("Please confirm transaction in MetaMask...");
+
+      // Create viem clients using user's MetaMask
+      const publicClient = createPublicClient({
+        chain: somniaTestnet,
+        transport: http(import.meta.env.VITE_RPC_URL),
+      });
+
+      // Use user's MetaMask for transaction - this will show MetaMask prompts
+      const walletClient = createWalletClient({
+        chain: somniaTestnet,
+        transport: custom(window.ethereum),
+      });
+
+      const contract = getContract({
+        address: CONTRACT_ADDRESS,
+        abi: ShapeTownAchievementsABI,
+        client: { public: publicClient, wallet: walletClient },
+      });
+
+      setMintStatus("Minting achievement...");
+      const hash = await contract.write.mint([
+        userAddress,
+        BigInt(tokenId),
+        BigInt(1),
+        "0x",
+      ], { account: userAddress });
+
+      setMintStatus("Waiting for confirmation...");
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+      setMintStatus("Notifying backend...");
+      // Notify backend about successful mint
+      await mintAchievementNFT(tokenId);
+
+      // Add to minted items to remove shiny border
+      setMintedItems(prev => new Set([...prev, tokenId]));
+
+      setMintStatus("Achievement minted successfully!");
+      console.log("Mint successful! TX:", receipt.transactionHash);
+      setTimeout(() => setMintStatus(""), 3000);
+    } catch (error) {
+      console.error("Minting error:", error);
+      if (error.code === 4001) {
+        setMintStatus("Transaction rejected by user");
+      } else if (error.reason) {
+        setMintStatus(`Error: ${error.reason}`);
+      } else if (error.message?.includes("insufficient funds")) {
+        setMintStatus("Insufficient funds for gas");
+      } else {
+        setMintStatus("Failed to mint achievement");
+      }
+      setTimeout(() => setMintStatus(""), 5000);
+    } finally {
+      setIsMinting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -221,6 +369,7 @@ const Account = () => {
 
   return (
     <div className="h-screen w-full flex flex-col flex-1 text-heading-4-alagard bg-dark-primary">
+      <style dangerouslySetInnerHTML={{ __html: shinyBorderStyle }} />
       <h1 className="text-heading-3-alagard p-8" style={{ color: "#ffae0b" }}>
         Profile
       </h1>
@@ -366,26 +515,69 @@ const Account = () => {
               }}
             >
               <div className="grid grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="relative flex items-center justify-center w-full h-full aspect-square overflow-hidden"
-                  >
-                    {/* Frame background for Items */}
-                    <img
-                      src="/Frame-7.png"
-                      alt="frame"
-                      className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                      style={{ zIndex: 0 }}
-                    />
-                    <img
-                      src="/Frame-8.png"
-                      alt="frame"
-                      className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                      style={{ zIndex: 0 }}
-                    />
-                  </div>
-                ))}
+                {[...Array(6)].map((_, i) => {
+                  const item = eligibleItems[i];
+                  return (
+                    <div
+                      key={i}
+                      className={`relative flex items-center justify-center w-full h-full aspect-square overflow-hidden group ${
+                        item && !mintedItems.has(item.tokenId) ? 'shiny-border' : ''
+                      }`}
+                    >
+                      {/* Frame background for Items */}
+                      <img
+                        src="/Frame-7.png"
+                        alt="frame"
+                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                        style={{ zIndex: 0 }}
+                      />
+
+                      {item ? (
+                        <>
+                          {/* Item image */}
+                          <AchievementImage
+                            tokenId={item.tokenId}
+                            title={item.title}
+                          />
+
+                          {/* Mint button overlay */}
+                          <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center z-20">
+                            <button
+                              onClick={() => mintAchievement(item.tokenId)}
+                              disabled={isMinting}
+                              className={`px-3 py-1 text-xs font-bold rounded transition-colors ${
+                                isMinting
+                                  ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                                  : "bg-yellow-600 hover:bg-yellow-700 text-white"
+                              }`}
+                            >
+                              {isMinting ? "Minting..." : "Mint"}
+                            </button>
+                          </div>
+
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-black/90 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-30 max-w-48">
+                            <div className="font-bold">{item.title}</div>
+                            <div className="text-gray-300">
+                              {item.description}
+                            </div>
+                            <div className="text-yellow-400">
+                              Click to mint NFT
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        /* Empty slot */
+                        <img
+                          src="/Frame-8.png"
+                          alt="locked frame"
+                          className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                          style={{ zIndex: 0 }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -402,7 +594,7 @@ const Account = () => {
               }}
             >
               <div className="grid grid-cols-3 gap-6">
-                {achievementsLoading ? (
+                {allAchievementsLoading ? (
                   // Loading state
                   [...Array(6)].map((_, i) => (
                     <div
@@ -423,72 +615,173 @@ const Account = () => {
                       />
                     </div>
                   ))
-                ) : achievementsError ? (
-                  // Error state
-                  <div className="col-span-3 text-center text-red-400">
-                    Failed to load achievements
-                  </div>
-                ) : achievements && achievements.length > 0 ? (
-                  // Achievements data
-                  achievements.map((userAchievement, i) => (
-                    <div
-                      key={userAchievement.id || i}
-                      className="relative flex items-center justify-center w-full h-full aspect-square overflow-hidden group cursor-pointer"
-                      title={`${userAchievement.achievement.title}: ${userAchievement.achievement.description} (${userAchievement.achievement.points} points)`}
-                    >
-                      {/* Base frame (background) */}
-                      <img
-                        src="/Frame-7.png"
-                        alt="frame"
-                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
-                      />
+                ) : allAchievements && allAchievements.length > 0 ? (
+                  // All achievements data
+                  allAchievements.map((achievement, i) => {
+                    // Check if user has earned this achievement
+                    const userHasAchievement = achievements?.some(
+                      (userAch) => userAch.achievement.id === achievement.id,
+                    );
 
-                      <AchievementImage
-                        tokenId={userAchievement.achievement.tokenId}
-                        title={userAchievement.achievement.title}
-                      />
+                    return (
+                      <div
+                        key={achievement.id || i}
+                        className={`relative flex items-center justify-center w-full h-full aspect-square overflow-hidden group cursor-pointer ${
+                          userHasAchievement ? "" : "opacity-50 grayscale"
+                        }`}
+                        title={`${achievement.title}: ${achievement.description} (${achievement.points} points) ${userHasAchievement ? "✓ Earned" : "✗ Not earned"}`}
+                        onClick={() =>
+                          setSelectedAchievement({
+                            ...achievement,
+                            earned: userHasAchievement,
+                          })
+                        }
+                      >
+                        {/* Base frame (background) */}
+                        <img
+                          src="/Frame-7.png"
+                          alt="frame"
+                          className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
+                        />
 
-                      {/* Tooltip on hover */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-black/90 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-30 max-w-48">
-                        <div className="font-bold">
-                          {userAchievement.achievement.title}
-                        </div>
-                        <div className="text-gray-300">
-                          {userAchievement.achievement.description}
-                        </div>
-                        <div className="text-yellow-400">
-                          {userAchievement.achievement.points} points
+                        <AchievementImage
+                          tokenId={achievement.tokenId}
+                          title={achievement.title}
+                          useStarImage={true}
+                        />
+
+                        {/* Lock frame for unearned achievements */}
+                        {!userHasAchievement && (
+                          <img
+                            src="/Frame-8.png"
+                            alt="locked frame"
+                            className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-10"
+                          />
+                        )}
+
+                        {/* Tooltip on hover */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-black/90 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-30 max-w-48">
+                          <div className="font-bold">{achievement.title}</div>
+                          <div className="text-gray-300">
+                            {achievement.description}
+                          </div>
+                          <div className="text-yellow-400">
+                            {achievement.points} points
+                          </div>
+                          <div
+                            className={
+                              userHasAchievement
+                                ? "text-green-400"
+                                : "text-red-400"
+                            }
+                          >
+                            {userHasAchievement ? "✓ Earned" : "✗ Not earned"}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   // Empty state
-                  [...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="relative flex items-center justify-center w-full h-full aspect-square overflow-hidden"
-                    >
-                      <img
-                        src="/Frame-7.png"
-                        alt="frame"
-                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                        style={{ zIndex: 0 }}
-                      />
-                      <img
-                        src="/Frame-8.png"
-                        alt="frame"
-                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                        style={{ zIndex: 0 }}
-                      />
-                    </div>
-                  ))
+                  <div className="col-span-3 text-center text-gray-400">
+                    No achievements available
+                  </div>
                 )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Mint Status Global Display */}
+        {mintStatus && (
+          <div className="fixed bottom-4 right-4 z-50">
+            <div
+              className={`p-4 rounded-lg shadow-lg max-w-sm ${
+                mintStatus.includes("successfully")
+                  ? "bg-green-900/90 text-green-300 border border-green-600"
+                  : mintStatus.includes("Error") ||
+                      mintStatus.includes("Failed") ||
+                      mintStatus.includes("rejected")
+                    ? "bg-red-900/90 text-red-300 border border-red-600"
+                    : "bg-blue-900/90 text-blue-300 border border-blue-600"
+              }`}
+            >
+              <div className="text-sm font-medium">{mintStatus}</div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Achievement Detail Modal */}
+      {selectedAchievement && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setSelectedAchievement(null)}
+        >
+          <div
+            className="bg-dark-primary border border-dark-tertiary p-6 max-w-lg w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-2xl font-bold text-yellow-400">
+                {selectedAchievement.title}
+              </h3>
+              <button
+                onClick={() => setSelectedAchievement(null)}
+                className="text-gray-400 hover:text-white text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex items-center gap-4 mb-4">
+              <div className="relative w-24 h-24 flex-shrink-0">
+                <img
+                  src="/Frame-7.png"
+                  alt="frame"
+                  className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
+                />
+                <AchievementImage
+                  tokenId={selectedAchievement.tokenId}
+                  title={selectedAchievement.title}
+                  useStarImage={true}
+                />
+                {!selectedAchievement.earned && (
+                  <img
+                    src="/Frame-8.png"
+                    alt="locked frame"
+                    className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-10"
+                  />
+                )}
+              </div>
+
+              <div className="flex-1">
+                <div className="text-gray-300 mb-2">
+                  {selectedAchievement.description}
+                </div>
+                <div className="text-yellow-400 font-bold mb-2">
+                  {selectedAchievement.points} Points
+                </div>
+                <div
+                  className={`font-bold ${selectedAchievement.earned ? "text-green-400" : "text-red-400"}`}
+                >
+                  {selectedAchievement.earned ? "✓ Earned" : "✗ Not Earned"}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-sm text-gray-400 mb-4">
+              <strong>Token ID:</strong> {selectedAchievement.tokenId}
+            </div>
+
+            {selectedAchievement.earned && (
+              <div className="bg-green-900/20 border border-green-600/30 p-3 rounded text-green-300 text-sm">
+                🎉 Congratulations! You've earned this achievement!
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -103,22 +103,51 @@ export const getUserStats = async (userId) => {
 };
 
 // User Data by ID (Public)
-export const getUserAchievementsById = async (userId) => {
+export const getAllAchievements = async () => {
   try {
-    const response = await api.get(`/users/${userId}/achievements`);
-    return response.data;
+    const response = await api.get(`/achievements`);
+    return response.data.data;
   } catch (error) {
     console.error("Failed to get user achievements:", error);
     throw error;
   }
 };
 
-export const getUserSkillsById = async (userId) => {
+export const checkMintEligible = async () => {
   try {
-    const response = await api.get(`/users/${userId}/skills`);
+    const response = await api.get(`/nft/eligible`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to check mint eligibility:", error);
+    throw error;
+  }
+};
+
+export const mintAchievementNFT = async (tokenId) => {
+  try {
+    const response = await api.post(`/nft/mint/${tokenId}`);
     return response.data;
   } catch (error) {
-    console.error("Failed to get user skills:", error);
+    console.error("Failed to mint achievement NFT:", error);
+    throw error;
+  }
+};
+
+export const sendBatchData = async (batchData) => {
+  try {
+    const response = await api.post("/log-batch-events", batchData);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to send batch data:", error);
+    throw error;
+  }
+};
+export const getAllMobs = async () => {
+  try {
+    const response = await api.get(`/mobs`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to get all mobs:", error);
     throw error;
   }
 };
