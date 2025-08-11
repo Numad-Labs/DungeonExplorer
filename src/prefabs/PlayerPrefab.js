@@ -115,7 +115,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 
 			this.scene.anims.create({
 				key: 'PlayerRunningAni',
-				frames: this.scene.anims.generateFrameNumbers('heroAsset', { start: 0, end: 7 }),
+				frames: this.scene.anims.generateFrameNumbers('Player_Character_Running_Animation_v01', { start: 0, end: -1 }),
 				frameRate: 10,
 				repeat: -1
 			}); 
@@ -124,7 +124,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		if (!this.scene.anims.exists('PlayerIdleAni')) {
 			this.scene.anims.create({
 				key: 'PlayerIdleAni',
-				frames: [{ key: 'heroAsset', frame: 0 }],
+				frames: [{ key: 'Player_Character_Idle_Animation_v01', frame: 0 }],
 				frameRate: 1,
 				repeat: 0
 			});
@@ -133,7 +133,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		if (!this.scene.anims.exists('PlayerDeathAni')) {
 			this.scene.anims.create({
 				key: 'PlayerDeathAni',
-				frames: this.scene.anims.generateFrameNumbers('heroAsset', { start: 8, end: 15 }),
+				frames: this.scene.anims.generateFrameNumbers('Player_Character_Death_Animation_v01', { start: 0, end: -1 }),
 				frameRate: 6,
 				repeat: 0
 			});
@@ -469,18 +469,27 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			});
 		}
 
-		if (this.gameManager) {
-			this.gameManager.handlePlayerDeath(causeOfDeath);
-		}
 		if (this.scene.anims.exists('PlayerDeathAni')) {
 			this.anims.play('PlayerDeathAni');
 			this.on('animationcomplete', (animation) => {
 				if (animation.key === 'PlayerDeathAni') {
-					this.applyDeathEffects();
+					// Wait a bit after animation completes before showing death screen
+					this.scene.time.delayedCall(500, () => {
+						if (this.gameManager) {
+							this.gameManager.handlePlayerDeath(causeOfDeath);
+						}
+						this.applyDeathEffects();
+					});
 				}
 			});
 		} else {
-			this.applyDeathEffects();
+			// If no death animation exists, still wait a moment before showing death screen
+			this.scene.time.delayedCall(1000, () => {
+				if (this.gameManager) {
+					this.gameManager.handlePlayerDeath(causeOfDeath);
+				}
+				this.applyDeathEffects();
+			});
 		}
 	}
 
@@ -500,7 +509,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 			ease: 'Power2'
 		});
 
-		this.scene.time.delayedCall(1000, () => {
+		this.scene.time.delayedCall(500, () => {
 			if (window.returnToMenu) {
 				window.returnToMenu();
 			}

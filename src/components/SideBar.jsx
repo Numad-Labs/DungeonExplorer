@@ -59,9 +59,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="min-h-screen text-white flex ">
+    <div className="min-h-screen text-white flex">
       {/* Left Sidebar Navigation */}
-      <nav className="bg-dark-secondary border-r-2 pb-4  border-r-dark-tertiary w-64 min-h-screen relative">
+      <nav className="bg-dark-primary border-r-2 pb-4  border-r-dark-tertiary w-64 h-screen relative overflow-hidden">
         <div className="p-4 flex flex-col">
           <div className="mb-16 flex flex-col gap-3 justify-center items-center">
             <img src="/logo.svg" alt="Logo" draggable="false" />
@@ -144,7 +144,7 @@ const Sidebar = () => {
             <div className="relative">
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute bottom-full left-0 right-0 mb-2 bg-dark-tertiary border border-dark-tertiary rounded-lg shadow-lg z-50">
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-dark-secondary border border-dark-tertiary rounded-lg shadow-lg z-50">
                   <div className="py-1">
                     <Link
                       to="/account"
@@ -174,9 +174,16 @@ const Sidebar = () => {
               {/* Dropdown Trigger Button */}
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex gap-3  p-2 items-center outline-none bg-translucent-light-8 border-none text-sm font-medium transition-colors text-light-primary hover:bg-translucent-light-8"
+                className="w-full flex gap-3  p-2 items-center outline-none mb-10 bg-translucent-light-8 border-none text-sm font-medium transition-colors text-light-primary hover:bg-translucent-light-8"
               >
-                <div className="w-8 h-8 bg-gradient-to-b from-[#E55151] to-transparent rounded-full"></div>
+                <div className="w-8 h-8 rounded-full overflow-hidden">
+                  <img
+                    src="/portraits/1.png"
+                    alt="User Portrait"
+                    draggable="false"
+                    className="w-full h-full object-cover scale-110"
+                  />
+                </div>
                 <p className="text-button-16-pixelify">
                   {user.walletAddress.slice(0, 4)}...
                   {user.walletAddress.slice(-4)}
@@ -229,7 +236,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen bg-dark-secondary">
+      <div className="flex-1 flex flex-col h-screen bg-dark-primary overflow-hidden">
         {/* Header */}
         {/* <Header />*/}
         {/* Main Content */}

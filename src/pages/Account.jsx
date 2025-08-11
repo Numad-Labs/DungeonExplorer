@@ -10,6 +10,52 @@ import Discord from "../components/icons/Discord.jsx";
 import Wallet from "../components/icons/Wallet.jsx";
 import X from "../components/icons/X.jsx";
 import Update from "../components/icons/Update.jsx";
+import { getUserAchievements } from "../services/api/gameApiService";
+import { useQuery } from "@tanstack/react-query";
+
+const AchievementImage = ({ tokenId, title }) => {
+  const { data: imageData, isLoading } = useQuery({
+    queryKey: ["achievementImage", tokenId],
+    queryFn: async () => {
+      const response = await fetch(
+        `https://insomnus-backend-production-8a4c3b46c656.herokuapp.com/api/nft/data/${tokenId}`,
+      );
+      return response.json();
+    },
+    enabled: !!tokenId,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className="w-6 h-6 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (imageData?.image) {
+    return (
+      <img
+        src={imageData.image}
+        alt={title}
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] object-contain z-10"
+        onError={(e) => {
+          e.target.style.display = "none";
+          e.target.nextElementSibling.style.display = "flex";
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10">
+      <div className="text-xs font-bold text-yellow-400 mb-1 truncate w-full px-2">
+        {title}
+      </div>
+      <div className="text-xs text-gray-300 opacity-60">No Image</div>
+    </div>
+  );
+};
 
 const Account = () => {
   const { user } = useAuth();
@@ -24,6 +70,18 @@ const Account = () => {
     walletAddress: "",
   });
   const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    data: achievementsResponse,
+    isLoading: achievementsLoading,
+    error: achievementsError,
+  } = useQuery({
+    queryKey: ["achievements", user?.id],
+    queryFn: () => getUserAchievements(user.id),
+    enabled: !!user?.id,
+  });
+
+  const achievements = achievementsResponse?.data || [];
   const [editingDiscord, setEditingDiscord] = useState(false);
   const [editingX, setEditingX] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
@@ -142,8 +200,8 @@ const Account = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white bg-[#170908] pl-6 pr-6">
-        <div className="w-[500px] bg-[#24110F] border border-[#392423]  p-6">
+      <div className="min-h-screen w-full flex items-center justify-center text-white bg-[#170908]">
+        <div className="w-[500px] bg-dark-primary border border-[#392423] p-6">
           <div className="flex flex-col items-center">
             <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 animate-pulse"></div>
             <div className="h-8 bg-gray-600 rounded w-32 mb-6 animate-pulse"></div>
@@ -151,7 +209,7 @@ const Account = () => {
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="bg-[#2F1A18] border border-[#392423]  p-3 h-12 animate-pulse"
+                  className="bg-dark-primary border border-[#392423]  p-3 h-12 animate-pulse"
                 ></div>
               ))}
             </div>
@@ -162,26 +220,34 @@ const Account = () => {
   }
 
   return (
-    <div className="min-h-screen w-full h-full flex text-white bg-[#170908]">
-      <div className="flex flex-row w-full h-full justify-center  bg-[#24110F] border border-[#392423] p-8 gap-8">
-        <div className="flex flex-col gap-6 basis-1/3 max-w-[420px] min-w-[320px] flex-shrink-0">
+    <div className="h-screen w-full flex flex-col flex-1 text-heading-4-alagard bg-dark-primary">
+      <h1 className="text-heading-3-alagard p-8" style={{ color: "#ffae0b" }}>
+        Profile
+      </h1>
+      <div className="flex flex-row w-full h-full justify-center p-8 gap-8">
+        <div className="flex-1 flex flex-col gap-6">
           {errorMessage && (
             <div className="mb-4 p-3 bg-red-900 text-red-300 rounded text-center font-bold border border-red-600">
               {errorMessage}
             </div>
           )}
-          <div className="flex flex-col items-center mb-6 bg-[#2F1A18] border border-[#392423]  p-6">
-            <div className="w-24 h-24 bg-gray-600 rounded-full mb-4 flex items-center justify-center">
-              <span className="text-4xl">👤</span>
+          <div className="flex flex-col items-center mb-6 bg-dark-secondary border border-dark-tertiary  p-6">
+            <div className="w-30 h-30 rounded-full overflow-hidden">
+              <img
+                src="/portraits/1.png"
+                alt="User Portrait"
+                draggable="false"
+                className="w-full h-full object-cover scale-110"
+              />
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 bg-dark-secondary">
               {editingUsername ? (
                 <>
                   <input
                     type="text"
                     value={usernameValue}
                     onChange={(e) => setUsernameValue(e.target.value)}
-                    className="bg-[#392423] border border-[#4A2D2A] rounded px-3 py-1 text-white text-xl font-bold text-center"
+                    className="bg-dark-primary border border-[#4A2D2A] rounded px-3 py-1 text-white text-xl font-bold text-center"
                     placeholder="Enter username"
                   />
                   <button
@@ -218,8 +284,8 @@ const Account = () => {
               )}
             </div>
           </div>
-          <div className="space-y-3">
-            <div className="bg-[#2F1A18] border border-[#392423]  p-3 flex items-center justify-between">
+          <div className="space-y-3 bg-dark-secondary">
+            <div className="bg-dark-secondary border border-dark-tertiary  p-3 flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Wallet className="w-5 h-5 text-gray-400" />
                 <div>
@@ -227,7 +293,7 @@ const Account = () => {
                     {profileData.walletAddress
                       ? `${profileData.walletAddress.slice(
                           0,
-                          6
+                          6,
                         )}...${profileData.walletAddress.slice(-4)}`
                       : "No wallet"}
                   </span>
@@ -235,7 +301,7 @@ const Account = () => {
                 </div>
               </div>
             </div>
-            <div className="bg-[#2F1A18] border border-[#392423]  p-3 flex items-center justify-between">
+            <div className="bg-dark-secondary border border-dark-tertiary  p-3 flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-gray-400" />
                 {editingEmail ? (
@@ -243,7 +309,7 @@ const Account = () => {
                     type="text"
                     value={emailValue}
                     onChange={(e) => setEmailValue(e.target.value)}
-                    className="bg-[#392423] border border-[#4A2D2A] rounded px-2 py-1 text-white text-sm flex-1"
+                    className="bg-dark-primary border border-[#4A2D2A] rounded px-2 py-1 text-white text-sm flex-1"
                     placeholder="Enter Email"
                   />
                 ) : (
@@ -288,59 +354,137 @@ const Account = () => {
           </div>
         </div>
         {/* Right: Items and Achievements */}
-        <div className="flex-1 flex flex-col gap-8">
+        <div className="flex-1 flex flex-col gap-4 h-full">
           {/* Items Section */}
-          <div>
-            <h2 className="text-2xl font-bold text-[#FFAE0B] mb-2">Items</h2>
-            <div className="grid grid-cols-3 grid-rows-2 gap-6 max-h-[300px] max-w-[400px]">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="relative flex items-center justify-center w-full h-full aspect-square   overflow-hidden"
-                >
-                  {/* Frame background for Items */}
-                  <img
-                    src="/Frame-7.png"
-                    alt="frame"
-                    className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                    style={{ zIndex: 0 }}
-                  />
-                  <img
-                    src="/Frame-8.png"
-                    alt="frame"
-                    className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                    style={{ zIndex: 0 }}
-                  />
-                </div>
-              ))}
+          <div className="h-1/2 flex flex-col">
+            <h2 className="text-2xl font-bold mb-5">Items</h2>
+            <div
+              className="h-full overflow-y-auto pr-2"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#392423 #24110F",
+              }}
+            >
+              <div className="grid grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="relative flex items-center justify-center w-full h-full aspect-square overflow-hidden"
+                  >
+                    {/* Frame background for Items */}
+                    <img
+                      src="/Frame-7.png"
+                      alt="frame"
+                      className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                      style={{ zIndex: 0 }}
+                    />
+                    <img
+                      src="/Frame-8.png"
+                      alt="frame"
+                      className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                      style={{ zIndex: 0 }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           {/* Achievements Section */}
-          <div className="flex flex-col">
-            <h2 className="text-2xl font-bold text-[#FFAE0B] mb-2">
+          <div className="h-1/2 flex flex-col">
+            <h2 className="text-2xl font-bold text-heading-4-alagard mb-5">
               Achievement
             </h2>
-            <div className="grid grid-cols-3 grid-rows-2 gap-6 max-h-[300px] max-w-[400px]">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="relative flex items-center justify-center w-full h-full aspect-square   overflow-hidden"
-                >
-                  {/* Frame background for Items */}
-                  <img
-                    src="/Frame-7.png"
-                    alt="frame"
-                    className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                    style={{ zIndex: 0 }}
-                  />
-                  <img
-                    src="/Frame-8.png"
-                    alt="frame"
-                    className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
-                    style={{ zIndex: 0 }}
-                  />
-                </div>
-              ))}
+            <div
+              className="h-full overflow-y-auto pr-2 pb-6"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#392423 #24110F",
+              }}
+            >
+              <div className="grid grid-cols-3 gap-6">
+                {achievementsLoading ? (
+                  // Loading state
+                  [...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="relative flex items-center justify-center w-full h-full aspect-square overflow-hidden animate-pulse"
+                    >
+                      <img
+                        src="/Frame-7.png"
+                        alt="frame"
+                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none opacity-50"
+                        style={{ zIndex: 0 }}
+                      />
+                      <img
+                        src="/Frame-8.png"
+                        alt="frame"
+                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none opacity-50"
+                        style={{ zIndex: 0 }}
+                      />
+                    </div>
+                  ))
+                ) : achievementsError ? (
+                  // Error state
+                  <div className="col-span-3 text-center text-red-400">
+                    Failed to load achievements
+                  </div>
+                ) : achievements && achievements.length > 0 ? (
+                  // Achievements data
+                  achievements.map((userAchievement, i) => (
+                    <div
+                      key={userAchievement.id || i}
+                      className="relative flex items-center justify-center w-full h-full aspect-square overflow-hidden group cursor-pointer"
+                      title={`${userAchievement.achievement.title}: ${userAchievement.achievement.description} (${userAchievement.achievement.points} points)`}
+                    >
+                      {/* Base frame (background) */}
+                      <img
+                        src="/Frame-7.png"
+                        alt="frame"
+                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-0"
+                      />
+
+                      <AchievementImage
+                        tokenId={userAchievement.achievement.tokenId}
+                        title={userAchievement.achievement.title}
+                      />
+
+                      {/* Tooltip on hover */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-black/90 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-30 max-w-48">
+                        <div className="font-bold">
+                          {userAchievement.achievement.title}
+                        </div>
+                        <div className="text-gray-300">
+                          {userAchievement.achievement.description}
+                        </div>
+                        <div className="text-yellow-400">
+                          {userAchievement.achievement.points} points
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  // Empty state
+                  [...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="relative flex items-center justify-center w-full h-full aspect-square overflow-hidden"
+                    >
+                      <img
+                        src="/Frame-7.png"
+                        alt="frame"
+                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                        style={{ zIndex: 0 }}
+                      />
+                      <img
+                        src="/Frame-8.png"
+                        alt="frame"
+                        className="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                        style={{ zIndex: 0 }}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
