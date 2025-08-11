@@ -109,20 +109,21 @@ const Leaderboard = () => {
   });
 
   // Show top 10 + user if user is not in top 10
-  const displayData = userRank > 0 && userRank <= 10 
-    ? sortedData.slice(0, 10) 
-    : [...sortedData.slice(0, 10), userPlayer].filter(Boolean);
+  const displayData =
+    userRank > 0 && userRank <= 10
+      ? sortedData.slice(0, 10)
+      : [...sortedData.slice(0, 10), userPlayer].filter(Boolean);
 
   return (
     <div className="h-full bg-dark-primary flex flex-col text-white px-4 sm:px-6 overflow-y-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-secondary-500 py-10 gap-4">
         <h1 className="text-heading-2-alagard">Leaderboard</h1>
-        <div className="flex outline-none   bg-translucent-light-8 items-center">
+        <div className="flex outline-none   bg-dark-secondary items-center">
           <div className="relative w-full sm:w-auto min-w-[200px]">
             <select
               value={sortField}
               onChange={(e) => setSortField(e.target.value)}
-              className="bg-translucent-light-8 outline-none focus:outline-none active:outline-none rounded px-3 py-2 text-white appearance-none cursor-pointer pr-8 w-full h-full text-sm sm:text-base"
+              className="bg-dark-secondary outline-none focus:outline-none active:outline-none rounded px-3 py-2 text-white appearance-none cursor-pointer pr-8 w-full h-full text-sm sm:text-base"
             >
               <option value="experience">Experience</option>
               <option value="killCount">Kill Points</option>
@@ -168,12 +169,12 @@ const Leaderboard = () => {
               {sortField === "killCount"
                 ? "Kill Points"
                 : sortField === "experience"
-                  ? "Experience"
-                  : sortField === "gold"
-                    ? "Gold"
-                    : sortField === "totalGames"
-                      ? "Games Played"
-                      : "Experience"}
+                ? "Experience"
+                : sortField === "gold"
+                ? "Gold"
+                : sortField === "totalGames"
+                ? "Games Played"
+                : "Experience"}
             </span>
           </div>
         </div>
@@ -183,18 +184,27 @@ const Leaderboard = () => {
         >
           {displayData.map((player, idx) => {
             const isCurrentUser =
-              (player.walletAddress && user?.walletAddress && player.walletAddress === user.walletAddress) ||
-              (player.username && user?.username && player.username === user.username);
+              (player.walletAddress &&
+                user?.walletAddress &&
+                player.walletAddress === user.walletAddress) ||
+              (player.username &&
+                user?.username &&
+                player.username === user.username);
             // Show actual rank, not just index + 1
-            const playerRank = isCurrentUser && userRank > 10 ? userRank : idx + 1;
+            const playerRank =
+              isCurrentUser && userRank > 10 ? userRank : idx + 1;
             const isUserOutsideTop10 = isCurrentUser && userRank > 10;
             return (
-              <div key={`${player.id || idx}-${isCurrentUser ? 'user' : 'other'}`}>
+              <div
+                key={`${player.id || idx}-${isCurrentUser ? "user" : "other"}`}
+              >
                 {/* Show separator if this is the user and they're outside top 10 */}
                 {isUserOutsideTop10 && idx === 10 && (
                   <div className="flex items-center justify-center py-2">
                     <div className="flex-1 h-px bg-[#2F1A18]"></div>
-                    <span className="px-4 text-sm text-light-tertiary">...</span>
+                    <span className="px-4 text-sm text-light-tertiary">
+                      ...
+                    </span>
                     <div className="flex-1 h-px bg-[#2F1A18]"></div>
                   </div>
                 )}
@@ -227,12 +237,12 @@ const Leaderboard = () => {
                       {sortField === "killCount"
                         ? `${(player.killPoints || 0).toLocaleString()} kills`
                         : sortField === "experience"
-                          ? `${(player.experience || 0).toLocaleString()} XP`
-                          : sortField === "gold"
-                            ? `${(player.gold || 0).toLocaleString()} gold`
-                            : sortField === "totalGames"
-                              ? `${(player.totalGames || 0).toLocaleString()} games`
-                              : `${(player.experience || 0).toLocaleString()} XP`}
+                        ? `${(player.experience || 0).toLocaleString()} XP`
+                        : sortField === "gold"
+                        ? `${(player.gold || 0).toLocaleString()} gold`
+                        : sortField === "totalGames"
+                        ? `${(player.totalGames || 0).toLocaleString()} games`
+                        : `${(player.experience || 0).toLocaleString()} XP`}
                     </p>
                   </div>
                 </div>
@@ -241,7 +251,6 @@ const Leaderboard = () => {
           })}
         </div>
       </div>
-
     </div>
   );
 };
