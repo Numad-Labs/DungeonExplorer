@@ -940,6 +940,11 @@
                 "key": "Exp"
             },
             {
+                "url": "assets/PickUp/Health_Potion_01.png",
+                "type": "image",
+                "key": "Health_Potion_01"
+            },
+            {
                 "url": "assets/Hero/zombie 2/explodedeath.png",
                 "frameConfig": {
                     "frameWidth": 52,

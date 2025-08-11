@@ -5,6 +5,16 @@
                 "url": "assets/dino.png",
                 "key": "dino",
                 "type": "image"
+            },
+            {
+                "url": "assets/PickUp/Exp.png",
+                "key": "Exp",
+                "type": "image"
+            },
+            {
+                "url": "assets/PickUp/Health_Potion_01.png",
+                "key": "Health_Potion_01",
+                "type": "image"
             }
         ]
     },

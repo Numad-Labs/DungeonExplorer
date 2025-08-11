@@ -61,21 +61,13 @@ export default class Preload extends Phaser.Scene {
 
 			const width = this.progressBar.width;
 			
-			try {
-				this.load.image('Exp', './assets/PickUp/Exp.png');
-				console.log("Started loading Exp texture");
-			} catch (error) {
-				console.error("Error loading Exp texture:", error);
-				
-				this.createFallbackTexture();
-			}
-			
 			this.load.on("progress", (progress) => {
 				this.progressBar.width = progress * width;
 			});
 			
 			this.load.on("complete", () => {
 				console.log("All assets loaded. Exp texture exists:", this.textures.exists('Exp'));
+				console.log("Health_Potion_01 texture exists:", this.textures.exists('Health_Potion_01'));
 			});
 		} catch (error) {
 			console.error("Error in preload:", error);
@@ -83,20 +75,15 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	create() {
-	if (!this.textures.exists('Exp')) {
-	console.warn("Exp texture failed to load, creating fallback texture");
-	this.createFallbackTexture();
-	}
-	
-	console.log("Preload scene complete - waiting for manual game start");
-	
-	if (window.EventBus) {
-		window.EventBus.emit('preload-complete');
-	}
-	window.dispatchEvent(new CustomEvent('gamePreloadComplete'));
-	
-	// Don't auto-start MainMapScene - wait for manual start from React
-	// this.scene.start("MainMapScene");
+		console.log("Assets loaded - Exp:", this.textures.exists('Exp'));
+		console.log("Assets loaded - Health_Potion_01:", this.textures.exists('Health_Potion_01'));
+		
+		console.log("Preload scene complete - waiting for manual game start");
+		
+		if (window.EventBus) {
+			window.EventBus.emit('preload-complete');
+		}
+		window.dispatchEvent(new CustomEvent('gamePreloadComplete'));
 	}
 	
 	createFallbackTexture() {

@@ -5,6 +5,7 @@
 /* START-USER-IMPORTS */
 import ExpOrb from "./ExpOrb.js";
 import GoldPrefab from "./GoldPrefab.js";
+import HealthOrb from "./HealthOrb.js";
 /* END-USER-IMPORTS */
 
 export default class BreakableVase extends Phaser.GameObjects.Image {
@@ -333,16 +334,26 @@ export default class BreakableVase extends Phaser.GameObjects.Image {
 			
 			// Drop healing item
 			if (Math.random() < this.dropChance.healing) {
-				const healAmount = Phaser.Math.Between(
-					this.dropAmounts.healing.min, 
-					this.dropAmounts.healing.max
-				);
-				
-				const offsetX = Phaser.Math.Between(-16, 16);
-				const offsetY = Phaser.Math.Between(-16, 16);
-				
-				this.createHealingItem(this.x + offsetX, this.y + offsetY, healAmount);
-				droppedItems++;
+			const healAmount = Phaser.Math.Between(
+			this.dropAmounts.healing.min, 
+			this.dropAmounts.healing.max
+			);
+			
+			const offsetX = Phaser.Math.Between(-16, 16);
+			const offsetY = Phaser.Math.Between(-16, 16);
+			
+			try {
+			 const healthOrb = new HealthOrb(
+			   this.scene,
+						this.x + offsetX,
+						this.y + offsetY
+					);
+					healthOrb.setHealValue(healAmount);
+					this.scene.add.existing(healthOrb);
+					droppedItems++;
+				} catch (healthError) {
+					console.error("Error creating health orb:", healthError);
+				}
 			}
 			
 		} catch (error) {
@@ -350,65 +361,7 @@ export default class BreakableVase extends Phaser.GameObjects.Image {
 		}
 	}
 	
-	createHealingItem(x, y, healAmount) {
-		try {
-			const healingOrb = this.scene.add.circle(x, y, 8, 0x00ff00, 0.8);
-			this.scene.physics.add.existing(healingOrb, false);
-			
-			healingOrb.body.setCircle(8);
-			healingOrb.body.setCollideWorldBounds(false);
-			healingOrb.body.setBounce(0.3, 0.3);
-			healingOrb.body.setDrag(100, 100);
-			
-			const initialY = y;
-			const floatTween = this.scene.tweens.add({
-				targets: healingOrb,
-				y: initialY - 5,
-				duration: 1000,
-				ease: 'Sine.easeInOut',
-				yoyo: true,
-				repeat: -1
-			});
-			
-			healingOrb.healValue = healAmount;
-			
-			if (this.scene.player) {
-				const overlap = this.scene.physics.add.overlap(
-					this.scene.player, 
-					healingOrb, 
-					(player, orb) => {
-						// Heal the player
-						if (player.heal) {
-							player.heal(orb.healValue);
-						} else if (player.health !== undefined) {
-							player.health = Math.min(
-								player.health + orb.healValue, 
-								player.maxHealth || 100
-							);
-						}
-						this.createFloatingText(`+${orb.healValue} HP`, orb.x, orb.y - 20, '#00ff00');
-						
-						if (floatTween.active) {
-							floatTween.destroy();
-						}
-						orb.destroy();
-					}
-				);
-			}
-			
-			this.scene.time.delayedCall(30000, () => {
-				if (healingOrb.active) {
-					if (floatTween.active) {
-						floatTween.destroy();
-					}
-					healingOrb.destroy();
-				}
-			});
-			
-		} catch (error) {
-			console.error("Error creating healing item:", error);
-		}
-	}
+
 	
 	createFloatingText(message, x = this.x, y = this.y - 20, color = '#ffffff') {
 		try {
