@@ -3,14 +3,34 @@ import {
   startGameSession,
   saveCheckpoint,
   endGameSession,
+  sendBatchData,
+  getAllMaps,
 } from "../services/api/gameApiService";
-import { getAllMaps } from "../services/api/gameApiService";
 import { useMutation } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
 /**
  * Simple Game Bridge for DungeonExplorer - enhances existing EventBus communication
  */
+
+// Batch data structure for reference
+// const batchData = {
+//   sessionId: "string",
+//   mobKills: [
+//     {
+//       mobId: "string", 
+//       count: 0,
+//     },
+//   ],
+//   skillUsage: [
+//     {
+//       skillId: "string",
+//       count: 0,
+//     },
+//   ],
+//   consumablesUsed: 0,
+// };
+
 class GameBridge {
   constructor() {
     this.gameManager = null;
@@ -23,6 +43,17 @@ class GameBridge {
     this.maps = [];
     this.mapsLoading = false;
     this.mapsError = null;
+
+    // Batch data tracking
+    this.batchDataCache = {
+      sessionId: null,
+      mobKills: new Map(),
+      skillUsage: new Map(),
+      consumablesUsed: 0,
+    };
+    this.lastBatchSendTime = 0;
+    this.batchSendInterval = 10000; // 10 seconds
+
     this.setupMutations();
     this.init();
     this.fetchMaps();
@@ -89,11 +120,32 @@ class GameBridge {
     const gameProgress = this.getGameProgress();
     EventBus.emit("bridge-game-progress", gameProgress);
 
-    // Backend sync (every 5 seconds)
     const now = Date.now();
+    
+    // Backend sync (every 5 seconds)
     if (this.sessionId && now - this.lastSyncTime > this.syncInterval) {
       this.syncToBackend(playerData, gameProgress);
       this.lastSyncTime = now;
+    }
+
+    // Check for mob kills by monitoring GameManager kill count
+    this.checkForMobKills();
+
+    // Batch data sync (every 10 seconds)
+    if (this.sessionId && now - this.lastBatchSendTime > this.batchSendInterval) {
+      console.log("GameBridge: Batch sync interval reached, attempting to send batch data");
+      this.sendBatchDataToBackend();
+      this.lastBatchSendTime = now;
+    } else {
+      // Debug logging every 30 seconds to see what's happening
+      if (now % 30000 < 100) { // Roughly every 30 seconds
+        console.log("GameBridge: Batch sync debug - sessionId:", !!this.sessionId, "timeSinceLastBatch:", now - this.lastBatchSendTime, "interval:", this.batchSendInterval);
+        console.log("GameBridge: Current batch data cache:", {
+          mobKills: this.batchDataCache.mobKills.size,
+          skillUsage: this.batchDataCache.skillUsage.size,
+          consumables: this.batchDataCache.consumablesUsed
+        });
+      }
     }
   }
 
@@ -222,6 +274,46 @@ class GameBridge {
       console.log("GameBridge: Player death event received", deathData);
       this.endSession(deathData);
     });
+
+    // Batch data event listeners - listen to actual events the game emits
+    EventBus.on("attack-used", (attackData) => {
+      console.log("GameBridge: Attack used event received", attackData);
+      const skillId = '3c0f31b5-b7c9-4b10-9971-c0c9b2bb0fff'; // Hardcoded for hackathon
+      console.log("GameBridge: Adding skill usage for:", skillId);
+      this.addSkillUsage(skillId);
+    });
+
+    // Track mob kills by monitoring GameManager stats changes
+    this.lastKnownKills = 0;
+
+    // Also listen for any existing mob/enemy events that might exist
+    EventBus.on("mob-killed", (mobData) => {
+      console.log("GameBridge: Mob killed event received", mobData);
+      this.addMobKill('065666a3-41cb-4f51-a4c8-4b74a04eb592'); // Hardcoded for hackathon
+    });
+
+    EventBus.on("enemy-defeated", (enemyData) => {
+      console.log("GameBridge: Enemy defeated event received", enemyData);
+      this.addMobKill('065666a3-41cb-4f51-a4c8-4b74a04eb592'); // Hardcoded for hackathon
+    });
+
+    // Listen for health potion or consumable usage
+    EventBus.on("consumable-used", (consumableData) => {
+      console.log("GameBridge: Consumable used event received", consumableData);
+      this.addConsumableUsed();
+    });
+
+    EventBus.on("item-consumed", (itemData) => {
+      console.log("GameBridge: Item consumed event received", itemData);
+      if (itemData.type === 'consumable' || itemData.category === 'consumable') {
+        this.addConsumableUsed();
+      }
+    });
+
+    EventBus.on("health-potion-used", (potionData) => {
+      console.log("GameBridge: Health potion used event received", potionData);
+      this.addConsumableUsed();
+    });
   }
 
   formatNumber(num) {
@@ -294,11 +386,13 @@ class GameBridge {
   async startSession() {
     try {
       console.log("GameBridge: Starting session...");
-      
+
       // Get main map ID from fetched maps
       const mainMap = this.getMainMap();
-      const mapId = mainMap ? mainMap.id : "87224afa-25e3-4bce-8fce-0981f854e6b6"; // fallback to hardcoded ID
-      
+      const mapId = mainMap
+        ? mainMap.id
+        : "87224afa-25e3-4bce-8fce-0981f854e6b6"; // fallback to hardcoded ID
+
       // Format session start payload according to backend requirements
       const sessionData = {
         userId: this.getCurrentUserId(),
@@ -309,9 +403,18 @@ class GameBridge {
       const response = await startGameSession(sessionData);
       console.log("GameBridge: Session API response", response);
 
-      this.sessionId = response.sessionId;
+      // Extract sessionId from response.data.id
+      this.sessionId = response.data?.id;
       this.lastSyncTime = Date.now();
-      console.log("GameBridge: Session started", this.sessionId, sessionData);
+      this.lastBatchSendTime = Date.now(); // Initialize batch send time
+      
+      // Reset batch data for new session
+      this.resetBatchData();
+      this.lastKnownKills = 0; // Reset kill counter for new session
+      
+      console.log("GameBridge: Session started successfully!");
+      console.log("GameBridge: Session ID:", this.sessionId);
+      console.log("GameBridge: Session data:", sessionData);
       EventBus.emit("bridge-session-started", { sessionId: this.sessionId });
     } catch (error) {
       console.error("GameBridge: Failed to start session", error);
@@ -430,6 +533,9 @@ class GameBridge {
         sessionId: this.sessionId,
         deathData: deathPayload,
       });
+
+      // Send any remaining batch data before ending session
+      await this.forceSendBatchData();
 
       // Invalidate Dashboard data after session ends
       EventBus.emit("invalidate-dashboard-data");
@@ -606,13 +712,18 @@ class GameBridge {
 
   getMainMap() {
     // Find the main map - look for maps with isMain flag or name containing "main"
-    const mapsData = Array.isArray(this.maps) ? this.maps : this.maps?.data || [];
-    
-    return mapsData.find((map) => 
-      map.isMain || 
-      map.name?.toLowerCase().includes('main') ||
-      map.type?.toLowerCase() === 'main'
-    ) || mapsData[0]; // fallback to first map if no main map found
+    const mapsData = Array.isArray(this.maps)
+      ? this.maps
+      : this.maps?.data || [];
+
+    return (
+      mapsData.find(
+        (map) =>
+          map.isMain ||
+          map.name?.toLowerCase().includes("main") ||
+          map.type?.toLowerCase() === "main",
+      ) || mapsData[0]
+    ); // fallback to first map if no main map found
   }
 
   getCurrentMap() {
@@ -660,6 +771,145 @@ class GameBridge {
       lastSyncTime: this.lastSyncTime,
     };
   }
+
+  // Batch data tracking methods
+  addMobKill(mobId) {
+    if (!mobId) return;
+    
+    const currentCount = this.batchDataCache.mobKills.get(mobId) || 0;
+    this.batchDataCache.mobKills.set(mobId, currentCount + 1);
+    
+    console.log(`GameBridge: Mob kill tracked - ${mobId}, count: ${currentCount + 1}`);
+  }
+
+  addSkillUsage(skillId) {
+    if (!skillId) return;
+    
+    const currentCount = this.batchDataCache.skillUsage.get(skillId) || 0;
+    this.batchDataCache.skillUsage.set(skillId, currentCount + 1);
+    
+    console.log(`GameBridge: Skill usage tracked - ${skillId}, count: ${currentCount + 1}`);
+  }
+
+  addConsumableUsed() {
+    this.batchDataCache.consumablesUsed += 1;
+    console.log(`GameBridge: Consumable used tracked, total: ${this.batchDataCache.consumablesUsed}`);
+  }
+
+  resetBatchData() {
+    this.batchDataCache.mobKills.clear();
+    this.batchDataCache.skillUsage.clear();
+    this.batchDataCache.consumablesUsed = 0;
+    this.batchDataCache.sessionId = this.sessionId;
+    console.log('GameBridge: Batch data cache reset');
+  }
+
+  getBatchDataPayload() {
+    const mobKills = Array.from(this.batchDataCache.mobKills.entries()).map(([mobId, count]) => ({
+      mobId,
+      count
+    }));
+
+    const skillUsage = Array.from(this.batchDataCache.skillUsage.entries()).map(([skillId, count]) => ({
+      skillId,
+      count
+    }));
+
+    return {
+      sessionId: this.sessionId || this.batchDataCache.sessionId,
+      mobKills,
+      skillUsage,
+      consumablesUsed: this.batchDataCache.consumablesUsed,
+    };
+  }
+
+  async sendBatchDataToBackend() {
+    console.log("GameBridge: sendBatchDataToBackend called");
+    console.log("GameBridge: sessionId:", this.sessionId);
+    console.log("GameBridge: batchDataCache.sessionId:", this.batchDataCache.sessionId);
+    
+    if (!this.sessionId && !this.batchDataCache.sessionId) {
+      console.log("GameBridge: No session ID available for batch data sync - EXITING");
+      return;
+    }
+
+    const batchPayload = this.getBatchDataPayload();
+    console.log("GameBridge: Generated batch payload:", batchPayload);
+    
+    // Only send if there's meaningful data to send
+    if (batchPayload.mobKills.length === 0 && 
+        batchPayload.skillUsage.length === 0 && 
+        batchPayload.consumablesUsed === 0) {
+      console.log("GameBridge: No meaningful batch data to send - EXITING");
+      console.log("GameBridge: - mobKills:", batchPayload.mobKills.length);
+      console.log("GameBridge: - skillUsage:", batchPayload.skillUsage.length); 
+      console.log("GameBridge: - consumablesUsed:", batchPayload.consumablesUsed);
+      return;
+    }
+
+    try {
+      console.log("GameBridge: Attempting to send batch data...", batchPayload);
+      const response = await sendBatchData(batchPayload);
+      console.log("GameBridge: Batch data sent successfully", response);
+      
+      // Reset batch data after successful send
+      this.resetBatchData();
+      
+      EventBus.emit("bridge-batch-data-sent", { payload: batchPayload, response });
+    } catch (error) {
+      console.error("GameBridge: Failed to send batch data", error);
+      console.error("GameBridge: Error details:", error.message, error.stack);
+      EventBus.emit("bridge-batch-data-error", { error, payload: batchPayload });
+    }
+  }
+
+  // Manual batch send for external use
+  async forceSendBatchData() {
+    console.log("GameBridge: Force batch data send requested");
+    await this.sendBatchDataToBackend();
+  }
+
+  // Test method to add some sample batch data
+  addTestBatchData() {
+    console.log("GameBridge: Adding test batch data");
+    this.addMobKill('test-goblin');
+    this.addMobKill('test-skeleton'); 
+    this.addSkillUsage('test-fireball');
+    this.addSkillUsage('test-heal');
+    this.addConsumableUsed();
+    console.log("GameBridge: Test data added, current cache:", this.getBatchDataPayload());
+  }
+
+  // Test method to verify the exact batch data structure
+  logBatchDataStructure() {
+    const payload = this.getBatchDataPayload();
+    console.log("=== BATCH DATA STRUCTURE ===");
+    console.log("sessionId:", payload.sessionId);
+    console.log("mobKills:", payload.mobKills);
+    console.log("skillUsage:", payload.skillUsage); 
+    console.log("consumablesUsed:", payload.consumablesUsed);
+    console.log("=== JSON STRUCTURE ===");
+    console.log(JSON.stringify(payload, null, 2));
+    return payload;
+  }
+
+  checkForMobKills() {
+    if (!this.gameManager || !this.gameManager.lastRunStats) return;
+
+    const currentKills = this.gameManager.lastRunStats.enemiesKilled || 0;
+    
+    if (currentKills > this.lastKnownKills) {
+      const newKills = currentKills - this.lastKnownKills;
+      console.log(`GameBridge: Detected ${newKills} new mob kills (${this.lastKnownKills} -> ${currentKills})`);
+      
+      // Add hardcoded mob kills for hackathon
+      for (let i = 0; i < newKills; i++) {
+        this.addMobKill('065666a3-41cb-4f51-a4c8-4b74a04eb592');
+      }
+      
+      this.lastKnownKills = currentKills;
+    }
+  }
 }
 
 // Singleton instance
@@ -668,6 +918,9 @@ let bridgeInstance = null;
 export const getBridge = () => {
   if (!bridgeInstance) {
     bridgeInstance = new GameBridge();
+    // Make it globally accessible for debugging
+    window.bridgeInstance = bridgeInstance;
+    window.getBridge = getBridge;
   }
   return bridgeInstance;
 };

@@ -135,6 +135,17 @@ const Sidebar = () => {
               <Guide size={20} />
               <p className="text-button-48-pixelify">Guide</p>
             </Link>
+            <Link
+              to="/account"
+              className={` flex gap-3 pl-6 pr-5 py-3 outline-none border-none  text-sm font-medium transition-colors ${
+                isActive("/account")
+                  ? "bg-translucent-light-8 text-light-primary"
+                  : "text-light-primary hover:bg-translucent-light-8"
+              }`}
+            >
+              <User size={20} />
+              <p className="text-button-48-pixelify">Account</p>
+            </Link>
           </div>
 
           {/* Play Button */}
@@ -146,15 +157,6 @@ const Sidebar = () => {
               {isDropdownOpen && (
                 <div className="absolute bottom-full left-0 right-0 mb-2 bg-dark-secondary border border-dark-tertiary rounded-lg shadow-lg z-50">
                   <div className="py-1">
-                    <Link
-                      to="/account"
-                      className="flex items-center gap-3 px-6 py-3 text-sm font-medium text-light-primary hover:bg-translucent-light-8 transition-colors"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <User size={20} />
-                      <span className="text-button-48-pixelify">Account</span>
-                    </Link>
-                    <div className="border-t border-gray-600 my-1"></div>
                     <button
                       onClick={() => {
                         handleLogout();
@@ -163,7 +165,7 @@ const Sidebar = () => {
                       className="w-full flex items-center gap-3 px-6 py-3 text-sm font-medium text-light-primary hover:bg-translucent-light-8 transition-colors"
                     >
                       <Logout size={20} color={"#CC1508"} />
-                      <span className="text-button-48-pixelify text-[#CC1508] ">
+                      <span className="text-button-48-pixelify text-[#CC1508]">
                         Logout
                       </span>
                     </button>
@@ -174,7 +176,7 @@ const Sidebar = () => {
               {/* Dropdown Trigger Button */}
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex gap-3  p-2 items-center outline-none mb-10 bg-translucent-light-8 border-none text-sm font-medium transition-colors text-light-primary hover:bg-translucent-light-8"
+                className="w-full flex gap-3 p-2 items-center outline-none mb-10 bg-translucent-light-8 border-none text-sm font-medium transition-colors text-light-primary hover:bg-translucent-light-8"
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden">
                   <img
@@ -188,21 +190,6 @@ const Sidebar = () => {
                   {user.walletAddress.slice(0, 4)}...
                   {user.walletAddress.slice(-4)}
                 </p>
-                {/* <svg
-                  className={`ml-auto transition-transform duration-200 ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6,9 12,15 18,9"></polyline>
-                </svg>*/}
               </button>
             </div>
           </div>
