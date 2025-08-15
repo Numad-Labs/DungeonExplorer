@@ -13,6 +13,7 @@ import Bomber from "../prefabs/Enemies/Bomber.Scene.js";
 import Saber from "../prefabs/Enemies/Saber.js";
 import Guardian from "../prefabs/Enemies/Guardian.js";
 import Charger from "../prefabs/Enemies/Charger.Scene.js";
+import { MOB_TELEPORT_CONFIG } from "../config/MobTeleportConfig.js";
 
 const MOB_CONFIGS = {
   zombie: {
@@ -234,11 +235,16 @@ export default class MobManager {
     this.mapHeight = 80;
     this.isWalkingAreaInitialized = false;
 
+    // Teleportation settings
+    this.teleportConfig = MOB_TELEPORT_CONFIG;
+    this.lastTeleportCheck = 0;
+
     // Statistics
     this.stats = {
       totalSpawned: 0,
       totalKilled: 0,
       killsByType: new Map(),
+      totalTeleported: 0,
     };
 
     Object.keys(MOB_CONFIGS).forEach((type) => {
@@ -1433,10 +1439,122 @@ export default class MobManager {
     return this.waveTimer ? Math.ceil(this.waveTimer.getRemaining() / 1000) : 0;
   }
 
+  checkAndTeleportDistantMobs() {
+    if (!this.player || !this.isWalkingAreaInitialized) return;
+    
+    let teleportedCount = 0;
+    const config = this.teleportConfig;
+    
+    this.getAllActiveMobs().forEach((mob) => {
+      if (teleportedCount >= config.maxTeleportsPerCheck) return;
+      
+      const distanceToPlayer = Phaser.Math.Distance.Between(
+        mob.x, mob.y, this.player.x, this.player.y
+      );
+      
+      if (distanceToPlayer > config.maxDistanceFromPlayer) {
+        if (this.teleportMobNearPlayer(mob)) {
+          teleportedCount++;
+          this.stats.totalTeleported++;
+          
+          this.createTeleportEffect(mob.x, mob.y, mob);
+        }
+      }
+    });
+  }
+
+  teleportMobNearPlayer(mob) {
+    if (!this.player || !mob || mob.isDead) return false;
+    
+    const config = this.teleportConfig;
+    
+    let newPosition = this.getRandomWalkablePositionNear(
+      this.player.x,
+      this.player.y,
+      config.teleportRange.min,
+      config.teleportRange.max,
+      30
+    );
+    
+    if (!newPosition) {
+      const fallbackPosition = this.getRandomWalkablePosition();
+      if (!fallbackPosition) return false;
+      
+      newPosition = {
+        worldX: fallbackPosition.worldX,
+        worldY: fallbackPosition.worldY
+      };
+    }
+    
+    mob.x = newPosition.worldX;
+    mob.y = newPosition.worldY;
+    
+    if (mob.body) {
+      mob.body.x = newPosition.worldX - mob.body.width / 2;
+      mob.body.y = newPosition.worldY - mob.body.height / 2;
+      mob.body.velocity.x = 0;
+      mob.body.velocity.y = 0;
+    }
+    
+    return true;
+  }
+
+  createTeleportEffect(x, y, mob) {
+    const config = this.teleportConfig;
+    const effects = config.effects;
+    
+    if (this.gameManager?.debugMode && !effects.showEffectsInDebug) {
+      return;
+    }
+    
+    const teleportOutEffect = this.scene.add.circle(
+      x, y, effects.effectRadius, effects.teleportOutColor, 0.7
+    );
+    teleportOutEffect.setDepth(effects.effectDepth);
+    
+    this.scene.tweens.add({
+      targets: teleportOutEffect,
+      scale: { from: 0.5, to: 2 },
+      alpha: { from: 0.7, to: 0 },
+      duration: effects.effectDuration,
+      onComplete: () => teleportOutEffect.destroy()
+    });
+    
+    this.scene.time.delayedCall(200, () => {
+      const teleportInEffect = this.scene.add.circle(
+        mob.x, mob.y, effects.effectRadius, effects.teleportInColor, 0.8
+      );
+      teleportInEffect.setDepth(effects.effectDepth);
+      
+      this.scene.tweens.add({
+        targets: teleportInEffect,
+        scale: { from: 2, to: 0.5 },
+        alpha: { from: 0.8, to: 0 },
+        duration: effects.effectDuration,
+        onComplete: () => teleportInEffect.destroy()
+      });
+      
+      if (mob && mob.active && !mob.isDead) {
+        const originalTint = mob.tintTopLeft;
+        mob.setTint(effects.teleportInColor);
+        this.scene.time.delayedCall(effects.mobFlashDuration, () => {
+          if (mob && mob.active && !mob.isDead) {
+            if (originalTint) {
+              mob.setTint(originalTint);
+            } else {
+              mob.clearTint();
+            }
+          }
+        });
+      }
+    });
+  }
+
   getStatistics() {
     return {
       totalSpawned: this.stats.totalSpawned,
       totalKilled: this.stats.totalKilled,
+      totalTeleported: this.stats.totalTeleported,
       activeCount: this.getActiveMobCount(),
       killsByType: Object.fromEntries(this.stats.killsByType),
       currentWave: this.currentWave,
@@ -1447,6 +1565,12 @@ export default class MobManager {
 
   update(time, delta) {
     const toRemove = [];
+    
+    if (time - this.lastTeleportCheck > this.teleportConfig.teleportCheckInterval) {
+      this.checkAndTeleportDistantMobs();
+      this.lastTeleportCheck = time;
+    }
+    
     this.activeMobs.forEach((data, id) => {
       if (!data.mob.active || data.mob.isDead) {
         toRemove.push(id);
