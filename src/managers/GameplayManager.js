@@ -28,10 +28,9 @@ export default class GameplayManager {
     this.createTextures();
     this.setupCollisions();
     this.setupTimers();
-    // this.setupControls();
 
     this.scene.spawnExperienceOrb = (x, y, value) =>
-      this.spawnExperienceOrb(x, y, value);
+    this.spawnExperienceOrb(x, y, value);
     this.scene.spawnGoldOrb = (x, y, value) => this.spawnGoldOrb(x, y, value);
   }
 
@@ -489,91 +488,6 @@ export default class GameplayManager {
     this.mobManager.startWave(waveNumber);
   }
 
-  setupControls() {
-    const keyboard = this.scene.input.keyboard;
-
-    keyboard.on("keydown-Z", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "zombie");
-    });
-
-    keyboard.on("keydown-X", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "charger");
-    });
-
-    keyboard.on("keydown-C", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "assassinArcher");
-    });
-
-    keyboard.on("keydown-V", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "policeDroid");
-    });
-
-    keyboard.on("keydown-B", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "assassin");
-    });
-
-    keyboard.on("keydown-N", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "assassinTank");
-    });
-
-    keyboard.on("keydown-M", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "assassinArcher");
-    });
-
-    keyboard.on("keydown-E", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnExperienceOrb(world.x, world.y, 1);
-    });
-
-    // ENHANCED: Gold orb spawn control with logging
-    keyboard.on("keydown-G", () => {
-      const pointer = this.scene.input.activePointer;
-      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnGoldOrb(world.x, world.y, 5);
-    });
-
-    keyboard.on("keydown-K", () => {
-      this.mobManager.killAllMobs();
-    });
-
-    keyboard.on("keydown-O", () => {
-      for (let i = 0; i < 10; i++) {
-        this.spawnRandomExperienceOrb();
-      }
-    });
-
-    // ENHANCED: Spawn multiple gold orbs with logging
-    keyboard.on("keydown-P", () => {
-      for (let i = 0; i < 10; i++) {
-        this.spawnRandomGoldOrb();
-      }
-    });
-
-    keyboard.on("keydown-[", () => {
-      this.spawnWave();
-    });
-
-    keyboard.on("keydown-L", () => {
-      const stats = this.mobManager.getStatistics();
-      console.log("Mob Statistics:", stats);
-    });
-  }
-
   checkEnemyBounds() {
     if (!this.player) return;
 
@@ -711,26 +625,6 @@ export default class GameplayManager {
 
     if (this.goldOrbs) {
       this.goldOrbs.clear(true, true);
-    }
-
-    if (this.scene.input?.keyboard) {
-      [
-        "keydown-E",
-        "keydown-G",
-        "keydown-Z",
-        "keydown-V",
-        "keydown-X",
-        "keydown-B",
-        "keydown-N",
-        "keydown-M",
-        "keydown-K",
-        "keydown-O",
-        "keydown-P",
-        "keydown-W",
-        "keydown-L",
-      ].forEach((event) => {
-        this.scene.input.keyboard.removeAllListeners(event);
-      });
     }
   }
 }

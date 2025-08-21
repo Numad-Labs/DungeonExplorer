@@ -7,10 +7,10 @@ import PlayerPrefab from "../prefabs/PlayerPrefab";
 import StoneStatuePrefab from "../prefabs/StoneStatuePrefab";
 import VaseSpawner from "../utils/VaseSpawner.js";
 import PlayerLevel from "../prefabs/PlayerLevel.js";
-import UIManager from "../managers/UIManager.js";
 import MobManager from "../managers/MobManager.js";
 /* START-USER-IMPORTS */
 import { EventBus } from "../game/EventBus";
+import GameConfig from "../config/GameConfig.js";
 /* END-USER-IMPORTS */
 
 export default class MainMapScene extends BaseGameScene {
@@ -18,35 +18,80 @@ export default class MainMapScene extends BaseGameScene {
     super("MainMapScene");
 
     /* START-USER-CTR-CODE */
+    this.initializeSceneState();
+    /* END-USER-CTR-CODE */
+  }
+
+  initializeSceneState() {
     this.portals = [];
     this.activePortal = null;
     this.portalTimer = null;
-    this.portalActivationInterval = 20000;
-    this.availableScenes = [
-      "MiniMapDarkForastScene",
-      "MiniMapBossFightScene",
-      "MiniMapBeachScene",
-      "MiniMapLavaScene",
-    ];
+    this.portalActivationInterval = GameConfig.PORTAL.ACTIVATION_INTERVAL;
+    this.availableScenes = GameConfig.PORTAL.AVAILABLE_SCENES;
     this.isTeleporting = false;
+    
+    // Game systems
     this.vaseSpawner = null;
     this.playerLevelSystem = null;
     this.mobManager = null;
-
-    // Timer system properties
+    
+    // Game state
     this.gameTimer = null;
     this.gameStartTime = 0;
     this.gameTime = 0;
     this.isGameRunning = false;
-
-    // Enemy spawning properties
     this.enemySpawnTimer = null;
     this.waveTimer = null;
     this.difficultyTimer = null;
-    /* END-USER-CTR-CODE */
+  }
+
+  create() {
+    this.setupWorld();
+    super.create();
+    
+    this.editorCreate();
+    this.initializeAllSystems();
+  }
+
+  setupWorld() {
+    // Using centralized world configuration
+    const { WIDTH, HEIGHT } = GameConfig.WORLD;
+    this.cameras.main.setBounds(0, 0, WIDTH, HEIGHT);
+    this.physics.world.setBounds(WIDTH, HEIGHT);
+  }
+
+  initializeAllSystems() {
+    try {
+      this.setupCollisions();
+      this.player = this.playerPrefab;
+      this.initializeManagers();
+      
+      const systemsToSetup = [
+        'setupPlayerAttack',
+        'setupZombieCollisionSystem', 
+        'setupHPBarIntegration',
+        'setupPlayerLevelSystem',
+        'setupVaseSpawning',
+        'initializeMobManager',
+        'setupLavaAnimations',
+        'ensureEnemyGroups'
+      ];
+      
+      systemsToSetup.forEach(method => {
+        if (typeof this[method] === 'function') {
+          this[method]();
+        }
+      });
+      
+      this.startEnemySpawning();
+    } catch (error) {
+      console.error("Error initializing systems:", error);
+    }
   }
 
   initializeMobManager() {
+    if (!this.gameManager || !this.player) return;
+    
     try {
       this.mobManager = new MobManager(this);
       this.mobManager.initialize(this.gameManager, this.player);
@@ -56,76 +101,87 @@ export default class MainMapScene extends BaseGameScene {
       }
 
       this.gameplayManager = { mobManager: this.mobManager };
-      this.mobManager.startWave(1);
+      this.mobManager.startWave(GameConfig.WAVE.INITIAL_WAVE);
     } catch (error) {
-      console.error("Error initializing MobManager:", error);
+      console.error("MobManager initialization failed:", error);
     }
   }
 
-  // Add the missing startEnemySpawning method
   startEnemySpawning() {
+    this.startGameTimer();
+    this.startMobSpawning();
+    this.startWaveTimer();
+    
+    EventBus.emit("timer-start", {
+      gameTime: this.gameTime,
+      currentWave: this.currentWave || GameConfig.WAVE.INITIAL_WAVE,
+      isGameRunning: true
+    });
+  }
+
+  startGameTimer() {
+    this.gameStartTime = Date.now();
+    this.gameTime = 0;
+    this.isGameRunning = true;
+    
+    this.gameTimer = this.time.addEvent({
+      delay: 1000,
+      callback: this.updateGameTime,
+      callbackScope: this,
+      loop: true
+    });
+  }
+
+  startMobSpawning() {
+    if (this.mobManager) {
+      this.mobManager.startWave(GameConfig.WAVE.INITIAL_WAVE);
+    } else {
+      console.warn("MobManager not available, starting basic spawning");
+      this.startBasicEnemySpawning();
+    }
+  }
+
+  startWaveTimer() {
+    this.waveTimer = this.time.addEvent({
+      delay: GameConfig.WAVE.ADVANCE_TIMER,
+      callback: this.advanceWave,
+      callbackScope: this,
+      loop: true
+    });
+  }
+
+  updateGameTime() {
+    if (!this.isGameRunning) return;
+    
+    this.gameTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
+    this.updateTimerDisplay();
+  }
+
+  updateTimerDisplay() {
     try {
-      console.log("Starting enemy spawning and game timer...");
+      const minutes = Math.floor(this.gameTime / 60);
+      const seconds = this.gameTime % 60;
+      const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
-      // Start the game timer
-      this.gameStartTime = Date.now();
-      this.gameTime = 0;
-      this.isGameRunning = true;
-
-      // Create main game timer that updates every second
-      this.gameTimer = this.time.addEvent({
-        delay: 1000,
-        callback: () => {
-          if (this.isGameRunning) {
-            this.gameTime = Math.floor(
-              (Date.now() - this.gameStartTime) / 1000
-            );
-            this.updateTimerDisplay();
-          }
-        },
-        loop: true,
-      });
-
-      // Start wave system through MobManager
-      if (this.mobManager) {
-        this.mobManager.startWave(1);
-        console.log("Wave 1 started through MobManager");
-      } else {
-        console.warn("MobManager not available, starting basic enemy spawning");
-        this.startBasicEnemySpawning();
-      }
-
-      // Emit timer start event for React components
-      EventBus.emit("timer-start", {
+      EventBus.emit("timer-updated", {
         gameTime: this.gameTime,
-        currentWave: this.currentWave || 1,
-        isGameRunning: true,
-      });
-
-      // Start wave advancement timer
-      this.waveTimer = this.time.addEvent({
-        delay: 30000, // 30 seconds per wave
-        callback: () => {
-          this.advanceWave();
-        },
-        loop: true,
+        formattedTime,
+        currentWave: this.currentWave || GameConfig.WAVE.INITIAL_WAVE,
+        isGameRunning: this.isGameRunning
       });
     } catch (error) {
-      console.error("Error starting enemy spawning:", error);
+      console.error("Error updating timer display:", error);
     }
   }
 
   startBasicEnemySpawning() {
     try {
-      // Fallback enemy spawning if MobManager is not available
       this.enemySpawnTimer = this.time.addEvent({
-        delay: 2000, // Spawn enemy every 2 seconds
+        delay: 1000,
         callback: () => {
-          // Basic enemy spawning logic
           console.log("Basic enemy spawn triggered");
-          // You can add basic enemy spawning here if needed
         },
-        loop: true,
+        loop: true
       });
     } catch (error) {
       console.error("Error in basic enemy spawning:", error);
@@ -134,86 +190,73 @@ export default class MainMapScene extends BaseGameScene {
 
   ensureEnemyGroups() {
     try {
-      console.log("Ensuring enemy groups exist for attack system...");
-
-      // Don't create new groups if they already exist from managers
       if (!this.enemies && this.gameplayManager?.enemies) {
         this.enemies = this.gameplayManager.enemies;
-        console.log("Connected enemies group from gameplayManager");
       } else if (!this.enemies) {
         this.enemies = this.physics.add.group();
-        console.log("Created new enemies group");
       }
 
-      // Connect to mobManager's group if available
       if (this.gameplayManager?.mobManager?.mobGroup) {
         this.enemies = this.gameplayManager.mobManager.mobGroup;
-        console.log("Connected enemies group to mobManager.mobGroup");
       }
 
-      // Ensure zombieGroup exists but don't override mobManager groups
       if (!this.zombieGroup) {
         this.zombieGroup = this.physics.add.group();
-        console.log("Created zombieGroup");
       }
 
-      // Ensure breakableVases group exists (created by VaseSpawner)
       if (!this.breakableVases) {
         this.breakableVases = this.physics.add.staticGroup();
-        console.log("Created breakableVases group");
       }
 
-      // Update PlayerAttack system after groups are ready
       this.connectAttackSystem();
-
-      console.log("Enemy groups setup complete:", {
-        enemies:
-          !!this.enemies && this.enemies.children
-            ? this.enemies.children.size
-            : "No enemies group",
-        zombieGroup:
-          !!this.zombieGroup && this.zombieGroup.children
-            ? this.zombieGroup.children.size
-            : "No zombie group",
-        breakableVases:
-          !!this.breakableVases && this.breakableVases.children
-            ? this.breakableVases.children.size
-            : "No vases group",
-      });
     } catch (error) {
       console.error("Error ensuring enemy groups:", error);
     }
   }
 
-  updateTimerDisplay() {
+  connectAttackSystem() {
     try {
-      // Format time as MM:SS
-      const minutes = Math.floor(this.gameTime / 60);
-      const seconds = this.gameTime % 60;
-      const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
-        .toString()
-        .padStart(2, "0")}`;
-
-      // Emit timer update event for React components
-      EventBus.emit("timer-updated", {
-        gameTime: this.gameTime,
-        formattedTime: formattedTime,
-        currentWave: this.currentWave || 1,
-        isGameRunning: this.isGameRunning,
-      });
+      if (this.playerAttackSystem) {
+        this.playerAttackSystem.scene = this;
+      } else {
+        console.warn("PlayerAttack system not yet created");
+      }
     } catch (error) {
-      console.error("Error updating timer display:", error);
+      console.error("Error connecting attack system:", error);
     }
   }
 
-  initializeUIManager() {
-    try {
-      this.uiManager = new UIManager(this);
-      this.uiManager.initialize();
-      window.currentGameScene = this;
-      this.currentWave = 1;
-    } catch (error) {
-      console.error("Error initializing UIManager:", error);
+  advanceWave() {
+    this.currentWave = (this.currentWave || GameConfig.WAVE.INITIAL_WAVE) + 1;
+    EventBus.emit("wave-updated", { wave: this.currentWave });
+  }
+
+  trackEnemyKill(enemy) {
+    if (typeof this.removeZombie === 'function') {
+      this.removeZombie(enemy);
+    }
+    
+    if (typeof super.trackEnemyKill === 'function') {
+      super.trackEnemyKill(enemy);
+    }
+
+    this.grantKillRewards();
+    this.enemiesKilled = (this.enemiesKilled || 0) + 1;
+
+    if (this.enemiesKilled % GameConfig.WAVE.ENEMIES_PER_ADVANCE === 0) {
+      this.advanceWave();
+    }
+  }
+
+  grantKillRewards() {
+    if (this.playerLevelSystem) {
+      this.playerLevelSystem.addExperience(GameConfig.PLAYER.COMBAT.EXP_PER_KILL);
+    }
+
+    if (this.gameManager) {
+      const { BASE_GOLD_REWARD, MAX_GOLD_REWARD } = GameConfig.PLAYER.COMBAT;
+      const goldReward = Math.floor(Math.random() * (MAX_GOLD_REWARD - BASE_GOLD_REWARD + 1)) + BASE_GOLD_REWARD;
+      this.gameManager.addGold(goldReward);
     }
   }
 
@@ -518,54 +561,6 @@ export default class MainMapScene extends BaseGameScene {
 
   /* START-USER-CODE */
 
-  create() {
-    this.cameras.main.setBounds(0, 0, 2560, 2560);
-    this.physics.world.bounds.width = 2560;
-    this.physics.world.bounds.height = 2560;
-
-    try {
-      super.create();
-
-      this.editorCreate();
-      this.setupCollisions();
-      this.player = this.playerPrefab;
-
-      // Initialize managers in correct order
-      this.initializeManagers();
-
-      // Set up walking area after managers are initialized
-      if (this.gameplayManager?.mobManager && this.walkingArea_1) {
-        this.gameplayManager.mobManager.setWalkingAreaFromTilemap(
-          this.walkingArea_1
-        );
-      }
-
-      // Set up game systems
-      this.setupPlayerAttack();
-      //   this.setupPortalSystem();
-      this.setupTestControls();
-      this.setupZombieCollisionSystem();
-      this.setupHPBarIntegration();
-      this.setupPlayerLevelSystem();
-
-      // Set up vase spawning after scene is fully initialized
-      this.setupVaseSpawning();
-
-      // Initialize UI and MobManager last
-      this.initializeUIManager();
-      this.initializeMobManager();
-      this.setupLavaAnimations();
-
-      // Ensure enemy groups exist for attack system after everything is set up
-      this.ensureEnemyGroups();
-
-      // Start the game timer and enemy spawning last
-      this.startEnemySpawning();
-    } catch (error) {
-      console.error("Error in MainMapScene create:", error);
-    }
-  }
-
   setupLavaAnimations() {
     try {
       const waterTiles = this.backGround.getTilesWithin();
@@ -584,119 +579,60 @@ export default class MainMapScene extends BaseGameScene {
     }
   }
 
-  connectAttackSystem() {
-    try {
-      console.log("Connecting attack system to enemy groups...");
-
-      // Ensure PlayerAttack system has access to all groups
-      if (this.playerAttackSystem) {
-        // Update the attack system's scene reference
-        this.playerAttackSystem.scene = this;
-
-        console.log("Attack system connected. Available groups:", {
-          enemies:
-            !!this.enemies && this.enemies.children
-              ? this.enemies.children.size
-              : "No enemies group",
-          breakableVases:
-            !!this.breakableVases && this.breakableVases.children
-              ? this.breakableVases.children.size
-              : "No vases group",
-          zombieGroup:
-            !!this.zombieGroup && this.zombieGroup.children
-              ? this.zombieGroup.children.size
-              : "No zombie group",
-        });
-      } else {
-        console.warn("PlayerAttack system not yet created");
-      }
-    } catch (error) {
-      console.error("Error connecting attack system:", error);
-    }
-  }
-
-  advanceWave() {
-    this.currentWave = (this.currentWave || 1) + 1;
-
-    if (this.uiManager) {
-      this.uiManager.updateScoreboard();
-    }
-
-    EventBus.emit("wave-updated", { wave: this.currentWave });
-  }
-
+  // Portal system - using centralized portal config (greatly simplified)
   setupPortalSystem() {
     try {
-      const portalSprites = [
-        this.children.getByName
-          ? this.children.getByName("telAnimation")
-          : null,
-        this.children.getByName
-          ? this.children.getByName("telAnimation_1")
-          : null,
-        this.children.getByName
-          ? this.children.getByName("telAnimation_2")
-          : null,
-        this.children.getByName
-          ? this.children.getByName("telAnimation_3")
-          : null,
-      ];
-
-      if (!portalSprites[0]) {
-        const allSprites = this.children.list.filter(
-          (child) =>
-            child &&
-            child instanceof Phaser.GameObjects.Sprite &&
-            child.texture &&
-            child.texture.key === "golden monument anim-going up-packed sheet"
-        );
-
-        portalSprites[0] = allSprites.find(
-          (s) => s && Math.abs(s.x - 72) < 10 && Math.abs(s.y - 57) < 10
-        );
-        portalSprites[1] = allSprites.find(
-          (s) => s && Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 57) < 10
-        );
-        portalSprites[2] = allSprites.find(
-          (s) => s && Math.abs(s.x - 2482) < 10 && Math.abs(s.y - 2420) < 10
-        );
-        portalSprites[3] = allSprites.find(
-          (s) => s && Math.abs(s.x - 72) < 10 && Math.abs(s.y - 2420) < 10
-        );
-      }
-
-      const portalPositions = [
-        { x: 72, y: 57, sprite: portalSprites[0] },
-        { x: 2482, y: 57, sprite: portalSprites[1] },
-        { x: 2482, y: 2420, sprite: portalSprites[2] },
-        { x: 72, y: 2420, sprite: portalSprites[3] },
-      ];
-
-      portalPositions.forEach((portalData, index) => {
-        const portalZone = this.add.zone(portalData.x, portalData.y, 100, 100);
-        this.physics.world.enable(portalZone);
-        portalZone.body.setImmovable(true);
-
-        const portal = {
-          id: index,
-          zone: portalZone,
-          sprite: portalData.sprite,
-          x: portalData.x,
-          y: portalData.y,
-          isActive: false,
-          originalTint: 0xffffff,
-          activeTint: 0x00ff00,
-          glowEffect: null,
-        };
-
-        this.portals.push(portal);
-        this.deactivatePortal(portal);
-      });
-
+      this.createPortals();
       this.startPortalTimer();
     } catch (error) {
-      console.error("Error setting up portal system:", error);
+      console.error("Portal system setup failed:", error);
     }
+  }
+
+  createPortals() {
+    const portalSprites = this.findPortalSprites();
+    
+    GameConfig.PORTAL.POSITIONS.forEach((position, index) => {
+      const portal = this.createPortal(position, portalSprites[index], index);
+      this.portals.push(portal);
+      this.deactivatePortal(portal);
+    });
+  }
+
+  findPortalSprites() {
+    const allSprites = this.children.list.filter(child => 
+      child instanceof Phaser.GameObjects.Sprite &&
+      child.texture?.key === "golden monument anim-going up-packed sheet"
+    );
+
+    return GameConfig.PORTAL.POSITIONS.map(pos => 
+      allSprites.find(sprite => 
+        Math.abs(sprite.x - pos.x) < 10 && Math.abs(sprite.y - pos.y) < 10
+      )
+    );
+  }
+
+  createPortal(position, sprite, id) {
+    const portalZone = this.add.zone(
+      position.x, 
+      position.y, 
+      GameConfig.PORTAL.OVERLAP_SIZE, 
+      GameConfig.PORTAL.OVERLAP_SIZE
+    );
+    this.physics.world.enable(portalZone);
+    portalZone.body.setImmovable(true);
+
+    return {
+      id,
+      zone: portalZone,
+      sprite,
+      x: position.x,
+      y: position.y,
+      isActive: false,
+      originalTint: GameConfig.PORTAL.COLORS.ORIGINAL_TINT,
+      activeTint: GameConfig.PORTAL.COLORS.ACTIVE_TINT,
+      glowEffect: null
+    };
   }
 
   startPortalTimer() {
@@ -705,81 +641,129 @@ export default class MainMapScene extends BaseGameScene {
     }
 
     this.portalTimer = this.time.addEvent({
-      delay: this.portalActivationInterval,
+      delay: GameConfig.PORTAL.ACTIVATION_INTERVAL,
       callback: this.activateRandomPortal,
       callbackScope: this,
-      loop: true,
+      loop: true
     });
   }
 
   activateRandomPortal() {
-    try {
-      if (this.scene && !this.scene.isActive()) return;
-      if (this.isTeleporting) return;
+    if (!this.scene?.isActive() || this.isTeleporting) return;
 
-      if (this.activePortal) {
-        this.deactivatePortal(this.activePortal);
-      }
+    this.deactivateCurrentPortal();
+    
+    const randomPortal = this.portals[Math.floor(Math.random() * this.portals.length)];
+    const randomScene = GameConfig.PORTAL.AVAILABLE_SCENES[
+      Math.floor(Math.random() * GameConfig.PORTAL.AVAILABLE_SCENES.length)
+    ];
+    
+    this.activatePortal(randomPortal, randomScene);
+  }
 
-      const randomIndex = Math.floor(Math.random() * this.portals.length);
-      const selectedPortal = this.portals[randomIndex];
-      const randomSceneIndex = Math.floor(
-        Math.random() * this.availableScenes.length
-      );
-      const destinationScene = this.availableScenes[randomSceneIndex];
-
-      this.activatePortal(selectedPortal, destinationScene);
-    } catch (error) {
-      console.error("Error activating random portal:", error);
+  deactivateCurrentPortal() {
+    if (this.activePortal) {
+      this.deactivatePortal(this.activePortal);
+      this.activePortal = null;
     }
   }
 
   activatePortal(portal, destinationScene) {
+    if (!portal?.sprite?.active) return;
+
+    portal.isActive = true;
+    portal.destinationScene = destinationScene;
+    this.activePortal = portal;
+
+    this.applyPortalVisualEffects(portal);
+    this.setupPortalCollision(portal);
+  }
+
+  applyPortalVisualEffects(portal) {
+    portal.sprite.setTint(portal.activeTint);
+    
+    const glow = this.add.circle(
+      portal.x, 
+      portal.y, 
+      GameConfig.PORTAL.GLOW_RADIUS, 
+      GameConfig.PORTAL.COLORS.GLOW_COLOR, 
+      0.3
+    );
+    glow.setDepth(portal.sprite.depth - 1);
+    portal.glowEffect = glow;
+
+    portal.activeTween = this.tweens.add({
+      targets: [portal.sprite, glow],
+      alpha: { from: 1, to: 0.7 },
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut"
+    });
+  }
+
+  setupPortalCollision(portal) {
+    if (this.player?.active) {
+      portal.overlapHandler = this.physics.add.overlap(
+        this.player,
+        portal.zone,
+        () => this.handlePortalCollision(portal)
+      );
+    }
+  }
+
+  handlePortalCollision(portal) {
+    if (!this.isValidPortalTeleport(portal)) return;
+    this.initiateTeleport(portal);
+  }
+
+  isValidPortalTeleport(portal) {
+    return portal?.isActive && 
+           !this.isTeleporting && 
+           portal.destinationScene &&
+           this.scene?.isActive();
+  }
+
+  initiateTeleport(portal) {
+    this.isTeleporting = true;
+    
+    if (this.player?.active && typeof this.createTeleportEffect === 'function') {
+      this.createTeleportEffect(this.player.x, this.player.y);
+    }
+
+    this.saveGameBeforeTeleport();
+    this.cleanupBeforeTeleport();
+    
+    this.time.delayedCall(GameConfig.PORTAL.TELEPORT_DELAY, () => {
+      this.executeSceneTransition(portal.destinationScene);
+    });
+
+    this.deactivatePortal(portal);
+    this.activePortal = null;
+  }
+
+  saveGameBeforeTeleport() {
+    if (this.gameManager?.saveGame) {
+      try {
+        this.gameManager.saveGame();
+      } catch (error) {
+        console.warn("Failed to save before teleport:", error);
+      }
+    }
+  }
+
+  executeSceneTransition(destinationScene) {
+    if (!this.scene?.isActive()) return;
+
     try {
-      if (!portal || !this.scene || !this.scene.isActive()) return;
-
-      portal.isActive = true;
-      portal.destinationScene = destinationScene;
-      this.activePortal = portal;
-
-      if (portal.sprite && portal.sprite.active && portal.sprite.scene) {
-        portal.sprite.setTint(portal.activeTint);
-      }
-
-      const glow = this.add.circle(portal.x, portal.y, 60, 0x00ff00, 0.3);
-      if (portal.sprite && portal.sprite.active) {
-        glow.setDepth(portal.sprite.depth - 1);
-      }
-      portal.glowEffect = glow;
-
-      const targets =
-        portal.sprite && portal.sprite.active && portal.sprite.scene
-          ? [portal.sprite, glow]
-          : [glow];
-
-      const tween = this.tweens.add({
-        targets: targets,
-        alpha: { from: 1, to: 0.7 },
-        duration: 1000,
-        yoyo: true,
-        repeat: -1,
-        ease: "Sine.easeInOut",
-      });
-
-      portal.activeTween = tween;
-
-      // Store the overlap handler reference
-      if (this.player && this.player.active) {
-        portal.overlapHandler = this.physics.add.overlap(
-          this.player,
-          portal.zone,
-          (player, zone) => {
-            this.handlePortalCollision(portal);
-          }
-        );
+      if (this.scene.manager?.keys?.[destinationScene]) {
+        this.scene.start(destinationScene);
+      } else {
+        this.scene.start("MainMapScene");
       }
     } catch (error) {
-      console.error("Error activating portal:", error);
+      console.error("Scene transition failed:", error);
+      this.isTeleporting = false;
     }
   }
 
@@ -790,13 +774,13 @@ export default class MainMapScene extends BaseGameScene {
       portal.isActive = false;
       portal.destinationScene = null;
 
-      if (portal.sprite && portal.sprite.active && portal.sprite.scene) {
+      if (portal.sprite?.active) {
         portal.sprite.setTint(portal.originalTint);
         portal.sprite.setScale(1);
         portal.sprite.setAlpha(1);
       }
 
-      if (portal.glowEffect && portal.glowEffect.active) {
+      if (portal.glowEffect?.active) {
         portal.glowEffect.destroy();
         portal.glowEffect = null;
       }
@@ -806,8 +790,7 @@ export default class MainMapScene extends BaseGameScene {
         portal.activeTween = null;
       }
 
-      // Clean up overlap handler
-      if (portal.overlapHandler && this.physics && this.physics.world) {
+      if (portal.overlapHandler && this.physics?.world) {
         this.physics.world.removeCollider(portal.overlapHandler);
         portal.overlapHandler = null;
       }
@@ -816,108 +799,31 @@ export default class MainMapScene extends BaseGameScene {
     }
   }
 
-  handlePortalCollision(portal) {
-    if (
-      !portal ||
-      !portal.isActive ||
-      this.isTeleporting ||
-      !portal.destinationScene
-    ) {
-      return;
-    }
-
-    if (!this.scene || !this.scene.isActive()) {
-      return;
-    }
-
-    const destinationScene = portal.destinationScene;
-    this.isTeleporting = true;
-
-    // Add null check for player and createTeleportEffect
-    if (
-      this.player &&
-      this.player.active &&
-      typeof this.createTeleportEffect === "function"
-    ) {
-      this.createTeleportEffect(this.player.x, this.player.y);
-    }
-
-    if (this.gameManager && typeof this.gameManager.saveGame === "function") {
-      try {
-        this.gameManager.saveGame();
-      } catch (saveError) {
-        console.warn("Error saving game:", saveError);
-      }
-    }
-
-    this.cleanupBeforePortalTeleport();
-
-    this.time.delayedCall(500, () => {
-      if (!this.scene || !this.scene.isActive()) return;
-
-      try {
-        if (
-          destinationScene &&
-          this.scene.manager &&
-          this.scene.manager.keys &&
-          this.scene.manager.keys[destinationScene]
-        ) {
-          this.scene.start(destinationScene);
-        } else {
-          this.scene.start("MainMapScene");
-        }
-      } catch (sceneError) {
-        console.error("Error switching scenes:", sceneError);
-        this.isTeleporting = false;
-      }
-    });
-
-    this.deactivatePortal(portal);
-    this.activePortal = null;
-  }
-
-  cleanupBeforePortalTeleport() {
+  cleanupBeforeTeleport() {
     try {
-      // Clean up timers with proper checks
-      const timersToClean = [
-        "enemySpawnTimer",
-        "waveTimer",
-        "difficultyTimer",
-        "portalTimer",
-      ];
+      const timersToClean = ['enemySpawnTimer', 'waveTimer', 'difficultyTimer', 'portalTimer'];
 
       timersToClean.forEach((timerName) => {
-        if (
-          this[timerName] &&
-          this[timerName].hasDispatched !== undefined &&
-          !this[timerName].hasDispatched
-        ) {
+        if (this[timerName] && !this[timerName].hasDispatched) {
           this[timerName].destroy();
           this[timerName] = null;
         }
       });
 
-      // Clean up groups with proper checks
       const groupsToClean = [
         { obj: this.gameplayManager, prop: "enemies" },
         { obj: this.gameplayManager, prop: "expOrbs" },
         { obj: this, prop: "enemies" },
         { obj: this, prop: "zombieGroup" },
-        { obj: this, prop: "experienceOrbs" },
+        { obj: this, prop: "experienceOrbs" }
       ];
 
       groupsToClean.forEach(({ obj, prop }) => {
-        if (
-          obj &&
-          obj[prop] &&
-          obj[prop].active &&
-          typeof obj[prop].clear === "function"
-        ) {
+        if (obj?.[prop]?.active && typeof obj[prop].clear === "function") {
           obj[prop].clear(true, true);
         }
       });
 
-      // Reset counters
       this.currentWave = 0;
       this.isWaveActive = false;
       this.waveEnemiesRemaining = 0;
@@ -927,6 +833,7 @@ export default class MainMapScene extends BaseGameScene {
     }
   }
 
+  // Collision system - simplified
   setupZombieCollisionSystem() {
     try {
       if (this.map_Col_1) {
@@ -940,16 +847,16 @@ export default class MainMapScene extends BaseGameScene {
         this.stoneStatuePrefab,
         this.stoneStatuePrefab_1,
         this.stoneStatuePrefab_2,
-        this.stoneStatuePrefab_3,
+        this.stoneStatuePrefab_3
       ];
 
       statues.forEach((statue, index) => {
-        if (statue && statue.active) {
+        if (statue?.active) {
           this.registerStaticObstacle(statue, `Stone Statue ${index + 1}`);
         }
       });
 
-      if (typeof this.setupZombieObstacleCollisions === "function") {
+      if (typeof this.setupZombieObstacleCollisions === 'function') {
         this.setupZombieObstacleCollisions();
       }
     } catch (error) {
@@ -959,401 +866,147 @@ export default class MainMapScene extends BaseGameScene {
 
   setupCollisions() {
     try {
-      const statues = [
-        this.stoneStatuePrefab,
-        this.stoneStatuePrefab_1,
-        this.stoneStatuePrefab_2,
-        this.stoneStatuePrefab_3,
-      ];
-
-      statues.forEach((statue) => {
-        if (
-          statue &&
-          statue.active &&
-          typeof statue.setupCollision === "function" &&
-          this.playerPrefab
-        ) {
-          statue.setupCollision(this.playerPrefab);
-        }
-      });
-
-      if (this.playerPrefab && this.map_Col_1) {
-        this.physics.add.collider(this.playerPrefab, this.map_Col_1);
-        this.map_Col_1.setCollisionBetween(0, 10000);
-      }
-
-      if (this.playerPrefab && this.backGround) {
-        this.physics.add.collider(this.playerPrefab, this.backGround);
-        this.backGround.setCollisionBetween(0, 10000);
-      }
+      this.setupStatueCollisions();
+      this.setupTilemapCollisions();
     } catch (error) {
       console.error("Error setting up player collisions:", error);
     }
   }
 
-  setupTestControls() {
-    try {
-      if (typeof super.setupTestControls === "function") {
-        super.setupTestControls();
+  setupStatueCollisions() {
+    const statues = [
+      this.stoneStatuePrefab,
+      this.stoneStatuePrefab_1,
+      this.stoneStatuePrefab_2,
+      this.stoneStatuePrefab_3
+    ];
+
+    statues.forEach(statue => {
+      if (statue?.active && this.playerPrefab) {
+        statue.setupCollision?.(this.playerPrefab);
       }
+    });
+  }
 
-      if (this.input && this.input.keyboard) {
-        this.input.keyboard.on("keydown-P", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            this.activateRandomPortal();
-          }
-        });
+  setupTilemapCollisions() {
+    if (!this.playerPrefab) return;
 
-        this.input.keyboard.on("keydown-O", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            this.portals.forEach((portal, index) => {
-              console.log(
-                `Portal ${index}: Active = ${portal.isActive}, Destination = ${
-                  portal.destinationScene || "None"
-                }`
-              );
-            });
-          }
-        });
-
-        this.input.keyboard.on("keydown-V", () => {
-          if (
-            this.gameManager &&
-            this.gameManager.debugMode &&
-            this.vaseSpawner
-          ) {
-            const stats = this.vaseSpawner.getStatistics();
-            console.log("=== VASE STATISTICS ===");
-            console.log(`Active vases: ${stats.activeVases}/${stats.maxVases}`);
-            console.log(`Spawn positions: ${stats.totalSpawnPositions}`);
-            console.log(`Spawn chance: ${stats.spawnChance}`);
-            console.log(`Respawn enabled: ${stats.respawnEnabled}`);
-          }
-        });
-
-        this.input.keyboard.on("keydown-B", () => {
-          if (
-            this.gameManager &&
-            this.gameManager.debugMode &&
-            this.vaseSpawner &&
-            this.player
-          ) {
-            const testVase = this.vaseSpawner.createVase(
-              this.player.x + 50,
-              this.player.y + 50,
-              "Vase"
-            );
-            if (testVase) {
-              console.log("Spawned test vase near player");
-            }
-          }
-        });
-
-        this.input.keyboard.on("keydown-E", () => {
-          if (
-            this.gameManager &&
-            this.gameManager.debugMode &&
-            this.playerLevelSystem
-          ) {
-            this.playerLevelSystem.addExperience(50);
-          }
-        });
-
-        this.input.keyboard.on("keydown-G", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            this.gameManager.addGold(100);
-          }
-        });
-
-        // Timer debug controls
-        this.input.keyboard.on("keydown-T", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            EventBus.emit("timer-reset");
-          }
-        });
-
-        this.input.keyboard.on("keydown-Y", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            EventBus.emit("timer-start");
-          }
-        });
-
-        this.input.keyboard.on("keydown-U", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            EventBus.emit("timer-stop");
-          }
-        });
-
-        // Wave debug controls
-        this.input.keyboard.on("keydown-PLUS", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            // Use timer controls to advance wave
-            if (window.timerControls) {
-              window.timerControls.advanceWave();
-            }
-          }
-        });
-
-        this.input.keyboard.on("keydown-MINUS", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            // Use timer controls to decrease wave
-            if (window.timerControls) {
-              const currentState = window.timerControls.getState();
-              const newWave = Math.max(1, currentState.currentWave - 1);
-              window.timerControls.setWave(newWave);
-            }
-          }
-        });
-
-        // Test vase breaking
-        this.input.keyboard.on("keydown-X", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            console.log("Testing vase breaking...");
-            this.testVaseBreaking();
-          }
-        });
-
-        // Test attack system
-        this.input.keyboard.on("keydown-Z", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            console.log("Testing attack system...");
-            this.testAttackSystem();
-          }
-        });
-
-        // Display debug help
-        this.input.keyboard.on("keydown-F1", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            console.log("=== DEBUG CONTROLS ===");
-            console.log("~ - Toggle debug mode");
-            console.log("P - Activate random portal");
-            console.log("V - Show vase statistics");
-            console.log("B - Spawn test vase near player");
-            console.log("X - Test vase breaking");
-            console.log("Z - Test attack system");
-            console.log("E - Add experience");
-            console.log("G - Add gold");
-            console.log("T - Reset timer | Y - Start timer | U - Stop timer");
-            console.log("F1 - Show this help");
-          }
-        });
+    [this.map_Col_1, this.backGround].forEach(layer => {
+      if (layer) {
+        this.physics.add.collider(this.playerPrefab, layer);
+        layer.setCollisionBetween(0, 10000);
       }
-    } catch (error) {
-      console.error("Error setting up portal test controls:", error);
+    });
+  }
+
+  // Health and combat system - using UI config
+  setupHPBarIntegration() {
+    this.ensurePlayerHealth();
+    this.updateHPBar();
+    this.updateGoldDisplay();
+    this.setupHealthEventListeners();
+  }
+
+  ensurePlayerHealth() {
+    if (this.player && (!this.player.health || !this.player.maxHealth)) {
+      console.warn("Player missing HP values, applying defaults");
+      const { health, maxHealth } = GameConfig.PLAYER.DEFAULTS;
+      this.player.health = health;
+      this.player.maxHealth = maxHealth;
     }
   }
 
-  testVaseBreaking() {
-    try {
-      console.log("=== TESTING VASE BREAKING ===");
+  setupHealthEventListeners() {
+    EventBus.on("request-initial-gold", () => {
+      this.time.delayedCall(50, () => this.updateGoldDisplay());
+    });
 
-      if (!this.breakableVases) {
-        console.error("No breakableVases group found!");
-        return;
-      }
+    EventBus.on("main-scene-started", () => {
+      this.time.delayedCall(200, () => this.updateGoldDisplay());
+    });
+  }
 
-      const vases = this.breakableVases.getChildren();
-      console.log(`Found ${vases.length} vases`);
+  playerTakeDamage(damage) {
+    if (!this.player) return;
 
-      if (vases.length > 0) {
-        const testVase = vases[0];
-        console.log("Testing vase:", testVase);
-        console.log(
-          "Vase has onPlayerAttack method:",
-          typeof testVase.onPlayerAttack
-        );
+    this.player.health = Math.max(0, this.player.health - damage);
+    this.updateHPBar();
+    this.showDamageEffect();
 
-        if (testVase.onPlayerAttack) {
-          testVase.onPlayerAttack(999);
-          console.log("Called onPlayerAttack on test vase");
-        } else {
-          console.error("Vase does not have onPlayerAttack method!");
-        }
-      } else {
-        console.warn("No vases available to test");
-      }
-    } catch (error) {
-      console.error("Error testing vase breaking:", error);
+    if (this.player.health <= 0) {
+      this.handlePlayerDeath();
     }
   }
 
-  testAttackSystem() {
-    try {
-      console.log("=== TESTING ATTACK SYSTEM ===");
-
-      if (!this.playerAttackSystem) {
-        console.error("No playerAttackSystem found!");
-        return;
-      }
-
-      console.log("PlayerAttack system exists");
-      console.log("Scene groups available:", {
-        enemies: !!this.enemies,
-        breakableVases: !!this.breakableVases,
-        zombieGroup: !!this.zombieGroup,
+  showDamageEffect() {
+    if (this.player?.setTint) {
+      this.player.setTint(GameConfig.UI.HEALTH_BAR.DAMAGE_TINT);
+      this.time.delayedCall(GameConfig.UI.HEALTH_BAR.EFFECT_DURATION, () => {
+        this.player?.clearTint?.();
       });
-
-      // Test findEnemiesInSlashRange
-      if (this.playerAttackSystem.findEnemiesInSlashRange) {
-        const enemiesInRange =
-          this.playerAttackSystem.findEnemiesInSlashRange();
-        console.log(`Found ${enemiesInRange.length} targets in slash range`);
-
-        enemiesInRange.forEach((enemyData, index) => {
-          console.log(`Target ${index}:`, {
-            isVase: enemyData.isVase,
-            distance: enemyData.distance,
-            enemy: enemyData.enemy,
-          });
-        });
-
-        // Trigger a manual slash attack if enemies found
-        if (enemiesInRange.length > 0) {
-          console.log("Triggering manual slash attack...");
-          this.playerAttackSystem.slashAttack(enemiesInRange);
-        }
-      } else {
-        console.error("findEnemiesInSlashRange method not found!");
-      }
-    } catch (error) {
-      console.error("Error testing attack system:", error);
     }
   }
 
-  trackEnemyKill(enemy) {
-    if (typeof this.removeZombie === "function") {
-      this.removeZombie(enemy);
-    }
-    if (typeof super.trackEnemyKill === "function") {
-      super.trackEnemyKill(enemy);
-    }
+  playerHeal(healAmount) {
+    if (!this.player) return;
 
-    if (this.playerLevelSystem) {
-      this.playerLevelSystem.addExperience(10);
-    }
-
-    if (this.gameManager) {
-      const goldReward = Math.floor(Math.random() * 5) + 2;
-      this.gameManager.addGold(goldReward);
-    }
-
-    this.enemiesKilled = (this.enemiesKilled || 0) + 1;
-
-    if (this.enemiesKilled % 10 === 0) {
-      this.advanceWave();
-    }
+    this.player.health = Math.min(this.player.maxHealth, this.player.health + healAmount);
+    this.updateHPBar();
+    this.showHealEffect();
   }
 
-  update(time, delta) {
-    if (typeof super.update === "function") {
-      super.update(time, delta);
-    }
-
-    try {
-      if (
-        this.player &&
-        this.player.active &&
-        !this.player.isDead &&
-        this.cameras &&
-        this.cameras.main
-      ) {
-        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-      }
-
-      if (this.uiManager && this.uiManager.isInitialized) {
-        this.uiManager.update(time, delta);
-      }
-
-      if (this.mobManager) {
-        this.mobManager.update(time, delta);
-      }
-    } catch (error) {
-      console.error("Error in MainMapScene update:", error);
-    }
-  }
-
-  shutdown() {
-    try {
-      // Stop game timer
-      this.isGameRunning = false;
-
-      // Clean up all timers
-      const timersToClean = [
-        "portalTimer",
-        "gameTimer",
-        "enemySpawnTimer",
-        "waveTimer",
-        "difficultyTimer",
-      ];
-
-      timersToClean.forEach((timerName) => {
-        if (this[timerName] && !this[timerName].hasDispatched) {
-          this[timerName].destroy();
-          this[timerName] = null;
-        }
+  showHealEffect() {
+    if (this.player?.setTint) {
+      this.player.setTint(GameConfig.UI.HEALTH_BAR.HEAL_TINT);
+      this.time.delayedCall(GameConfig.UI.HEALTH_BAR.EFFECT_DURATION, () => {
+        this.player?.clearTint?.();
       });
-
-      // Emit timer stop event
-      EventBus.emit("timer-stop");
-
-      if (this.portalTimer && !this.portalTimer.hasDispatched) {
-        this.portalTimer.destroy();
-        this.portalTimer = null;
-      }
-
-      this.portals.forEach((portal) => {
-        this.deactivatePortal(portal);
-      });
-
-      this.portals = [];
-      this.activePortal = null;
-      this.isTeleporting = false;
-
-      if (this.playerLevelSystem) {
-        this.playerLevelSystem.destroy();
-        this.playerLevelSystem = null;
-        console.log("Player Level System cleaned up");
-      }
-
-      EventBus.removeListener("request-initial-gold");
-      EventBus.removeListener("main-scene-started");
-      EventBus.removeListener("wave-updated");
-
-      EventBus.emit("timer-stop");
-
-      if (this.uiManager) {
-        this.uiManager.shutdown();
-        this.uiManager = null;
-      }
-
-      if (this.mobManager) {
-        this.mobManager.shutdown();
-        this.mobManager = null;
-      }
-
-      if (window.currentGameScene === this) {
-        delete window.currentGameScene;
-      }
-
-      if (typeof super.shutdown === "function") {
-        super.shutdown();
-      }
-    } catch (error) {
-      console.error("Error in MainMapScene shutdown:", error);
     }
   }
 
+  updateHPBar() {
+    if (!this.player) return;
+
+    const healthData = {
+      currentHP: this.player.health || GameConfig.PLAYER.DEFAULTS.health,
+      maxHP: this.player.maxHealth || GameConfig.PLAYER.DEFAULTS.maxHealth,
+      health: this.player.health || GameConfig.PLAYER.DEFAULTS.health,
+      maxHealth: this.player.maxHealth || GameConfig.PLAYER.DEFAULTS.maxHealth
+    };
+
+    EventBus.emit("player-health-updated", healthData);
+  }
+
+  updateGoldDisplay() {
+    const currentGold = this.gameManager?.getGold() || GameConfig.BALANCE.GOLD.STARTING_AMOUNT;
+    const goldData = { gold: currentGold, totalGold: currentGold, currentGold };
+
+    EventBus.emit("player-gold-updated", goldData);
+    EventBus.emit("player-stats-updated", goldData);
+  }
+
+  handlePlayerDeath() {
+    if (this.player?.setAlpha) {
+      this.player.setAlpha(0.5);
+    }
+
+    this.time.delayedCall(2000, () => {
+      this.player.health = this.player.maxHealth;
+      if (this.player?.setAlpha) {
+        this.player.setAlpha(1);
+      }
+      this.updateHPBar();
+    });
+  }
+
+  // Vase spawning - using config values
   setupVaseSpawning() {
     try {
-      console.log("Setting up vase spawning...");
-
-      // Ensure scene is ready
       if (!this.physics || !this.add) {
         console.error("Scene not ready for vase spawning");
         return;
       }
 
-      // Check if Vase texture exists
       if (!this.textures.exists("Vase")) {
         console.error("Vase texture not loaded, skipping vase spawning");
         return;
@@ -1362,24 +1015,14 @@ export default class MainMapScene extends BaseGameScene {
       this.vaseSpawner = new VaseSpawner(this);
 
       if (this.vase_1) {
-        const tilemap = this.vase_1.tilemap;
-
-        for (let y = 0; y < Math.min(10, this.vase_1.layer.height); y++) {
-          for (let x = 0; x < Math.min(10, this.vase_1.layer.width); x++) {
-            const tile = tilemap.getTileAt(x, y, false, this.vase_1.layer.name);
-          }
-        }
-
         const vasesSpawned = this.vaseSpawner.spawnVasesOnTilemap(this.vase_1, {
-          spawnChance: 1.0,
-          maxVases: 500,
+          spawnChance: GameConfig.BALANCE.VASES.SPAWN_CHANCE,
+          maxVases: GameConfig.BALANCE.VASES.MAX_COUNT,
           textureKey: "Vase",
           targetTileIndex: null,
           excludeTileIndices: [0],
-          removeTiles: false,
+          removeTiles: false
         });
-
-        console.log(`Successfully spawned ${vasesSpawned} vases`);
       } else {
         console.error("vase_1 layer not found!");
       }
@@ -1392,7 +1035,7 @@ export default class MainMapScene extends BaseGameScene {
 
   setupVaseAttackCollision() {
     try {
-      if (this.gameManager && this.gameManager.debugMode) {
+      if (this.gameManager?.debugMode) {
         this.input.on("pointerdown", (pointer) => {
           if (this.breakableVases) {
             this.breakableVases.children.entries.forEach((vase) => {
@@ -1410,51 +1053,29 @@ export default class MainMapScene extends BaseGameScene {
       console.error("Error setting up vase attack collision:", error);
     }
   }
-  setupHPBarIntegration() {
-    if (this.player) {
-      if (!this.player.health || !this.player.maxHealth) {
-        console.warn("Player missing HP values, applying emergency defaults");
-        this.player.health = 100;
-        this.player.maxHealth = 100;
-      }
-    }
 
-    this.updateHPBar();
-    this.updateGoldDisplay();
-    this.time.delayedCall(100, () => {
-      this.updateGoldDisplay();
-    });
-
-    EventBus.on("request-initial-gold", () => {
-      this.time.delayedCall(50, () => {
-        this.updateGoldDisplay();
-      });
-    });
-
-    EventBus.on("main-scene-started", () => {
-      this.time.delayedCall(200, () => {
-        this.updateGoldDisplay();
-      });
-    });
-  }
-
+  // Player level system - using config defaults
   setupPlayerLevelSystem() {
     try {
       this.playerLevelSystem = new PlayerLevel(this, 10, 50);
-      this.playerLevelSystem.level = 1;
-      this.playerLevelSystem.experience = 0;
-      this.playerLevelSystem.nextLevelExp = 100;
+      
+      const { level, experience, nextLevelExp } = GameConfig.PLAYER.DEFAULTS;
+      this.playerLevelSystem.level = level;
+      this.playerLevelSystem.experience = experience;
+      this.playerLevelSystem.nextLevelExp = nextLevelExp;
+      
       this.playerLevelSystem.updateText();
       this.playerLevelSystem.updateExpBar();
-      if (this.gameManager && this.gameManager.debugMode) {
+      
+      if (this.gameManager?.debugMode && GameConfig.DEBUG.ENABLED) {
         this.time.addEvent({
-          delay: 5000,
+          delay: GameConfig.DEBUG.AUTO_FEATURES.LEVEL_UP_INTERVAL,
           callback: () => {
             if (this.playerLevelSystem) {
-              this.playerLevelSystem.addExperience(25);
+              this.playerLevelSystem.addExperience(GameConfig.DEBUG.AUTO_FEATURES.AUTO_EXP_AMOUNT);
             }
           },
-          loop: true,
+          loop: true
         });
       }
     } catch (error) {
@@ -1462,85 +1083,89 @@ export default class MainMapScene extends BaseGameScene {
     }
   }
 
-  playerTakeDamage(damage) {
-    if (!this.player) return;
+  // Update loop - optimized
+  update(time, delta) {
+    super.update?.(time, delta);
 
-    this.player.health = Math.max(0, this.player.health - damage);
-    this.updateHPBar();
-
-    if (this.player.setTint) {
-      this.player.setTint(0xff0000);
-      this.time.delayedCall(100, () => {
-        if (this.player && this.player.clearTint) {
-          this.player.clearTint();
-        }
-      });
-    }
-
-    if (this.player.health <= 0) {
-      this.handlePlayerDeath();
+    try {
+      this.updateCamera();
+      this.updateManagers(time, delta);
+    } catch (error) {
+      console.error("Update loop error:", error);
     }
   }
 
-  playerHeal(healAmount) {
-    if (!this.player) return;
-
-    this.player.health = Math.min(
-      this.player.maxHealth,
-      this.player.health + healAmount
-    );
-    this.updateHPBar();
-
-    if (this.player.setTint) {
-      this.player.setTint(0x00ff00);
-      this.time.delayedCall(100, () => {
-        if (this.player && this.player.clearTint) {
-          this.player.clearTint();
-        }
-      });
+  updateCamera() {
+    if (this.player?.active && !this.player.isDead && this.cameras?.main) {
+      this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
     }
   }
 
-  updateHPBar() {
-    if (!this.player) {
-      return;
+  updateManagers(time, delta) {
+    if (this.mobManager) {
+      this.mobManager.update(time, delta);
     }
-
-    const healthData = {
-      currentHP: this.player.health || 100,
-      maxHP: this.player.maxHealth || 100,
-      health: this.player.health || 100,
-      maxHealth: this.player.maxHealth || 100,
-    };
-
-    EventBus.emit("player-health-updated", healthData);
   }
 
-  updateGoldDisplay() {
-    const currentGold = this.gameManager ? this.gameManager.getGold() : 500;
-    const goldData = {
-      gold: currentGold,
-      totalGold: currentGold,
-      currentGold: currentGold,
-    };
-
-    EventBus.emit("player-gold-updated", goldData);
-    EventBus.emit("player-stats-updated", goldData);
+  // Cleanup - consolidated
+  shutdown() {
+    try {
+      this.stopGameSystems();
+      this.cleanupTimers();
+      this.cleanupPortals();
+      this.cleanupManagers();
+      this.cleanupEventListeners();
+      
+      super.shutdown?.();
+    } catch (error) {
+      console.error("Shutdown error:", error);
+    }
   }
 
-  handlePlayerDeath() {
-    if (this.player && this.player.setAlpha) {
-      this.player.setAlpha(0.5);
-    }
+  stopGameSystems() {
+    this.isGameRunning = false;
+    EventBus.emit("timer-stop");
+  }
 
-    this.time.delayedCall(2000, () => {
-      this.player.health = this.player.maxHealth;
-      if (this.player && this.player.setAlpha) {
-        this.player.setAlpha(1);
+  cleanupTimers() {
+    const timers = ['portalTimer', 'gameTimer', 'enemySpawnTimer', 'waveTimer', 'difficultyTimer'];
+    
+    timers.forEach(timerName => {
+      if (this[timerName] && !this[timerName].hasDispatched) {
+        this[timerName].destroy();
+        this[timerName] = null;
       }
-      this.updateHPBar();
     });
   }
+
+  cleanupPortals() {
+    this.portals.forEach(portal => this.deactivatePortal(portal));
+    this.portals = [];
+    this.activePortal = null;
+    this.isTeleporting = false;
+  }
+
+  cleanupManagers() {
+    if (this.playerLevelSystem) {
+      this.playerLevelSystem.destroy();
+      this.playerLevelSystem = null;
+    }
+
+    if (this.mobManager) {
+      this.mobManager.shutdown();
+      this.mobManager = null;
+    }
+
+    if (window.currentGameScene === this) {
+      delete window.currentGameScene;
+    }
+  }
+
+  cleanupEventListeners() {
+    const events = ['request-initial-gold', 'main-scene-started', 'wave-updated'];
+    events.forEach(event => EventBus.removeListener(event));
+  }
+
   /* END-USER-CODE */
 }
 
