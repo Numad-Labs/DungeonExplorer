@@ -32,14 +32,10 @@ export default class MainMapScene extends BaseGameScene {
     this.vaseSpawner = null;
     this.playerLevelSystem = null;
     this.mobManager = null;
-
-    // Timer system properties
     this.gameTimer = null;
     this.gameStartTime = 0;
     this.gameTime = 0;
     this.isGameRunning = false;
-
-    // Enemy spawning properties
     this.enemySpawnTimer = null;
     this.waveTimer = null;
     this.difficultyTimer = null;
@@ -65,14 +61,9 @@ export default class MainMapScene extends BaseGameScene {
   // Add the missing startEnemySpawning method
   startEnemySpawning() {
     try {
-      console.log("Starting enemy spawning and game timer...");
-
-      // Start the game timer
       this.gameStartTime = Date.now();
       this.gameTime = 0;
       this.isGameRunning = true;
-
-      // Create main game timer that updates every second
       this.gameTimer = this.time.addEvent({
         delay: 1000,
         callback: () => {
@@ -86,10 +77,8 @@ export default class MainMapScene extends BaseGameScene {
         loop: true,
       });
 
-      // Start wave system through MobManager
       if (this.mobManager) {
         this.mobManager.startWave(1);
-        console.log("Wave 1 started through MobManager");
       } else {
         console.warn("MobManager not available, starting basic enemy spawning");
         this.startBasicEnemySpawning();
@@ -104,7 +93,7 @@ export default class MainMapScene extends BaseGameScene {
 
       // Start wave advancement timer
       this.waveTimer = this.time.addEvent({
-        delay: 30000, // 30 seconds per wave
+        delay: 30000,
         callback: () => {
           this.advanceWave();
         },
@@ -117,9 +106,8 @@ export default class MainMapScene extends BaseGameScene {
 
   startBasicEnemySpawning() {
     try {
-      // Fallback enemy spawning if MobManager is not available
       this.enemySpawnTimer = this.time.addEvent({
-        delay: 2000, // Spawn enemy every 2 seconds
+        delay: 1000,
         callback: () => {
           // Basic enemy spawning logic
           console.log("Basic enemy spawn triggered");
@@ -134,52 +122,25 @@ export default class MainMapScene extends BaseGameScene {
 
   ensureEnemyGroups() {
     try {
-      console.log("Ensuring enemy groups exist for attack system...");
-
-      // Don't create new groups if they already exist from managers
       if (!this.enemies && this.gameplayManager?.enemies) {
         this.enemies = this.gameplayManager.enemies;
-        console.log("Connected enemies group from gameplayManager");
       } else if (!this.enemies) {
         this.enemies = this.physics.add.group();
-        console.log("Created new enemies group");
       }
 
-      // Connect to mobManager's group if available
       if (this.gameplayManager?.mobManager?.mobGroup) {
         this.enemies = this.gameplayManager.mobManager.mobGroup;
-        console.log("Connected enemies group to mobManager.mobGroup");
       }
 
-      // Ensure zombieGroup exists but don't override mobManager groups
       if (!this.zombieGroup) {
         this.zombieGroup = this.physics.add.group();
-        console.log("Created zombieGroup");
       }
 
-      // Ensure breakableVases group exists (created by VaseSpawner)
       if (!this.breakableVases) {
         this.breakableVases = this.physics.add.staticGroup();
-        console.log("Created breakableVases group");
       }
 
-      // Update PlayerAttack system after groups are ready
       this.connectAttackSystem();
-
-      console.log("Enemy groups setup complete:", {
-        enemies:
-          !!this.enemies && this.enemies.children
-            ? this.enemies.children.size
-            : "No enemies group",
-        zombieGroup:
-          !!this.zombieGroup && this.zombieGroup.children
-            ? this.zombieGroup.children.size
-            : "No zombie group",
-        breakableVases:
-          !!this.breakableVases && this.breakableVases.children
-            ? this.breakableVases.children.size
-            : "No vases group",
-      });
     } catch (error) {
       console.error("Error ensuring enemy groups:", error);
     }
@@ -187,14 +148,12 @@ export default class MainMapScene extends BaseGameScene {
 
   updateTimerDisplay() {
     try {
-      // Format time as MM:SS
       const minutes = Math.floor(this.gameTime / 60);
       const seconds = this.gameTime % 60;
       const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
         .toString()
         .padStart(2, "0")}`;
 
-      // Emit timer update event for React components
       EventBus.emit("timer-updated", {
         gameTime: this.gameTime,
         formattedTime: formattedTime,
@@ -529,37 +488,23 @@ export default class MainMapScene extends BaseGameScene {
       this.editorCreate();
       this.setupCollisions();
       this.player = this.playerPrefab;
-
-      // Initialize managers in correct order
       this.initializeManagers();
 
-      // Set up walking area after managers are initialized
       if (this.gameplayManager?.mobManager && this.walkingArea_1) {
         this.gameplayManager.mobManager.setWalkingAreaFromTilemap(
           this.walkingArea_1
         );
       }
 
-      // Set up game systems
       this.setupPlayerAttack();
-      //   this.setupPortalSystem();
-      this.setupTestControls();
       this.setupZombieCollisionSystem();
       this.setupHPBarIntegration();
       this.setupPlayerLevelSystem();
-
-      // Set up vase spawning after scene is fully initialized
       this.setupVaseSpawning();
-
-      // Initialize UI and MobManager last
       this.initializeUIManager();
       this.initializeMobManager();
       this.setupLavaAnimations();
-
-      // Ensure enemy groups exist for attack system after everything is set up
       this.ensureEnemyGroups();
-
-      // Start the game timer and enemy spawning last
       this.startEnemySpawning();
     } catch (error) {
       console.error("Error in MainMapScene create:", error);
@@ -586,27 +531,8 @@ export default class MainMapScene extends BaseGameScene {
 
   connectAttackSystem() {
     try {
-      console.log("Connecting attack system to enemy groups...");
-
-      // Ensure PlayerAttack system has access to all groups
       if (this.playerAttackSystem) {
-        // Update the attack system's scene reference
         this.playerAttackSystem.scene = this;
-
-        console.log("Attack system connected. Available groups:", {
-          enemies:
-            !!this.enemies && this.enemies.children
-              ? this.enemies.children.size
-              : "No enemies group",
-          breakableVases:
-            !!this.breakableVases && this.breakableVases.children
-              ? this.breakableVases.children.size
-              : "No vases group",
-          zombieGroup:
-            !!this.zombieGroup && this.zombieGroup.children
-              ? this.zombieGroup.children.size
-              : "No zombie group",
-        });
       } else {
         console.warn("PlayerAttack system not yet created");
       }
@@ -806,7 +732,6 @@ export default class MainMapScene extends BaseGameScene {
         portal.activeTween = null;
       }
 
-      // Clean up overlap handler
       if (portal.overlapHandler && this.physics && this.physics.world) {
         this.physics.world.removeCollider(portal.overlapHandler);
         portal.overlapHandler = null;
@@ -833,7 +758,6 @@ export default class MainMapScene extends BaseGameScene {
     const destinationScene = portal.destinationScene;
     this.isTeleporting = true;
 
-    // Add null check for player and createTeleportEffect
     if (
       this.player &&
       this.player.active &&
@@ -878,7 +802,6 @@ export default class MainMapScene extends BaseGameScene {
 
   cleanupBeforePortalTeleport() {
     try {
-      // Clean up timers with proper checks
       const timersToClean = [
         "enemySpawnTimer",
         "waveTimer",
@@ -917,7 +840,6 @@ export default class MainMapScene extends BaseGameScene {
         }
       });
 
-      // Reset counters
       this.currentWave = 0;
       this.isWaveActive = false;
       this.waveEnemiesRemaining = 0;
@@ -991,235 +913,6 @@ export default class MainMapScene extends BaseGameScene {
     }
   }
 
-  setupTestControls() {
-    try {
-      if (typeof super.setupTestControls === "function") {
-        super.setupTestControls();
-      }
-
-      if (this.input && this.input.keyboard) {
-        this.input.keyboard.on("keydown-P", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            this.activateRandomPortal();
-          }
-        });
-
-        this.input.keyboard.on("keydown-O", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            this.portals.forEach((portal, index) => {
-              console.log(
-                `Portal ${index}: Active = ${portal.isActive}, Destination = ${
-                  portal.destinationScene || "None"
-                }`
-              );
-            });
-          }
-        });
-
-        this.input.keyboard.on("keydown-V", () => {
-          if (
-            this.gameManager &&
-            this.gameManager.debugMode &&
-            this.vaseSpawner
-          ) {
-            const stats = this.vaseSpawner.getStatistics();
-            console.log("=== VASE STATISTICS ===");
-            console.log(`Active vases: ${stats.activeVases}/${stats.maxVases}`);
-            console.log(`Spawn positions: ${stats.totalSpawnPositions}`);
-            console.log(`Spawn chance: ${stats.spawnChance}`);
-            console.log(`Respawn enabled: ${stats.respawnEnabled}`);
-          }
-        });
-
-        this.input.keyboard.on("keydown-B", () => {
-          if (
-            this.gameManager &&
-            this.gameManager.debugMode &&
-            this.vaseSpawner &&
-            this.player
-          ) {
-            const testVase = this.vaseSpawner.createVase(
-              this.player.x + 50,
-              this.player.y + 50,
-              "Vase"
-            );
-            if (testVase) {
-              console.log("Spawned test vase near player");
-            }
-          }
-        });
-
-        this.input.keyboard.on("keydown-E", () => {
-          if (
-            this.gameManager &&
-            this.gameManager.debugMode &&
-            this.playerLevelSystem
-          ) {
-            this.playerLevelSystem.addExperience(50);
-          }
-        });
-
-        this.input.keyboard.on("keydown-G", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            this.gameManager.addGold(100);
-          }
-        });
-
-        // Timer debug controls
-        this.input.keyboard.on("keydown-T", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            EventBus.emit("timer-reset");
-          }
-        });
-
-        this.input.keyboard.on("keydown-Y", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            EventBus.emit("timer-start");
-          }
-        });
-
-        this.input.keyboard.on("keydown-U", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            EventBus.emit("timer-stop");
-          }
-        });
-
-        // Wave debug controls
-        this.input.keyboard.on("keydown-PLUS", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            // Use timer controls to advance wave
-            if (window.timerControls) {
-              window.timerControls.advanceWave();
-            }
-          }
-        });
-
-        this.input.keyboard.on("keydown-MINUS", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            // Use timer controls to decrease wave
-            if (window.timerControls) {
-              const currentState = window.timerControls.getState();
-              const newWave = Math.max(1, currentState.currentWave - 1);
-              window.timerControls.setWave(newWave);
-            }
-          }
-        });
-
-        // Test vase breaking
-        this.input.keyboard.on("keydown-X", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            console.log("Testing vase breaking...");
-            this.testVaseBreaking();
-          }
-        });
-
-        // Test attack system
-        this.input.keyboard.on("keydown-Z", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            console.log("Testing attack system...");
-            this.testAttackSystem();
-          }
-        });
-
-        // Display debug help
-        this.input.keyboard.on("keydown-F1", () => {
-          if (this.gameManager && this.gameManager.debugMode) {
-            console.log("=== DEBUG CONTROLS ===");
-            console.log("~ - Toggle debug mode");
-            console.log("P - Activate random portal");
-            console.log("V - Show vase statistics");
-            console.log("B - Spawn test vase near player");
-            console.log("X - Test vase breaking");
-            console.log("Z - Test attack system");
-            console.log("E - Add experience");
-            console.log("G - Add gold");
-            console.log("T - Reset timer | Y - Start timer | U - Stop timer");
-            console.log("F1 - Show this help");
-          }
-        });
-      }
-    } catch (error) {
-      console.error("Error setting up portal test controls:", error);
-    }
-  }
-
-  testVaseBreaking() {
-    try {
-      console.log("=== TESTING VASE BREAKING ===");
-
-      if (!this.breakableVases) {
-        console.error("No breakableVases group found!");
-        return;
-      }
-
-      const vases = this.breakableVases.getChildren();
-      console.log(`Found ${vases.length} vases`);
-
-      if (vases.length > 0) {
-        const testVase = vases[0];
-        console.log("Testing vase:", testVase);
-        console.log(
-          "Vase has onPlayerAttack method:",
-          typeof testVase.onPlayerAttack
-        );
-
-        if (testVase.onPlayerAttack) {
-          testVase.onPlayerAttack(999);
-          console.log("Called onPlayerAttack on test vase");
-        } else {
-          console.error("Vase does not have onPlayerAttack method!");
-        }
-      } else {
-        console.warn("No vases available to test");
-      }
-    } catch (error) {
-      console.error("Error testing vase breaking:", error);
-    }
-  }
-
-  testAttackSystem() {
-    try {
-      console.log("=== TESTING ATTACK SYSTEM ===");
-
-      if (!this.playerAttackSystem) {
-        console.error("No playerAttackSystem found!");
-        return;
-      }
-
-      console.log("PlayerAttack system exists");
-      console.log("Scene groups available:", {
-        enemies: !!this.enemies,
-        breakableVases: !!this.breakableVases,
-        zombieGroup: !!this.zombieGroup,
-      });
-
-      // Test findEnemiesInSlashRange
-      if (this.playerAttackSystem.findEnemiesInSlashRange) {
-        const enemiesInRange =
-          this.playerAttackSystem.findEnemiesInSlashRange();
-        console.log(`Found ${enemiesInRange.length} targets in slash range`);
-
-        enemiesInRange.forEach((enemyData, index) => {
-          console.log(`Target ${index}:`, {
-            isVase: enemyData.isVase,
-            distance: enemyData.distance,
-            enemy: enemyData.enemy,
-          });
-        });
-
-        // Trigger a manual slash attack if enemies found
-        if (enemiesInRange.length > 0) {
-          console.log("Triggering manual slash attack...");
-          this.playerAttackSystem.slashAttack(enemiesInRange);
-        }
-      } else {
-        console.error("findEnemiesInSlashRange method not found!");
-      }
-    } catch (error) {
-      console.error("Error testing attack system:", error);
-    }
-  }
-
   trackEnemyKill(enemy) {
     if (typeof this.removeZombie === "function") {
       this.removeZombie(enemy);
@@ -1274,10 +967,8 @@ export default class MainMapScene extends BaseGameScene {
 
   shutdown() {
     try {
-      // Stop game timer
       this.isGameRunning = false;
 
-      // Clean up all timers
       const timersToClean = [
         "portalTimer",
         "gameTimer",
@@ -1318,7 +1009,6 @@ export default class MainMapScene extends BaseGameScene {
       EventBus.removeListener("request-initial-gold");
       EventBus.removeListener("main-scene-started");
       EventBus.removeListener("wave-updated");
-
       EventBus.emit("timer-stop");
 
       if (this.uiManager) {
@@ -1345,15 +1035,11 @@ export default class MainMapScene extends BaseGameScene {
 
   setupVaseSpawning() {
     try {
-      console.log("Setting up vase spawning...");
-
-      // Ensure scene is ready
       if (!this.physics || !this.add) {
         console.error("Scene not ready for vase spawning");
         return;
       }
 
-      // Check if Vase texture exists
       if (!this.textures.exists("Vase")) {
         console.error("Vase texture not loaded, skipping vase spawning");
         return;
@@ -1378,8 +1064,6 @@ export default class MainMapScene extends BaseGameScene {
           excludeTileIndices: [0],
           removeTiles: false,
         });
-
-        console.log(`Successfully spawned ${vasesSpawned} vases`);
       } else {
         console.error("vase_1 layer not found!");
       }
