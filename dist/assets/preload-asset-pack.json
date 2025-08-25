@@ -165,7 +165,7 @@
             {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Attack_85x112.png",
                 "frameConfig": {
-                    "frameWidth": 85,
+                    "frameWidth": 84,
                     "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
@@ -178,7 +178,7 @@
             {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Death_85x32.png",
                 "frameConfig": {
-                    "frameWidth": 85,
+                    "frameWidth": 84,
                     "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
@@ -189,9 +189,22 @@
                 "key": "Archer Bandit-Death_85x32"
             },
             {
+                "url": "public/assets/Hero/assasin archer/Archer Bandit-Run_85x32.png",
+                "frameConfig": {
+                    "frameWidth": 84,
+                    "frameHeight": 112,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Run_85x"
+            },
+            {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Run_85x32.png",
                 "frameConfig": {
-                    "frameWidth": 85,
+                    "frameWidth": 84,
                     "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
@@ -330,6 +343,19 @@
                 },
                 "type": "spritesheet",
                 "key": "Bed"
+            },
+            {
+                "url": "assets/Hero/big dude/Bidamaged and death.png",
+                "frameConfig": {
+                    "frameWidth": 112,
+                    "frameHeight": 74,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Bidamaged and death"
             },
             {
                 "url": "assets/Animated prop/big eye-loop.png",
@@ -881,6 +907,19 @@
                 },
                 "type": "spritesheet",
                 "key": "death hit"
+            },
+            {
+                "url": "public/assets/Hero/zombie 1/death.png",
+                "frameConfig": {
+                    "frameWidth": 46,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "death_1"
             },
             {
                 "url": "assets/Static prop/Decor corner.png",

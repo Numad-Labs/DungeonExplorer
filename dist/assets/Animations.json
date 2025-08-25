@@ -6285,7 +6285,7 @@
                     "keyframe": false
                 }
             ],
-            "frameRate": 8,
+            "frameRate": 10,
             "skipMissedFrames": true,
             "randomFrame": false
         },
@@ -6559,41 +6559,10 @@
                     "frame": 10,
                     "duration": 0,
                     "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 11,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 12,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 13,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 14,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 15,
-                    "duration": 0,
-                    "keyframe": false
                 }
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -6855,7 +6824,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -6985,41 +6953,10 @@
                     "frame": 10,
                     "duration": 0,
                     "keyframe": false
-                },
-                {
-                    "key": "Archer Bandit-Death_85x32",
-                    "frame": 11,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Archer Bandit-Death_85x32",
-                    "frame": 12,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Archer Bandit-Death_85x32",
-                    "frame": 13,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Archer Bandit-Death_85x32",
-                    "frame": 14,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Archer Bandit-Death_85x32",
-                    "frame": 15,
-                    "duration": 0,
-                    "keyframe": false
                 }
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7665,9 +7602,8 @@
                     "keyframe": false
                 }
             ],
-            "frameRate": 8,
+            "frameRate": 6,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7764,7 +7700,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7930,7 +7865,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -8168,7 +8102,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -8344,7 +8277,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -8576,7 +8508,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -8756,6 +8687,165 @@
                 {
                     "key": "Charger_death_50x31_v01",
                     "frame": 9,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "randomFrame": false
+        },
+        {
+            "key": "zombie1Death",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "death_1",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "randomFrame": false
+        },
+        {
+            "key": "bigDudeDeath",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 6,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 7,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Bidamaged and death",
+                    "frame": 8,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "randomFrame": false
+        },
+        {
+            "key": "ArcherNewRun",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 6,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "Archer Bandit-Run_85x32",
+                    "frame": 7,
                     "duration": 0,
                     "keyframe": false
                 }
