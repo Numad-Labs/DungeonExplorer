@@ -116,6 +116,17 @@ export default class Bomber extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
+    if (!this.scene.anims.exists("BomberDeath")) {
+      this.scene.anims.create({
+        key: "BomberDeath",
+        frames: this.scene.anims.generateFrameNumbers("Bomber_Death_v01", {
+          start: 0,
+          end: 6,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
 
     if (!this.scene.anims.exists("Bomber Idle")) {
       this.scene.anims.create({
@@ -277,24 +288,7 @@ export default class Bomber extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 500,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
-
     this.body.enable = false;
-    this.stop();
     this.createExplosionEffect();
     this.dealExplosionDamage();
     if (this.scene.sound && this.scene.sound.get("explosion")) {
@@ -304,15 +298,17 @@ export default class Bomber extends Phaser.GameObjects.Sprite {
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-    this.scene.tweens.add({
-      targets: this,
-      scaleX: 2,
-      scaleY: 2,
-      alpha: 0,
-      duration: 300,
-      ease: "Power2",
-      onComplete: () => this.cleanupAndDestroy(),
-    });
+      this.stop();
+    this.play("BomberDeath", false); 
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "BomberDeath") {
+        this.cleanupAndDestroy();
+      }
+    })
+       if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
 
     this.spawnRewards();
   }

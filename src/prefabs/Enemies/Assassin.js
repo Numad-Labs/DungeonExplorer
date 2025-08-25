@@ -103,17 +103,16 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
-    // Add death animation
     if (!this.scene.anims.exists("Asassin Death")) {
       this.scene.anims.create({
         key: "Asassin Death",
         frames: this.scene.anims.generateFrameNumbers("Dagger Bandit-Death", {
           start: 0,
-          end: 5, // Adjust this based on your death sprite sheet
+          end: 5,
         }),
         frameRate: 6,
-        repeat: 0, // Play only once - no looping
-        hideOnComplete: false // Keep the last frame visible
+        repeat: 0,
+        hideOnComplete: false,
       });
     }
   }
@@ -219,8 +218,6 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
       }
 
       this.updateAnimation();
-
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in Assassinupdate:", error);
@@ -332,8 +329,6 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-
-    // Stop movement immediately
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
@@ -341,24 +336,14 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-
-    // Spawn rewards immediately
     this.spawnRewards();
-
-    // Stop any current animations and play death animation once
     this.stop();
-    this.play("Asassin Death", false); // false ensures it doesn't repeat
-    
-    // Listen for animation complete event (only once)
-    this.once('animationcomplete', (animation) => {
-      // Make sure it's the death animation that completed
+    this.play("Asassin Death", false);
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "Asassin Death") {
-        // Immediately remove the mob after death animation
         this.cleanupAndDestroy();
       }
     });
-
-    // Destroy shadow immediately when death starts
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
@@ -396,7 +381,6 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

@@ -84,6 +84,17 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
                 repeat: 0
             });
         }
+    if (!this.scene.anims.exists("Zombie2DeathAni")) {
+      this.scene.anims.create({
+        key: "Zombie2DeathAni",
+        frames: this.scene.anims.generateFrameNumbers("explodedeath", {
+          start: 0,
+          end: 10,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
     }
     
     createHealthBar() {
@@ -274,38 +285,26 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
         
         this.isDead = true;
         
-        // Destroy shadow with animation
-        if (this.shadow) {
-         this.scene.tweens.add({
-          targets: this.shadow,
-			alpha: 0,
-			scale: 0.5,
-			duration: 300,
-			onComplete: () => {
-				if (this.shadow) {
-					this.shadow.destroy();
-					this.shadow = null;
-				}
-			}
-		});
-		}
-        
         this.body.velocity.x = 0;
         this.body.velocity.y = 0;
         this.body.enable = false;
-        this.stop();
+
         
         if (this.scene.zombieGroup) {
             this.scene.zombieGroup.remove(this);
         }
-        
-        this.scene.tweens.add({
-            targets: this,
-            alpha: 0,
-            scale: 0.8,
-            duration: 300,
-            onComplete: () => this.cleanupAndDestroy()
-        });
+            this.stop();
+    this.play("Zombie2DeathAni", false); 
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "Zombie2DeathAni") {
+        this.cleanupAndDestroy();
+      }
+    })
+
+        if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
         
         this.spawnRewards();
     }

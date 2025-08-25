@@ -107,6 +107,18 @@ export default class Saber extends Phaser.GameObjects.Sprite {
       });
     }
 
+        if (!this.scene.anims.exists("SaberDeath")) {
+      this.scene.anims.create({
+        key: "SaberDeath",
+        frames: this.scene.anims.generateFrameNumbers("saber_death_53x53_v01", {
+          start: 0,
+          end: 17,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
+
     // Check if attack animation exists
     if (
       this.scene.textures.exists("saber_attack") &&
@@ -475,41 +487,23 @@ export default class Saber extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 300,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
-
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
-
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.6,
-      rotation: this.rotation + Math.PI, // Spin on death
-      duration: 450,
-      ease: "Power2",
-      onComplete: () => this.cleanupAndDestroy(),
-    });
-
+      this.stop();
+    this.play("SaberDeath", false); 
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "SaberDeath") {
+        this.cleanupAndDestroy();
+      }
+    })
+       if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
     this.spawnRewards();
   }
 

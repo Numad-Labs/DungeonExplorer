@@ -116,6 +116,17 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
+    if (!this.scene.anims.exists("bigDudeDeath")) {
+      this.scene.anims.create({
+        key: "bigDudeDeath",
+        frames: this.scene.anims.generateFrameNumbers("Bidamaged and death", {
+          start: 0,
+          end: 6,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
   }
 
   createHealthBar() {
@@ -349,38 +360,26 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 500,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
-
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
+
     this.stop();
+    this.play("bigDudeDeath", false); 
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "bigDudeDeath") {
+        this.cleanupAndDestroy();
+      }
+    })
+       if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
+
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.7,
-      duration: 500,
-      onComplete: () => this.cleanupAndDestroy(),
-    });
 
     this.spawnRewards();
   }

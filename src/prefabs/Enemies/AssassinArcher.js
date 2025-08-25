@@ -90,9 +90,9 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   }
 
   createAnimations() {
-    if (!this.scene.anims.exists("AssasinArcher Run")) {
+    if (!this.scene.anims.exists("ArcherNewRun")) {
       this.scene.anims.create({
-        key: "AssasinArcher Run",
+        key: "ArcherNewRun",
         frames: this.scene.anims.generateFrameNumbers(
           "Archer Bandit-Run_85x32",
           { start: 0, end: 7 }
@@ -106,6 +106,21 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
         key: "AssasinArcher",
         frames: [{ key: "Archer Bandit-Run_85x32", frame: 0 }],
         frameRate: 1,
+        repeat: 0,
+      });
+    }
+
+    if (!this.scene.anims.exists("AssassinArcher Death")) {
+      this.scene.anims.create({
+        key: "AssassinArcher Death",
+        frames: this.scene.anims.generateFrameNumbers(
+          "Archer Bandit-Death_85x32",
+          {
+            start: 0,
+            end: 10,
+          }
+        ),
+        frameRate: 6,
         repeat: 0,
       });
     }
@@ -212,8 +227,6 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
       }
 
       this.updateAnimation();
-
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in AssasinArcher update:", error);
@@ -278,9 +291,9 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     if (this.isMoving) {
       if (
         !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "AssasinArcher Run"
+        this.anims.currentAnim.key !== "ArcherNewRun"
       ) {
-        this.play("AssasinArcher Run");
+        this.play("ArcherNewRun");
       }
       if (this.lastDirection === "right") {
         this.setFlipX(false);
@@ -329,38 +342,25 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 300,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
-
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.8,
-      duration: 300,
-      onComplete: () => this.cleanupAndDestroy(),
+    this.stop();
+    this.play("AssassinArcher Death", false);
+    this.once("animationcomplete", (animation) => {
+      if (animation.key === "AssassinArcher Death") {
+        this.cleanupAndDestroy();
+      }
     });
+
+    if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
 
     this.spawnRewards();
   }
@@ -396,7 +396,6 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
