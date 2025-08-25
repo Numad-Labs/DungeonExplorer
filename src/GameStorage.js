@@ -25,13 +25,7 @@ export function saveToLocalStorage(gameData) {
         longestSurvivalTime: 0,
         averageSurvivalTime: 0
       },
-      gameStats: gameData.gameStats || {
-        totalGoldEarned: 0,
-        totalEnemiesKilled: 0,
-        totalExperienceGained: 0,
-        highestLevel: 1,
-        longestSurvivalTime: 0
-      },
+
       lastRunStats: gameData.lastRunStats || null,
       savedAt: new Date().toISOString(),
       version: "1.0"
@@ -112,13 +106,7 @@ export function resetProgress(startingGold = 500) {
         longestSurvivalTime: 0,
         averageSurvivalTime: 0
       },
-      gameStats: {
-        totalGoldEarned: 0,
-        totalEnemiesKilled: 0,
-        totalExperienceGained: 0,
-        highestLevel: 1,
-        longestSurvivalTime: 0
-      },
+
       lastRunStats: null,
       savedAt: new Date().toISOString(),
       version: "1.0"
