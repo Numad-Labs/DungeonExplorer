@@ -13,14 +13,12 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this, false);
     this.body.setSize(32, 32, false);
     this.body.setOffset(16, 32);
-
-    // Warrior stats - balanced fighter with good speed and damage
     this.maxHealth = 60;
     this.health = this.maxHealth;
     this.damage = 20;
-    this.speed = 45; // Faster than BigDude, slower than Wreacker
-    this.attackRange = 35; // Medium attack range
-    this.attackCooldown = 1000; // Balanced attack speed
+    this.speed = 45; 
+    this.attackRange = 35; 
+    this.attackCooldown = 1000; 
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
@@ -60,7 +58,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     );
 
     if (distance < 28) {
-      // Standard collision radius for Warrior
       const angle = Phaser.Math.Angle.Between(
         zombie1.x,
         zombie1.y,
@@ -68,7 +65,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         zombie2.y
       );
 
-      const separationForce = 35; // Standard push force
+      const separationForce = 35;
       const pushX = Math.cos(angle) * separationForce;
       const pushY = Math.sin(angle) * separationForce;
 
@@ -78,14 +75,13 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
       zombie1.body.velocity.y -= pushY;
 
       if (warrior) {
-        warrior.body.velocity.x -= pushX * 0.6; // Warrior has balanced resistance
+        warrior.body.velocity.x -= pushX * 0.6; 
         warrior.body.velocity.y -= pushY * 0.6;
       }
     }
   }
 
   createAnimations() {
-    // Create Warrior Run animation using WarriorRun texture (following Wreacker pattern)
     if (!this.scene.anims.exists("Warrior-Run")) {
       this.scene.anims.create({
         key: "Warrior-Run",
@@ -98,7 +94,17 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
       });
     }
 
-    // Create attack animation if attack texture exists (following Wreacker pattern)
+    if (!this.scene.anims.exists("WarriorDeath")) {
+      this.scene.anims.create({
+        key: "WarriorDeath",
+        frames: this.scene.anims.generateFrameNumbers("Warrior-Death.png", {
+          start: 0,
+          end: 12,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
     if (
       this.scene.textures.exists("WarriorAttack") &&
       !this.scene.anims.exists("Warrior Attack")
@@ -110,11 +116,9 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
           end: 5,
         }),
         frameRate: 10,
-        repeat: 0, // Play once for attack
+        repeat: 0, 
       });
     }
-
-    // Create idle animation (following Wreacker pattern)
     if (!this.scene.anims.exists("Warrior Idle")) {
       this.scene.anims.create({
         key: "Warrior Idle",
@@ -181,7 +185,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
       );
 
       if (distance > this.attackRange) {
-        // Move towards player - Warrior has balanced movement
         const angle = Phaser.Math.Angle.Between(
           this.x,
           this.y,
@@ -192,7 +195,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         const forceY = Math.sin(angle) * this.speed * 0.11;
         this.body.velocity.x += forceX;
         this.body.velocity.y += forceY;
-        this.body.velocity.x *= 0.87; // Balanced damping
+        this.body.velocity.x *= 0.87; 
         this.body.velocity.y *= 0.87;
         this.applyZombieAvoidance();
 
@@ -210,7 +213,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         this.isMoving = true;
         this.updateDirection(angle);
       } else {
-        // Stop and attack
         this.body.velocity.x *= 0.75;
         this.body.velocity.y *= 0.75;
         const currentSpeed = Math.sqrt(
@@ -226,8 +228,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
       }
 
       this.updateAnimation();
-
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in Warrior update:", error);
@@ -237,8 +237,8 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   applyZombieAvoidance() {
     if (!this.scene.zombieGroup) return;
 
-    const avoidanceRadius = 32; // Standard avoidance radius
-    const avoidanceForce = 19; // Standard avoidance force
+    const avoidanceRadius = 32; 
+    const avoidanceForce = 19;
     let totalAvoidanceX = 0;
     let totalAvoidanceY = 0;
     let nearbyZombies = 0;
@@ -269,7 +269,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     });
 
     if (nearbyZombies > 0) {
-      this.body.velocity.x += totalAvoidanceX * 0.09; // Balanced avoidance effect
+      this.body.velocity.x += totalAvoidanceX * 0.09;
       this.body.velocity.y += totalAvoidanceY * 0.09;
     }
   }
@@ -290,21 +290,18 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
 
   updateAnimation() {
     if (this.isMoving) {
-      // Use run animation when moving
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "Warrior-Run"
       ) {
         this.play("Warrior-Run");
       }
-      // Handle flipping for direction
       if (this.lastDirection === "right") {
         this.setFlipX(false);
       } else if (this.lastDirection === "left") {
         this.setFlipX(true);
       }
     } else {
-      // Use idle animation when not moving
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "Warrior Idle"
@@ -316,23 +313,18 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
 
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
-
-    // Play attack animation if it exists, otherwise use a tint effect
     if (this.scene.anims.exists("Warrior Attack")) {
       this.play("Warrior Attack");
-
-      // Deal damage after animation delay
       this.scene.time.delayedCall(300, () => {
         if (player && player.takeDamage && !this.isDead) {
           player.takeDamage(this.damage);
         }
       });
     } else {
-      // Fallback: immediate damage with visual effect
       player.takeDamage(this.damage);
     }
 
-    this.setTint(0xffaa00); // Golden tint for warrior attack
+    this.setTint(0xffaa00);
     this.scene.time.delayedCall(180, () => {
       if (this.active) {
         this.clearTint();
@@ -364,39 +356,27 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 450,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
+      this.stop();
+    this.play("WarriorDeath", false); 
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "WarriorDeath") {
+        this.cleanupAndDestroy();
+      }
+    })
+       if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
     }
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
 
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.65,
-      duration: 450,
-      onComplete: () => this.cleanupAndDestroy(),
-    });
+
 
     this.spawnRewards();
   }
@@ -404,7 +384,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   spawnRewards() {
     try {
       if (this.scene.spawnExperienceOrb) {
-        const orbCount = Phaser.Math.Between(3, 5); // Balanced rewards
+        const orbCount = Phaser.Math.Between(3, 5); 
 
         for (let i = 0; i < orbCount; i++) {
           const xOffset = Phaser.Math.Between(-13, 13);
@@ -413,7 +393,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
           this.scene.spawnExperienceOrb(
             this.x + xOffset,
             this.y + yOffset,
-            1.8 // Balanced experience value
+            1.8
           );
         }
       }
@@ -436,7 +416,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

@@ -44,8 +44,6 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     this.isShielded = false;
     this.shieldDuration = 4000;
     this.shieldStartTime = 0;
-
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -119,6 +117,18 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
         }),
         frameRate: 8,
         repeat: -1,
+      });
+    }
+
+        if (!this.scene.anims.exists("guardianDeath")) {
+      this.scene.anims.create({
+        key: "guardianDeath",
+        frames: this.scene.anims.generateFrameNumbers("guardian_death_224x45", {
+          start: 0,
+          end: 6,
+        }),
+        frameRate: 6,
+        repeat: 0,
       });
     }
 
@@ -315,8 +325,6 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
       }
 
       this.updateAnimation();
-
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in Guardian update:", error);
@@ -356,7 +364,6 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
 
   handleCharge(time) {
     if (time - this.chargeStartTime >= this.chargeDuration) {
-      // End charge
       this.isCharging = false;
       if (!this.isShielded) {
         this.clearTint();
@@ -545,40 +552,25 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 300,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
-
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
+
+          this.stop();
+    this.play("guardianDeath", false); 
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "guardianDeath") {
+        this.cleanupAndDestroy();
+      }
+    })
+       if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 1.2,
-      duration: 800,
-      ease: "Power2",
-      onComplete: () => this.cleanupAndDestroy(),
-    });
-
     this.spawnRewards();
   }
 
@@ -613,7 +605,6 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

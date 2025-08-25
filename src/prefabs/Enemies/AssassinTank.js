@@ -103,6 +103,17 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
+    if (!this.scene.anims.exists("AssassinTank Death")) {
+      this.scene.anims.create({
+        key: "AssassinTank Death",
+        frames: this.scene.anims.generateFrameNumbers("death", {
+          start: 0,
+          end: 11,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
   }
 
   createHealthBar() {
@@ -206,8 +217,6 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
       }
 
       this.updateAnimation();
-
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in AssassinTank update:", error);
@@ -323,38 +332,24 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 300,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
-
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.8,
-      duration: 300,
-      onComplete: () => this.cleanupAndDestroy(),
+    this.stop();
+    this.play("AssassinTank Death", false);
+    this.once("animationcomplete", (animation) => {
+      if (animation.key === "AssassinTank Death") {
+        this.cleanupAndDestroy();
+      }
     });
+    if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
 
     this.spawnRewards();
   }
@@ -390,7 +385,6 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
