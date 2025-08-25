@@ -29,7 +29,7 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
     this.isDead = false;
     this.isMoving = false;
     this.lastDirection = "down";
-    // this.createHealthBar();s
+    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -96,6 +96,18 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
         }),
         frameRate: 10,
         repeat: -1,
+      });
+    }
+
+    if (!this.scene.anims.exists("CrawlerDeath")) {
+      this.scene.anims.create({
+        key: "CrawlerDeath",
+        frames: this.scene.anims.generateFrameNumbers("crawler_death_32x16_v01.png", {
+          start: 0,
+          end: 6,
+        }),
+        frameRate: 6,
+        repeat: 0,
       });
     }
 
@@ -356,26 +368,12 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 400,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
+
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
+
 
     if (
       this.scene &&
@@ -385,13 +383,18 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
       this.scene.zombieGroup.remove(this);
     }
 
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.5,
-      duration: 400,
-      onComplete: () => this.cleanupAndDestroy(),
-    });
+    this.stop();
+    this.play("CrawlerDeath", false);
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "CrawlerDeath") {
+        this.cleanupAndDestroy();
+      }
+    })
+
+if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
 
     this.spawnRewards();
   }
