@@ -89,6 +89,17 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         repeat: -1,
       });
     }
+        if (!this.scene.anims.exists("zombie1 death")) {
+      this.scene.anims.create({
+        key: "zombie1 death",
+        frames: this.scene.anims.generateFrameNumbers("death_1", {
+          start: 0,
+          end: 4,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
     if (!this.scene.anims.exists("zombieIdle")) {
       this.scene.anims.create({
         key: "zombieIdle",
@@ -315,40 +326,34 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 300,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
 
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.8,
-      duration: 300,
-      onComplete: () => this.cleanupAndDestroy(),
-    });
+      this.spawnRewards();
 
-    this.spawnRewards();
+    // Stop any current animations and play death animation once
+    this.stop();
+    this.play("zombie1Death", false); // false ensures it doesn't repeat
+    
+    // Listen for animation complete event (only once)
+    this.once('animationcomplete', (animation) => {
+      // Make sure it's the death animation that completed
+      if (animation.key === "zombie1Death") {
+        // Immediately remove the mob after death animation
+        this.cleanupAndDestroy();
+      }
+    })
+
+if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
   }
 
   spawnRewards() {

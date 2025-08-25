@@ -98,6 +98,18 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       });
     }
 
+            if (!this.scene.anims.exists("WreackerDeath")) {
+      this.scene.anims.create({
+        key: "WreackerDeath",
+        frames: this.scene.anims.generateFrameNumbers("WreackerDeath", {
+          start: 0,
+          end: 4,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
+
     // Create attack animation if attack texture exists
     if (
       this.scene.textures.exists("WreackerAttack") &&
@@ -365,40 +377,33 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 450,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
+
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
+    this.stop();
+    this.play("WreackerDeath", false); // false ensures it doesn't repeat
+    
+    // Listen for animation complete event (only once)
+    this.once('animationcomplete', (animation) => {
+      // Make sure it's the death animation that completed
+      if (animation.key === "WreackerDeath") {
+        // Immediately remove the mob after death animation
+        this.cleanupAndDestroy();
+      }
+    })
 
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.6,
-      duration: 400,
-      onComplete: () => this.cleanupAndDestroy(),
-    });
+if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
 
-    this.spawnRewards();
+ this.spawnRewards();
   }
 
   spawnRewards() {

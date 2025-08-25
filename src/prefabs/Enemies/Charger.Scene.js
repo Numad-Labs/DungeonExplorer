@@ -100,6 +100,18 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       });
     }
 
+   if (!this.scene.anims.exists("chargerDeath")) {
+      this.scene.anims.create({
+        key: "chargerDeath",
+        frames: this.scene.anims.generateFrameNumbers("Charger_death_50x31_v01", {
+          start: 0,
+          end: 4,
+        }),
+        frameRate: 6,
+        repeat: 0,
+      });
+    }
+
     if (!this.scene.anims.exists("Charger Charge")) {
       this.scene.anims.create({
         key: "Charger Charge",
@@ -424,26 +436,11 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     this.isDead = true;
     this.isCharging = false;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 400,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
+
 
     if (
       this.scene &&
@@ -453,13 +450,19 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       this.scene.chargerGroup.remove(this);
     }
 
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.8,
-      duration: 400,
-      onComplete: () => this.cleanupAndDestroy(),
-    });
+    this.stop();
+    this.play("chargerDeath", false); 
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "chargerDeath") {
+        this.cleanupAndDestroy();
+      }
+    })
+
+if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
+
 
     this.spawnRewards();
   }
@@ -476,7 +479,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
           this.scene.spawnExperienceOrb(
             this.x + xOffset,
             this.y + yOffset,
-            1.5 // Medium experience value
+            1.5
           );
         }
       }

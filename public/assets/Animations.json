@@ -6559,41 +6559,10 @@
                     "frame": 10,
                     "duration": 0,
                     "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 11,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 12,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 13,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 14,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Dagger Bandit-Death",
-                    "frame": 15,
-                    "duration": 0,
-                    "keyframe": false
                 }
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7665,9 +7634,8 @@
                     "keyframe": false
                 }
             ],
-            "frameRate": 8,
+            "frameRate": 6,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7930,7 +7898,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -8762,7 +8729,45 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "zombie1Death",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "death_1",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "death_1",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
             "randomFrame": false
         }
     ],

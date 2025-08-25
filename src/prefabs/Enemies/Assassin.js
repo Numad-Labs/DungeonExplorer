@@ -103,6 +103,19 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
+    // Add death animation
+    if (!this.scene.anims.exists("Asassin Death")) {
+      this.scene.anims.create({
+        key: "Asassin Death",
+        frames: this.scene.anims.generateFrameNumbers("Dagger Bandit-Death", {
+          start: 0,
+          end: 5, // Adjust this based on your death sprite sheet
+        }),
+        frameRate: 6,
+        repeat: 0, // Play only once - no looping
+        hideOnComplete: false // Keep the last frame visible
+      });
+    }
   }
 
   createHealthBar() {
@@ -320,40 +333,36 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-    // Destroy shadow with animation
-    if (this.shadow) {
-      this.scene.tweens.add({
-        targets: this.shadow,
-        alpha: 0,
-        scale: 0.5,
-        duration: 300,
-        onComplete: () => {
-          if (this.shadow) {
-            this.shadow.destroy();
-            this.shadow = null;
-          }
-        },
-      });
-    }
-
+    // Stop movement immediately
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-    this.stop();
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
 
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      scale: 0.8,
-      duration: 300,
-      onComplete: () => this.cleanupAndDestroy(),
+    // Spawn rewards immediately
+    this.spawnRewards();
+
+    // Stop any current animations and play death animation once
+    this.stop();
+    this.play("Asassin Death", false); // false ensures it doesn't repeat
+    
+    // Listen for animation complete event (only once)
+    this.once('animationcomplete', (animation) => {
+      // Make sure it's the death animation that completed
+      if (animation.key === "Asassin Death") {
+        // Immediately remove the mob after death animation
+        this.cleanupAndDestroy();
+      }
     });
 
-    this.spawnRewards();
+    // Destroy shadow immediately when death starts
+    if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
+    }
   }
 
   spawnRewards() {

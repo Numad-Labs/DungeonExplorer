@@ -883,6 +883,19 @@
                 "key": "death hit"
             },
             {
+                "url": "public/assets/Hero/zombie 1/death.png",
+                "frameConfig": {
+                    "frameWidth": 46,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "death_1"
+            },
+            {
                 "url": "assets/Static prop/Decor corner.png",
                 "frameConfig": {
                     "frameWidth": 32,
