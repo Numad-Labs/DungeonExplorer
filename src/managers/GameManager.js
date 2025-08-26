@@ -17,30 +17,17 @@ const StateFactory = {
   }),
 
   createRunStats: () => ({
-    survivalTime: 0,
-    maxLevel: 1,
-    enemiesKilled: 0,
-    goldEarned: 0,
-    experienceGained: 0,
-    damageDealt: 0,
-    damageTaken: 0,
-    causeOfDeath: null
+    survivalTime: 0, maxLevel: 1, enemiesKilled: 0, goldEarned: 0,
+    experienceGained: 0, damageDealt: 0, damageTaken: 0, causeOfDeath: null
   }),
 
   createAllTimeStats: () => ({
-    totalRuns: 0,
-    totalGoldEarned: 0,
-    totalEnemiesKilled: 0,
-    totalExperienceGained: 0,
-    totalDamageDealt: 0,
-    highestLevel: 1,
-    longestSurvivalTime: 0,
-    averageSurvivalTime: 0
+    totalRuns: 0, totalGoldEarned: 0, totalEnemiesKilled: 0, totalExperienceGained: 0,
+    totalDamageDealt: 0, highestLevel: 1, longestSurvivalTime: 0, averageSurvivalTime: 0
   }),
 
   createGameProgress: () => ({
-    gameTime: 0,
-    currentDifficulty: 1,
+    gameTime: 0, currentDifficulty: 1,
     maxEnemies: GameConfig.BALANCE.DIFFICULTY.MAX_ENEMIES_BASE,
     enemySpawnDelay: GameConfig.BALANCE.DIFFICULTY.SPAWN_DELAY_BASE
   })
@@ -59,27 +46,21 @@ class UpgradeSystem {
     const newLevel = currentLevel + 1;
     const newValue = upgrade.base + (upgrade.perLevel * newLevel);
 
-    this.executeUpgrade(upgradeId, cost, newLevel, newValue);
-    return true;
-  }
-
-  canPurchase(upgradeId, cost) {
-    if (this.gameManager.gold < cost) return false;
-    if (!GameConfig.UPGRADES[upgradeId]) return false;
-
-    const upgrade = GameConfig.UPGRADES[upgradeId];
-    const currentLevel = this.gameManager.passiveUpgrades[upgradeId]?.level || 0;
-    
-    return currentLevel < upgrade.maxLevel;
-  }
-
-  executeUpgrade(upgradeId, cost, newLevel, newValue) {
     this.gameManager.gold -= cost;
     this.gameManager.passiveUpgrades[upgradeId] = { level: newLevel, value: newValue };
     
     this.gameManager.saveGame();
     this.gameManager.emitStateUpdate();
     EventBus.emit('game-state-updated');
+    return true;
+  }
+
+  canPurchase(upgradeId, cost) {
+    if (this.gameManager.gold < cost) return false;
+    const upgrade = GameConfig.UPGRADES[upgradeId];
+    if (!upgrade) return false;
+    const currentLevel = this.gameManager.passiveUpgrades[upgradeId]?.level || 0;
+    return currentLevel < upgrade.maxLevel;
   }
 
   getUpgradeConfig(upgradeId) {
@@ -92,54 +73,34 @@ class StatsTracker {
     this.gameManager = gameManager;
   }
 
-  updateRunStats(type, value) {
+  trackRunEvent(type, value = 1) {
     if (!this.gameManager.isGameRunning) return;
+    const stats = this.gameManager.currentRunStats;
+    
+    const eventMap = {
+      enemyKill: () => stats.enemiesKilled++,
+      experienceGained: () => stats.experienceGained += value,
+      goldEarned: () => stats.goldEarned += value,
+      damageDealt: () => stats.damageDealt += value,
+      damageTaken: () => stats.damageTaken += value,
+      levelReached: () => stats.maxLevel = Math.max(stats.maxLevel, value)
+    };
 
-    switch (type) {
-      case 'enemyKill':
-        this.gameManager.currentRunStats.enemiesKilled++;
-        break;
-      case 'experienceGained':
-        this.gameManager.currentRunStats.experienceGained += value;
-        break;
-      case 'goldEarned':
-        this.gameManager.currentRunStats.goldEarned += value;
-        break;
-      case 'damageDealt':
-        this.gameManager.currentRunStats.damageDealt += value;
-        break;
-      case 'damageTaken':
-        this.gameManager.currentRunStats.damageTaken += value;
-        break;
-      case 'levelReached':
-        this.gameManager.currentRunStats.maxLevel = Math.max(
-          this.gameManager.currentRunStats.maxLevel, 
-          value
-        );
-        break;
-    }
+    eventMap[type]?.();
   }
 
   updateAllTimeStats(runStats) {
     const stats = this.gameManager.allTimeStats;
     
     stats.totalRuns++;
-    stats.totalGoldEarned += runStats.goldEarned;
-    stats.totalEnemiesKilled += runStats.enemiesKilled;
-    stats.totalExperienceGained += runStats.experienceGained;
-    stats.totalDamageDealt += runStats.damageDealt;
+    ['goldEarned', 'enemiesKilled', 'experienceGained', 'damageDealt'].forEach(stat => {
+      stats[`total${stat.charAt(0).toUpperCase() + stat.slice(1)}`] += runStats[stat];
+    });
     
-    if (runStats.maxLevel > stats.highestLevel) {
-      stats.highestLevel = runStats.maxLevel;
-    }
+    if (runStats.maxLevel > stats.highestLevel) stats.highestLevel = runStats.maxLevel;
+    if (runStats.survivalTime > stats.longestSurvivalTime) stats.longestSurvivalTime = runStats.survivalTime;
     
-    if (runStats.survivalTime > stats.longestSurvivalTime) {
-      stats.longestSurvivalTime = runStats.survivalTime;
-    }
-    
-    stats.averageSurvivalTime = Math.floor(
-      (stats.longestSurvivalTime + runStats.survivalTime) / stats.totalRuns
-    );
+    stats.averageSurvivalTime = Math.floor((stats.longestSurvivalTime + runStats.survivalTime) / stats.totalRuns);
   }
 }
 
@@ -148,41 +109,29 @@ class PlayerStatsManager {
     this.gameManager = gameManager;
   }
 
-  applyStatsToPlayer(player) {
-    if (!player) {
-      console.warn("PlayerStatsManager: No player provided");
-      return;
-    }
-
-    this.applyBaseStats(player);
+  applyAllStats(player) {
+    if (!player) return;
+    
+    Object.assign(player, StateFactory.createPlayerStats());
     this.applyLocalUpgrades(player);
-    this.applyBackendUpgrades(player);
-    this.updateInternalStats(player);
-  }
-
-  applyBaseStats(player) {
-    const baseStats = StateFactory.createPlayerStats();
-    Object.assign(player, baseStats);
+    
+    const backendManager = this.gameManager.backendStatsManager;
+    if (backendManager.isBackendUpgradesLoaded()) {
+      backendManager.applyBackendUpgradesToPlayer(player);
+    }
+    
+    this.syncInternalStats(player);
   }
 
   applyLocalUpgrades(player) {
-    const upgrades = this.gameManager.passiveUpgrades;
-    
-    if (!upgrades || Object.keys(upgrades).length === 0) {
-      return;
-    }
-
-    Object.entries(upgrades).forEach(([upgradeId, upgrade]) => {
+    Object.entries(this.gameManager.passiveUpgrades).forEach(([upgradeId, upgrade]) => {
       this.applySingleUpgrade(player, upgradeId, upgrade.value);
     });
   }
 
   applySingleUpgrade(player, upgradeId, value) {
-    const upgradeMap = {
-      maxHealth: () => {
-        player.maxHealth = value;
-        player.health = value;
-      },
+    const upgradeActions = {
+      maxHealth: () => { player.maxHealth = value; player.health = value; },
       baseDamage: () => player.damage = value,
       moveSpeed: () => player.moveSpeed = value,
       attackSpeed: () => player.fireRate = value,
@@ -192,44 +141,14 @@ class PlayerStatsManager {
       pickupRange: () => player.pickupRange = value
     };
 
-    const applyFunction = upgradeMap[upgradeId];
-    if (applyFunction) {
-      applyFunction();
-    }
+    upgradeActions[upgradeId]?.();
   }
 
-  applyBackendUpgrades(player) {
-    const backendManager = this.gameManager.backendStatsManager;
-    
-    if (backendManager.isBackendUpgradesLoaded()) {
-      try {
-        backendManager.applyBackendUpgradesToPlayer(player);
-      } catch (error) {
-        console.warn("PlayerStatsManager: Backend upgrade application failed:", error);
-      }
-    } else {
-      console.log("PlayerStatsManager: Backend upgrades not loaded yet");
-    }
-  }
-
-  updateInternalStats(player) {
+  syncInternalStats(player) {
     const stats = this.gameManager.playerStats;
-    stats.maxHealth = player.maxHealth;
-    stats.health = player.health;
-    stats.damage = player.damage;
-    stats.moveSpeed = player.moveSpeed;
-    stats.fireRate = player.fireRate;
-    stats.attackRange = player.attackRange;
-  }
-
-  getPlayerStatsSummary(player) {
-    return {
-      maxHealth: player.maxHealth,
-      damage: player.damage,
-      moveSpeed: player.moveSpeed,
-      fireRate: player.fireRate,
-      attackRange: player.attackRange
-    };
+    ['maxHealth', 'health', 'damage', 'moveSpeed', 'fireRate', 'attackRange'].forEach(stat => {
+      stats[stat] = player[stat];
+    });
   }
 }
 
@@ -256,7 +175,6 @@ export default class GameManager {
     this.passiveUpgrades = {};
     this.isGameRunning = false;
     this.gameStartTime = 0;
-    this.debugMode = GameConfig.DEBUG.ENABLED;
     this.currentScene = null;
     this.loadingBackendUpgrades = false;
     this.events = new Phaser.Events.EventEmitter();
@@ -281,9 +199,7 @@ export default class GameManager {
   }
 
   setupEventListeners() {
-    EventBus.on('upgrade-purchased', () => {
-      this.loadBackendUpgradesAsync();
-    });
+    EventBus.on('upgrade-purchased', () => this.loadBackendUpgradesAsync());
   }
 
   async loadBackendUpgradesAsync() {
@@ -296,7 +212,7 @@ export default class GameManager {
         this.applyPlayerStats(this.currentScene.player);
       }
     } catch (error) {
-      console.warn("GameManager: Backend upgrade loading failed:", error);
+      console.warn("Backend upgrade loading failed:", error);
     } finally {
       this.loadingBackendUpgrades = false;
     }
@@ -308,20 +224,6 @@ export default class GameManager {
 
   getUpgradeConfig(upgradeId) {
     return this.upgradeSystem.getUpgradeConfig(upgradeId);
-  }
-
-  resetProgress() {
-    this.gold = 0;
-    this.passiveUpgrades = {};
-    this.currentRunStats = StateFactory.createRunStats();
-    this.lastRunStats = null;
-    this.allTimeStats = StateFactory.createAllTimeStats();
-    this.playerStats = StateFactory.createPlayerStats();
-    
-    resetLocalStorage(0);
-    this.emitStateUpdate();
-    
-    return true;
   }
 
   startNewRun() {
@@ -340,33 +242,29 @@ export default class GameManager {
     if (!this.isGameRunning) return;
     this.isGameRunning = false;
     const survivalTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
-    
-    this.finalizeRun(survivalTime, causeOfDeath);
-    this.saveGame();
-    this.emitDeathEvents();
-  }
 
-  finalizeRun(survivalTime, causeOfDeath) {
     this.currentRunStats.survivalTime = survivalTime;
     this.currentRunStats.causeOfDeath = causeOfDeath;
     this.lastRunStats = { ...this.currentRunStats };
     
     this.statsTracker.updateAllTimeStats(this.currentRunStats);
-  }
-
-  emitDeathEvents() {
+    this.saveGame();
+    
     EventBus.emit('player-died', this.lastRunStats);
     window.dispatchEvent(new CustomEvent('playerDeath', { detail: this.lastRunStats }));
   }
 
-  applyPlayerStats(player) {
-    this.playerStatsManager.applyStatsToPlayer(player);
-  }
-
-  applyPassiveUpgrades() {
-    Object.entries(this.passiveUpgrades).forEach(([upgradeId, upgrade]) => {
-      this.playerStatsManager.applySingleUpgrade(this.playerStats, upgradeId, upgrade.value);
-    });
+  resetProgress() {
+    this.gold = 0;
+    this.passiveUpgrades = {};
+    this.currentRunStats = StateFactory.createRunStats();
+    this.lastRunStats = null;
+    this.allTimeStats = StateFactory.createAllTimeStats();
+    this.playerStats = StateFactory.createPlayerStats();
+    
+    resetLocalStorage(0);
+    this.emitStateUpdate();
+    return true;
   }
 
   addExperience(amount) {
@@ -374,7 +272,7 @@ export default class GameManager {
     const actualAmount = Math.floor(amount * multiplier);
     
     this.playerStats.experience += actualAmount;
-    this.statsTracker.updateRunStats('experienceGained', actualAmount);
+    this.statsTracker.trackRunEvent('experienceGained', actualAmount);
     
     if (this.playerStats.experience >= this.playerStats.nextLevelExp) {
       this.levelUp();
@@ -387,7 +285,7 @@ export default class GameManager {
 
   levelUp() {
     this.playerStats.level++;
-    this.statsTracker.updateRunStats('levelReached', this.playerStats.level);
+    this.statsTracker.trackRunEvent('levelReached', this.playerStats.level);
     
     const expOverflow = this.playerStats.experience - this.playerStats.nextLevelExp;
     this.playerStats.nextLevelExp = Math.floor(
@@ -403,66 +301,39 @@ export default class GameManager {
     const actualAmount = Math.floor(amount * multiplier);
     
     this.gold += actualAmount;
-    this.statsTracker.updateRunStats('goldEarned', actualAmount);
-    
+    this.statsTracker.trackRunEvent('goldEarned', actualAmount);
     this.emitGoldUpdate(actualAmount);
     this.updateUI();
   }
 
-  emitGoldUpdate(earned = 0) {
-    const goldData = {
-      gold: this.gold,
-      goldEarned: earned,
-      totalGold: this.gold,
-      currentGold: this.gold
-    };
-    
-    EventBus.emit('player-gold-updated', goldData);
-    EventBus.emit('player-stats-updated', goldData);
-    
-    window.dispatchEvent(new CustomEvent('playerGoldUpdated', { detail: goldData }));
+  addEnemyKill() { this.statsTracker.trackRunEvent('enemyKill'); }
+  addDamageDealt(damage) { this.statsTracker.trackRunEvent('damageDealt', damage); }
+  trackEnemyKill() { 
+    this.statsTracker.trackRunEvent('enemyKill');
   }
 
-  updateUI() {
-    if (this.currentScene?.uiManager) {
-      this.currentScene.uiManager.updateScoreboard();
-    }
+  applyPlayerStats(player) {
+    this.playerStatsManager.applyAllStats(player);
   }
 
-  getGold() {
-    return this.gold;
-  }
-
-  addEnemyKill() {
-    this.statsTracker.updateRunStats('enemyKill');
-  }
-
-  addDamageDealt(damage) {
-    this.statsTracker.updateRunStats('damageDealt', damage);
-  }
-
-  trackEnemyKill() {
-    this.statsTracker.updateRunStats('enemyKill');
-    console.log(`Enemy killed, total: ${this.currentRunStats.enemiesKilled}`);
+  applyPassiveUpgrades() {
+    Object.entries(this.passiveUpgrades).forEach(([upgradeId, upgrade]) => {
+      this.playerStatsManager.applySingleUpgrade(this.playerStats, upgradeId, upgrade.value);
+    });
   }
 
   updateDifficulty(deltaTime) {
     this.gameProgress.gameTime += deltaTime / 1000;
-    
     const newDifficultyLevel = 1 + Math.floor(
       this.gameProgress.gameTime / GameConfig.BALANCE.DIFFICULTY.SCALING_INTERVAL
     );
     
     if (newDifficultyLevel !== this.gameProgress.currentDifficulty) {
       this.gameProgress.currentDifficulty = newDifficultyLevel;
-      this.updateDifficultyParameters(newDifficultyLevel);
+      this.gameProgress.maxEnemies = GameConfig.Utils.getDifficultyMaxEnemies(newDifficultyLevel);
+      this.gameProgress.enemySpawnDelay = GameConfig.Utils.getDifficultySpawnDelay(newDifficultyLevel);
       this.events.emit('difficultyUpdated', newDifficultyLevel);
     }
-  }
-
-  updateDifficultyParameters(level) {
-    this.gameProgress.maxEnemies = GameConfig.Utils.getDifficultyMaxEnemies(level);
-    this.gameProgress.enemySpawnDelay = GameConfig.Utils.getDifficultySpawnDelay(level);
   }
 
   getMultiplier(upgradeId) {
@@ -473,6 +344,7 @@ export default class GameManager {
     return this.isGameRunning ? Math.floor((Date.now() - this.gameStartTime) / 1000) : 0;
   }
 
+  getGold() { return this.gold; }
   formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -488,6 +360,20 @@ export default class GameManager {
   toggleDebugMode() {
     this.debugMode = !this.debugMode;
     return this.debugMode;
+  }
+
+  emitGoldUpdate(earned = 0) {
+    const goldData = { gold: this.gold, goldEarned: earned, totalGold: this.gold, currentGold: this.gold };
+    
+    EventBus.emit('player-gold-updated', goldData);
+    EventBus.emit('player-stats-updated', goldData);
+    window.dispatchEvent(new CustomEvent('playerGoldUpdated', { detail: goldData }));
+  }
+
+  updateUI() {
+    if (this.currentScene?.uiManager) {
+      this.currentScene.uiManager.updateScoreboard();
+    }
   }
 
   emitStateUpdate() {

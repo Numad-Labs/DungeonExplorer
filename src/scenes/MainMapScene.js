@@ -64,13 +64,12 @@ export default class MainMapScene extends BaseGameScene {
     try {
       this.setupCollisions();
       this.player = this.playerPrefab;
+      this.onPlayerCreated(this.player);
       this.initializeManagers();
       
       const systemsToSetup = [
-        'setupPlayerAttack',
         'setupZombieCollisionSystem', 
         'setupHPBarIntegration',
-        'setupPlayerLevelSystem',
         'setupVaseSpawning',
         'initializeMobManager',
         'setupLavaAnimations',
@@ -249,8 +248,11 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   grantKillRewards() {
+    
     if (this.playerLevelSystem) {
       this.playerLevelSystem.addExperience(GameConfig.PLAYER.COMBAT.EXP_PER_KILL);
+    } else {
+      console.error("playerLevelSystem not found!");
     }
 
     if (this.gameManager) {
