@@ -236,6 +236,7 @@ export default class GameManager {
     this.loadBackendUpgradesAsync();
     this.applyPassiveUpgrades();
     this.emitGoldUpdate();
+    this.emitKillUpdate();
   }
 
   handlePlayerDeath(causeOfDeath = "Unknown") {
@@ -306,10 +307,25 @@ export default class GameManager {
     this.updateUI();
   }
 
-  addEnemyKill() { this.statsTracker.trackRunEvent('enemyKill'); }
+  addEnemyKill() { 
+    this.statsTracker.trackRunEvent('enemyKill'); 
+    this.emitKillUpdate();
+  }
   addDamageDealt(damage) { this.statsTracker.trackRunEvent('damageDealt', damage); }
   trackEnemyKill() { 
     this.statsTracker.trackRunEvent('enemyKill');
+    this.emitKillUpdate();
+    console.log(`Enemy killed, total: ${this.currentRunStats.enemiesKilled}`);
+  }
+
+  emitKillUpdate() {
+    const killData = {
+      kills: this.currentRunStats.enemiesKilled,
+      enemiesKilled: this.currentRunStats.enemiesKilled
+    };
+    
+    EventBus.emit('player-kill-updated', killData);
+    EventBus.emit('enemy-killed', killData);
   }
 
   applyPlayerStats(player) {
@@ -377,15 +393,16 @@ export default class GameManager {
   }
 
   emitStateUpdate() {
-    window.dispatchEvent(new CustomEvent('gameStateUpdated', {
-      detail: {
-        gold: this.gold,
-        passiveUpgrades: this.passiveUpgrades,
-        allTimeStats: this.allTimeStats,
-        lastRunStats: this.lastRunStats,
-        currentRunStats: this.currentRunStats
-      }
-    }));
+    const stateData = {
+      gold: this.gold,
+      passiveUpgrades: this.passiveUpgrades,
+      allTimeStats: this.allTimeStats,
+      lastRunStats: this.lastRunStats,
+      currentRunStats: this.currentRunStats
+    };
+    
+    window.dispatchEvent(new CustomEvent('gameStateUpdated', { detail: stateData }));
+    EventBus.emit('game-state-updated', stateData);
   }
 
   saveGame() {

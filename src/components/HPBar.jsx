@@ -6,7 +6,8 @@ const HPBar = ({ showGoldIcon = true }) => {
     const [playerStats, setPlayerStats] = useState({
         currentHP: 100,
         maxHP: 100,
-        gold: 500
+        gold: 500,
+        kills: 0
     });
     const [isVisible, setIsVisible] = useState(true);
     const [isGameActive, setIsGameActive] = useState(false);
@@ -31,7 +32,8 @@ const HPBar = ({ showGoldIcon = true }) => {
             setPlayerStats(prevStats => ({
                 currentHP: data.health || prevStats.currentHP,
                 maxHP: data.maxHealth || prevStats.maxHP,
-                gold: data.gold || prevStats.gold
+                gold: data.gold || prevStats.gold,
+                kills: data.kills || data.enemiesKilled || prevStats.kills
             }));
             
             const hasValidHealth = (data.health > 0 && data.maxHealth > 0);
@@ -58,17 +60,43 @@ const HPBar = ({ showGoldIcon = true }) => {
             }));
         };
 
+        const handleKillUpdate = (killData) => {
+            setPlayerStats(prevStats => ({
+                ...prevStats,
+                kills: killData.kills || killData.enemiesKilled || (prevStats.kills + 1)
+            }));
+        };
+
+        const handleGameStateUpdate = (gameStateData) => {
+            if (gameStateData && gameStateData.detail) {
+                const { currentRunStats } = gameStateData.detail;
+                if (currentRunStats) {
+                    setPlayerStats(prevStats => ({
+                        ...prevStats,
+                        kills: currentRunStats.enemiesKilled || prevStats.kills
+                    }));
+                }
+            }
+        };
+
         EventBus.on('player-health-updated', handleHealthUpdate);
         EventBus.on('player-hp-changed', handleHealthUpdate);
         EventBus.on('bridge-player-data', handleBridgeData);
         EventBus.on('player-gold-updated', handleGoldUpdate);
         EventBus.on('bridge-gold-updated', handleGoldUpdate);
+        EventBus.on('player-kill-updated', handleKillUpdate);
+        EventBus.on('enemy-killed', handleKillUpdate);
+        EventBus.on('game-state-updated', handleGameStateUpdate);
         
         const handleGameStart = () => {
             console.log('HPBar: Game started - showing HP bar and marking as active');
             setIsGameActive(true);
             isGameActiveRef.current = true;
             setIsVisible(true);
+            setPlayerStats(prevStats => ({
+                ...prevStats,
+                kills: 0
+            }));
         };
         
         const handleGameEnd = () => {
@@ -103,6 +131,9 @@ const HPBar = ({ showGoldIcon = true }) => {
             EventBus.off('bridge-player-data', handleBridgeData);
             EventBus.off('player-gold-updated', handleGoldUpdate);
             EventBus.off('bridge-gold-updated', handleGoldUpdate);
+            EventBus.off('player-kill-updated', handleKillUpdate);
+            EventBus.off('enemy-killed', handleKillUpdate);
+            EventBus.off('game-state-updated', handleGameStateUpdate);
             EventBus.off('game-started', handleGameStart);
             EventBus.off('main-scene-started', handleGameStart);
             EventBus.off('current-scene-ready', handleGameStart);
@@ -208,31 +239,81 @@ const HPBar = ({ showGoldIcon = true }) => {
             {showGoldIcon && (
                 <div style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    background: 'rgba(0,0,0,0.7)',
-                    padding: '10px 15px',
-                    borderRadius: '25px',
-                    border: '2px solid #FFD700',
+                    alignItems: 'right',
+                    gap: '15px',
                     marginTop: '65px',
-                    marginLeft: '10px'
+                    marginLeft: '40px'
                 }}>
+                    {/* Gold Display */}
                     <div style={{
-                        width: '30px',
-                        height: '30px',
-                        backgroundImage: 'url(./assets/HUD/HUD_Gold_Icon_V01.png)',
-                        backgroundSize: 'contain',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'center'
-                    }} />
-                    <span style={{
-                        color: '#FFD700',
-                        fontSize: '20px',
-                        fontWeight: 'bold',
-                        textShadow: '1px 1px 2px rgba(0,0,0,0.8)'
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        background: 'rgba(0,0,0,0.7)',
+                        padding: '10px 25px',
+                        borderRadius: '25px',
+                        border: '2px solid #FFD700',
+                        minWidth: '150px',
+                        marginTop: "10px",
                     }}>
-                        {playerStats.gold.toLocaleString()}
-                    </span>
+                        <div style={{
+                            width: '30px',
+                            height: '30px',
+                            backgroundImage: 'url(./assets/HUD/HUD_Gold_Icon_V01.png)',
+                            backgroundSize: 'contain',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'center',
+                            marginTop: "0px",
+                        }} />
+                        <span style={{
+                            color: '#FFD700',
+                            fontSize: '20px',
+                            fontWeight: 'bold',
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                            marginTop: "4px",
+                        }}>
+                            {playerStats.gold.toLocaleString()}
+                        </span>
+                    </div>
+
+                    {/* Kill Counter */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        background: 'rgba(0,0,0,0.7)',
+                        padding: '10px 25px',
+                        borderRadius: '25px',
+                        border: '2px solid #ff6b6b',
+                        marginTop: "10px",
+                        minWidth: '150px'
+                    }}>
+                        <div style={{
+                            width: '30px',
+                            height: '30px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            marginTop: "4px", 
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '24px',
+                            fontWeight: 'bold',
+                            color: 'white',
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                        }}>
+                            💀
+                        </div>
+                        <span style={{
+                            color: '#ff6b6b',
+                            fontSize: '20px',
+                            fontWeight: 'bold',
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                            minWidth: '80px',
+                            marginTop: "4px",
+                        }}>
+                            {playerStats.kills.toLocaleString()}
+                        </span>
+                    </div>
                 </div>
             )}
             </div>
