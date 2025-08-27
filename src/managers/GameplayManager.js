@@ -363,8 +363,54 @@ export default class GameplayManager {
       'keydown-L': () => console.log("Mob Statistics:", this.mobManager.getStatistics())
     };
 
-    Object.entries(controls).forEach(([event, callback]) => {
-      keyboard.on(event, callback);
+
+    keyboard.on("keydown-Z", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "zombie");
+    });
+
+    keyboard.on("keydown-X", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "policeDroid");
+    });
+
+    keyboard.on("keydown-C", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "assassinArcher");
+    });
+
+    keyboard.on("keydown-V", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "policeDroid");
+    });
+
+    keyboard.on("keydown-B", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "assassin");
+    });
+
+    keyboard.on("keydown-N", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "assassinTank");
+    });
+
+    keyboard.on("keydown-M", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnEnemy(world.x, world.y, "assassinArcher");
+    });
+
+    keyboard.on("keydown-E", () => {
+      const pointer = this.scene.input.activePointer;
+      const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      this.spawnExperienceOrb(world.x, world.y, 1);
+
     });
   }
 

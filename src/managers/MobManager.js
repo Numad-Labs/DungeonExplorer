@@ -16,34 +16,188 @@ import { EventBus } from "../game/EventBus";
 import { MOB_TELEPORT_CONFIG } from "../config/MobTeleportConfig.js";
 
 const MOB_CONFIGS = {
-  zombie: { class: Zombie, texture: "zombierun", baseHealth: 30, baseDamage: 10, baseSpeed: 50, 
-           expValue: 10, goldValue: 5, spawnWeight: 50, minWave: 1, expDropChance: 0.8, goldDropChance: 0.4 },
-  zombieBig: { class: Zombie2, texture: "Zombie2RunAni", baseHealth: 50, baseDamage: 20, baseSpeed: 40,
-              expValue: 20, goldValue: 15, spawnWeight: 25, minWave: 1, expDropChance: 0.85, goldDropChance: 0.5 },
-  policeDroid: { class: PoliceDroid, texture: "Police run", baseHealth: 35, baseDamage: 15, baseSpeed: 55,
-                expValue: 15, goldValue: 10, spawnWeight: 20, minWave: 1, expDropChance: 0.82, goldDropChance: 0.45 },
-  assassin: { class: Assassin, texture: "Dagger Bandit-Run", baseHealth: 25, baseDamage: 25, baseSpeed: 70,
-             expValue: 25, goldValue: 20, spawnWeight: 15, minWave: 2, expDropChance: 0.9, goldDropChance: 0.6 },
-  assassinTank: { class: AssassinTank, texture: "assassinTank", baseHealth: 80, baseDamage: 30, baseSpeed: 30,
-                 expValue: 40, goldValue: 35, spawnWeight: 8, minWave: 2, expDropChance: 0.95, goldDropChance: 0.75 },
-  assassinArcher: { class: AssassinArcher, texture: "assassinArcher", baseHealth: 20, baseDamage: 18, baseSpeed: 45,
-                   expValue: 30, goldValue: 25, spawnWeight: 12, minWave: 2, expDropChance: 0.92, goldDropChance: 0.7 },
-  bigDude: { class: BigDude, texture: "run_2", baseHealth: 90, baseDamage: 22, baseSpeed: 30,
-            expValue: 50, goldValue: 35, spawnWeight: 14, minWave: 3, expDropChance: 0.42, goldDropChance: 0.6 },
-  wreacker: { class: Wreacker, texture: "WreackerRun", baseHealth: 30, baseDamage: 22, baseSpeed: 35,
-             expValue: 50, goldValue: 35, spawnWeight: 14, minWave: 3, expDropChance: 0.42, goldDropChance: 0.6 },
-  choppor: { class: Choppor, texture: "Warrior-Run", baseHealth: 30, baseDamage: 22, baseSpeed: 35,
-            expValue: 50, goldValue: 35, spawnWeight: 14, minWave: 3, expDropChance: 0.42, goldDropChance: 0.6 },
-  bomber: { class: Bomber, texture: "Bomber_Activited_run_v01", baseHealth: 10, baseDamage: 42, baseSpeed: 35,
-           expValue: 20, goldValue: 15, spawnWeight: 14, minWave: 4, expDropChance: 0.42, goldDropChance: 0.6 },
-  saber: { class: Saber, texture: "saber_run_53x53_v01", baseHealth: 10, baseDamage: 42, baseSpeed: 40,
-          expValue: 20, goldValue: 25, spawnWeight: 4, minWave: 4, expDropChance: 0.42, goldDropChance: 0.6 },
-  guardian: { class: Guardian, texture: "guradian_walk224x45", baseHealth: 90, baseDamage: 22, baseSpeed: 30,
-             expValue: 50, goldValue: 35, spawnWeight: 14, minWave: 4, expDropChance: 0.42, goldDropChance: 0.6 },
-  crawler: { class: Crawler, texture: "crawler_run_32x16_v01", baseHealth: 10, baseDamage: 12, baseSpeed: 45,
-            expValue: 20, goldValue: 15, spawnWeight: 14, minWave: 5, expDropChance: 0.42, goldDropChance: 0.6 },
-  charger: { class: Charger, texture: "harger_run_32x32_v01", baseHealth: 90, baseDamage: 32, baseSpeed: 45,
-            expValue: 24, goldValue: 35, spawnWeight: 14, minWave: 5, expDropChance: 0.42, goldDropChance: 0.6 }
+  zombie: {
+    class: Zombie,
+    texture: "zombierun",
+    baseHealth: 30,
+    baseDamage: 10,
+    baseSpeed: 50,
+    expValue: 10,
+    goldValue: 5,
+    spawnWeight: 50,
+    minWave: 1,
+    expDropChance: 0.8,
+    goldDropChance: 0.4,
+  },
+  zombieBig: {
+    class: Zombie2,
+    texture: "Zombie2RunAni",
+    baseHealth: 50,
+    baseDamage: 20,
+    baseSpeed: 40,
+    expValue: 20,
+    goldValue: 15,
+    spawnWeight: 25,
+    minWave: 1,
+    expDropChance: 0.85,
+    goldDropChance: 0.5,
+  },
+  policeDroid: {
+    class: PoliceDroid,
+    texture: "Police run",
+    baseHealth: 35,
+    baseDamage: 15,
+    baseSpeed: 55,
+    expValue: 15,
+    goldValue: 10,
+    spawnWeight: 20,
+    minWave: 1,
+    expDropChance: 0.82,
+    goldDropChance: 0.45,
+  },
+  assassin: {
+    class: Assassin,
+    texture: "Dagger Bandit-Run",
+    baseHealth: 25,
+    baseDamage: 25,
+    baseSpeed: 70,
+    expValue: 25,
+    goldValue: 20,
+    spawnWeight: 15,
+    minWave: 2,
+    expDropChance: 0.9,
+    goldDropChance: 0.6,
+  },
+  assassinTank: {
+    class: AssassinTank,
+    texture: "assassinTank",
+    baseHealth: 80,
+    baseDamage: 30,
+    baseSpeed: 30,
+    expValue: 40,
+    goldValue: 35,
+    spawnWeight: 8,
+    minWave: 2,
+    expDropChance: 0.95,
+    goldDropChance: 0.75,
+  },
+  assassinArcher: {
+    class: AssassinArcher,
+    texture: "assassinArcher",
+    baseHealth: 20,
+    baseDamage: 18,
+    baseSpeed: 45,
+    expValue: 30,
+    goldValue: 25,
+    spawnWeight: 12,
+    minWave: 2,
+    expDropChance: 0.92,
+    goldDropChance: 0.7,
+  },
+  bigDude: {
+    class: BigDude,
+    texture: "run_2",
+    baseHealth: 90,
+    baseDamage: 22,
+    baseSpeed: 30,
+    expValue: 50,
+    goldValue: 35,
+    spawnWeight: 14,
+    minWave: 3,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  wreacker: {
+    class: Wreacker,
+    texture: "WreackerRun",
+    baseHealth: 30,
+    baseDamage: 22,
+    baseSpeed: 35,
+    expValue: 50,
+    goldValue: 35,
+    spawnWeight: 14,
+    minWave: 3,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  choppor: {
+    class: Choppor,
+    texture: "Warrior-Run",
+    baseHealth: 30,
+    baseDamage: 22,
+    baseSpeed: 35,
+    expValue: 50,
+    goldValue: 35,
+    spawnWeight: 14,
+    minWave: 3,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  bomber: {
+    class: Bomber,
+    texture: "Bomber_Activited_run_v01",
+    baseHealth: 10,
+    baseDamage: 42,
+    baseSpeed: 35,
+    expValue: 20,
+    goldValue: 15,
+    spawnWeight: 14,
+    minWave: 4,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  saber: {
+    class: Saber,
+    texture: "saber_run_53x53_v01",
+    baseHealth: 10,
+    baseDamage: 42,
+    baseSpeed: 40,
+    expValue: 20,
+    goldValue: 25,
+    spawnWeight: 4,
+    minWave: 4,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  guardian: {
+    class: Guardian,
+    texture: "guradian_walk224x45",
+    baseHealth: 90,
+    baseDamage: 22,
+    baseSpeed: 30,
+    expValue: 50,
+    goldValue: 35,
+    spawnWeight: 14,
+    minWave: 4,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  crawler: {
+    class: Crawler,
+    texture: "crawler_run_32x16_v01",
+    baseHealth: 10,
+    baseDamage: 12,
+    baseSpeed: 45,
+    expValue: 20,
+    goldValue: 15,
+    spawnWeight: 14,
+    minWave: 5,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
+  charger: {
+    class: Charger,
+    texture: "harger_run_32x32_v01",
+    baseHealth: 90,
+    baseDamage: 32,
+    baseSpeed: 45,
+    expValue: 24,
+    goldValue: 35,
+    spawnWeight: 14,
+    minWave: 5,
+    expDropChance: 0.42,
+    goldDropChance: 0.6,
+  },
 };
 
 export default class MobManager {
@@ -84,10 +238,10 @@ export default class MobManager {
       totalSpawned: 0,
       totalKilled: 0,
       killsByType: new Map(),
-      totalTeleported: 0
+      totalTeleported: 0,
     };
 
-    Object.keys(MOB_CONFIGS).forEach(type => {
+    Object.keys(MOB_CONFIGS).forEach((type) => {
       this.stats.killsByType.set(type, 0);
     });
   }
@@ -102,7 +256,13 @@ export default class MobManager {
 
   setupMobGroup() {
     this.mobGroup = this.scene.physics.add.group();
-    this.scene.physics.add.collider(this.mobGroup, this.mobGroup, this.handleMobCollision, null, this);
+    this.scene.physics.add.collider(
+      this.mobGroup,
+      this.mobGroup,
+      this.handleMobCollision,
+      null,
+      this
+    );
     this.scene.zombieGroup = this.mobGroup;
     this.scene.enemies = this.mobGroup;
   }
@@ -111,13 +271,13 @@ export default class MobManager {
     this.spawnTimer = this.scene.time.addEvent({
       delay: this.spawnDelay,
       callback: () => this.spawnRandomMob(),
-      loop: true
+      loop: true,
     });
 
     this.waveTimer = this.scene.time.addEvent({
       delay: 20000,
       callback: () => this.triggerNextWave(),
-      loop: false
+      loop: false,
     });
   }
 
@@ -129,13 +289,17 @@ export default class MobManager {
     this.waveTimer = this.scene.time.addEvent({
       delay: 20000,
       callback: () => this.triggerNextWave(),
-      loop: false
+      loop: false,
     });
   }
 
   setupEventListeners() {
     if (this.gameManager?.events) {
-      this.gameManager.events.on('difficultyUpdated', this.updateDifficulty, this);
+      this.gameManager.events.on(
+        "difficultyUpdated",
+        this.updateDifficulty,
+        this
+      );
     }
   }
 
@@ -196,16 +360,30 @@ export default class MobManager {
 
   addSpecialAbilities(mob, type) {
     const specialAbilities = {
-      policeDroid: { type: 'projectile', range: 200, cooldown: 2000, speed: 150, color: 0xff0000, size: 3 },
-      zombieBig: { type: 'explosion', range: 80, damage: 15, color: 0xff4444 },
-      assassinArcher: { type: 'projectile', range: 250, cooldown: 2500, speed: 120, color: 0xff0000, size: 2 }
+      policeDroid: {
+        type: "projectile",
+        range: 200,
+        cooldown: 2000,
+        speed: 150,
+        color: 0xff0000,
+        size: 3,
+      },
+      zombieBig: { type: "explosion", range: 80, damage: 15, color: 0xff4444 },
+      assassinArcher: {
+        type: "projectile",
+        range: 250,
+        cooldown: 2500,
+        speed: 120,
+        color: 0xff0000,
+        size: 2,
+      },
     };
 
     const ability = specialAbilities[type];
     if (ability) {
-      if (ability.type === 'projectile') {
+      if (ability.type === "projectile") {
         this.addProjectileAttack(mob, ability);
-      } else if (ability.type === 'explosion') {
+      } else if (ability.type === "explosion") {
         this.addDeathExplosion(mob, ability);
       }
     }
@@ -227,7 +405,7 @@ export default class MobManager {
   }
 
   updateMobAbilities(time, delta) {
-    this.getAllActiveMobs().forEach(mob => {
+    this.getAllActiveMobs().forEach((mob) => {
       if (mob.hasProjectileAttack) {
         this.updateProjectileAttack(mob, time);
       }
@@ -237,10 +415,18 @@ export default class MobManager {
   updateProjectileAttack(mob, time) {
     if (!this.player || mob.isDead || !mob.projectileConfig) return;
 
-    const distance = Phaser.Math.Distance.Between(mob.x, mob.y, this.player.x, this.player.y);
+    const distance = Phaser.Math.Distance.Between(
+      mob.x,
+      mob.y,
+      this.player.x,
+      this.player.y
+    );
     const config = mob.projectileConfig;
 
-    if (distance <= config.range && time - mob.lastProjectileTime > config.cooldown) {
+    if (
+      distance <= config.range &&
+      time - mob.lastProjectileTime > config.cooldown
+    ) {
       this.fireProjectile(mob, config);
       mob.lastProjectileTime = time;
     }
@@ -249,24 +435,38 @@ export default class MobManager {
   fireProjectile(mob, config) {
     if (!this.player) return;
 
-    const projectile = this.scene.add.circle(mob.x, mob.y, config.size, config.color);
+    const projectile = this.scene.add.circle(
+      mob.x,
+      mob.y,
+      config.size,
+      config.color
+    );
     projectile.setStrokeStyle(1, 0x000000);
     this.scene.physics.add.existing(projectile);
     projectile.body.setCircle(config.size);
     projectile.setDepth(15);
 
-    const angle = Phaser.Math.Angle.Between(mob.x, mob.y, this.player.x, this.player.y);
+    const angle = Phaser.Math.Angle.Between(
+      mob.x,
+      mob.y,
+      this.player.x,
+      this.player.y
+    );
     projectile.body.setVelocity(
       Math.cos(angle) * config.speed,
       Math.sin(angle) * config.speed
     );
 
-    const hitOverlap = this.scene.physics.add.overlap(this.player, projectile, () => {
-      if (this.player.takeDamage) this.player.takeDamage(mob.damage);
-      this.createHitEffect(projectile.x, projectile.y);
-      hitOverlap.destroy();
-      projectile.destroy();
-    });
+    const hitOverlap = this.scene.physics.add.overlap(
+      this.player,
+      projectile,
+      () => {
+        if (this.player.takeDamage) this.player.takeDamage(mob.damage);
+        this.createHitEffect(projectile.x, projectile.y);
+        hitOverlap.destroy();
+        projectile.destroy();
+      }
+    );
 
     this.scene.time.delayedCall(3000, () => {
       if (projectile && projectile.active) {
@@ -286,7 +486,7 @@ export default class MobManager {
       scale: { from: 1, to: 2 },
       alpha: { from: 0.8, to: 0 },
       duration: 200,
-      onComplete: () => flash.destroy()
+      onComplete: () => flash.destroy(),
     });
   }
 
@@ -298,37 +498,58 @@ export default class MobManager {
       scale: { from: 0.5, to: 1.5 },
       alpha: { from: 0.7, to: 0 },
       duration: 300,
-      onComplete: () => hit.destroy()
+      onComplete: () => hit.destroy(),
     });
   }
 
   createDeathExplosion(mob, config) {
     if (!this.player) return;
 
-    const explosion = this.scene.add.circle(mob.x, mob.y, config.range, config.color, 0.6);
+    const explosion = this.scene.add.circle(
+      mob.x,
+      mob.y,
+      config.range,
+      config.color,
+      0.6
+    );
     explosion.setDepth(30);
     this.scene.tweens.add({
       targets: explosion,
       scale: { from: 0, to: 1.5 },
       alpha: { from: 0.6, to: 0 },
       duration: 500,
-      onComplete: () => explosion.destroy()
+      onComplete: () => explosion.destroy(),
     });
 
-    const distanceToPlayer = Phaser.Math.Distance.Between(mob.x, mob.y, this.player.x, this.player.y);
+    const distanceToPlayer = Phaser.Math.Distance.Between(
+      mob.x,
+      mob.y,
+      this.player.x,
+      this.player.y
+    );
     if (distanceToPlayer <= config.range) {
       if (this.player.takeDamage) this.player.takeDamage(config.damage);
       if (this.player.body) {
-        const angle = Phaser.Math.Angle.Between(mob.x, mob.y, this.player.x, this.player.y);
+        const angle = Phaser.Math.Angle.Between(
+          mob.x,
+          mob.y,
+          this.player.x,
+          this.player.y
+        );
         const knockbackForce = 150;
         this.player.body.velocity.x += Math.cos(angle) * knockbackForce;
         this.player.body.velocity.y += Math.sin(angle) * knockbackForce;
       }
     }
 
-    this.getAllActiveMobs().forEach(otherMob => {
+    this.getAllActiveMobs().forEach((otherMob) => {
       if (otherMob === mob || otherMob.isDead) return;
-      const distance = Phaser.Math.Distance.Between(mob.x, mob.y, otherMob.x, otherMob.y);
+      const distance = Phaser.Math.Distance.Between(
+        mob.x,
+        mob.y,
+        otherMob.x,
+        otherMob.y
+      );
       if (distance <= config.range && otherMob.takeDamage) {
         otherMob.takeDamage(Math.floor(config.damage * 0.5));
       }
@@ -353,7 +574,8 @@ export default class MobManager {
     let dropChance = config.expDropChance || 0.8;
     if (mob.isSpecialWave) dropChance *= 1.2;
     if (mob.specialWaveType === "boss") dropChance = 1.0;
-    if (mob.specialWaveType === "elite") dropChance = Math.min(1.0, dropChance * 1.1);
+    if (mob.specialWaveType === "elite")
+      dropChance = Math.min(1.0, dropChance * 1.1);
 
     if (Math.random() < dropChance) {
       let expValue = 1;
@@ -380,7 +602,8 @@ export default class MobManager {
     let dropChance = config.goldDropChance || 0.4;
     if (mob.isSpecialWave) dropChance *= 1.3;
     if (mob.specialWaveType === "boss") dropChance = 1.0;
-    if (mob.specialWaveType === "elite") dropChance = Math.min(1.0, dropChance * 1.2);
+    if (mob.specialWaveType === "elite")
+      dropChance = Math.min(1.0, dropChance * 1.2);
 
     if (Math.random() < dropChance) {
       let goldValue = mob.goldValue || config.goldValue;
@@ -396,7 +619,12 @@ export default class MobManager {
   trackMob(mob, type) {
     const id = `mob_${Date.now()}_${Math.random()}`;
     mob.trackingId = id;
-    this.activeMobs.set(id, { mob: mob, type: type, spawnTime: Date.now(), isAlive: true });
+    this.activeMobs.set(id, {
+      mob: mob,
+      type: type,
+      spawnTime: Date.now(),
+      isAlive: true,
+    });
   }
 
   spawnRandomMob() {
@@ -412,12 +640,12 @@ export default class MobManager {
       this.currentWave
     );
 
-    const availableTypes = Object.keys(MOB_CONFIGS).filter(type => {
+    const availableTypes = Object.keys(MOB_CONFIGS).filter((type) => {
       return MOB_CONFIGS[type].minWave <= currentLevel;
     });
 
     const weightedTypes = [];
-    availableTypes.forEach(type => {
+    availableTypes.forEach((type) => {
       const weight = MOB_CONFIGS[type].spawnWeight;
       for (let i = 0; i < weight; i++) {
         weightedTypes.push(type);
@@ -438,7 +666,7 @@ export default class MobManager {
     const distance = Phaser.Math.Between(300, 500);
     return {
       x: this.player.x + Math.cos(angle) * distance,
-      y: this.player.y + Math.sin(angle) * distance
+      y: this.player.y + Math.sin(angle) * distance,
     };
   }
 
@@ -461,7 +689,7 @@ export default class MobManager {
     this.mapHeight = height;
     this.tileSize = tileSize;
     this.walkingAreaData = [];
-    
+
     for (let y = 0; y < height; y++) {
       this.walkingAreaData[y] = [];
       for (let x = 0; x < width; x++) {
@@ -469,7 +697,7 @@ export default class MobManager {
         this.walkingAreaData[y][x] = flatData[index] || 0;
       }
     }
-    
+
     this.cacheWalkablePositions();
     this.isWalkingAreaInitialized = true;
   }
@@ -483,7 +711,13 @@ export default class MobManager {
         if (this.walkingAreaData[y] && this.walkingAreaData[y][x] !== 0) {
           const worldX = x * this.tileSize + this.tileSize / 2;
           const worldY = y * this.tileSize + this.tileSize / 2;
-          this.walkablePositions.push({ tileX: x, tileY: y, worldX, worldY, tileValue: this.walkingAreaData[y][x] });
+          this.walkablePositions.push({
+            tileX: x,
+            tileY: y,
+            worldX,
+            worldY,
+            tileValue: this.walkingAreaData[y][x],
+          });
         }
       }
     }
@@ -498,23 +732,39 @@ export default class MobManager {
 
   isTileWalkable(tileX, tileY) {
     if (!this.walkingAreaData) return true;
-    if (tileX < 0 || tileX >= this.mapWidth || tileY < 0 || tileY >= this.mapHeight) return false;
-    return this.walkingAreaData[tileY] && this.walkingAreaData[tileY][tileX] !== 0;
+    if (
+      tileX < 0 ||
+      tileX >= this.mapWidth ||
+      tileY < 0 ||
+      tileY >= this.mapHeight
+    )
+      return false;
+    return (
+      this.walkingAreaData[tileY] && this.walkingAreaData[tileY][tileX] !== 0
+    );
   }
 
   getRandomWalkablePosition() {
     if (this.walkablePositions.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * this.walkablePositions.length);
+    const randomIndex = Math.floor(
+      Math.random() * this.walkablePositions.length
+    );
     return { ...this.walkablePositions[randomIndex] };
   }
 
-  getRandomWalkablePositionNear(centerX, centerY, minDistance = 100, maxDistance = 300, maxAttempts = 20) {
+  getRandomWalkablePositionNear(
+    centerX,
+    centerY,
+    minDistance = 100,
+    maxDistance = 300,
+    maxAttempts = 20
+  ) {
     if (!this.isWalkingAreaInitialized) {
       const angle = Math.random() * Math.PI * 2;
       const distance = Phaser.Math.Between(minDistance, maxDistance);
       return {
         worldX: centerX + Math.cos(angle) * distance,
-        worldY: centerY + Math.sin(angle) * distance
+        worldY: centerY + Math.sin(angle) * distance,
       };
     }
 
@@ -530,17 +780,28 @@ export default class MobManager {
     }
 
     const randomPos = this.getRandomWalkablePosition();
-    return randomPos ? { worldX: randomPos.worldX, worldY: randomPos.worldY } : null;
+    return randomPos
+      ? { worldX: randomPos.worldX, worldY: randomPos.worldY }
+      : null;
   }
 
   getWalkableSpawnPosition() {
     if (!this.player) {
       const randomPos = this.getRandomWalkablePosition();
-      return randomPos ? { x: randomPos.worldX, y: randomPos.worldY } : { x: 0, y: 0 };
+      return randomPos
+        ? { x: randomPos.worldX, y: randomPos.worldY }
+        : { x: 0, y: 0 };
     }
 
-    const position = this.getRandomWalkablePositionNear(this.player.x, this.player.y, 300, 500);
-    return position ? { x: position.worldX, y: position.worldY } : { x: this.player.x + 400, y: this.player.y };
+    const position = this.getRandomWalkablePositionNear(
+      this.player.x,
+      this.player.y,
+      300,
+      500
+    );
+    return position
+      ? { x: position.worldX, y: position.worldY }
+      : { x: this.player.x + 400, y: this.player.y };
   }
 
   startWave(waveNumber) {
@@ -574,10 +835,18 @@ export default class MobManager {
   startSpecialWave(waveNumber, specialType) {
     const waveConfigs = {
       swarm: { count: Math.min(15 + waveNumber * 3, 30), types: ["zombie"] },
-      elite: { count: Math.floor(this.calculateWaveSize(waveNumber) * 0.4), types: ["assassinTank", "assassinArcher"] },
-      mixed: { count: Math.floor(this.calculateWaveSize(waveNumber) * 1.3), 
-              types: Object.keys(MOB_CONFIGS) },
-      boss: { count: Math.max(1, Math.floor(waveNumber / 10)), types: ["assassinTank"] }
+      elite: {
+        count: Math.floor(this.calculateWaveSize(waveNumber) * 0.4),
+        types: ["assassinTank", "assassinArcher"],
+      },
+      mixed: {
+        count: Math.floor(this.calculateWaveSize(waveNumber) * 1.3),
+        types: Object.keys(MOB_CONFIGS),
+      },
+      boss: {
+        count: Math.max(1, Math.floor(waveNumber / 10)),
+        types: ["assassinTank"],
+      },
     };
 
     const config = waveConfigs[specialType];
@@ -603,8 +872,23 @@ export default class MobManager {
 
   applySpecialWaveModifiers(mob, specialType) {
     const modifiers = {
-      elite: { healthMult: 2, damageMult: 1.5, expMult: 2, goldMult: 2, expChance: 1.2, goldChance: 1.3 },
-      boss: { healthMult: 6, damageMult: 3, expMult: 10, goldMult: 15, expChance: 1, goldChance: 1, tint: 0xff0000 }
+      elite: {
+        healthMult: 2,
+        damageMult: 1.5,
+        expMult: 2,
+        goldMult: 2,
+        expChance: 1.2,
+        goldChance: 1.3,
+      },
+      boss: {
+        healthMult: 6,
+        damageMult: 3,
+        expMult: 10,
+        goldMult: 15,
+        expChance: 1,
+        goldChance: 1,
+        tint: 0xff0000,
+      },
     };
 
     const modifier = modifiers[specialType];
@@ -615,7 +899,10 @@ export default class MobManager {
       mob.expValue *= modifier.expMult;
       mob.goldValue *= modifier.goldMult;
       mob.expDropChance = Math.min(1.0, mob.expDropChance * modifier.expChance);
-      mob.goldDropChance = Math.min(1.0, mob.goldDropChance * modifier.goldChance);
+      mob.goldDropChance = Math.min(
+        1.0,
+        mob.goldDropChance * modifier.goldChance
+      );
       if (modifier.tint) mob.setTint(modifier.tint);
     }
 
@@ -638,20 +925,24 @@ export default class MobManager {
       scale: { from: 0, to: 2 },
       alpha: { from: 0.8, to: 0 },
       duration: 500,
-      onComplete: () => portal.destroy()
+      onComplete: () => portal.destroy(),
     });
   }
 
   calculateWaveSize(waveNumber) {
     const baseSize = 8;
     const waveScaling = Math.floor(waveNumber * 1.2);
-    const difficultyBonus = Math.floor((this.gameManager?.gameProgress?.currentDifficulty || 1) * 1.5);
+    const difficultyBonus = Math.floor(
+      (this.gameManager?.gameProgress?.currentDifficulty || 1) * 1.5
+    );
     return Math.min(25, baseSize + waveScaling + difficultyBonus);
   }
 
   checkWaveCompletion() {
     if (!this.waveActive) return;
-    const aliveWaveMobs = this.waveMobs.filter(mob => mob && mob.active && !mob.isDead);
+    const aliveWaveMobs = this.waveMobs.filter(
+      (mob) => mob && mob.active && !mob.isDead
+    );
     if (aliveWaveMobs.length === 0) {
       this.completeWave();
     }
@@ -660,7 +951,8 @@ export default class MobManager {
   completeWave() {
     this.waveActive = false;
     const completedWave = this.currentWave;
-    const specialType = this.waveMobs.length > 0 ? this.waveMobs[0].specialWaveType : null;
+    const specialType =
+      this.waveMobs.length > 0 ? this.waveMobs[0].specialWaveType : null;
     this.waveMobs = [];
 
     let expBonus = completedWave * 100;
@@ -700,22 +992,38 @@ export default class MobManager {
       const mobY = mob.y;
       const childrenToDestroy = [];
 
-      this.scene.children.list.forEach(child => {
+      this.scene.children.list.forEach((child) => {
         if (!child || !child.x || !child.y) return;
-        const distance = Phaser.Math.Distance.Between(child.x, child.y, mobX, mobY - 20);
-        const isLikelyHealthBar = distance < 40 && 
-          ((child.type === "Rectangle" && child.displayWidth <= 50 && child.displayHeight <= 8) ||
-           (child.type === "Container" && child.getBounds && child.getBounds().width <= 50) ||
-           (child.type === "Graphics" && child.displayWidth <= 50));
+        const distance = Phaser.Math.Distance.Between(
+          child.x,
+          child.y,
+          mobX,
+          mobY - 20
+        );
+        const isLikelyHealthBar =
+          distance < 40 &&
+          ((child.type === "Rectangle" &&
+            child.displayWidth <= 50 &&
+            child.displayHeight <= 8) ||
+            (child.type === "Container" &&
+              child.getBounds &&
+              child.getBounds().width <= 50) ||
+            (child.type === "Graphics" && child.displayWidth <= 50));
 
         if (isLikelyHealthBar) childrenToDestroy.push(child);
       });
 
-      childrenToDestroy.forEach(element => {
+      childrenToDestroy.forEach((element) => {
         if (element && element.active && element.destroy) element.destroy();
       });
 
-      ['healthBar', 'healthBarBg', 'healthBarContainer', 'healthBarFill', 'healthBarBackground'].forEach(prop => {
+      [
+        "healthBar",
+        "healthBarBg",
+        "healthBarContainer",
+        "healthBarFill",
+        "healthBarBackground",
+      ].forEach((prop) => {
         if (mob[prop] && mob[prop].destroy) {
           mob[prop].destroy();
           mob[prop] = null;
@@ -727,7 +1035,12 @@ export default class MobManager {
   }
 
   handleMobCollision(mob1, mob2) {
-    const distance = Phaser.Math.Distance.Between(mob1.x, mob1.y, mob2.x, mob2.y);
+    const distance = Phaser.Math.Distance.Between(
+      mob1.x,
+      mob1.y,
+      mob2.x,
+      mob2.y
+    );
     if (distance < 25) {
       const angle = Phaser.Math.Angle.Between(mob1.x, mob1.y, mob2.x, mob2.y);
       const force = 20;
@@ -752,23 +1065,24 @@ export default class MobManager {
   }
 
   getActiveMobCount() {
-    return Array.from(this.activeMobs.values()).filter(data => data.isAlive).length;
+    return Array.from(this.activeMobs.values()).filter((data) => data.isAlive)
+      .length;
   }
 
   getAllActiveMobs() {
     return Array.from(this.activeMobs.values())
-      .filter(data => data.isAlive)
-      .map(data => data.mob);
+      .filter((data) => data.isAlive)
+      .map((data) => data.mob);
   }
 
   getMobsByType(type) {
     return Array.from(this.activeMobs.values())
-      .filter(data => data.type === type && data.isAlive)
-      .map(data => data.mob);
+      .filter((data) => data.type === type && data.isAlive)
+      .map((data) => data.mob);
   }
 
   killAllMobs() {
-    this.getAllActiveMobs().forEach(mob => {
+    this.getAllActiveMobs().forEach((mob) => {
       if (mob.takeDamage) mob.takeDamage(9999);
     });
   }
@@ -776,32 +1090,53 @@ export default class MobManager {
   getWaveProgress() {
     if (!this.waveActive) {
       return {
-        completed: true, remaining: 0, total: 0, waveNumber: this.currentWave,
-        nextWaveTime: this.waveTimer ? Math.ceil(this.waveTimer.getRemaining() / 1000) : 0
+        completed: true,
+        remaining: 0,
+        total: 0,
+        waveNumber: this.currentWave,
+        nextWaveTime: this.waveTimer
+          ? Math.ceil(this.waveTimer.getRemaining() / 1000)
+          : 0,
       };
     }
 
-    const aliveCount = this.waveMobs.filter(m => m.active && !m.isDead).length;
+    const aliveCount = this.waveMobs.filter(
+      (m) => m.active && !m.isDead
+    ).length;
     return {
-      completed: false, remaining: aliveCount, total: this.waveMobs.length,
-      waveNumber: this.currentWave, nextWaveTime: 0
+      completed: false,
+      remaining: aliveCount,
+      total: this.waveMobs.length,
+      waveNumber: this.currentWave,
+      nextWaveTime: 0,
     };
   }
 
-  getCurrentWave() { return this.currentWave; }
-  isWaveActive() { return this.waveActive; }
-  getTimeToNextWave() { return this.waveTimer ? Math.ceil(this.waveTimer.getRemaining() / 1000) : 0; }
+  getCurrentWave() {
+    return this.currentWave;
+  }
+  isWaveActive() {
+    return this.waveActive;
+  }
+  getTimeToNextWave() {
+    return this.waveTimer ? Math.ceil(this.waveTimer.getRemaining() / 1000) : 0;
+  }
 
   checkAndTeleportDistantMobs() {
     if (!this.player || !this.isWalkingAreaInitialized) return;
-    
+
     let teleportedCount = 0;
     const config = this.teleportConfig;
-    
-    this.getAllActiveMobs().forEach(mob => {
+
+    this.getAllActiveMobs().forEach((mob) => {
       if (teleportedCount >= config.maxTeleportsPerCheck) return;
-      
-      const distanceToPlayer = Phaser.Math.Distance.Between(mob.x, mob.y, this.player.x, this.player.y);
+
+      const distanceToPlayer = Phaser.Math.Distance.Between(
+        mob.x,
+        mob.y,
+        this.player.x,
+        this.player.y
+      );
       if (distanceToPlayer > config.maxDistanceFromPlayer) {
         if (this.teleportMobNearPlayer(mob)) {
           teleportedCount++;
@@ -814,60 +1149,79 @@ export default class MobManager {
 
   teleportMobNearPlayer(mob) {
     if (!this.player || !mob || mob.isDead) return false;
-    
+
     const config = this.teleportConfig;
     let newPosition = this.getRandomWalkablePositionNear(
-      this.player.x, this.player.y, config.teleportRange.min, config.teleportRange.max, 30
+      this.player.x,
+      this.player.y,
+      config.teleportRange.min,
+      config.teleportRange.max,
+      30
     );
-    
+
     if (!newPosition) {
       const fallbackPosition = this.getRandomWalkablePosition();
       if (!fallbackPosition) return false;
-      newPosition = { worldX: fallbackPosition.worldX, worldY: fallbackPosition.worldY };
+      newPosition = {
+        worldX: fallbackPosition.worldX,
+        worldY: fallbackPosition.worldY,
+      };
     }
-    
+
     mob.x = newPosition.worldX;
     mob.y = newPosition.worldY;
-    
+
     if (mob.body) {
       mob.body.x = newPosition.worldX - mob.body.width / 2;
       mob.body.y = newPosition.worldY - mob.body.height / 2;
       mob.body.velocity.x = 0;
       mob.body.velocity.y = 0;
     }
-    
+
     return true;
   }
 
   createTeleportEffect(x, y, mob) {
     const config = this.teleportConfig;
     const effects = config.effects;
-    
+
     if (this.gameManager?.debugMode && !effects.showEffectsInDebug) return;
-    
-    const teleportOutEffect = this.scene.add.circle(x, y, effects.effectRadius, effects.teleportOutColor, 0.7);
+
+    const teleportOutEffect = this.scene.add.circle(
+      x,
+      y,
+      effects.effectRadius,
+      effects.teleportOutColor,
+      0.7
+    );
     teleportOutEffect.setDepth(effects.effectDepth);
-    
+
     this.scene.tweens.add({
       targets: teleportOutEffect,
       scale: { from: 0.5, to: 2 },
       alpha: { from: 0.7, to: 0 },
       duration: effects.effectDuration,
-      onComplete: () => teleportOutEffect.destroy()
+      onComplete: () => teleportOutEffect.destroy(),
     });
-    
+
     this.scene.time.delayedCall(200, () => {
-      const teleportInEffect = this.scene.add.circle(mob.x, mob.y, effects.effectRadius, effects.teleportInColor, 0.8);
+      const teleportInEffect = this.scene.add.circle(
+        mob.x,
+        mob.y,
+        effects.effectRadius,
+        effects.teleportInColor,
+        0.8
+      );
       teleportInEffect.setDepth(effects.effectDepth);
-      
+
       this.scene.tweens.add({
         targets: teleportInEffect,
         scale: { from: 2, to: 0.5 },
         alpha: { from: 0.8, to: 0 },
         duration: effects.effectDuration,
-        onComplete: () => teleportInEffect.destroy()
+        onComplete: () => teleportInEffect.destroy(),
       });
-      
+
       if (mob && mob.active && !mob.isDead) {
         const originalTint = mob.tintTopLeft;
         mob.setTint(effects.teleportInColor);
@@ -893,18 +1247,21 @@ export default class MobManager {
       killsByType: Object.fromEntries(this.stats.killsByType),
       currentWave: this.currentWave,
       waveActive: this.waveActive,
-      waveProgress: this.getWaveProgress()
+      waveProgress: this.getWaveProgress(),
     };
   }
 
   update(time, delta) {
     const toRemove = [];
-    
-    if (time - this.lastTeleportCheck > this.teleportConfig.teleportCheckInterval) {
+
+    if (
+      time - this.lastTeleportCheck >
+      this.teleportConfig.teleportCheckInterval
+    ) {
       this.checkAndTeleportDistantMobs();
       this.lastTeleportCheck = time;
     }
-    
+
     this.activeMobs.forEach((data, id) => {
       if (!data.mob.active || data.mob.isDead) {
         toRemove.push(id);
@@ -917,8 +1274,8 @@ export default class MobManager {
         }
       }
     });
-    
-    toRemove.forEach(id => this.activeMobs.delete(id));
+
+    toRemove.forEach((id) => this.activeMobs.delete(id));
     this.updateMobAbilities(time, delta);
   }
 
@@ -934,13 +1291,18 @@ export default class MobManager {
           const checkX = currentTileX + dx;
           const checkY = currentTileY + dy;
           const tile = this.walkingAreaLayer.getTileAt(checkX, checkY);
-          
+
           if (tile && tile.index !== 0) {
             const worldX = checkX * this.tileSize + this.tileSize / 2;
             const worldY = checkY * this.tileSize + this.tileSize / 2;
 
             if (this.player) {
-              const distanceToPlayer = Phaser.Math.Distance.Between(worldX, worldY, this.player.x, this.player.y);
+              const distanceToPlayer = Phaser.Math.Distance.Between(
+                worldX,
+                worldY,
+                this.player.x,
+                this.player.y
+              );
               if (distanceToPlayer < 200) continue;
             }
 
@@ -961,7 +1323,7 @@ export default class MobManager {
     if (this.spawnTimer) this.spawnTimer.destroy();
     if (this.waveTimer) this.waveTimer.destroy();
 
-    this.getAllActiveMobs().forEach(mob => {
+    this.getAllActiveMobs().forEach((mob) => {
       this.cleanupMobHealthBar(mob);
       if (mob.destroy) mob.destroy();
     });
