@@ -23,7 +23,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     this.health = this.maxHealth;
     this.damage = 35;
     this.speed = 50;
-    this.chargeSpeed = 120; // Speed during charge attack
+    this.chargeSpeed = 120;
     this.attackRange = 80; // Longer range to trigger charge
     this.chargeRange = 150; // Max charge distance
     this.attackCooldown = 2000;
@@ -31,8 +31,10 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     this.isDead = false;
     this.isMoving = false;
     this.isCharging = false;
+    this.isAttacking = false; // New attack state
     this.chargeStartTime = 0;
     this.chargeDuration = 800; // How long charge lasts
+    this.attackDuration = 400; // How long attack animation lasts
     this.chargeDirection = { x: 0, y: 0 };
     this.lastDirection = "down";
     // this.createHealthBar();
@@ -100,7 +102,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       });
     }
 
-   if (!this.scene.anims.exists("chargerDeath")) {
+    if (!this.scene.anims.exists("chargerDeath")) {
       this.scene.anims.create({
         key: "chargerDeath",
         frames: this.scene.anims.generateFrameNumbers("Charger_death_50x31_v01", {
@@ -119,8 +121,21 @@ export default class Charger extends Phaser.GameObjects.Sprite {
           start: 0,
           end: 7,
         }),
-        frameRate: 12, // Faster animation during charge
+        frameRate: 12,
         repeat: -1,
+      });
+    }
+
+    // New attack animation
+    if (!this.scene.anims.exists("chargerAttack")) {
+      this.scene.anims.create({
+        key: "chargerAttack",
+        frames: this.scene.anims.generateFrameNumbers("chargerAttack", {
+          start: 0,
+          end: 9,
+        }),
+        frameRate: 10,
+        repeat: 0,
       });
     }
 
@@ -189,8 +204,10 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         player.y
       );
 
-      // Handle charging behavior
-      if (this.isCharging) {
+      // Handle attacking behavior
+      if (this.isAttacking) {
+        this.updateAttack(time);
+      } else if (this.isCharging) {
         this.updateCharge(time);
       } else if (
         distance <= this.attackRange &&
@@ -261,7 +278,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         );
 
         if (distance < 25) {
-          this.hitPlayer(player);
+          this.startAttack(player);
         }
       }
     } else {
@@ -270,6 +287,38 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       this.body.velocity.x *= 0.3;
       this.body.velocity.y *= 0.3;
     }
+  }
+
+  startAttack(player) {
+    if (this.isAttacking) return;
+
+    this.isAttacking = true;
+    this.isCharging = false;
+    this.attackStartTime = this.scene.time.now;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+    this.play("chargerAttack");
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "chargerAttack") {
+        this.endAttack();
+      }
+    });
+    this.hitPlayer(player);
+  }
+
+  updateAttack(time) {
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+    this.isMoving = false;
+    const attackTime = time - this.attackStartTime;
+    if (attackTime > this.attackDuration) {
+      this.endAttack();
+    }
+  }
+
+  endAttack() {
+    this.isAttacking = false;
+    this.attackStartTime = 0;
   }
 
   moveTowardPlayer(player) {
@@ -355,7 +404,10 @@ export default class Charger extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isCharging) {
+    if (this.isAttacking) {
+      // Attack animation is handled by startAttack method
+      // No need to change animation here during attack
+    } else if (this.isCharging) {
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "Charger Charge"
@@ -378,11 +430,13 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       }
     }
 
-    // Handle sprite flipping
-    if (this.lastDirection === "right") {
-      this.setFlipX(false);
-    } else if (this.lastDirection === "left") {
-      this.setFlipX(true);
+    // Handle sprite flipping (don't flip during attack to maintain attack direction)
+    if (!this.isAttacking) {
+      if (this.lastDirection === "right") {
+        this.setFlipX(false);
+      } else if (this.lastDirection === "left") {
+        this.setFlipX(true);
+      }
     }
   }
 
@@ -399,10 +453,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       }
     });
 
-    // End charge early after hitting
-    this.isCharging = false;
-    this.body.velocity.x *= 0.2;
-    this.body.velocity.y *= 0.2;
+    // Don't end charge here anymore - let attack animation handle it
   }
 
   takeDamage(amount) {
@@ -418,11 +469,15 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       }
     });
 
-    // Interrupt charge if damaged
+    // Interrupt charge and attack if damaged
     if (this.isCharging) {
       this.isCharging = false;
       this.body.velocity.x *= 0.5;
       this.body.velocity.y *= 0.5;
+    }
+
+    if (this.isAttacking) {
+      this.endAttack();
     }
 
     if (this.health <= 0) {
@@ -435,12 +490,11 @@ export default class Charger extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
     this.isCharging = false;
-
+    this.isAttacking = false;
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-
 
     if (
       this.scene &&
@@ -456,13 +510,12 @@ export default class Charger extends Phaser.GameObjects.Sprite {
       if (animation.key === "chargerDeath") {
         this.cleanupAndDestroy();
       }
-    })
+    });
 
-if (this.shadow) {
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
-
 
     this.spawnRewards();
   }
@@ -541,7 +594,8 @@ if (this.shadow) {
       const baseScale = 1.0;
       const moveScale = this.isMoving ? 0.9 : 1.0;
       const chargeScale = this.isCharging ? 1.3 : 1.0;
-      this.shadow.setScale(baseScale * moveScale * chargeScale);
+      const attackScale = this.isAttacking ? 1.1 : 1.0;
+      this.shadow.setScale(baseScale * moveScale * chargeScale * attackScale);
     }
   }
 

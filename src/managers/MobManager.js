@@ -195,6 +195,26 @@ export default class MobManager {
   }
 
   addSpecialAbilities(mob, type) {
+
+    switch (type) {
+      case "zombieBig":
+        this.addDeathExplosion(mob, {
+          explosionRange: 80,
+          explosionDamage: 15,
+          explosionColor: 0xff4444,
+        });
+        break;
+
+      case "assassinArcher":
+        this.addProjectileAttack(mob, {
+          range: 250,
+          cooldown: 2500,
+          projectileSpeed: 120,
+          projectileColor: 0xff0000,
+          projectileSize: 2,
+        });
+        break;
+
     const specialAbilities = {
       policeDroid: { type: 'projectile', range: 200, cooldown: 2000, speed: 150, color: 0xff0000, size: 3 },
       zombieBig: { type: 'explosion', range: 80, damage: 15, color: 0xff4444 },
@@ -208,6 +228,7 @@ export default class MobManager {
       } else if (ability.type === 'explosion') {
         this.addDeathExplosion(mob, ability);
       }
+
     }
   }
 
@@ -275,6 +296,7 @@ export default class MobManager {
       }
     });
 
+
     this.createMuzzleFlash(mob);
   }
 
@@ -288,6 +310,7 @@ export default class MobManager {
       duration: 200,
       onComplete: () => flash.destroy()
     });
+
   }
 
   createHitEffect(x, y) {
@@ -794,18 +817,33 @@ export default class MobManager {
 
   checkAndTeleportDistantMobs() {
     if (!this.player || !this.isWalkingAreaInitialized) return;
-    
+
     let teleportedCount = 0;
     const config = this.teleportConfig;
+
+
+    this.getAllActiveMobs().forEach((mob) => {
+      if (teleportedCount >= config.maxTeleportsPerCheck) return;
+
+      const distanceToPlayer = Phaser.Math.Distance.Between(
+        mob.x,
+        mob.y,
+        this.player.x,
+        this.player.y
+      );
+
+
     
     this.getAllActiveMobs().forEach(mob => {
       if (teleportedCount >= config.maxTeleportsPerCheck) return;
       
       const distanceToPlayer = Phaser.Math.Distance.Between(mob.x, mob.y, this.player.x, this.player.y);
+
       if (distanceToPlayer > config.maxDistanceFromPlayer) {
         if (this.teleportMobNearPlayer(mob)) {
           teleportedCount++;
           this.stats.totalTeleported++;
+
           this.createTeleportEffect(mob.x, mob.y, mob);
         }
       }
@@ -814,60 +852,85 @@ export default class MobManager {
 
   teleportMobNearPlayer(mob) {
     if (!this.player || !mob || mob.isDead) return false;
-    
+
     const config = this.teleportConfig;
+
     let newPosition = this.getRandomWalkablePositionNear(
       this.player.x, this.player.y, config.teleportRange.min, config.teleportRange.max, 30
     );
-    
+
     if (!newPosition) {
       const fallbackPosition = this.getRandomWalkablePosition();
       if (!fallbackPosition) return false;
-      newPosition = { worldX: fallbackPosition.worldX, worldY: fallbackPosition.worldY };
+
+
+      newPosition = {
+        worldX: fallbackPosition.worldX,
+        worldY: fallbackPosition.worldY,
+      };
+
     }
-    
+
     mob.x = newPosition.worldX;
     mob.y = newPosition.worldY;
-    
+
     if (mob.body) {
       mob.body.x = newPosition.worldX - mob.body.width / 2;
       mob.body.y = newPosition.worldY - mob.body.height / 2;
       mob.body.velocity.x = 0;
       mob.body.velocity.y = 0;
     }
-    
+
     return true;
   }
 
   createTeleportEffect(x, y, mob) {
     const config = this.teleportConfig;
     const effects = config.effects;
-    
-    if (this.gameManager?.debugMode && !effects.showEffectsInDebug) return;
-    
-    const teleportOutEffect = this.scene.add.circle(x, y, effects.effectRadius, effects.teleportOutColor, 0.7);
+
+
+    if (this.gameManager?.debugMode && !effects.showEffectsInDebug) {
+      return;
+    }
+
+    const teleportOutEffect = this.scene.add.circle(
+      x,
+      y,
+      effects.effectRadius,
+      effects.teleportOutColor,
+      0.7
+    );
+
     teleportOutEffect.setDepth(effects.effectDepth);
-    
+
     this.scene.tweens.add({
       targets: teleportOutEffect,
       scale: { from: 0.5, to: 2 },
       alpha: { from: 0.7, to: 0 },
       duration: effects.effectDuration,
-      onComplete: () => teleportOutEffect.destroy()
+      onComplete: () => teleportOutEffect.destroy(),
     });
-    
+
     this.scene.time.delayedCall(200, () => {
-      const teleportInEffect = this.scene.add.circle(mob.x, mob.y, effects.effectRadius, effects.teleportInColor, 0.8);
+
+      const teleportInEffect = this.scene.add.circle(
+        mob.x,
+        mob.y,
+        effects.effectRadius,
+        effects.teleportInColor,
+        0.8
+      );
+
       teleportInEffect.setDepth(effects.effectDepth);
-      
+
       this.scene.tweens.add({
         targets: teleportInEffect,
         scale: { from: 2, to: 0.5 },
         alpha: { from: 0.8, to: 0 },
         duration: effects.effectDuration,
-        onComplete: () => teleportInEffect.destroy()
+        onComplete: () => teleportInEffect.destroy(),
       });
-      
+
       if (mob && mob.active && !mob.isDead) {
         const originalTint = mob.tintTopLeft;
         mob.setTint(effects.teleportInColor);
@@ -899,12 +962,15 @@ export default class MobManager {
 
   update(time, delta) {
     const toRemove = [];
-    
-    if (time - this.lastTeleportCheck > this.teleportConfig.teleportCheckInterval) {
+
+    if (
+      time - this.lastTeleportCheck >
+      this.teleportConfig.teleportCheckInterval
+    ) {
       this.checkAndTeleportDistantMobs();
       this.lastTeleportCheck = time;
     }
-    
+
     this.activeMobs.forEach((data, id) => {
       if (!data.mob.active || data.mob.isDead) {
         toRemove.push(id);
