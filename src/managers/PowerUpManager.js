@@ -40,8 +40,7 @@ export default class PowerUpManager {
             
             const g = this.scene.add.graphics();
             g.fillStyle(config.color, 1).fillCircle(32, 32, 32);
-            g.fillStyle(0xffffff, 1);
-            g.fillCircle(32, 32, 15);
+            g.fillStyle(0xffffff, 1).fillCircle(32, 32, 15);
             g.generateTexture(iconName, 64, 64);
             g.destroy();
         });
@@ -62,10 +61,7 @@ export default class PowerUpManager {
         [this.scene.player, ...(this.scene.enemies?.getChildren() || [])].forEach(entity => {
             if (entity?.body) {
                 this.storedState.entities.push({
-                    entity,
-                    vx: entity.body.velocity.x,
-                    vy: entity.body.velocity.y,
-                    enabled: entity.body.enable
+                    entity, vx: entity.body.velocity.x, vy: entity.body.velocity.y, enabled: entity.body.enable
                 });
                 entity.body.velocity.setTo(0, 0);
                 entity.body.enable = false;
@@ -106,22 +102,21 @@ export default class PowerUpManager {
     }
     
     selectPowerUp(type) {
-    this.powerUps[type]++;
-    
-    const config = LEGACY_POWER_UPS[type];
-    const value = config.base * (1 + (this.powerUps[type] - 1) * 0.5);
-    config.apply(this.scene.player, value);
-    
-    this.scene.tweens.add({
-     targets: [this.overlay, this.title, this.container],
-     alpha: 0,
-    duration: 300,
-    onComplete: () => {
-     [this.overlay, this.title, this.container].forEach(el => el?.destroy());
-     this.resumeGame();
-    this.handlePending();
-    }
-    });
+        this.powerUps[type]++;
+        
+        const config = LEGACY_POWER_UPS[type];
+        const value = config.base * (1 + (this.powerUps[type] - 1) * 0.5);
+        config.apply(this.scene.player, value);
+        
+        this.scene.tweens.add({
+            targets: [this.overlay, this.title, this.container],
+            alpha: 0, duration: 300,
+            onComplete: () => {
+                [this.overlay, this.title, this.container].forEach(el => el?.destroy());
+                this.resumeGame();
+                this.handlePending();
+            }
+        });
     }
     
     resumeGame() {
@@ -149,36 +144,15 @@ export default class PowerUpManager {
         }
     }
     
-    
+    getSkillLevel(skillKey) { return this.skillUpgradeManager?.getSkillLevel(skillKey) || 0; }
+    getSkillInfo(skillKey) { return this.skillUpgradeManager?.getSkillInfo(skillKey) || null; }
+    getPlayerLevel() { return this.skillUpgradeManager?.getPlayerLevel() || 1; }
+    getSaveData() { return this.skillUpgradeManager?.getSaveData() || {}; }
+    loadSaveData(data) { this.skillUpgradeManager?.loadSaveData(data); }
     
     shutdown() {
-        if (this.skillUpgradeManager) {
-            this.skillUpgradeManager.shutdown();
-        }
-        
+        this.skillUpgradeManager?.shutdown();
         [this.overlay, this.title, this.container].forEach(el => el?.destroy());
         if (this.originalUpdate) this.scene.update = this.originalUpdate;
-    }
-    
-    getSkillLevel(skillKey) {
-        return this.skillUpgradeManager ? this.skillUpgradeManager.getSkillLevel(skillKey) : 0;
-    }
-    
-    getSkillInfo(skillKey) {
-        return this.skillUpgradeManager ? this.skillUpgradeManager.getSkillInfo(skillKey) : null;
-    }
-    
-    getPlayerLevel() {
-        return this.skillUpgradeManager ? this.skillUpgradeManager.getPlayerLevel() : 1;
-    }
-    
-    getSaveData() {
-        return this.skillUpgradeManager ? this.skillUpgradeManager.getSaveData() : {};
-    }
-    
-    loadSaveData(data) {
-        if (this.skillUpgradeManager) {
-            this.skillUpgradeManager.loadSaveData(data);
-        }
     }
 }
