@@ -82,6 +82,10 @@ export default class MainMapScene extends BaseGameScene {
         }
       });
       
+      this.time.delayedCall(200, () => {
+        this.setupMobCollisions();
+      });
+      
       this.startEnemySpawning();
     } catch (error) {
       console.error("Error initializing systems:", error);
@@ -101,6 +105,11 @@ export default class MainMapScene extends BaseGameScene {
 
       this.gameplayManager = { mobManager: this.mobManager };
       this.mobManager.startWave(GameConfig.WAVE.INITIAL_WAVE);
+      
+      this.time.delayedCall(100, () => {
+        this.setupMobCollisions();
+      });
+      
     } catch (error) {
       console.error("MobManager initialization failed:", error);
     }
@@ -562,6 +571,93 @@ export default class MainMapScene extends BaseGameScene {
   mainMap;
 
   /* START-USER-CODE */
+
+  setupCollisions() {
+    try {
+      this.setupWalkingAreaCollisions();
+      this.setupStatueCollisions();
+      this.setupTilemapCollisions();
+    } catch (error) {
+      console.error("Error setting up collisions:", error);
+    }
+  }
+
+  setupWalkingAreaCollisions() {
+    if (!this.walkingArea_1 || !this.playerPrefab) {
+      return;
+    }
+
+    this.walkingArea_1.setCollisionByExclusion([]);
+    
+    this.walkingArea_1.layer.data.forEach(row => {
+      row.forEach(tile => {
+        if (tile && tile.index === 0) {
+          tile.setCollision(true, true, true, true);
+        } else if (tile && tile.index !== 0) {
+          tile.setCollision(false, false, false, false);
+        }
+      });
+    });
+
+    this.physics.add.collider(this.playerPrefab, this.walkingArea_1);
+  }
+
+  setupStatueCollisions() {
+    const statues = [
+      this.stoneStatuePrefab,
+      this.stoneStatuePrefab_1,
+      this.stoneStatuePrefab_2,
+      this.stoneStatuePrefab_3
+    ];
+
+    statues.forEach(statue => {
+      if (statue?.active && this.playerPrefab) {
+        statue.setupCollision?.(this.playerPrefab);
+      }
+    });
+  }
+
+  setupTilemapCollisions() {
+    if (!this.playerPrefab) return;
+
+    [this.map_Col_1, this.backGround].forEach(layer => {
+      if (layer) {
+        this.physics.add.collider(this.playerPrefab, layer);
+        layer.setCollisionBetween(0, 10000);
+      }
+    });
+  }
+
+  setupMobCollisions() {
+    const mobGroup = this.mobManager?.mobGroup || this.zombieGroup || this.enemies;
+    
+    if (!mobGroup) {
+      return;
+    }
+
+    if (this.walkingArea_1) {
+      this.physics.add.collider(mobGroup, this.walkingArea_1);
+    }
+
+    [this.map_Col_1, this.backGround].forEach(layer => {
+      if (layer) {
+        this.physics.add.collider(mobGroup, layer);
+      }
+    });
+
+    const statues = [
+      this.stoneStatuePrefab,
+      this.stoneStatuePrefab_1,
+      this.stoneStatuePrefab_2,
+      this.stoneStatuePrefab_3
+    ];
+
+    statues.forEach((statue, index) => {
+      if (statue?.active) {
+        this.physics.add.collider(mobGroup, statue);
+      }
+    });
+  }
 
   setupLavaAnimations() {
     try {
