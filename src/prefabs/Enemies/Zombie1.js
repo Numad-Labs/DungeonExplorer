@@ -23,6 +23,7 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
+    this.isAttacking = false;
 
     this.lastDirection = "down";
     // this.createHealthBar();
@@ -89,7 +90,8 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         repeat: -1,
       });
     }
-        if (!this.scene.anims.exists("zombie1 death")) {
+
+    if (!this.scene.anims.exists("zombie1 death")) {
       this.scene.anims.create({
         key: "zombie1 death",
         frames: this.scene.anims.generateFrameNumbers("death_1", {
@@ -100,6 +102,20 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
+
+    // Attack animation setup
+    if (!this.scene.anims.exists("zombieAttack")) {
+      this.scene.anims.create({
+        key: "zombieAttack",
+        frames: this.scene.anims.generateFrameNumbers("zombieAttack", {
+          start: 0,
+          end: 3, // Adjust based on your sprite sheet
+        }),
+        frameRate: 8,
+        repeat: 0,
+      });
+    }
+
     if (!this.scene.anims.exists("zombieIdle")) {
       this.scene.anims.create({
         key: "zombieIdle",
@@ -168,43 +184,47 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
       );
 
       if (distance > this.attackRange) {
-        const angle = Phaser.Math.Angle.Between(
-          this.x,
-          this.y,
-          player.x,
-          player.y
-        );
-        const forceX = Math.cos(angle) * this.speed * 0.1;
-        const forceY = Math.sin(angle) * this.speed * 0.1;
-        this.body.velocity.x += forceX;
-        this.body.velocity.y += forceY;
-        this.body.velocity.x *= 0.9;
-        this.body.velocity.y *= 0.9;
-        this.applyZombieAvoidance();
+        // Don't move if currently attacking
+        if (!this.isAttacking) {
+          const angle = Phaser.Math.Angle.Between(
+            this.x,
+            this.y,
+            player.x,
+            player.y
+          );
+          const forceX = Math.cos(angle) * this.speed * 0.1;
+          const forceY = Math.sin(angle) * this.speed * 0.1;
+          this.body.velocity.x += forceX;
+          this.body.velocity.y += forceY;
+          this.body.velocity.x *= 0.9;
+          this.body.velocity.y *= 0.9;
+          this.applyZombieAvoidance();
 
-        const maxSpeed = this.speed;
-        const currentSpeed = Math.sqrt(
-          this.body.velocity.x * this.body.velocity.x +
-            this.body.velocity.y * this.body.velocity.y
-        );
+          const maxSpeed = this.speed;
+          const currentSpeed = Math.sqrt(
+            this.body.velocity.x * this.body.velocity.x +
+              this.body.velocity.y * this.body.velocity.y
+          );
 
-        if (currentSpeed > maxSpeed) {
-          const scale = maxSpeed / currentSpeed;
-          this.body.velocity.x *= scale;
-          this.body.velocity.y *= scale;
+          if (currentSpeed > maxSpeed) {
+            const scale = maxSpeed / currentSpeed;
+            this.body.velocity.x *= scale;
+            this.body.velocity.y *= scale;
+          }
+          this.isMoving = true;
+          this.updateDirection(angle);
         }
-        this.isMoving = true;
-        this.updateDirection(angle);
       } else {
+        // Stop movement when in attack range
         this.body.velocity.x *= 0.8;
         this.body.velocity.y *= 0.8;
         const currentSpeed = Math.sqrt(
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 5;
+        this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -272,7 +292,16 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isMoving) {
+    // Priority: Attack > Movement > Idle
+    if (this.isAttacking) {
+      // Attack animation takes priority
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "zombieAttack"
+      ) {
+        this.play("zombieAttack");
+      }
+    } else if (this.isMoving) {
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "zombieRunAni"
@@ -297,8 +326,31 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
 
-    player.takeDamage(this.damage);
+    // Set attacking state
+    this.isAttacking = true;
 
+    // Stop movement during attack
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+
+    // Play attack animation
+    this.play("zombieAttack");
+
+    // Listen for attack animation completion
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "zombieAttack") {
+        this.isAttacking = false;
+      }
+    });
+
+    // Deal damage to player (you might want to delay this to match animation timing)
+    this.scene.time.delayedCall(200, () => {
+      if (player && player.takeDamage) {
+        player.takeDamage(this.damage);
+      }
+    });
+
+    // Visual feedback
     this.setTint(0xff0000);
     this.scene.time.delayedCall(150, () => {
       this.clearTint();
@@ -325,7 +377,7 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-
+    this.isAttacking = false; // Stop any attack in progress
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
@@ -335,22 +387,22 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
       this.scene.zombieGroup.remove(this);
     }
 
-      this.spawnRewards();
+    this.spawnRewards();
 
     // Stop any current animations and play death animation once
     this.stop();
-    this.play("zombie1Death", false); // false ensures it doesn't repeat
+    this.play("zombie1 death", false); // false ensures it doesn't repeat
     
     // Listen for animation complete event (only once)
     this.once('animationcomplete', (animation) => {
       // Make sure it's the death animation that completed
-      if (animation.key === "zombie1Death") {
+      if (animation.key === "zombie1 death") {
         // Immediately remove the mob after death animation
         this.cleanupAndDestroy();
       }
-    })
+    });
 
-if (this.shadow) {
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }

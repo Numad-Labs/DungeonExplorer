@@ -24,6 +24,7 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
         this.lastAttackTime = 0;
         this.isDead = false;
         this.isMoving = false;
+         this.isAttacking = false;
         
         this.lastDirection = 'down';
         // this.createHealthBar();
@@ -92,6 +93,17 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
           end: 10,
         }),
         frameRate: 6,
+        repeat: 0,
+      });
+    }
+        if (!this.scene.anims.exists("zombie2Attack")) {
+      this.scene.anims.create({
+        key: "zombie2Attack",
+        frames: this.scene.anims.generateFrameNumbers("assets/Hero/zombie 2/attack.png", {
+          start: 0,
+          end: 8,
+        }),
+        frameRate: 8,
         repeat: 0,
       });
     }
@@ -175,9 +187,9 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
                     this.body.velocity.x * this.body.velocity.x + 
                     this.body.velocity.y * this.body.velocity.y
                 );
-                this.isMoving = currentSpeed > 5; 
+                 this.isMoving = currentSpeed > 5 && !this.isAttacking;
                 
-                if (time - this.lastAttackTime > this.attackCooldown) {
+                if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
                     this.attackPlayer(player);
                     this.lastAttackTime = time;
                 }
@@ -241,7 +253,15 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
     }
     
     updateAnimation() {
-        if (this.isMoving) {
+            if (this.isAttacking) {
+      // Attack animation takes priority
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "zombie2Attack"
+      ) {
+        this.play("zombie2Attack");
+      }
+    } else if (this.isMoving) {
             if (!this.anims.isPlaying || this.anims.currentAnim.key !== 'Zombie2RunAni') {
                 this.play('Zombie2RunAni');
             }
@@ -255,8 +275,26 @@ export default class Zombie2 extends Phaser.GameObjects.Sprite {
     
     attackPlayer(player) {
         if (!player || !player.takeDamage) return;
-        
+            this.isAttacking = true;
+
+    // Stop movement during attack
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+
+    // Play attack animation
+    this.play("zombie1Attack");
+
+    // Listen for attack animation completion
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "zombie1Attack") {
+        this.isAttacking = false;
+      }
+    });
+     this.scene.time.delayedCall(200, () => {
+      if (player && player.takeDamage) {
         player.takeDamage(this.damage);
+      }
+    });
         
         this.setTint(0xff0000);
         this.scene.time.delayedCall(150, () => {

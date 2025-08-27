@@ -13,17 +13,17 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this, false);
     this.body.setSize(24, 24, false);
     this.body.setOffset(12, 24);
-
-    // Wreacker stats - faster and more aggressive than BigDude
     this.maxHealth = 50;
     this.health = this.maxHealth;
     this.damage = 15;
-    this.speed = 60; // Faster than BigDude
-    this.attackRange = 30; // Medium range
-    this.attackCooldown = 800; // Faster attacks
+    this.speed = 60;
+    this.attackRange = 30; 
+    this.attackCooldown = 800;
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
+    this.isAttacking = false; // New attack state
+    this.attackDuration = 600; // How long attack lasts
 
     this.lastDirection = "down";
     // this.createHealthBar();
@@ -60,7 +60,6 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
     );
 
     if (distance < 25) {
-      // Medium collision radius for Wreacker
       const angle = Phaser.Math.Angle.Between(
         zombie1.x,
         zombie1.y,
@@ -68,7 +67,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         zombie2.y
       );
 
-      const separationForce = 30; // Medium push force
+      const separationForce = 30; 
       const pushX = Math.cos(angle) * separationForce;
       const pushY = Math.sin(angle) * separationForce;
 
@@ -78,14 +77,13 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       zombie1.body.velocity.y -= pushY;
 
       if (wreacker) {
-        wreacker.body.velocity.x -= pushX * 0.7; // Wreacker is moderately affected
+        wreacker.body.velocity.x -= pushX * 0.7;
         wreacker.body.velocity.y -= pushY * 0.7;
       }
     }
   }
 
   createAnimations() {
-    // Create Wreacker Run animation using WreackerRun texture
     if (!this.scene.anims.exists("WreackerRun")) {
       this.scene.anims.create({
         key: "WreackerRun",
@@ -98,7 +96,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       });
     }
 
-            if (!this.scene.anims.exists("WreackerDeath")) {
+    if (!this.scene.anims.exists("WreackerDeath")) {
       this.scene.anims.create({
         key: "WreackerDeath",
         frames: this.scene.anims.generateFrameNumbers("WreackerDeath", {
@@ -110,23 +108,24 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       });
     }
 
-    // Create attack animation if attack texture exists
-    if (
-      this.scene.textures.exists("WreackerAttack") &&
-      !this.scene.anims.exists("Wreacker Attack")
-    ) {
+    // Improved WreackerAttack animation setup
+    if (!this.scene.anims.exists("WreackerAttack")) {
+      // Check if the attack sprite sheet exists, fallback to run frames if not
+      const attackTexture = this.scene.textures.exists("WreackerAttack") ? "WreackerAttack" : "WreackerRun";
+      
       this.scene.anims.create({
-        key: "Wreacker Attack",
-        frames: this.scene.anims.generateFrameNumbers("WreackerAttack", {
+        key: "WreackerAttack",
+        frames: this.scene.anims.generateFrameNumbers(attackTexture, {
           start: 0,
-          end: 5,
+          end: attackTexture === "WreackerAttack" ? 5 : 3, // Adjust based on available frames
         }),
-        frameRate: 10,
-        repeat: 0, // Play once for attack
+        frameRate: 8, // Slower frame rate to ensure full animation plays
+        repeat: 0, // Play once
       });
+      
+      console.log("Created WreackerAttack animation with texture:", attackTexture); // Debug log
     }
 
-    // Create idle animation
     if (!this.scene.anims.exists("Wreacker Idle")) {
       this.scene.anims.create({
         key: "Wreacker Idle",
@@ -192,35 +191,12 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         player.y
       );
 
-      if (distance > this.attackRange) {
+      // Handle attacking behavior
+      if (this.isAttacking) {
+        this.updateAttack(time);
+      } else if (distance > this.attackRange) {
         // Move towards player - Wreacker is more aggressive
-        const angle = Phaser.Math.Angle.Between(
-          this.x,
-          this.y,
-          player.x,
-          player.y
-        );
-        const forceX = Math.cos(angle) * this.speed * 0.12; // Slightly more aggressive
-        const forceY = Math.sin(angle) * this.speed * 0.12;
-        this.body.velocity.x += forceX;
-        this.body.velocity.y += forceY;
-        this.body.velocity.x *= 0.88; // Less damping for snappier movement
-        this.body.velocity.y *= 0.88;
-        this.applyZombieAvoidance();
-
-        const maxSpeed = this.speed;
-        const currentSpeed = Math.sqrt(
-          this.body.velocity.x * this.body.velocity.x +
-            this.body.velocity.y * this.body.velocity.y
-        );
-
-        if (currentSpeed > maxSpeed) {
-          const scale = maxSpeed / currentSpeed;
-          this.body.velocity.x *= scale;
-          this.body.velocity.y *= scale;
-        }
-        this.isMoving = true;
-        this.updateDirection(angle);
+        this.moveTowardPlayer(player);
       } else {
         // Stop and attack
         this.body.velocity.x *= 0.75;
@@ -232,7 +208,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         this.isMoving = currentSpeed > 5;
 
         if (time - this.lastAttackTime > this.attackCooldown) {
-          this.attackPlayer(player);
+          this.startAttack(player);
           this.lastAttackTime = time;
         }
       }
@@ -244,6 +220,102 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
     } catch (error) {
       console.error("Error in Wreacker update:", error);
     }
+  }
+
+  moveTowardPlayer(player) {
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+    const forceX = Math.cos(angle) * this.speed * 0.12; // Slightly more aggressive
+    const forceY = Math.sin(angle) * this.speed * 0.12;
+    this.body.velocity.x += forceX;
+    this.body.velocity.y += forceY;
+    this.body.velocity.x *= 0.88; // Less damping for snappier movement
+    this.body.velocity.y *= 0.88;
+    this.applyZombieAvoidance();
+
+    const maxSpeed = this.speed;
+    const currentSpeed = Math.sqrt(
+      this.body.velocity.x * this.body.velocity.x +
+        this.body.velocity.y * this.body.velocity.y
+    );
+
+    if (currentSpeed > maxSpeed) {
+      const scale = maxSpeed / currentSpeed;
+      this.body.velocity.x *= scale;
+      this.body.velocity.y *= scale;
+    }
+    this.isMoving = true;
+    this.updateDirection(angle);
+  }
+
+  startAttack(player) {
+    if (this.isAttacking) return;
+
+    console.log("Starting Wreacker attack animation"); // Debug log
+
+    this.isAttacking = true;
+    this.attackStartTime = this.scene.time.now;
+
+    // Stop movement during attack
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+    this.isMoving = false;
+
+    // Clear any existing animation listeners
+    this.off('animationcomplete');
+
+    // Play attack animation with force restart
+    this.stop(); // Stop current animation
+    this.play("WreackerAttack", true); // Force restart
+
+    // Listen for animation complete to end attack
+    this.once('animationcomplete', (animation) => {
+      console.log("Animation completed:", animation.key); // Debug log
+      if (animation.key === "WreackerAttack") {
+        this.endAttack();
+      }
+    });
+
+    // Backup timer in case animation doesn't fire complete event
+    this.scene.time.delayedCall(this.attackDuration, () => {
+      if (this.isAttacking) {
+        console.log("Force ending attack via timer"); // Debug log
+        this.endAttack();
+      }
+    });
+
+    // Deal damage after a short delay (mid-animation)
+    this.scene.time.delayedCall(250, () => {
+      if (player && player.takeDamage && !this.isDead && this.isAttacking) {
+        player.takeDamage(this.damage);
+        
+        // Flash effect when damage is dealt
+        this.setTint(0xff4400);
+        this.scene.time.delayedCall(150, () => {
+          if (this.active) {
+            this.clearTint();
+          }
+        });
+      }
+    });
+  }
+
+  updateAttack(time) {
+    // Keep the wreacker stationary during attack
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+    this.isMoving = false;
+
+    // Check if attack duration has expired (backup in case animation doesn't complete)
+    const attackTime = time - this.attackStartTime;
+    if (attackTime > this.attackDuration) {
+      this.endAttack();
+    }
+  }
+
+  endAttack() {
+    console.log("Ending Wreacker attack"); // Debug log
+    this.isAttacking = false;
+    this.attackStartTime = 0;
   }
 
   applyZombieAvoidance() {
@@ -301,7 +373,13 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isMoving) {
+    if (this.isAttacking) {
+      // During attack, ensure attack animation is playing
+      if (!this.anims.isPlaying || this.anims.currentAnim.key !== "WreackerAttack") {
+        console.log("Force playing attack animation"); // Debug log
+        this.play("WreackerAttack", true);
+      }
+    } else if (this.isMoving) {
       // Use run animation when moving
       if (
         !this.anims.isPlaying ||
@@ -309,7 +387,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       ) {
         this.play("WreackerRun");
       }
-      // Handle flipping for direction
+      // Handle flipping for direction (don't flip during attack)
       if (this.lastDirection === "right") {
         this.setFlipX(false);
       } else if (this.lastDirection === "left") {
@@ -326,32 +404,10 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
     }
   }
 
+  // Remove the old attackPlayer method as it's replaced by startAttack
   attackPlayer(player) {
-    if (!player || !player.takeDamage) return;
-
-    // Play attack animation if it exists, otherwise use a tint effect
-    if (this.scene.anims.exists("Wreacker Attack")) {
-      this.play("Wreacker Attack");
-
-      // Deal damage after animation delay
-      this.scene.time.delayedCall(250, () => {
-        if (player && player.takeDamage && !this.isDead) {
-          player.takeDamage(this.damage);
-        }
-      });
-    } else {
-      // Fallback: immediate damage with visual effect
-      player.takeDamage(this.damage);
-    }
-
-    this.setTint(0xff4400); // Red-orange tint for attack
-    this.scene.time.delayedCall(150, () => {
-      if (this.active) {
-        this.clearTint();
-      }
-    });
-
-    this.lastAttackTime = this.scene.time.now;
+    // This method is deprecated - use startAttack instead
+    this.startAttack(player);
   }
 
   takeDamage(amount) {
@@ -367,6 +423,11 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       }
     });
 
+    // Interrupt attack if damaged
+    if (this.isAttacking) {
+      this.endAttack();
+    }
+
     if (this.health <= 0) {
       this.die();
     }
@@ -376,8 +437,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-
-
+    this.isAttacking = false;
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
@@ -396,14 +456,14 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         // Immediately remove the mob after death animation
         this.cleanupAndDestroy();
       }
-    })
+    });
 
-if (this.shadow) {
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
 
- this.spawnRewards();
+    this.spawnRewards();
   }
 
   spawnRewards() {
@@ -478,7 +538,8 @@ if (this.shadow) {
     if (this.shadow && !this.isDead) {
       this.shadow.setPosition(this.x, this.y + 18);
       const moveScale = this.isMoving ? 0.9 : 1.0;
-      this.shadow.setScale(moveScale);
+      const attackScale = this.isAttacking ? 1.2 : 1.0;
+      this.shadow.setScale(moveScale * attackScale);
     }
   }
 

@@ -20,14 +20,13 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
     this.health = this.maxHealth;
     this.damage = 10;
     this.speed = 50;
-    this.attackRange = 5;
-    this.attackCooldown = 1000;
+    this.attackRange = 120; // Increased range for shooting
+    this.attackCooldown = 1500; // Slightly longer cooldown for shooting
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
-
+    this.isAttacking = false;
     this.lastDirection = "down";
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -116,35 +115,18 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
-  }
 
-  createHealthBar() {
-    this.healthBarBg = this.scene.add.rectangle(
-      this.x,
-      this.y - 20,
-      30,
-      4,
-      0xff0000
-    );
-    this.healthBarBg.setOrigin(0.5, 0.5);
-    this.healthBarBg.setDepth(1);
-
-    this.healthBarFg = this.scene.add.rectangle(
-      this.x - 15,
-      this.y - 20,
-      30,
-      4,
-      0x00ff00
-    );
-    this.healthBarFg.setOrigin(0, 0.5);
-    this.healthBarFg.setDepth(20);
-
-    this.on("destroy", () => {
-      if (this.healthBarBg) this.healthBarBg.destroy();
-      if (this.healthBarFg) this.healthBarFg.destroy();
-    });
-
-    this.updateHealthBar();
+    if (!this.scene.anims.exists("PoliceDroidShooter")) {
+      this.scene.anims.create({
+        key: "PoliceDroidShooter",
+        frames: this.scene.anims.generateFrameNumbers("Police shooter", {
+          start: 0,
+          end: 8,
+        }),
+        frameRate: 10, // Slightly faster for more dynamic shooting
+        repeat: 0,
+      });
+    }
   }
 
   updateHealthBar() {
@@ -176,6 +158,7 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
       );
 
       if (distance > this.attackRange) {
+        // Move towards player
         const angle = Phaser.Math.Angle.Between(
           this.x,
           this.y,
@@ -204,16 +187,26 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
         this.isMoving = true;
         this.updateDirection(angle);
       } else {
+        // Stop and prepare to shoot
         this.body.velocity.x *= 0.8;
         this.body.velocity.y *= 0.8;
         const currentSpeed = Math.sqrt(
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 5;
+        this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
-          this.attackPlayer(player);
+        // Face the player when shooting
+        const angle = Phaser.Math.Angle.Between(
+          this.x,
+          this.y,
+          player.x,
+          player.y
+        );
+        this.updateDirection(angle);
+
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
+          this.shootAtPlayer(player);
           this.lastAttackTime = time;
         }
       }
@@ -282,17 +275,20 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isMoving) {
+    if (this.isAttacking) {
+      // Attack animation takes priority
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "PoliceDroidShooter"
+      ) {
+        this.play("PoliceDroidShooter");
+      }
+    } else if (this.isMoving) {
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "PoliceDroid"
       ) {
         this.play("PoliceDroid");
-      }
-      if (this.lastDirection === "right") {
-        this.setFlipX(false);
-      } else if (this.lastDirection === "left") {
-        this.setFlipX(true);
       }
     } else {
       if (
@@ -302,19 +298,143 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
         this.play("PoliceDroidIdle");
       }
     }
+
+    // Update sprite direction
+    if (this.lastDirection === "right") {
+      this.setFlipX(false);
+    } else if (this.lastDirection === "left") {
+      this.setFlipX(true);
+    }
   }
 
-  attackPlayer(player) {
+  // Enhanced shooting method with visual effects
+  shootAtPlayer(player) {
     if (!player || !player.takeDamage) return;
 
-    player.takeDamage(this.damage);
+    this.isAttacking = true;
 
-    this.setTint(0xff0000);
+    // Stop movement during attack
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+
+    // Play shooting animation
+    this.play("PoliceDroidShooter");
+
+    // Create muzzle flash effect
+    this.createMuzzleFlash();
+
+    // Create bullet trail effect
+    this.createBulletTrail(player);
+
+    // Play shooting sound (if you have audio)
+    // this.scene.sound.play('gunshot', { volume: 0.3 });
+
+    // Listen for attack animation completion
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "PoliceDroidShooter") {
+        this.isAttacking = false;
+      }
+    });
+
+    // Deal damage after a short delay (bullet travel time)
+    this.scene.time.delayedCall(300, () => {
+      if (player && player.takeDamage) {
+        player.takeDamage(this.damage);
+        this.createHitEffect(player);
+      }
+    });
+
+    // Brief red tint for shooting
+    this.setTint(0xffaa00);
     this.scene.time.delayedCall(150, () => {
       this.clearTint();
     });
 
     this.lastAttackTime = this.scene.time.now;
+  }
+
+  // Create muzzle flash effect
+  createMuzzleFlash() {
+    const muzzleFlash = this.scene.add.graphics();
+    
+    // Position muzzle flash at the front of the droid
+    let flashX = this.x;
+    let flashY = this.y;
+    
+    switch(this.lastDirection) {
+      case "right":
+        flashX += 20;
+        break;
+      case "left":
+        flashX -= 20;
+        break;
+      case "up":
+        flashY -= 15;
+        break;
+      case "down":
+        flashY += 15;
+        break;
+    }
+
+    muzzleFlash.setPosition(flashX, flashY);
+    muzzleFlash.fillCircle(0, 0, 8);
+    muzzleFlash.fillCircle(0, 0, 4);
+    this.scene.tweens.add({
+      targets: muzzleFlash,
+      scaleX: 1.5,
+      scaleY: 1.5,
+      alpha: 0,
+      duration: 100,
+      onComplete: () => {
+        muzzleFlash.destroy();
+      }
+    });
+  }
+
+  // Create bullet trail effect
+  createBulletTrail(target) {
+    const bulletTrail = this.scene.add.graphics();
+    bulletTrail.lineStyle(2, 0xffff00, 0.8);
+    bulletTrail.moveTo(this.x, this.y);
+    bulletTrail.lineTo(target.x, target.y);
+
+    // Fade out the trail
+    this.scene.tweens.add({
+      targets: bulletTrail,
+      alpha: 0,
+      duration: 200,
+      onComplete: () => {
+        bulletTrail.destroy();
+      }
+    });
+  }
+
+  // Create hit effect on target
+  createHitEffect(target) {
+    const hitEffect = this.scene.add.graphics();
+    hitEffect.setPosition(target.x, target.y);
+    // hitEffect.fillStyle(0xff0000, 0.6);
+    hitEffect.fillCircle(0, 0, 12);
+    // hitEffect.fillStyle(0xffffff, 0.8);
+    hitEffect.fillCircle(0, 0, 6);
+
+    // Animate hit effect
+    this.scene.tweens.add({
+      targets: hitEffect,
+      scaleX: 2,
+      scaleY: 2,
+      alpha: 0,
+      duration: 300,
+      ease: 'Power2',
+      onComplete: () => {
+        hitEffect.destroy();
+      }
+    });
+  }
+
+  // Keep the old method name for compatibility
+  attackPlayer(player) {
+    this.shootAtPlayer(player);
   }
 
   takeDamage(amount) {
@@ -347,14 +467,14 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
     ) {
       this.scene.zombieGroup.remove(this);
     }
-      this.stop();
+    this.stop();
     this.play("PoliceDeath", false); 
     this.once('animationcomplete', (animation) => {
       if (animation.key === "PoliceDeath") {
         this.cleanupAndDestroy();
       }
     })
-       if (this.shadow) {
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
