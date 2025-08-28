@@ -289,17 +289,18 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
     }
     
     marksmanAttack(target) {
-        // Emit event for UI cooldown display
         EventBus.emit('attack-used', {
             attackType: 'marksman',
             cooldown: this.marksmanCooldown
         });
         
-        const marksmanProjectile = this.scene.add.circle(this.player.x, this.player.y, 3, 0xffffff);
+        const marksmanProjectile = this.scene.add.circle(this.player.x, this.player.y, 4, 0xffffff);
         this.scene.physics.add.existing(marksmanProjectile);
         
         marksmanProjectile.setDepth(19);
-        const trail = this.scene.add.rectangle(this.player.x, this.player.y, 20, 2, 0xffffff, 0.8);
+        marksmanProjectile.setStrokeStyle(2, 0xcccccc, 0.9);
+        
+        const trail = this.scene.add.rectangle(this.player.x, this.player.y, 25, 3, 0xffffff, 0.7);
         this.scene.physics.add.existing(trail);
         trail.setDepth(18);
         
@@ -323,10 +324,14 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         marksmanProjectile.maxRange = this.marksmanRange;
         marksmanProjectile.isMarksmanProjectile = true;
         marksmanProjectile.trail = trail;
+        marksmanProjectile.hitEnemies = [];
+        marksmanProjectile.maxPierceTargets = 3;
+        marksmanProjectile.currentPierceCount = 0;
         
-        this.lightningProjectiles.add(marksmanProjectile);
+        this.marksmanProjectiles.add(marksmanProjectile);
         
-        this.scene.time.delayedCall(2000, () => {
+        // Clean up after 3 seconds if still active
+        this.scene.time.delayedCall(3000, () => {
             if (marksmanProjectile.active) {
                 marksmanProjectile.destroy();
                 if (trail && trail.active) trail.destroy();
@@ -358,11 +363,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.fireBombProjectiles = this.scene.add.group();
         this.iceProjectiles = this.scene.add.group();
         this.lightningProjectiles = this.scene.add.group();
+        this.marksmanProjectiles = this.scene.add.group();
         
         this.scene.physics.world.enable(this.fireBulletProjectiles);
         this.scene.physics.world.enable(this.fireBombProjectiles);
         this.scene.physics.world.enable(this.iceProjectiles);
         this.scene.physics.world.enable(this.lightningProjectiles);
+        this.scene.physics.world.enable(this.marksmanProjectiles);
     }
     
     createAttackAnimations() {
@@ -1564,8 +1571,77 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
 				}
 			});
 		}
-	}
-    
+
+		if (this.marksmanProjectiles && this.marksmanProjectiles.children && this.marksmanProjectiles.children.entries) {
+			this.marksmanProjectiles.children.entries.forEach(projectile => {
+				if (!projectile.active || !projectile.isMarksmanProjectile) return;
+
+				const distance = Phaser.Math.Distance.Between(
+					projectile.startX, projectile.startY,
+					projectile.x, projectile.y
+				);
+
+				if (distance >= projectile.maxRange) {
+					if (projectile.trail && projectile.trail.active) projectile.trail.destroy();
+					projectile.destroy();
+					return;
+				}
+
+				if (projectile.currentPierceCount >= projectile.maxPierceTargets) {
+					if (projectile.trail && projectile.trail.active) projectile.trail.destroy();
+					projectile.destroy();
+					return;
+				}
+
+				const enemyGroups = [this.scene.enemies, this.scene.zombieGroup, this.scene.breakableVases].filter(group => group && group.children);
+
+				enemyGroups.forEach(enemyGroup => {
+					if (enemyGroup) {
+						const enemies = enemyGroup.getChildren().filter(enemy => enemy.active && !enemy.isDead);
+						enemies.forEach(enemy => {
+							if (projectile.hitEnemies.includes(enemy) || projectile.currentPierceCount >= projectile.maxPierceTargets) return;
+
+							const enemyDistance = Phaser.Math.Distance.Between(
+								projectile.x, projectile.y,
+								enemy.x, enemy.y
+							);
+
+							if (enemyDistance <= 20) {
+								projectile.hitEnemies.push(enemy);
+								projectile.currentPierceCount++;
+
+								if (enemy.isVase && enemy.onPlayerAttack) {
+									enemy.onPlayerAttack(projectile.damage);
+								} else if (enemy.takeDamage) {
+									enemy.takeDamage(projectile.damage);
+								}
+
+								const hitEffect = this.scene.add.circle(enemy.x, enemy.y, 8, 0xffffff, 0.8);
+								hitEffect.setDepth(20);
+								this.scene.tweens.add({
+									targets: hitEffect,
+									scale: { from: 0.5, to: 1.5 },
+									alpha: { from: 0.8, to: 0 },
+									duration: 300,
+									onComplete: () => hitEffect.destroy()
+								});
+
+								if (projectile.currentPierceCount >= projectile.maxPierceTargets) {
+									this.scene.time.delayedCall(50, () => {
+										if (projectile.active) {
+											if (projectile.trail && projectile.trail.active) projectile.trail.destroy();
+											projectile.destroy();
+										}
+									});
+									return;
+								}
+							}
+						});
+					}
+				});
+			});
+		}
+    }
     updateStats() {
         if (!this.player || !this.scene || !this.scene.active) return;
         
@@ -1659,6 +1735,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.fireBombProjectiles.destroy(true);
         this.iceProjectiles.destroy(true);
         this.lightningProjectiles.destroy(true);
+        this.marksmanProjectiles.destroy(true);
         
         super.destroy();
     }
