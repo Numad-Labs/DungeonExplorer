@@ -133,12 +133,12 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     }
 
     if (
-      this.scene.textures.exists("guardian_attack") &&
-      !this.scene.anims.exists("Guardian Attack")
+      this.scene.textures.exists("guardianAttack") &&
+      !this.scene.anims.exists("guardianAttack")
     ) {
       this.scene.anims.create({
-        key: "Guardian Attack",
-        frames: this.scene.anims.generateFrameNumbers("guardian_attack", {
+        key: "guardianAttack",
+        frames: this.scene.anims.generateFrameNumbers("guardianAttack", {
           start: 0,
           end: 5,
         }),
@@ -316,9 +316,9 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 3;
+        this.isMoving = currentSpeed > 3  && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -467,12 +467,12 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
         }
       }
     } else if (this.isAttacking) {
-      if (this.scene.anims.exists("Guardian Attack")) {
+      if (this.scene.anims.exists("guardianAttack")) {
         if (
           !this.anims.isPlaying ||
-          this.anims.currentAnim.key !== "Guardian Attack"
+          this.anims.currentAnim.key !== "guardianAttack"
         ) {
-          this.play("Guardian Attack");
+          this.play("guardianAttack");
         }
       }
     } else if (this.isMoving) {
@@ -501,9 +501,16 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     if (!player || !player.takeDamage) return;
 
     this.isAttacking = true;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
 
-    if (this.scene.anims.exists("Guardian Attack")) {
-      this.play("Guardian Attack");
+        if (this.scene.anims.exists("SaberAttack")) {
+      this.play("SaberAttack");
+      this.once('animationcomplete', (animation) => {
+        if (animation.key === "SaberAttack") {
+          this.isAttacking = false;
+        }
+      });
       this.scene.time.delayedCall(500, () => {
         if (player && player.takeDamage && !this.isDead) {
           player.takeDamage(this.damage);
@@ -552,6 +559,8 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
+      this.isAttacking = false;
+    this.isDashing = false;
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;

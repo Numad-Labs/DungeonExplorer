@@ -107,7 +107,7 @@ export default class Saber extends Phaser.GameObjects.Sprite {
       });
     }
 
-        if (!this.scene.anims.exists("SaberDeath")) {
+    if (!this.scene.anims.exists("SaberDeath")) {
       this.scene.anims.create({
         key: "SaberDeath",
         frames: this.scene.anims.generateFrameNumbers("saber_death_53x53_v01", {
@@ -119,16 +119,16 @@ export default class Saber extends Phaser.GameObjects.Sprite {
       });
     }
 
-    // Check if attack animation exists
+    // Check for SaberAttack texture and create animation
     if (
-      this.scene.textures.exists("saber_attack") &&
-      !this.scene.anims.exists("Saber Attack")
+      this.scene.textures.exists("SaberAttack") &&
+      !this.scene.anims.exists("SaberAttack")
     ) {
       this.scene.anims.create({
-        key: "Saber Attack",
-        frames: this.scene.anims.generateFrameNumbers("saber_attack", {
+        key: "SaberAttack",
+        frames: this.scene.anims.generateFrameNumbers("SaberAttack", {
           start: 0,
-          end: 5,
+          end: 5, // Adjust based on your sprite sheet
         }),
         frameRate: 15,
         repeat: 0,
@@ -278,9 +278,9 @@ export default class Saber extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 4;
+        this.isMoving = currentSpeed > 4 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -404,12 +404,12 @@ export default class Saber extends Phaser.GameObjects.Sprite {
         }
       }
     } else if (this.isAttacking) {
-      if (this.scene.anims.exists("Saber Attack")) {
+      if (this.scene.anims.exists("SaberAttack")) {
         if (
           !this.anims.isPlaying ||
-          this.anims.currentAnim.key !== "Saber Attack"
+          this.anims.currentAnim.key !== "SaberAttack"
         ) {
-          this.play("Saber Attack");
+          this.play("SaberAttack");
         }
       }
     } else if (this.isMoving) {
@@ -437,15 +437,24 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     if (!player || !player.takeDamage) return;
 
     this.isAttacking = true;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
 
-    if (this.scene.anims.exists("Saber Attack")) {
-      this.play("Saber Attack");
+    if (this.scene.anims.exists("SaberAttack")) {
+      this.play("SaberAttack");
+      
+      // Handle animation completion
+      this.once('animationcomplete', (animation) => {
+        if (animation.key === "SaberAttack") {
+          this.isAttacking = false;
+        }
+      });
+      
       this.scene.time.delayedCall(200, () => {
         // Fast attack timing
         if (player && player.takeDamage && !this.isDead) {
           player.takeDamage(this.damage);
         }
-        this.isAttacking = false;
       });
     } else {
       player.takeDamage(this.damage);
@@ -486,6 +495,8 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
+    this.isAttacking = false;
+    this.isDashing = false;
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
@@ -493,14 +504,14 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-      this.stop();
+    this.stop();
     this.play("SaberDeath", false); 
     this.once('animationcomplete', (animation) => {
       if (animation.key === "SaberDeath") {
         this.cleanupAndDestroy();
       }
     })
-       if (this.shadow) {
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
@@ -577,7 +588,7 @@ export default class Saber extends Phaser.GameObjects.Sprite {
 
   updateShadowPosition() {
     if (this.shadow && !this.isDead) {
-      this.shadow.setPosition(this.x, this.y + 16);
+      this.shadow.setPosition(this.x, this.y + 4);
       const moveScale = this.isMoving ? 0.9 : 1.0;
       this.shadow.setScale(moveScale);
     }

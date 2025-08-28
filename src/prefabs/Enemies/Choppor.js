@@ -22,7 +22,8 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
-
+    this.isAttacking = false; // Add attack state
+    this.attackStep = 0; // Track attack step (0 = not attacking, 1 = first step, 2 = second step)
     this.lastDirection = "down";
     // this.createHealthBar();
     this.createAnimations();
@@ -105,6 +106,8 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
+
+    // Original single attack animation (kept as fallback)
     if (
       this.scene.textures.exists("WarriorAttack") &&
       !this.scene.anims.exists("Warrior Attack")
@@ -119,6 +122,39 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         repeat: 0, 
       });
     }
+
+    // First step of spin attack - quick startup
+    if (
+      this.scene.textures.exists("WarriorSpinStart") &&
+      !this.scene.anims.exists("WarriorSpinStart")
+    ) {
+      this.scene.anims.create({
+        key: "WarriorSpinStart",
+        frames: this.scene.anims.generateFrameNumbers("WarriorSpinStart", {
+          start: 0,
+          end: 5, // Adjust based on your sprite sheet
+        }),
+        frameRate: 12, // Fast startup
+        repeat: 0,
+      });
+    }
+
+    // Second step of spin attack - 2 second spinning
+    if (
+      this.scene.textures.exists("WarriorSpin2") &&
+      !this.scene.anims.exists("WarriorSpin2")
+    ) {
+      this.scene.anims.create({
+        key: "WarriorSpin2",
+        frames: this.scene.anims.generateFrameNumbers("WarriorSpin2", {
+          start: 0,
+          end: 7, // Adjust based on your sprite sheet
+        }),
+        frameRate: 4, // Slower frame rate for 2-second duration (8 frames / 4 fps = 2 seconds)
+        repeat: 0,
+      });
+    }
+
     if (!this.scene.anims.exists("Warrior Idle")) {
       this.scene.anims.create({
         key: "Warrior Idle",
@@ -210,7 +246,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
           this.body.velocity.x *= scale;
           this.body.velocity.y *= scale;
         }
-        this.isMoving = true;
+        this.isMoving = true && !this.isAttacking;
         this.updateDirection(angle);
       } else {
         this.body.velocity.x *= 0.75;
@@ -219,9 +255,9 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 5;
+        this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -289,7 +325,10 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isMoving) {
+    if (this.isAttacking) {
+      // Don't change animation while attacking
+      return;
+    } else if (this.isMoving) {
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "Warrior-Run"
@@ -313,17 +352,40 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
 
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
-    if (this.scene.anims.exists("Warrior Attack")) {
+    
+    this.isAttacking = true;
+    this.attackStep = 1;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+
+    // Check if spin attack animations are available
+    const hasSpinStart = this.scene.anims.exists("WarriorSpinStart");
+    const hasSpin2 = this.scene.anims.exists("WarriorSpin2");
+
+    if (hasSpinStart && hasSpin2) {
+      // Start the 2-step spin attack
+      console.log("Starting spin attack sequence");
+      this.startSpinAttack(player);
+    } else if (this.scene.anims.exists("Warrior Attack")) {
+      // Fallback to single attack animation
+      console.log("Using fallback attack animation");
       this.play("Warrior Attack");
       this.scene.time.delayedCall(300, () => {
         if (player && player.takeDamage && !this.isDead) {
           player.takeDamage(this.damage);
         }
+        this.isAttacking = false;
+        this.attackStep = 0;
       });
     } else {
+      // No animations available, direct damage
+      console.log("No attack animations found, applying immediate damage");
       player.takeDamage(this.damage);
+      this.isAttacking = false;
+      this.attackStep = 0;
     }
 
+    // Visual feedback
     this.setTint(0xffaa00);
     this.scene.time.delayedCall(180, () => {
       if (this.active) {
@@ -332,6 +394,47 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     });
 
     this.lastAttackTime = this.scene.time.now;
+  }
+
+  startSpinAttack(player) {
+    // Step 1: Play spin start animation
+    this.play("WarriorSpinStart");
+    
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "WarriorSpinStart" && this.attackStep === 1) {
+        // Move to step 2: Play the 2-second spin
+        this.attackStep = 2;
+        this.continueSpinAttack(player);
+      }
+    });
+  }
+
+  continueSpinAttack(player) {
+    // Step 2: Play the 2-second spinning animation
+    console.log("Starting 2-second spin animation");
+    this.play("WarriorSpin2");
+    
+    // Apply damage during the spin (multiple hits can be added here)
+    this.scene.time.delayedCall(500, () => {
+      if (player && player.takeDamage && !this.isDead && this.attackStep === 2) {
+        player.takeDamage(this.damage * 0.6); // First hit
+      }
+    });
+
+    this.scene.time.delayedCall(1200, () => {
+      if (player && player.takeDamage && !this.isDead && this.attackStep === 2) {
+        player.takeDamage(this.damage * 0.6); // Second hit
+      }
+    });
+
+    // End the attack when animation completes
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "WarriorSpin2" && this.attackStep === 2) {
+        console.log("Spin attack sequence completed");
+        this.isAttacking = false;
+        this.attackStep = 0;
+      }
+    });
   }
 
   takeDamage(amount) {
@@ -356,14 +459,18 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-      this.stop();
+    this.isAttacking = false;
+    this.attackStep = 0;
+    
+    this.stop();
     this.play("WarriorDeath", false); 
     this.once('animationcomplete', (animation) => {
       if (animation.key === "WarriorDeath") {
         this.cleanupAndDestroy();
       }
     })
-       if (this.shadow) {
+    
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
@@ -375,8 +482,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-
-
 
     this.spawnRewards();
   }
