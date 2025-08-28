@@ -107,7 +107,7 @@ export default class Saber extends Phaser.GameObjects.Sprite {
       });
     }
 
-    if (!this.scene.anims.exists("SaberDeath")) {
+        if (!this.scene.anims.exists("SaberDeath")) {
       this.scene.anims.create({
         key: "SaberDeath",
         frames: this.scene.anims.generateFrameNumbers("saber_death_53x53_v01", {
@@ -119,16 +119,16 @@ export default class Saber extends Phaser.GameObjects.Sprite {
       });
     }
 
-    // Check for SaberAttack texture and create animation
+    // Check if attack animation exists
     if (
-      this.scene.textures.exists("SaberAttack") &&
-      !this.scene.anims.exists("SaberAttack")
+      this.scene.textures.exists("saber_attack") &&
+      !this.scene.anims.exists("Saber Attack")
     ) {
       this.scene.anims.create({
-        key: "SaberAttack",
-        frames: this.scene.anims.generateFrameNumbers("SaberAttack", {
+        key: "Saber Attack",
+        frames: this.scene.anims.generateFrameNumbers("saber_attack", {
           start: 0,
-          end: 5, // Adjust based on your sprite sheet
+          end: 5,
         }),
         frameRate: 15,
         repeat: 0,
@@ -278,9 +278,9 @@ export default class Saber extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 4 && !this.isAttacking;
+        this.isMoving = currentSpeed > 4;
 
-        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
+        if (time - this.lastAttackTime > this.attackCooldown) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -318,7 +318,7 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     this.updateDirection(angle);
   }
 
-  handleDash(time) {
+ handleDash(time) {
     if (time - this.dashStartTime >= this.dashDuration) {
       // End dash
       this.isDashing = false;
@@ -330,6 +330,9 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     // Dash doesn't avoid other zombies - it goes through them
     this.isMoving = true;
     this.updateAnimation();
+    
+    // ADD THIS LINE: Update shadow position during dash
+    this.updateShadowPosition();
   }
 
   applyZombieAvoidance() {
@@ -404,12 +407,12 @@ export default class Saber extends Phaser.GameObjects.Sprite {
         }
       }
     } else if (this.isAttacking) {
-      if (this.scene.anims.exists("SaberAttack")) {
+      if (this.scene.anims.exists("Saber Attack")) {
         if (
           !this.anims.isPlaying ||
-          this.anims.currentAnim.key !== "SaberAttack"
+          this.anims.currentAnim.key !== "Saber Attack"
         ) {
-          this.play("SaberAttack");
+          this.play("Saber Attack");
         }
       }
     } else if (this.isMoving) {
@@ -437,24 +440,15 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     if (!player || !player.takeDamage) return;
 
     this.isAttacking = true;
-    this.body.velocity.x = 0;
-    this.body.velocity.y = 0;
 
-    if (this.scene.anims.exists("SaberAttack")) {
-      this.play("SaberAttack");
-      
-      // Handle animation completion
-      this.once('animationcomplete', (animation) => {
-        if (animation.key === "SaberAttack") {
-          this.isAttacking = false;
-        }
-      });
-      
+    if (this.scene.anims.exists("Saber Attack")) {
+      this.play("Saber Attack");
       this.scene.time.delayedCall(200, () => {
         // Fast attack timing
         if (player && player.takeDamage && !this.isDead) {
           player.takeDamage(this.damage);
         }
+        this.isAttacking = false;
       });
     } else {
       player.takeDamage(this.damage);
@@ -495,8 +489,6 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-    this.isAttacking = false;
-    this.isDashing = false;
 
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
@@ -504,14 +496,14 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-    this.stop();
+      this.stop();
     this.play("SaberDeath", false); 
     this.once('animationcomplete', (animation) => {
       if (animation.key === "SaberDeath") {
         this.cleanupAndDestroy();
       }
     })
-    if (this.shadow) {
+       if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
@@ -588,7 +580,7 @@ export default class Saber extends Phaser.GameObjects.Sprite {
 
   updateShadowPosition() {
     if (this.shadow && !this.isDead) {
-      this.shadow.setPosition(this.x, this.y + 4);
+      this.shadow.setPosition(this.x, this.y + 6);
       const moveScale = this.isMoving ? 0.9 : 1.0;
       this.shadow.setScale(moveScale);
     }

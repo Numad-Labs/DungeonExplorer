@@ -393,6 +393,7 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
 
     this.isMoving = true;
     this.updateAnimation();
+    this.updateShadowPosition(); // Fixed: Added shadow update during charge
   }
 
   applyZombieAvoidance() {
@@ -646,11 +647,35 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     this.updateShadowPosition();
   }
 
+  // FIXED: Complete shadow position update method
   updateShadowPosition() {
     if (this.shadow && !this.isDead) {
       this.shadow.setPosition(this.x, this.y + 20);
+      
+      // Fixed shadow scaling logic
       const baseScale = 1.0;
-      const moveScale = this.isMoving ? 0.9 : 1.0;
+      let moveScale;
+      
+      if (this.isCharging) {
+        // During charge, make shadow slightly smaller and more intense
+        moveScale = 0.8;
+        this.shadow.clear();
+        this.shadow.fillStyle(0x000000, 0.3); // Darker during charge
+        this.shadow.fillEllipse(0, 0, 50, 25);
+      } else if (this.isMoving) {
+        // Normal movement shadow
+        moveScale = 0.9;
+        this.shadow.clear();
+        this.shadow.fillStyle(0x000000, 0.2); // Normal opacity
+        this.shadow.fillEllipse(0, 0, 50, 25);
+      } else {
+        // Idle shadow
+        moveScale = 1.0;
+        this.shadow.clear();
+        this.shadow.fillStyle(0x000000, 0.2);
+        this.shadow.fillEllipse(0, 0, 50, 25);
+      }
+      
       this.shadow.setScale(baseScale * moveScale);
     }
   }
