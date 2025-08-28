@@ -8970,6 +8970,45 @@
             "frameRate": 10,
             "skipMissedFrames": true,
             "randomFrame": false
+        },
+        {
+            "key": "zombieDeath",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "zombie1Death",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "zombie1Death",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "zombie1Death",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "zombie1Death",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "zombie1Death",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 8,
+            "skipMissedFrames": true,
+            "randomFrame": false
         }
     ],
     "globalTimeScale": 1,
