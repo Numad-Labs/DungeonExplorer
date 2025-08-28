@@ -91,9 +91,9 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
       });
     }
 
-    if (!this.scene.anims.exists("zombie1 death")) {
+    if (!this.scene.anims.exists("zombieDeath")) {
       this.scene.anims.create({
-        key: "zombie1 death",
+        key: "zombieDeath",
         frames: this.scene.anims.generateFrameNumbers("death_1", {
           start: 0,
           end: 4,
@@ -391,12 +391,12 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
 
     // Stop any current animations and play death animation once
     this.stop();
-    this.play("zombie1 death", false); // false ensures it doesn't repeat
+    this.play("zombieDeath", false); // false ensures it doesn't repeat
     
     // Listen for animation complete event (only once)
     this.once('animationcomplete', (animation) => {
       // Make sure it's the death animation that completed
-      if (animation.key === "zombie1 death") {
+      if (animation.key === "zombieDeath") {
         // Immediately remove the mob after death animation
         this.cleanupAndDestroy();
       }

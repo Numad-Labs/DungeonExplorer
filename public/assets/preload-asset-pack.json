@@ -3037,6 +3037,19 @@
                 "key": "zombie1Attack"
             },
             {
+                "url": "assets/Hero/zombie 1/zombie1Death.png",
+                "frameConfig": {
+                    "frameWidth": 46,
+                    "frameHeight": 64,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "zombie1Death"
+            },
+            {
                 "url": "assets/Hero/zombie 2/zombie2Attack.png",
                 "frameConfig": {
                     "frameWidth": 64,
