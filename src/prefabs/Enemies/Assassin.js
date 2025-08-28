@@ -23,7 +23,7 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
-
+    this.isAttacking = false;
     this.lastDirection = "down";
     // this.createHealthBar();
     this.createAnimations();
@@ -113,6 +113,18 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
         frameRate: 6,
         repeat: 0,
         hideOnComplete: false,
+      });
+    }
+
+    if (!this.scene.anims.exists("Asassin Attack")) {
+      this.scene.anims.create({
+        key: "Asassin Attack",
+        frames: this.scene.anims.generateFrameNumbers("assets/Hero/zombie 2/attack.png", {
+          start: 0,
+          end: 8,
+        }),
+        frameRate: 8,
+        repeat: 0,
       });
     }
   }
@@ -209,9 +221,9 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 5;
+       this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -279,7 +291,14 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isMoving) {
+    if (this.isAttacking) {
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "Asassin Attack"
+      ) {
+        this.play("Asassin Attack");
+      }
+    } else if (this.isMoving) {
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "Assasin Run"
@@ -301,7 +320,21 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
 
-    player.takeDamage(this.damage);
+    this.isAttacking = true;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+
+    this.play("Asassin Attack");
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "Asassin Attack") {
+        this.isAttacking = false;
+      }
+    });
+     this.scene.time.delayedCall(200, () => {
+      if (player && player.takeDamage) {
+        player.takeDamage(this.damage);
+      }
+    });
 
     this.setTint(0xff0000);
     this.scene.time.delayedCall(150, () => {

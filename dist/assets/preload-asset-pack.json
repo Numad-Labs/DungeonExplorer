@@ -163,6 +163,19 @@
                 "key": "AOE_Ice_Shard_v01"
             },
             {
+                "url": "assets/Hero/assasin archer/Archer Bandit-Attack.png",
+                "frameConfig": {
+                    "frameWidth": 84,
+                    "frameHeight": 112,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Attack"
+            },
+            {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Attack_85x112.png",
                 "frameConfig": {
                     "frameWidth": 84,
@@ -174,6 +187,19 @@
                 },
                 "type": "spritesheet",
                 "key": "Archer Bandit-Attack_85x112"
+            },
+            {
+                "url": "assets/Hero/assasin archer/Archer Bandit-Death_84x32.png",
+                "frameConfig": {
+                    "frameWidth": 84,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Death_84x32"
             },
             {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Death_85x32.png",
@@ -189,9 +215,22 @@
                 "key": "Archer Bandit-Death_85x32"
             },
             {
-                "url": "public/assets/Hero/assasin archer/Archer Bandit-Run_85x32.png",
+                "url": "assets/Hero/assasin archer/Archer Bandit-Run_84x32.png",
                 "frameConfig": {
                     "frameWidth": 84,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Run_84x32"
+            },
+            {
+                "url": "public/assets/Hero/assasin archer/Archer Bandit-Run_85x32.png",
+                "frameConfig": {
+                    "frameWidth": 85,
                     "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
@@ -213,6 +252,45 @@
                 },
                 "type": "spritesheet",
                 "key": "Archer Bandit-Run_85x32"
+            },
+            {
+                "url": "assets/Hero/assasin tank/AssassinTank Death.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AssassinTank Death"
+            },
+            {
+                "url": "assets/Hero/assasin tank/assassinTankAttack.png",
+                "frameConfig": {
+                    "frameWidth": 144,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "assassinTankAttack"
+            },
+            {
+                "url": "assets/Hero/assasin tank/assassintnakRun.png",
+                "frameConfig": {
+                    "frameWidth": 48,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "assassintnakRun"
             },
             {
                 "url": "assets/Decoration/Atlas-props.png",
@@ -1753,7 +1831,7 @@
                 "url": "assets/Hero/assasin tank/run.png",
                 "frameConfig": {
                     "frameWidth": 48,
-                    "frameHeight": 80,
+                    "frameHeight": 32,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,

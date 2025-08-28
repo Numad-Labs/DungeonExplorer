@@ -29,6 +29,7 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
+    this.isAttacking = false;
 
     this.lastDirection = "down";
     // this.createHealthBar();
@@ -90,15 +91,26 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   }
 
   createAnimations() {
-    if (!this.scene.anims.exists("ArcherNewRun")) {
+    if (!this.scene.anims.exists("AssassinArcher run")) {
       this.scene.anims.create({
-        key: "ArcherNewRun",
+        key: "AssassinArcher run",
         frames: this.scene.anims.generateFrameNumbers(
           "Archer Bandit-Run_85x32",
           { start: 0, end: 7 }
         ),
         frameRate: 8,
         repeat: -1,
+      });
+    }
+        if (!this.scene.anims.exists("Archer Bandit-Attack")) {
+      this.scene.anims.create({
+        key: "Archer Bandit-Attack",
+        frames: this.scene.anims.generateFrameNumbers("Archer Bandit-Attack", {
+          start: 0,
+          end: 8,
+        }),
+        frameRate: 8,
+        repeat: 0,
       });
     }
     if (!this.scene.anims.exists("AssasinArcher")) {
@@ -110,9 +122,9 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
       });
     }
 
-    if (!this.scene.anims.exists("AssassinArcher Death")) {
+    if (!this.scene.anims.exists("Archer Bandit-Death")) {
       this.scene.anims.create({
-        key: "AssassinArcher Death",
+        key: "Archer Bandit-Death",
         frames: this.scene.anims.generateFrameNumbers(
           "Archer Bandit-Death_85x32",
           {
@@ -218,9 +230,9 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 5;
+        this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -288,12 +300,19 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isMoving) {
+        if (this.isAttacking) {
       if (
         !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "ArcherNewRun"
+        this.anims.currentAnim.key !== "Archer Bandit-Attack"
       ) {
-        this.play("ArcherNewRun");
+        this.play("Archer Bandit-Attack");
+      }
+    } else if (this.isMoving) {
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "AssassinArcher run"
+      ) {
+        this.play("AssassinArcher run");
       }
       if (this.lastDirection === "right") {
         this.setFlipX(false);
@@ -313,7 +332,21 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
 
-    player.takeDamage(this.damage);
+    this.isAttacking = true;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
+
+    this.play("Archer Bandit-Attack");
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "Archer Bandit-Attack") {
+        this.isAttacking = false;
+      }
+    });
+     this.scene.time.delayedCall(200, () => {
+      if (player && player.takeDamage) {
+        player.takeDamage(this.damage);
+      }
+    });
 
     this.setTint(0xff0000);
     this.scene.time.delayedCall(150, () => {
@@ -350,9 +383,9 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
       this.scene.zombieGroup.remove(this);
     }
     this.stop();
-    this.play("AssassinArcher Death", false);
+    this.play("Archer Bandit-Death", false);
     this.once("animationcomplete", (animation) => {
-      if (animation.key === "AssassinArcher Death") {
+      if (animation.key === "Archer Bandit-Death") {
         this.cleanupAndDestroy();
       }
     });
