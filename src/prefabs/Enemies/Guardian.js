@@ -133,12 +133,12 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     }
 
     if (
-      this.scene.textures.exists("guardian_attack") &&
-      !this.scene.anims.exists("Guardian Attack")
+      this.scene.textures.exists("guardianAttack") &&
+      !this.scene.anims.exists("guardianAttack")
     ) {
       this.scene.anims.create({
-        key: "Guardian Attack",
-        frames: this.scene.anims.generateFrameNumbers("guardian_attack", {
+        key: "guardianAttack",
+        frames: this.scene.anims.generateFrameNumbers("guardianAttack", {
           start: 0,
           end: 5,
         }),
@@ -316,9 +316,9 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 3;
+        this.isMoving = currentSpeed > 3  && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -393,6 +393,7 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
 
     this.isMoving = true;
     this.updateAnimation();
+    this.updateShadowPosition(); // Fixed: Added shadow update during charge
   }
 
   applyZombieAvoidance() {
@@ -467,12 +468,12 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
         }
       }
     } else if (this.isAttacking) {
-      if (this.scene.anims.exists("Guardian Attack")) {
+      if (this.scene.anims.exists("guardianAttack")) {
         if (
           !this.anims.isPlaying ||
-          this.anims.currentAnim.key !== "Guardian Attack"
+          this.anims.currentAnim.key !== "guardianAttack"
         ) {
-          this.play("Guardian Attack");
+          this.play("guardianAttack");
         }
       }
     } else if (this.isMoving) {
@@ -501,9 +502,16 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     if (!player || !player.takeDamage) return;
 
     this.isAttacking = true;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
 
-    if (this.scene.anims.exists("Guardian Attack")) {
-      this.play("Guardian Attack");
+        if (this.scene.anims.exists("SaberAttack")) {
+      this.play("SaberAttack");
+      this.once('animationcomplete', (animation) => {
+        if (animation.key === "SaberAttack") {
+          this.isAttacking = false;
+        }
+      });
       this.scene.time.delayedCall(500, () => {
         if (player && player.takeDamage && !this.isDead) {
           player.takeDamage(this.damage);
@@ -552,6 +560,8 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
+      this.isAttacking = false;
+    this.isDashing = false;
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
@@ -637,11 +647,35 @@ export default class Guardian extends Phaser.GameObjects.Sprite {
     this.updateShadowPosition();
   }
 
+  // FIXED: Complete shadow position update method
   updateShadowPosition() {
     if (this.shadow && !this.isDead) {
       this.shadow.setPosition(this.x, this.y + 20);
+      
+      // Fixed shadow scaling logic
       const baseScale = 1.0;
-      const moveScale = this.isMoving ? 0.9 : 1.0;
+      let moveScale;
+      
+      if (this.isCharging) {
+        // During charge, make shadow slightly smaller and more intense
+        moveScale = 0.8;
+        this.shadow.clear();
+        this.shadow.fillStyle(0x000000, 0.3); // Darker during charge
+        this.shadow.fillEllipse(0, 0, 50, 25);
+      } else if (this.isMoving) {
+        // Normal movement shadow
+        moveScale = 0.9;
+        this.shadow.clear();
+        this.shadow.fillStyle(0x000000, 0.2); // Normal opacity
+        this.shadow.fillEllipse(0, 0, 50, 25);
+      } else {
+        // Idle shadow
+        moveScale = 1.0;
+        this.shadow.clear();
+        this.shadow.fillStyle(0x000000, 0.2);
+        this.shadow.fillEllipse(0, 0, 50, 25);
+      }
+      
       this.shadow.setScale(baseScale * moveScale);
     }
   }

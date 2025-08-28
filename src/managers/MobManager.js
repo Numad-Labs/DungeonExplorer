@@ -175,7 +175,7 @@ const MOB_CONFIGS = {
   crawler: {
     class: Crawler,
     texture: "crawler_run_32x16_v01",
-    baseHealth: 10,
+    baseHealth: 1000,
     baseDamage: 12,
     baseSpeed: 45,
     expValue: 20,

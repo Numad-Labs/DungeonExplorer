@@ -318,7 +318,7 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     this.updateDirection(angle);
   }
 
-  handleDash(time) {
+ handleDash(time) {
     if (time - this.dashStartTime >= this.dashDuration) {
       // End dash
       this.isDashing = false;
@@ -330,6 +330,9 @@ export default class Saber extends Phaser.GameObjects.Sprite {
     // Dash doesn't avoid other zombies - it goes through them
     this.isMoving = true;
     this.updateAnimation();
+    
+    // ADD THIS LINE: Update shadow position during dash
+    this.updateShadowPosition();
   }
 
   applyZombieAvoidance() {
@@ -577,7 +580,7 @@ export default class Saber extends Phaser.GameObjects.Sprite {
 
   updateShadowPosition() {
     if (this.shadow && !this.isDead) {
-      this.shadow.setPosition(this.x, this.y + 16);
+      this.shadow.setPosition(this.x, this.y + 6);
       const moveScale = this.isMoving ? 0.9 : 1.0;
       this.shadow.setScale(moveScale);
     }

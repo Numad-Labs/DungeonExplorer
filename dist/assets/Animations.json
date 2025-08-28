@@ -7253,7 +7253,6 @@
             ],
             "frameRate": 10,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7287,7 +7286,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7385,58 +7383,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "randomFrame": false
-        },
-        {
-            "key": "CrawlerAttack",
-            "type": "frame",
-            "frames": [
-                {
-                    "key": "crawler_attack_32x16_v01",
-                    "frame": 0,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "crawler_attack_32x16_v01",
-                    "frame": 1,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "crawler_attack_32x16_v01",
-                    "frame": 2,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "crawler_attack_32x16_v01",
-                    "frame": 3,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "crawler_attack_32x16_v01",
-                    "frame": 4,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "crawler_attack_32x16_v01",
-                    "frame": 5,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "crawler_attack_32x16_v01",
-                    "frame": 6,
-                    "duration": 0,
-                    "keyframe": false
-                }
-            ],
-            "frameRate": 8,
-            "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7842,7 +7788,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -7964,7 +7909,6 @@
             ],
             "frameRate": 8,
             "skipMissedFrames": true,
-            "repeat": -1,
             "randomFrame": false
         },
         {
@@ -8994,6 +8938,57 @@
                 {
                     "key": "Archer Bandit-Attack",
                     "frame": 18,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 12,
+            "skipMissedFrames": true,
+            "randomFrame": false
+        },
+        {
+            "key": "CrawlerAttack",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "CrawlerAttack",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "CrawlerAttack",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "CrawlerAttack",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "CrawlerAttack",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "CrawlerAttack",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "CrawlerAttack",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "CrawlerAttack",
+                    "frame": 6,
                     "duration": 0,
                     "keyframe": false
                 }
