@@ -13,7 +13,7 @@ const SKILLS = {
         }
     },
     fireBullet: {
-        name: "Fire Arrow", description: "Fast piercing fire projectile", type: "fire", unlocked: false, unlockLevel: 3, maxLevel: 10,
+        name: "Fire Arrow", description: "Fast piercing fire projectile", type: "fire", unlocked: true, maxLevel: 10,
         cardBackground: "card_magic_fire", icon: "icon_fire_arrow_glow_effect", iconNormal: "icon_fire_arrow",
         stats: { damage: { base: 8, perLevel: 1.5 }, fireRate: { base: 1.2, perLevel: 0.15 }, range: { base: 300, perLevel: 20 } },
         apply: (player, level) => {
@@ -23,7 +23,7 @@ const SKILLS = {
         }
     },
     fireBomb: {
-        name: "Fire Ball", description: "Explosive area damage", type: "fire", unlocked: false, unlockLevel: 6, maxLevel: 10,
+        name: "Fire Ball", description: "Explosive area damage", type: "fire", unlocked: true, maxLevel: 10,
         cardBackground: "card_magic_fire", icon: "icon_fire_ball_glow_effect", iconNormal: "icon_fire_ball",
         stats: { damage: { base: 18, perLevel: 3 }, fireRate: { base: 0.4, perLevel: 0.05 }, range: { base: 220, perLevel: 15 } },
         apply: (player, level) => {
@@ -33,7 +33,7 @@ const SKILLS = {
         }
     },
     ice: {
-        name: "Ice Shard", description: "Slowing ice projectile", type: "ice", unlocked: false, unlockLevel: 4, maxLevel: 10,
+        name: "Ice Shard", description: "Slowing ice projectile", type: "ice", unlocked: true, maxLevel: 10,
         cardBackground: "card_magic_order", icon: "icon_ice_shard_glow_effect", iconNormal: "icon_ice_shard",
         stats: { damage: { base: 12, perLevel: 2 }, fireRate: { base: 0.6, perLevel: 0.08 }, range: { base: 180, perLevel: 12 } },
         apply: (player, level) => {
@@ -43,7 +43,7 @@ const SKILLS = {
         }
     },
     lightning: {
-        name: "Lightning Chain", description: "Chaining electric attack", type: "lightning", unlocked: false, unlockLevel: 5, maxLevel: 10,
+        name: "Lightning Chain", description: "Chaining electric attack", type: "lightning", unlocked: true, maxLevel: 10,
         cardBackground: "card_magic_order", icon: "icon_lightning_chain_glow_effect", iconNormal: "icon_lightning_chain",
         stats: { damage: { base: 20, perLevel: 3 }, fireRate: { base: 0.5, perLevel: 0.06 }, chainCount: { base: 10, perLevel: 1 } },
         apply: (player, level) => {
@@ -53,7 +53,7 @@ const SKILLS = {
         }
     },
     blindingLight: {
-        name: "Holy Light", description: "Blinding area effect", type: "holy", unlocked: false, unlockLevel: 7, maxLevel: 10,
+        name: "Holy Light", description: "Blinding area effect", type: "holy", unlocked: true, maxLevel: 10,
         cardBackground: "card_magic_order", icon: "icon_holy_light_glow_effect", iconNormal: "icon_holy_light",
         stats: { range: { base: 300, perLevel: 25 }, fireRate: { base: 0.15, perLevel: 0.02 }, duration: { base: 4000, perLevel: 300 } },
         apply: (player, level) => {
@@ -63,7 +63,7 @@ const SKILLS = {
         }
     },
     marksman: {
-        name: "Marksman Shot", description: "High-damage precise shot", type: "marksman", unlocked: false, unlockLevel: 8, maxLevel: 10,
+        name: "Marksman Shot", description: "High-damage precise shot", type: "marksman", unlocked: true, maxLevel: 10,
         cardBackground: "card_magic_order", icon: "icon_marksman_glow_effect", iconNormal: "icon_marksman",
         stats: { damage: { base: 35, perLevel: 8 }, fireRate: { base: 0.3, perLevel: 0.04 }, range: { base: 400, perLevel: 30 } },
         apply: (player, level) => {
@@ -332,8 +332,7 @@ export default class SkillUpgradeManager {
             const skill = SKILLS[skillKey];
             const currentLevel = this.skillLevels[skillKey];
             
-            return currentLevel < skill.maxLevel && 
-                   (skill.unlocked || (skill.unlockLevel && this.playerLevel >= skill.unlockLevel));
+            return currentLevel < skill.maxLevel && skill.unlocked;
         });
         
         return options.sort(() => 0.5 - Math.random()).slice(0, Math.min(3, options.length));

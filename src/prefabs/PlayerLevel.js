@@ -27,7 +27,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 		this.levelText.setOrigin(0, 0.5);
 		this.add(this.levelText);
 		
-		this.expText = scene.add.text(120, 15, "EXP: 0/100", {
+		this.expText = scene.add.text(120, 15, "EXP: 0/50", {
 			fontFamily: 'Arial, sans-serif',
 			fontSize: '10px', 
 			color: '#ffff00',
@@ -43,7 +43,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 		
 		this.level = 1;
 		this.experience = 0;
-		this.nextLevelExp = 100;
+		this.nextLevelExp = 50;
 		
 		this.onLevelUpCallbacks = [];
 		
@@ -82,7 +82,7 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 		if (this.experience >= this.nextLevelExp) {
 			this.level++;
 			this.experience -= this.nextLevelExp;
-			this.nextLevelExp = Math.floor(100 * Math.pow(1.2, this.level - 1));
+			this.nextLevelExp = 50 * this.level;
 			
 			try {
 				this.onLevelUpCallbacks.forEach(callback => callback(this.level));

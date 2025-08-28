@@ -50,11 +50,11 @@ export const PLAYER_CONFIG = {
     attackRange: 80,
     level: 1,
     experience: 0,
-    nextLevelExp: 100
+    nextLevelExp: 50
   },
   LEVEL_UP: {
-    EXP_MULTIPLIER: 1.2,
-    BASE_EXP_REQUIREMENT: 100
+    EXP_PER_LEVEL: 50,
+    BASE_EXP_REQUIREMENT: 50
   },
   COMBAT: {
     EXP_PER_KILL: 10,
