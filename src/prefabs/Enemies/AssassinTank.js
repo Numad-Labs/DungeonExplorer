@@ -12,7 +12,7 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
     /* START-USER-CTR-CODE */
     scene.physics.add.existing(this, false);
     this.body.setSize(16, 16, false);
-    this.body.setOffset(14, 32);
+    this.body.setOffset(24, 32);
 
     this.maxHealth = 30;
     this.health = this.maxHealth;
@@ -23,7 +23,7 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
-
+    this.isAttacking = false;
     this.lastDirection = "down";
     // this.createHealthBar();
     this.createAnimations();
@@ -84,15 +84,26 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
   }
 
   createAnimations() {
-    if (!this.scene.anims.exists("AssasinTank Run")) {
+    if (!this.scene.anims.exists("assassinTank run")) {
       this.scene.anims.create({
-        key: "AssasinTank Run",
-        frames: this.scene.anims.generateFrameNumbers("run_1", {
+        key: "assassinTank run",
+        frames: this.scene.anims.generateFrameNumbers("assassintnakRun", {
           start: 0,
           end: 7,
         }),
         frameRate: 8,
         repeat: -1,
+      });
+    }
+    if (!this.scene.anims.exists("assassinTankAttack1")) {
+      this.scene.anims.create({
+        key: "assassinTankAttack1",
+        frames: this.scene.anims.generateFrameNumbers("assets/Hero/zombie 2/attack.png", {
+          start: 0,
+          end: 8,
+        }),
+        frameRate: 8,
+        repeat: 0,
       });
     }
     if (!this.scene.anims.exists("assassinTank")) {
@@ -208,9 +219,9 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-        this.isMoving = currentSpeed > 5;
+        this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown) {
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -278,12 +289,19 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isMoving) {
+        if (this.isAttacking) {
       if (
         !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "AssasinTank Run"
+        this.anims.currentAnim.key !== "assassinTankAttack1"
       ) {
-        this.play("AssasinTank Run");
+        this.play("assassinTankAttack1");
+      }
+    } else if (this.isMoving) {
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "assassinTank run"
+      ) {
+        this.play("assassinTank run");
       }
       if (this.lastDirection === "right") {
         this.setFlipX(false);
@@ -302,8 +320,21 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
 
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
+        this.isAttacking = true;
+    this.body.velocity.x = 0;
+    this.body.velocity.y = 0;
 
-    player.takeDamage(this.damage);
+    this.play("assassinTankAttack1");
+    this.once('animationcomplete', (animation) => {
+      if (animation.key === "assassinTankAttack1") {
+        this.isAttacking = false;
+      }
+    });
+     this.scene.time.delayedCall(200, () => {
+      if (player && player.takeDamage) {
+        player.takeDamage(this.damage);
+      }
+    });
 
     this.setTint(0xff0000);
     this.scene.time.delayedCall(150, () => {
@@ -419,7 +450,7 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
 
   updateShadowPosition() {
     if (this.shadow && !this.isDead) {
-      this.shadow.setPosition(this.x, this.y + 18);
+      this.shadow.setPosition(this.x, this.y);
       const baseScale = 1.0;
       const moveScale = this.isMoving ? 0.9 : 1.0;
       this.shadow.setScale(baseScale * moveScale);

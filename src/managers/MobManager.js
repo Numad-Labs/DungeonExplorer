@@ -46,7 +46,7 @@ const MOB_CONFIGS = {
     class: PoliceDroid,
     texture: "Police run",
     baseHealth: 35,
-    baseDamage: 15,
+    baseDamage: 1,
     baseSpeed: 55,
     expValue: 15,
     goldValue: 10,
@@ -665,17 +665,17 @@ export default class MobManager {
       const distance = Phaser.Math.Between(300, 500);
       const testX = this.player.x + Math.cos(angle) * distance;
       const testY = this.player.y + Math.sin(angle) * distance;
-      
+
       if (this.isPositionOnWalkableTile(testX, testY)) {
         return { x: testX, y: testY };
       }
     }
     return { x: this.player.x + 400, y: this.player.y };
   }
-  
+
   isValidSpawnPosition(worldX, worldY) {
     const collisionLayers = [this.scene.map_Col_1, this.scene.backGround];
-    
+
     for (const layer of collisionLayers) {
       if (layer) {
         const tileX = Math.floor((worldX - layer.x) / this.tileSize);
@@ -686,23 +686,28 @@ export default class MobManager {
         }
       }
     }
-    
+
     const statues = [
       this.scene.stoneStatuePrefab,
       this.scene.stoneStatuePrefab_1,
       this.scene.stoneStatuePrefab_2,
-      this.scene.stoneStatuePrefab_3
+      this.scene.stoneStatuePrefab_3,
     ];
-    
+
     for (const statue of statues) {
       if (statue?.active) {
-        const distance = Phaser.Math.Distance.Between(worldX, worldY, statue.x, statue.y);
+        const distance = Phaser.Math.Distance.Between(
+          worldX,
+          worldY,
+          statue.x,
+          statue.y
+        );
         if (distance < 100) {
           return false;
         }
       }
     }
-    
+
     return true;
   }
 
@@ -1185,17 +1190,17 @@ export default class MobManager {
 
   teleportMobToWalkableArea(mob) {
     if (!this.player || !mob || mob.isDead) return false;
-    
+
     for (let attempts = 0; attempts < 30; attempts++) {
       const angle = Math.random() * Math.PI * 2;
       const distance = Phaser.Math.Between(300, 500);
       const testX = this.player.x + Math.cos(angle) * distance;
       const testY = this.player.y + Math.sin(angle) * distance;
-      
+
       if (this.isPositionOnWalkableTile(testX, testY)) {
         mob.x = testX;
         mob.y = testY;
-        
+
         if (mob.body) {
           mob.body.x = testX - mob.body.width / 2;
           mob.body.y = testY - mob.body.height / 2;
@@ -1205,19 +1210,24 @@ export default class MobManager {
         return true;
       }
     }
-    
-    const emergencyPosition = this.findNearbyWalkableTile(this.player.x, this.player.y, this.scene.walkingArea_1, 10);
+
+    const emergencyPosition = this.findNearbyWalkableTile(
+      this.player.x,
+      this.player.y,
+      this.scene.walkingArea_1,
+      10
+    );
     if (emergencyPosition) {
       mob.x = emergencyPosition.worldX;
       mob.y = emergencyPosition.worldY;
-      
+
       if (mob.body) {
         mob.body.x = emergencyPosition.worldX - mob.body.width / 2;
         mob.body.y = emergencyPosition.worldY - mob.body.height / 2;
         mob.body.velocity.x = 0;
         mob.body.velocity.y = 0;
       }
-      
+
       return true;
     }
     return false;
@@ -1225,7 +1235,7 @@ export default class MobManager {
 
   isPositionOnWalkableTile(worldX, worldY) {
     if (!this.scene.walkingArea_1) return true;
-    
+
     const walkingAreaLayer = this.scene.walkingArea_1;
     const tileX = Math.floor((worldX - walkingAreaLayer.x) / this.tileSize);
     const tileY = Math.floor((worldY - walkingAreaLayer.y) / this.tileSize);
@@ -1277,29 +1287,40 @@ export default class MobManager {
     let teleportedCount = 0;
     let checkedCount = 0;
 
-    this.getAllActiveMobs().forEach(mob => {
+    this.getAllActiveMobs().forEach((mob) => {
       if (mob.isDead || !mob.active) return;
       checkedCount++;
 
       if (this.isMobOnObstacleTile(mob, walkingAreaLayer)) {
-        const newPosition = this.findNearbyWalkableTile(mob.x, mob.y, walkingAreaLayer);
-        
+        const newPosition = this.findNearbyWalkableTile(
+          mob.x,
+          mob.y,
+          walkingAreaLayer
+        );
+
         if (newPosition) {
           mob.x = newPosition.worldX;
           mob.y = newPosition.worldY;
-          
+
           if (mob.body) {
             mob.body.x = newPosition.worldX - mob.body.width / 2;
             mob.body.y = newPosition.worldY - mob.body.height / 2;
             mob.body.velocity.x = 0;
             mob.body.velocity.y = 0;
           }
-          
-          this.createObstacleTeleportEffect(newPosition.worldX, newPosition.worldY);
+
+          this.createObstacleTeleportEffect(
+            newPosition.worldX,
+            newPosition.worldY
+          );
           teleportedCount++;
           this.stats.totalObstacleTeleports++;
         } else {
-          console.warn(`Could not find walkable position near mob at (${Math.floor(mob.x)}, ${Math.floor(mob.y)})`);
+          console.warn(
+            `Could not find walkable position near mob at (${Math.floor(
+              mob.x
+            )}, ${Math.floor(mob.y)})`
+          );
         }
       }
     });
@@ -1309,55 +1330,66 @@ export default class MobManager {
     const tileX = Math.floor((mob.x - walkingAreaLayer.x) / this.tileSize);
     const tileY = Math.floor((mob.y - walkingAreaLayer.y) / this.tileSize);
     const tile = walkingAreaLayer.getTileAt(tileX, tileY);
-    
+
     if (!tile) {
       return false;
     }
     const isObstacle = tile.index === 0;
-    
+
     return isObstacle;
   }
 
-  findNearbyWalkableTile(centerX, centerY, walkingAreaLayer, maxSearchRadius = 5) {
+  findNearbyWalkableTile(
+    centerX,
+    centerY,
+    walkingAreaLayer,
+    maxSearchRadius = 5
+  ) {
     for (let radius = 1; radius <= maxSearchRadius; radius++) {
       for (let x = -radius; x <= radius; x++) {
         for (let y = -radius; y <= radius; y++) {
           if (Math.abs(x) !== radius && Math.abs(y) !== radius) continue;
-          
-          const testWorldX = centerX + (x * this.tileSize);
-          const testWorldY = centerY + (y * this.tileSize);
-          
-          const tileX = Math.floor((testWorldX - walkingAreaLayer.x) / this.tileSize);
-          const tileY = Math.floor((testWorldY - walkingAreaLayer.y) / this.tileSize);
-          
+
+          const testWorldX = centerX + x * this.tileSize;
+          const testWorldY = centerY + y * this.tileSize;
+
+          const tileX = Math.floor(
+            (testWorldX - walkingAreaLayer.x) / this.tileSize
+          );
+          const tileY = Math.floor(
+            (testWorldY - walkingAreaLayer.y) / this.tileSize
+          );
+
           const tile = walkingAreaLayer.getTileAt(tileX, tileY);
           if (tile && tile.index !== 0) {
             return {
               tileX: tileX,
               tileY: tileY,
-              worldX: tileX * this.tileSize + this.tileSize / 2 + walkingAreaLayer.x,
-              worldY: tileY * this.tileSize + this.tileSize / 2 + walkingAreaLayer.y
+              worldX:
+                tileX * this.tileSize + this.tileSize / 2 + walkingAreaLayer.x,
+              worldY:
+                tileY * this.tileSize + this.tileSize / 2 + walkingAreaLayer.y,
             };
           }
         }
       }
     }
-    
+
     return null;
   }
 
   createObstacleTeleportEffect(x, y) {
     if (!this.scene.add) return;
-    
+
     const flash = this.scene.add.circle(x, y, 20, 0xff4444, 0.8);
     flash.setDepth(25);
-    
+
     this.scene.tweens.add({
       targets: flash,
       scale: { from: 0.5, to: 2 },
       alpha: { from: 0.8, to: 0 },
       duration: 400,
-      onComplete: () => flash.destroy()
+      onComplete: () => flash.destroy(),
     });
   }
 
@@ -1429,7 +1461,7 @@ export default class MobManager {
       currentWave: this.currentWave,
       waveActive: this.waveActive,
       waveProgress: this.getWaveProgress(),
-      obstacleTeleportEnabled: this.enableObstacleTeleport
+      obstacleTeleportEnabled: this.enableObstacleTeleport,
     };
   }
 
@@ -1447,12 +1479,12 @@ export default class MobManager {
       this.checkAndTeleportDistantMobs();
       this.lastTeleportCheck = time;
     }
-    
+
     if (this.enableObstacleTeleport && time - this.lastObstacleCheck > 2000) {
       this.teleportMobsOnObstacleTiles();
       this.lastObstacleCheck = time;
     }
-    
+
     this.activeMobs.forEach((data, id) => {
       if (!data.mob.active || data.mob.isDead) {
         toRemove.push(id);

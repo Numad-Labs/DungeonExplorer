@@ -165,7 +165,7 @@
             {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Attack_85x112.png",
                 "frameConfig": {
-                    "frameWidth": 85,
+                    "frameWidth": 84,
                     "frameHeight": 112,
                     "startFrame": 0,
                     "endFrame": -1,
@@ -880,7 +880,7 @@
                 "url": "assets/Hero/assasin tank/death.png",
                 "frameConfig": {
                     "frameWidth": 48,
-                    "frameHeight": 80,
+                    "frameHeight": 32,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,
@@ -1939,7 +1939,7 @@
                 "url": "assets/Hero/assasin tank/run.png",
                 "frameConfig": {
                     "frameWidth": 48,
-                    "frameHeight": 80,
+                    "frameHeight": 32,
                     "startFrame": 0,
                     "endFrame": -1,
                     "spacing": 0,

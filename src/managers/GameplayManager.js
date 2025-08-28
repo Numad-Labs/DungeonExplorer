@@ -32,11 +32,15 @@ export default class GameplayManager {
 
   createTextures() {
     const mobTextures = [
-      "zombierun", "Zombie2RunAni", "Police run", "Dagger Bandit-Run",
-      "assassinTank", "assassinArcher"
+      "zombierun",
+      "Zombie2RunAni",
+      "Police run",
+      "Dagger Bandit-Run",
+      "assassinTank",
+      "assassinArcher",
     ];
 
-    mobTextures.forEach(textureName => {
+    mobTextures.forEach((textureName) => {
       if (!this.scene.textures.exists(textureName)) {
         this.createMobTexture(textureName);
       }
@@ -81,8 +85,13 @@ export default class GameplayManager {
   createVFXTextures() {
     const vfxTextures = [
       { name: "AOE_Fire_Ball_Projectile_VFX_V01", color: 0xff4400, size: 16 },
-      { name: "AOE_Fire_Blast_Attack_VFX_V01", color: 0xff6600, size: 24, alpha: 0.8 },
-      { name: "AOE_Ice_Shard_Projectile_VFX_V01", color: 0x00aaff, size: 12 }
+      {
+        name: "AOE_Fire_Blast_Attack_VFX_V01",
+        color: 0xff6600,
+        size: 24,
+        alpha: 0.8,
+      },
+      { name: "AOE_Ice_Shard_Projectile_VFX_V01", color: 0x00aaff, size: 12 },
     ];
 
     vfxTextures.forEach(({ name, color, size, alpha = 1 }) => {
@@ -98,13 +107,17 @@ export default class GameplayManager {
 
   createMobTexture(textureName) {
     const colorMap = {
-      'Police': 0x333366, 'Dagger': 0x663333, 'assassin': 0x663333,
-      'Tank': 0x444444, 'Archer': 0x664433, 'Zombie2': 0x553355
+      Police: 0x333366,
+      Dagger: 0x663333,
+      assassin: 0x663333,
+      Tank: 0x444444,
+      Archer: 0x664433,
+      Zombie2: 0x553355,
     };
-    
-    const color = Object.keys(colorMap).find(key => textureName.includes(key)) ? 
-                  colorMap[Object.keys(colorMap).find(key => textureName.includes(key))] : 
-                  0x336633;
+
+    const color = Object.keys(colorMap).find((key) => textureName.includes(key))
+      ? colorMap[Object.keys(colorMap).find((key) => textureName.includes(key))]
+      : 0x336633;
 
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(color, 1);
@@ -118,44 +131,53 @@ export default class GameplayManager {
   setupCollisions() {
     if (!this.player) return;
 
-    this.scene.physics.add.overlap(this.player, this.enemies, (player, enemy) => {
-      if (enemy.attackPlayer) enemy.attackPlayer(player);
-    });
+    this.scene.physics.add.overlap(
+      this.player,
+      this.enemies,
+      (player, enemy) => {
+        if (enemy.attackPlayer) enemy.attackPlayer(player);
+      }
+    );
 
-    this.scene.physics.add.overlap(this.player, this.goldOrbs, (player, goldOrb) => {
-      this.collectGoldOrb(goldOrb);
-    });
+    this.scene.physics.add.overlap(
+      this.player,
+      this.goldOrbs,
+      (player, goldOrb) => {
+        this.collectGoldOrb(goldOrb);
+      }
+    );
   }
 
   setupTimers() {
     this.timers.orbSpawn = this.scene.time.addEvent({
       delay: 1000,
       callback: () => this.spawnRandomExperienceOrb(),
-      loop: true
+      loop: true,
     });
 
     this.timers.goldSpawn = this.scene.time.addEvent({
       delay: 2000,
       callback: () => this.spawnRandomGoldOrb(),
-      loop: true
+      loop: true,
     });
 
     this.timers.difficulty = this.scene.time.addEvent({
       delay: 1000,
       callback: () => this.gameManager.updateDifficulty(1000),
-      loop: true
+      loop: true,
     });
 
     Object.assign(this.scene, {
       enemySpawnTimer: this.mobManager.spawnTimer,
       orbSpawnTimer: this.timers.orbSpawn,
       goldSpawnTimer: this.timers.goldSpawn,
-      difficultyTimer: this.timers.difficulty
+      difficultyTimer: this.timers.difficulty,
     });
   }
 
   setupSceneMethods() {
-    this.scene.spawnExperienceOrb = (x, y, value) => this.spawnExperienceOrb(x, y, value);
+    this.scene.spawnExperienceOrb = (x, y, value) =>
+      this.spawnExperienceOrb(x, y, value);
     this.scene.spawnGoldOrb = (x, y, value) => this.spawnGoldOrb(x, y, value);
   }
 
@@ -223,7 +245,10 @@ export default class GameplayManager {
     });
 
     this.setupGoldOrbMovement(goldOrb);
-    this.scene.time.delayedCall(45000, () => goldOrb?.active && goldOrb.destroy());
+    this.scene.time.delayedCall(
+      45000,
+      () => goldOrb?.active && goldOrb.destroy()
+    );
     return goldOrb;
   }
 
@@ -231,11 +256,21 @@ export default class GameplayManager {
     const moveToPlayer = () => {
       if (!this.player || this.player.isDead || !orb.body) return;
 
-      const distance = Phaser.Math.Distance.Between(orb.x, orb.y, this.player.x, this.player.y);
+      const distance = Phaser.Math.Distance.Between(
+        orb.x,
+        orb.y,
+        this.player.x,
+        this.player.y
+      );
       const pickupRange = (this.player.pickupRange || 50) + (isGold ? 20 : 0);
 
       if (distance < pickupRange) {
-        const angle = Phaser.Math.Angle.Between(orb.x, orb.y, this.player.x, this.player.y);
+        const angle = Phaser.Math.Angle.Between(
+          orb.x,
+          orb.y,
+          this.player.x,
+          this.player.y
+        );
         const speed = isGold ? 180 : 200;
         orb.body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
       }
@@ -244,7 +279,7 @@ export default class GameplayManager {
     const updateEvent = this.scene.time.addEvent({
       delay: 50,
       callback: moveToPlayer,
-      repeat: -1
+      repeat: -1,
     });
 
     orb.on("destroy", () => updateEvent.destroy());
@@ -264,7 +299,10 @@ export default class GameplayManager {
   spawnRandomGoldOrb() {
     if (!this.player) return;
     const { x, y } = this.getRandomSpawnPosition(250, 600);
-    const value = this.getRandomOrbValue([1, 2, 5, 10, 20], [0.4, 0.7, 0.9, 0.98, 1]);
+    const value = this.getRandomOrbValue(
+      [1, 2, 5, 10, 20],
+      [0.4, 0.7, 0.9, 0.98, 1]
+    );
     return this.spawnGoldOrb(x, y, value);
   }
 
@@ -273,14 +311,15 @@ export default class GameplayManager {
     const distance = Phaser.Math.Between(minDist, maxDist);
     return {
       x: this.player.x + Math.cos(angle) * distance,
-      y: this.player.y + Math.sin(angle) * distance
+      y: this.player.y + Math.sin(angle) * distance,
     };
   }
 
   getRandomOrbValue(values, thresholds) {
     const roll = Math.random();
     for (let i = thresholds.length - 1; i >= 0; i--) {
-      if (roll > thresholds[i]) return values[i + 1] || values[values.length - 1];
+      if (roll > thresholds[i])
+        return values[i + 1] || values[values.length - 1];
     }
     return values[0];
   }
@@ -289,7 +328,7 @@ export default class GameplayManager {
     try {
       const expValue = orb.expValue || 5;
       if (this.gameManager) this.gameManager.addExperience(expValue);
-      
+
       this.createFloatingText(orb.x, orb.y - 20, `+${expValue} XP`, "#88ff88");
       orb.destroy();
     } catch (error) {
@@ -301,8 +340,13 @@ export default class GameplayManager {
     try {
       const goldValue = goldOrb.goldValue || 1;
       if (this.gameManager) this.gameManager.addGold(goldValue);
-      
-      this.createFloatingText(goldOrb.x, goldOrb.y - 20, `+${goldValue} Gold`, "#FFD700");
+
+      this.createFloatingText(
+        goldOrb.x,
+        goldOrb.y - 20,
+        `+${goldValue} Gold`,
+        "#FFD700"
+      );
       goldOrb.destroy();
     } catch (error) {
       console.error("Error collecting gold orb:", error);
@@ -316,7 +360,7 @@ export default class GameplayManager {
       color: color,
       stroke: "#000000",
       strokeThickness: 1,
-      fontWeight: color === "#FFD700" ? "bold" : "normal"
+      fontWeight: color === "#FFD700" ? "bold" : "normal",
     });
     floatingText.setOrigin(0.5);
 
@@ -325,7 +369,7 @@ export default class GameplayManager {
       y: y - 30,
       alpha: 0,
       duration: color === "#FFD700" ? 1200 : 1000,
-      onComplete: () => floatingText.destroy()
+      onComplete: () => floatingText.destroy(),
     });
   }
 
@@ -345,24 +389,24 @@ export default class GameplayManager {
 
   setupControls() {
     const keyboard = this.scene.input.keyboard;
-    
-    const controls = {
-      'keydown-Z': () => this.spawnEnemyAtCursor("zombie"),
-      'keydown-X': () => this.spawnEnemyAtCursor("zombie2"),
-      'keydown-C': () => this.spawnEnemyAtCursor("assassinArcher"),
-      'keydown-V': () => this.spawnEnemyAtCursor("policeDroid"),
-      'keydown-B': () => this.spawnEnemyAtCursor("assassin"),
-      'keydown-N': () => this.spawnEnemyAtCursor("assassinTank"),
-      'keydown-M': () => this.spawnEnemyAtCursor("assassinArcher"),
-      'keydown-E': () => this.spawnOrbAtCursor("exp", 1),
-      'keydown-G': () => this.spawnOrbAtCursor("gold", 5),
-      'keydown-K': () => this.mobManager.killAllMobs(),
-      'keydown-O': () => this.spawnMultipleOrbs("exp", 10),
-      'keydown-P': () => this.spawnMultipleOrbs("gold", 10),
-      'keydown-[': () => this.spawnWave(),
-      'keydown-L': () => console.log("Mob Statistics:", this.mobManager.getStatistics())
-    };
 
+    const controls = {
+      "keydown-Z": () => this.spawnEnemyAtCursor("zombie"),
+      "keydown-X": () => this.spawnEnemyAtCursor("zombie2"),
+      "keydown-C": () => this.spawnEnemyAtCursor("assassinArcher"),
+      "keydown-V": () => this.spawnEnemyAtCursor("policeDroid"),
+      "keydown-B": () => this.spawnEnemyAtCursor("assassin"),
+      "keydown-N": () => this.spawnEnemyAtCursor("assassinTank"),
+      "keydown-M": () => this.spawnEnemyAtCursor("assassinArcher"),
+      "keydown-E": () => this.spawnOrbAtCursor("exp", 1),
+      "keydown-G": () => this.spawnOrbAtCursor("gold", 5),
+      "keydown-K": () => this.mobManager.killAllMobs(),
+      "keydown-O": () => this.spawnMultipleOrbs("exp", 10),
+      "keydown-P": () => this.spawnMultipleOrbs("gold", 10),
+      "keydown-[": () => this.spawnWave(),
+      "keydown-L": () =>
+        console.log("Mob Statistics:", this.mobManager.getStatistics()),
+    };
 
     keyboard.on("keydown-Z", () => {
       const pointer = this.scene.input.activePointer;
@@ -373,7 +417,7 @@ export default class GameplayManager {
     keyboard.on("keydown-X", () => {
       const pointer = this.scene.input.activePointer;
       const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "policeDroid");
+      this.spawnEnemy(world.x, world.y, "bigDude");
     });
 
     keyboard.on("keydown-C", () => {
@@ -410,7 +454,6 @@ export default class GameplayManager {
       const pointer = this.scene.input.activePointer;
       const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
       this.spawnExperienceOrb(world.x, world.y, 1);
-
     });
   }
 
@@ -447,9 +490,14 @@ export default class GameplayManager {
   checkEnemyBounds() {
     if (!this.player) return;
     const maxDistance = 600;
-    this.mobManager.getAllActiveMobs().forEach(mob => {
+    this.mobManager.getAllActiveMobs().forEach((mob) => {
       if (!mob.active) return;
-      const distance = Phaser.Math.Distance.Between(mob.x, mob.y, this.player.x, this.player.y);
+      const distance = Phaser.Math.Distance.Between(
+        mob.x,
+        mob.y,
+        this.player.x,
+        this.player.y
+      );
       if (distance > maxDistance) {
         this.teleportMobToPlayer(mob);
       }
@@ -459,12 +507,17 @@ export default class GameplayManager {
   checkOrbBounds() {
     if (!this.player) return;
     const maxDistance = 2000;
-    
-    [this.expOrbs, this.goldOrbs].forEach(orbGroup => {
+
+    [this.expOrbs, this.goldOrbs].forEach((orbGroup) => {
       if (!orbGroup) return;
-      orbGroup.getChildren().forEach(orb => {
+      orbGroup.getChildren().forEach((orb) => {
         if (!orb.active) return;
-        const distance = Phaser.Math.Distance.Between(orb.x, orb.y, this.player.x, this.player.y);
+        const distance = Phaser.Math.Distance.Between(
+          orb.x,
+          orb.y,
+          this.player.x,
+          this.player.y
+        );
         if (distance > maxDistance) orb.destroy();
       });
     });
@@ -486,43 +539,65 @@ export default class GameplayManager {
       scale: 0,
       alpha: 0,
       duration: 500,
-      onComplete: () => circle.destroy()
+      onComplete: () => circle.destroy(),
     });
   }
 
-  getEnemyCount() { return this.mobManager.getActiveMobCount(); }
-  getEnemiesByType(type) { return this.mobManager.getMobsByType(type); }
-  getAllEnemies() { return this.mobManager.getAllActiveMobs(); }
-  getStatistics() { return this.mobManager.getStatistics(); }
+  getEnemyCount() {
+    return this.mobManager.getActiveMobCount();
+  }
+  getEnemiesByType(type) {
+    return this.mobManager.getMobsByType(type);
+  }
+  getAllEnemies() {
+    return this.mobManager.getAllActiveMobs();
+  }
+  getStatistics() {
+    return this.mobManager.getStatistics();
+  }
 
   update(time, delta) {
     this.mobManager.update(time, delta);
     this.checkEnemyBounds();
     this.checkOrbBounds();
 
-    [this.expOrbs, this.goldOrbs].forEach(orbGroup => {
+    [this.expOrbs, this.goldOrbs].forEach((orbGroup) => {
       if (!orbGroup) return;
-      orbGroup.getChildren().forEach(orb => {
+      orbGroup.getChildren().forEach((orb) => {
         if (orb.depth < 10) orb.setDepth(12);
       });
     });
   }
 
   shutdown() {
-    Object.values(this.timers).forEach(timer => timer?.remove());
+    Object.values(this.timers).forEach((timer) => timer?.remove());
     this.mobManager.shutdown();
 
-    [this.expOrbs, this.goldOrbs].forEach(group => {
+    [this.expOrbs, this.goldOrbs].forEach((group) => {
       if (group) group.clear(true, true);
     });
 
     if (this.scene.input?.keyboard) {
       const events = [
-        'keydown-E', 'keydown-G', 'keydown-Z', 'keydown-V', 'keydown-X',
-        'keydown-B', 'keydown-N', 'keydown-M', 'keydown-K', 'keydown-O',
-        'keydown-P', 'keydown-W', 'keydown-L', 'keydown-C', 'keydown-['
+        "keydown-E",
+        "keydown-G",
+        "keydown-Z",
+        "keydown-V",
+        "keydown-X",
+        "keydown-B",
+        "keydown-N",
+        "keydown-M",
+        "keydown-K",
+        "keydown-O",
+        "keydown-P",
+        "keydown-W",
+        "keydown-L",
+        "keydown-C",
+        "keydown-[",
       ];
-      events.forEach(event => this.scene.input.keyboard.removeAllListeners(event));
+      events.forEach((event) =>
+        this.scene.input.keyboard.removeAllListeners(event)
+      );
     }
   }
 }
