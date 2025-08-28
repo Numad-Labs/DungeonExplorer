@@ -22,12 +22,12 @@ const MOB_CONFIGS = {
     baseHealth: 30,
     baseDamage: 10,
     baseSpeed: 50,
-    expValue: 10,
+    expValue: 12,
     goldValue: 5,
     spawnWeight: 50,
-    minWave: 1,
+    unlockTime: 0,
     expDropChance: 0.8,
-    goldDropChance: 0.4,
+    goldDropChance: 0.2,
   },
   zombieBig: {
     class: Zombie2,
@@ -35,12 +35,12 @@ const MOB_CONFIGS = {
     baseHealth: 50,
     baseDamage: 20,
     baseSpeed: 40,
-    expValue: 20,
+    expValue: 25,
     goldValue: 15,
     spawnWeight: 25,
-    minWave: 1,
-    expDropChance: 0.85,
-    goldDropChance: 0.5,
+    unlockTime: 30000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   policeDroid: {
     class: PoliceDroid,
@@ -48,12 +48,12 @@ const MOB_CONFIGS = {
     baseHealth: 35,
     baseDamage: 1,
     baseSpeed: 55,
-    expValue: 15,
+    expValue: 18,
     goldValue: 10,
     spawnWeight: 20,
-    minWave: 1,
-    expDropChance: 0.82,
-    goldDropChance: 0.45,
+    unlockTime: 30000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   assassin: {
     class: Assassin,
@@ -61,12 +61,12 @@ const MOB_CONFIGS = {
     baseHealth: 25,
     baseDamage: 25,
     baseSpeed: 70,
-    expValue: 25,
+    expValue: 30,
     goldValue: 20,
     spawnWeight: 15,
-    minWave: 2,
-    expDropChance: 0.9,
-    goldDropChance: 0.6,
+    unlockTime: 60000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   assassinTank: {
     class: AssassinTank,
@@ -74,12 +74,12 @@ const MOB_CONFIGS = {
     baseHealth: 80,
     baseDamage: 30,
     baseSpeed: 30,
-    expValue: 40,
+    expValue: 48,
     goldValue: 35,
     spawnWeight: 8,
-    minWave: 2,
-    expDropChance: 0.95,
-    goldDropChance: 0.75,
+    unlockTime: 90000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   assassinArcher: {
     class: AssassinArcher,
@@ -87,12 +87,12 @@ const MOB_CONFIGS = {
     baseHealth: 20,
     baseDamage: 18,
     baseSpeed: 45,
-    expValue: 30,
+    expValue: 36,
     goldValue: 25,
     spawnWeight: 12,
-    minWave: 2,
-    expDropChance: 0.92,
-    goldDropChance: 0.7,
+    unlockTime: 90000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   bigDude: {
     class: BigDude,
@@ -100,12 +100,12 @@ const MOB_CONFIGS = {
     baseHealth: 90,
     baseDamage: 22,
     baseSpeed: 30,
-    expValue: 50,
+    expValue: 60,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 3,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 120000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   wreacker: {
     class: Wreacker,
@@ -113,12 +113,12 @@ const MOB_CONFIGS = {
     baseHealth: 30,
     baseDamage: 22,
     baseSpeed: 35,
-    expValue: 50,
+    expValue: 60,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 3,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 120000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   choppor: {
     class: Choppor,
@@ -126,12 +126,12 @@ const MOB_CONFIGS = {
     baseHealth: 30,
     baseDamage: 22,
     baseSpeed: 35,
-    expValue: 50,
+    expValue: 60,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 3,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 150000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   bomber: {
     class: Bomber,
@@ -139,12 +139,12 @@ const MOB_CONFIGS = {
     baseHealth: 10,
     baseDamage: 42,
     baseSpeed: 35,
-    expValue: 20,
+    expValue: 24,
     goldValue: 15,
     spawnWeight: 14,
-    minWave: 4,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 180000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   saber: {
     class: Saber,
@@ -152,12 +152,12 @@ const MOB_CONFIGS = {
     baseHealth: 10,
     baseDamage: 42,
     baseSpeed: 40,
-    expValue: 20,
+    expValue: 24,
     goldValue: 25,
     spawnWeight: 4,
-    minWave: 4,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 210000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   guardian: {
     class: Guardian,
@@ -165,12 +165,12 @@ const MOB_CONFIGS = {
     baseHealth: 90,
     baseDamage: 22,
     baseSpeed: 30,
-    expValue: 50,
+    expValue: 60,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 4,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 240000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   crawler: {
     class: Crawler,
@@ -178,12 +178,12 @@ const MOB_CONFIGS = {
     baseHealth: 1000,
     baseDamage: 12,
     baseSpeed: 45,
-    expValue: 20,
+    expValue: 24,
     goldValue: 15,
     spawnWeight: 14,
-    minWave: 5,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 270000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
   charger: {
     class: Charger,
@@ -191,12 +191,12 @@ const MOB_CONFIGS = {
     baseHealth: 90,
     baseDamage: 32,
     baseSpeed: 45,
-    expValue: 24,
+    expValue: 28,
     goldValue: 35,
     spawnWeight: 14,
-    minWave: 5,
-    expDropChance: 0.42,
-    goldDropChance: 0.6,
+    unlockTime: 300000,
+    expDropChance: 0.8,
+    goldDropChance: 0.2,
   },
 };
 
@@ -220,6 +220,11 @@ export default class MobManager {
     this.currentWave = 0;
     this.waveActive = false;
     this.waveMobs = [];
+
+    // Time-based mob unlocking
+    this.gameStartTime = null;
+    this.isGameStarted = false;
+    this.notifiedUnlocks = new Set();
 
     // Walking Area Management
     this.walkingAreaData = null;
@@ -248,12 +253,59 @@ export default class MobManager {
     });
   }
 
+  getMobUnlockStatus() {
+    const gameTime = this.getGameTimeElapsed();
+    const status = {};
+    
+    Object.entries(MOB_CONFIGS).forEach(([type, config]) => {
+      status[type] = {
+        unlocked: gameTime >= config.unlockTime,
+        unlockTime: config.unlockTime,
+        timeToUnlock: Math.max(0, config.unlockTime - gameTime),
+        unlockTimeFormatted: this.formatTime(config.unlockTime / 1000)
+      };
+    });
+    
+    return status;
+  }
+
+  formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${secs}s`;
+  }
+
+  getTimeToNextUnlock() {
+    const gameTime = this.getGameTimeElapsed();
+    
+    const nextUnlock = Object.values(MOB_CONFIGS)
+      .filter(config => config.unlockTime > gameTime)
+      .sort((a, b) => a.unlockTime - b.unlockTime)[0];
+    
+    if (!nextUnlock) {
+      return 0;
+    }
+    
+    return nextUnlock.unlockTime - gameTime;
+  }
+
   initialize(gameManager, player) {
     this.gameManager = gameManager;
     this.player = player;
     this.setupMobGroup();
     this.startSpawning();
     this.setupEventListeners();
+    
+    this.gameStartTime = Date.now();
+    this.isGameStarted = true;
+    
+    Object.entries(MOB_CONFIGS).forEach(([type, config]) => {
+      if (config.unlockTime === 0) {
+        this.notifiedUnlocks.add(type);
+      }
+    });
+    
+    this.displayMobUnlockSchedule();
   }
 
   setupMobGroup() {
@@ -636,15 +688,30 @@ export default class MobManager {
     return this.spawnMob(mobType, position.x, position.y);
   }
 
-  selectMobType() {
-    const currentLevel = Math.max(
-      this.gameManager?.gameProgress?.currentDifficulty || 1,
-      this.currentWave
-    );
+  getGameTimeElapsed() {
+    if (!this.isGameStarted || !this.gameStartTime) {
+      return 0;
+    }
+    return Date.now() - this.gameStartTime;
+  }
 
+  getAvailableMobTypes() {
+    const gameTime = this.getGameTimeElapsed();
+    
     const availableTypes = Object.keys(MOB_CONFIGS).filter((type) => {
-      return MOB_CONFIGS[type].minWave <= currentLevel;
+      const config = MOB_CONFIGS[type];
+      return gameTime >= config.unlockTime;
     });
+    
+    return availableTypes;
+  }
+
+  selectMobType() {
+    const availableTypes = this.getAvailableMobTypes();
+    
+    if (availableTypes.length === 0) {
+      return 'zombie';
+    }
 
     const weightedTypes = [];
     availableTypes.forEach((type) => {
@@ -655,6 +722,42 @@ export default class MobManager {
     });
 
     return Phaser.Utils.Array.GetRandom(weightedTypes);
+  }
+
+  displayMobUnlockSchedule() {
+    const sortedMobs = Object.entries(MOB_CONFIGS)
+      .sort((a, b) => a[1].unlockTime - b[1].unlockTime)
+      .map(([type, config]) => {
+        const timeInSeconds = config.unlockTime / 1000;
+        const timeFormatted = timeInSeconds >= 60 
+          ? `${Math.floor(timeInSeconds / 60)}:${(timeInSeconds % 60).toString().padStart(2, '0')}` 
+          : `${timeInSeconds}s`;
+        return `${timeFormatted} - ${type}`;
+      });
+    
+    sortedMobs.forEach(mobInfo => console.log(mobInfo));
+  }
+
+  checkForNewMobUnlocks() {
+    const gameTime = this.getGameTimeElapsed();
+    
+    Object.entries(MOB_CONFIGS).forEach(([type, config]) => {
+      if (gameTime >= config.unlockTime && !this.notifiedUnlocks.has(type)) {
+        this.showMobUnlockNotification(type);
+        this.notifiedUnlocks.add(type);
+      }
+    });
+  }
+
+  showMobUnlockNotification(mobType) {
+    const config = MOB_CONFIGS[mobType];
+    const timeInSeconds = config.unlockTime / 1000;
+    
+    EventBus.emit('mob-unlocked', {
+      mobType: mobType,
+      unlockTime: config.unlockTime,
+      message: `New enemy type unlocked: ${mobType}!`
+    });
   }
 
   getSpawnPosition() {
@@ -1451,6 +1554,10 @@ export default class MobManager {
   }
 
   getStatistics() {
+    const currentMobStatus = this.getMobUnlockStatus();
+    const unlockedCount = Object.values(currentMobStatus).filter(status => status.unlocked).length;
+    const totalMobTypes = Object.keys(MOB_CONFIGS).length;
+    
     return {
       totalSpawned: this.stats.totalSpawned,
       totalKilled: this.stats.totalKilled,
@@ -1462,6 +1569,11 @@ export default class MobManager {
       waveActive: this.waveActive,
       waveProgress: this.getWaveProgress(),
       obstacleTeleportEnabled: this.enableObstacleTeleport,
+      gameTimeElapsed: this.getGameTimeElapsed(),
+      mobTypesUnlocked: unlockedCount,
+      totalMobTypes: totalMobTypes,
+      nextUnlockIn: this.getTimeToNextUnlock(),
+      mobUnlockStatus: currentMobStatus
     };
   }
 
@@ -1483,6 +1595,10 @@ export default class MobManager {
     if (this.enableObstacleTeleport && time - this.lastObstacleCheck > 2000) {
       this.teleportMobsOnObstacleTiles();
       this.lastObstacleCheck = time;
+    }
+
+    if (this.isGameStarted && time % 2000 < 100) {
+      this.checkForNewMobUnlocks();
     }
 
     this.activeMobs.forEach((data, id) => {
