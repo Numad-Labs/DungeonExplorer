@@ -727,6 +727,19 @@
                 "key": "crawler_run_32x16_v01"
             },
             {
+                "url": "assets/Hero/crawler/CrawlerAttack.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 16,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "CrawlerAttack"
+            },
+            {
                 "url": "assets/Animated prop/crusher-retreat-pentagram FX.png",
                 "frameConfig": {
                     "frameWidth": 32,
