@@ -54,6 +54,184 @@ export default class MainMapScene extends BaseGameScene {
     
     // Start background music when the game scene loads
     this.startBackgroundMusic();
+    this.createGameStartLightEffect();
+  }
+  
+  createGameStartLightEffect() {
+    this.time.delayedCall(500, () => {
+      if (this.player) {
+        this.createLightBeamEffect();
+      }
+    });
+  }
+  
+  createLightBeamEffect() {
+    const player = this.player;
+    if (!player) return;
+    
+    const lightBeam = this.add.graphics();
+    lightBeam.setDepth(500);
+    
+    const camera = this.cameras.main;
+    const worldView = camera.worldView;
+    
+    const beamStartY = worldView.top - 1000;
+    const beamEndY = player.y;
+    const beamCenterX = player.x;
+    const beamWidth = 80;
+    const ovalHeight = 40;
+    const createBeamFrame = (progress) => {
+      lightBeam.clear();
+      
+      if (progress <= 0) return;
+      const cylinderHeight = beamEndY - beamStartY;
+      
+      for (let i = 0; i < 20; i++) {
+        const alpha = (1 - i / 20) * 0.3 * Math.min(progress, 1);
+        const layerWidth = beamWidth + i * 3;
+        
+        lightBeam.fillStyle(0xffffff, alpha);
+        lightBeam.fillRect(
+          beamCenterX - layerWidth/2, 
+          beamStartY, 
+          layerWidth, 
+          cylinderHeight
+        );
+      }
+      
+      lightBeam.fillStyle(0xffffff, 0.6 * Math.min(progress, 1));
+      lightBeam.fillRect(
+        beamCenterX - beamWidth/6, 
+        beamStartY, 
+        beamWidth/3, 
+        cylinderHeight
+      );
+      
+      for (let i = 0; i < 20; i++) {
+        const baseAlpha = (1 - i / 20) * 0.3 * Math.min(progress, 1);
+        const layerWidth = beamWidth + i * 3;
+        
+        const strips = 10;
+        for (let strip = 0; strip < strips; strip++) {
+          const stripY = (beamEndY - ovalHeight/2) + (strip * (ovalHeight / strips));
+          const stripHeight = ovalHeight / strips;
+          
+          const positionInOval = strip / strips;
+          const transparencyMultiplier = 0.01 + (positionInOval * 0.99);
+          const stripAlpha = baseAlpha * transparencyMultiplier;
+          
+          const relativeY = (stripY + stripHeight/2 - beamEndY) / (ovalHeight/2);
+          const widthMultiplier = Math.sqrt(Math.max(0, 1 - (relativeY * relativeY)));
+          const stripWidth = layerWidth * widthMultiplier;
+          
+          if (stripWidth > 2) {
+            lightBeam.fillStyle(0xffffff, stripAlpha);
+            lightBeam.fillRect(
+              beamCenterX - stripWidth/2,
+              stripY,
+              stripWidth,
+              stripHeight + 1
+            );
+          }
+        }
+      }
+      
+      const centerStrips = 10;
+      for (let strip = 0; strip < centerStrips; strip++) {
+        const stripY = (beamEndY - ovalHeight/2) + (strip * (ovalHeight / centerStrips));
+        const stripHeight = ovalHeight / centerStrips;
+        const positionInOval = strip / centerStrips;
+        
+        const transparencyMultiplier = 0.01 + (positionInOval * 0.99);
+        const stripAlpha = 0.6 * Math.min(progress, 1) * transparencyMultiplier;
+        
+        const relativeY = (stripY + stripHeight/2 - beamEndY) / (ovalHeight/2);
+        const widthMultiplier = Math.sqrt(Math.max(0, 1 - (relativeY * relativeY)));
+        const stripWidth = (beamWidth/3) * widthMultiplier;
+        
+        if (stripWidth > 1) {
+          lightBeam.fillStyle(0xffffff, stripAlpha);
+          lightBeam.fillRect(
+            beamCenterX - stripWidth/2,
+            stripY,
+            stripWidth,
+            stripHeight + 1
+          );
+        }
+      }
+    };
+    
+    let progress = 0;
+    const beamTween = this.tweens.add({
+      targets: { progress: 0 },
+      progress: 1,
+      duration: 100,
+      ease: 'Power3.easeIn',
+      onUpdate: (tween) => {
+        progress = tween.getValue();
+        createBeamFrame(progress);
+      },
+      onComplete: () => {
+        this.cameras.main.flash(200, 255, 255, 255, false);
+        this.cameras.main.shake(150, 0.01);
+        
+        this.createPlayerGlowEffect();
+        
+        this.tweens.add({
+          targets: lightBeam,
+          alpha: 0,
+          duration: 600,
+          ease: 'Power2.easeOut',
+          onComplete: () => {
+            lightBeam.destroy();
+          }
+        });
+      }
+    });
+  }
+  
+  createPlayerGlowEffect() {
+    if (!this.player) return;
+    
+    const glow = this.add.graphics();
+    glow.setDepth(this.player.depth - 1);
+    
+    const createGlow = (intensity) => {
+      glow.clear();
+      
+      for (let i = 0; i < 8; i++) {
+        const alpha = (1 - i / 8) * 0.15 * intensity;
+        const radius = 20 + i * 5;
+        
+        glow.fillStyle(0xffffff, alpha);
+        glow.fillCircle(this.player.x, this.player.y, radius);
+      }
+      
+      glow.fillStyle(0xffffff, 0.3 * intensity);
+      glow.fillCircle(this.player.x, this.player.y, 15);
+    };
+    
+    this.tweens.add({
+      targets: { intensity: 1 },
+      intensity: 0.3,
+      duration: 1500,
+      yoyo: true,
+      repeat: 2,
+      ease: 'Sine.easeInOut',
+      onUpdate: (tween) => {
+        createGlow(tween.getValue());
+      },
+      onComplete: () => {
+        this.tweens.add({
+          targets: glow,
+          alpha: 0,
+          duration: 1000,
+          onComplete: () => {
+            glow.destroy();
+          }
+        });
+      }
+    });
   }
   
   startBackgroundMusic() {
