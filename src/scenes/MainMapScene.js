@@ -51,6 +51,38 @@ export default class MainMapScene extends BaseGameScene {
     
     this.editorCreate();
     this.initializeAllSystems();
+    
+    // Start background music when the game scene loads
+    this.startBackgroundMusic();
+  }
+  
+  startBackgroundMusic() {
+    // Wait a moment for audio to be ready, then start background music
+    this.time.delayedCall(1000, () => {
+      try {
+        this.backgroundMusic = this.sound.add('gameLoop', {
+          volume: 0.3,
+          loop: true
+        });
+        
+        // Handle browser audio policy - try to play after user interaction
+        const startMusic = () => {
+          if (this.backgroundMusic && !this.backgroundMusic.isPlaying) {
+            this.backgroundMusic.play();
+            console.log('Background music started!');
+          }
+        };
+        
+        // Try to start immediately
+        startMusic();
+        
+        // Also start on first user interaction
+        this.input.once('pointerdown', startMusic);
+        
+      } catch (error) {
+        console.error('Error starting background music:', error);
+      }
+    });
   }
 
   setupWorld() {
