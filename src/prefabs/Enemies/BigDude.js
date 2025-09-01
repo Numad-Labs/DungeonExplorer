@@ -22,9 +22,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
-    this.isAttacking = false; // Add this flag
+    this.isAttacking = false;
     this.lastDirection = "down";
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -82,9 +81,8 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
   }
 
   createAnimations() {
-    // Debug: List all available textures
     console.log("Available textures:", Object.keys(this.scene.textures.list));
-    
+
     if (!this.scene.anims.exists("BigDude Run")) {
       this.scene.anims.create({
         key: "BigDude Run",
@@ -96,13 +94,16 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         repeat: -1,
       });
     }
-
-    // Try different possible texture names for Attack1
     const possibleAttack1Names = [
-      "attack1", "attack_1", "BigDudeAttack1", "bigdude_attack1", 
-      "attack1_2", "attack 1", "BigDude_Attack1"
+      "attack1",
+      "attack_1",
+      "BigDudeAttack1",
+      "bigdude_attack1",
+      "attack1_2",
+      "attack 1",
+      "BigDude_Attack1",
     ];
-    
+
     let attack1TextureName = null;
     for (const textureName of possibleAttack1Names) {
       if (this.scene.textures.exists(textureName)) {
@@ -117,16 +118,18 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         key: "BigDude Attack1",
         frames: this.scene.anims.generateFrameNumbers(attack1TextureName, {
           start: 0,
-          end: 7, // Adjust based on your sprite sheet
+          end: 7,
         }),
         frameRate: 8,
         repeat: 0,
       });
     } else {
-      console.log("BigDude Attack1 texture not found. Checked:", possibleAttack1Names);
+      console.log(
+        "BigDude Attack1 texture not found. Checked:",
+        possibleAttack1Names
+      );
     }
 
-    // Second attack animation (keeping existing)
     if (
       this.scene.textures.exists("attack 2t") &&
       !this.scene.anims.exists("BigDude Attack2")
@@ -153,7 +156,7 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
-    
+
     if (!this.scene.anims.exists("bigDudeDeath")) {
       this.scene.anims.create({
         key: "bigDudeDeath",
@@ -165,9 +168,6 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
-
-    // Debug: List all created animations
-    console.log("Created animations:", Object.keys(this.scene.anims.anims.entries));
   }
 
   createHealthBar() {
@@ -262,15 +262,16 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
         );
         this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
+        if (
+          time - this.lastAttackTime > this.attackCooldown &&
+          !this.isAttacking
+        ) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
       }
 
       this.updateAnimation();
-
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in BigDude update:", error);
@@ -333,7 +334,6 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
 
   updateAnimation() {
     if (this.isAttacking) {
-      // Don't change animation while attacking
       return;
     } else if (this.isMoving) {
       if (
@@ -360,12 +360,10 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
 
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
-    
+
     this.isAttacking = true;
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
-    
-    // Get available attack animations
     const availableAttacks = [];
     if (this.scene.anims.exists("BigDude Attack1")) {
       availableAttacks.push("BigDude Attack1");
@@ -373,42 +371,38 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     if (this.scene.anims.exists("BigDude Attack2")) {
       availableAttacks.push("BigDude Attack2");
     }
-    
+
     console.log("Available attacks:", availableAttacks);
-    
+
     let selectedAttack;
     let damageDelay;
-    
+
     if (availableAttacks.length > 0) {
-      // Randomly choose from available attacks
-      selectedAttack = availableAttacks[Math.floor(Math.random() * availableAttacks.length)];
+      selectedAttack =
+        availableAttacks[Math.floor(Math.random() * availableAttacks.length)];
       damageDelay = selectedAttack === "BigDude Attack1" ? 300 : 400;
-      
+
       console.log("Playing attack:", selectedAttack);
       this.play(selectedAttack);
-      
-      // Handle animation completion
-      this.once('animationcomplete', (animation) => {
+
+      this.once("animationcomplete", (animation) => {
         if (animation.key === selectedAttack) {
           this.isAttacking = false;
           console.log("Attack animation completed:", selectedAttack);
         }
       });
-      
-      // Apply damage with delay
+
       this.scene.time.delayedCall(damageDelay, () => {
         if (player && player.takeDamage && !this.isDead) {
           player.takeDamage(this.damage);
         }
       });
     } else {
-      // No attack animations available, use immediate damage
       console.log("No attack animations found, applying immediate damage");
       player.takeDamage(this.damage);
       this.isAttacking = false;
     }
 
-    // Visual feedback
     this.setTint(0xff8800);
     this.scene.time.delayedCall(200, () => {
       if (this.active) {
@@ -447,17 +441,16 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
     this.body.enable = false;
 
     this.stop();
-    this.play("bigDudeDeath", false); 
-    this.once('animationcomplete', (animation) => {
+    this.play("bigDudeDeath", false);
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "bigDudeDeath") {
         this.cleanupAndDestroy();
       }
-    })
-       if (this.shadow) {
+    });
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
-
 
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
@@ -475,11 +468,7 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
           const xOffset = Phaser.Math.Between(-15, 15);
           const yOffset = Phaser.Math.Between(-15, 15);
 
-          this.scene.spawnExperienceOrb(
-            this.x + xOffset,
-            this.y + yOffset,
-            2 // Higher experience value
-          );
+          this.scene.spawnExperienceOrb(this.x + xOffset, this.y + yOffset, 2);
         }
       }
     } catch (error) {
@@ -501,7 +490,6 @@ export default class BigDude extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

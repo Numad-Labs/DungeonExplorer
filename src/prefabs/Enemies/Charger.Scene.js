@@ -24,20 +24,19 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     this.damage = 35;
     this.speed = 50;
     this.chargeSpeed = 120;
-    this.attackRange = 80; // Longer range to trigger charge
-    this.chargeRange = 150; // Max charge distance
+    this.attackRange = 80;
+    this.chargeRange = 150;
     this.attackCooldown = 2000;
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
     this.isCharging = false;
-    this.isAttacking = false; // New attack state
+    this.isAttacking = false;
     this.chargeStartTime = 0;
-    this.chargeDuration = 800; // How long charge lasts
-    this.attackDuration = 400; // How long attack animation lasts
+    this.chargeDuration = 800;
+    this.attackDuration = 400;
     this.chargeDirection = { x: 0, y: 0 };
     this.lastDirection = "down";
-    // this.createHealthBar();
     this.createAnimations();
     this.addToChargerGroup(scene);
     this.createShadow();
@@ -105,10 +104,13 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     if (!this.scene.anims.exists("chargerDeath")) {
       this.scene.anims.create({
         key: "chargerDeath",
-        frames: this.scene.anims.generateFrameNumbers("Charger_death_50x31_v01", {
-          start: 0,
-          end: 4,
-        }),
+        frames: this.scene.anims.generateFrameNumbers(
+          "Charger_death_50x31_v01",
+          {
+            start: 0,
+            end: 4,
+          }
+        ),
         frameRate: 6,
         repeat: 0,
       });
@@ -125,8 +127,6 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         repeat: -1,
       });
     }
-
-    // New attack animation
     if (!this.scene.anims.exists("chargerAttack")) {
       this.scene.anims.create({
         key: "chargerAttack",
@@ -241,15 +241,11 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     this.isCharging = true;
     this.chargeStartTime = this.scene.time.now;
     this.lastAttackTime = this.scene.time.now;
-
-    // Calculate charge direction
     const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
-
     this.chargeDirection.x = Math.cos(angle);
     this.chargeDirection.y = Math.sin(angle);
     this.updateDirection(angle);
 
-    // Visual effect for charge start
     this.setTint(0xffaa00);
     this.scene.time.delayedCall(100, () => {
       if (this.active) {
@@ -262,12 +258,9 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     const chargeTime = time - this.chargeStartTime;
 
     if (chargeTime < this.chargeDuration) {
-      // Apply charge velocity
       this.body.velocity.x = this.chargeDirection.x * this.chargeSpeed;
       this.body.velocity.y = this.chargeDirection.y * this.chargeSpeed;
       this.isMoving = true;
-
-      // Check for collision with player during charge
       const player = this.scene.player;
       if (player) {
         const distance = Phaser.Math.Distance.Between(
@@ -282,7 +275,6 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         }
       }
     } else {
-      // End charge
       this.isCharging = false;
       this.body.velocity.x *= 0.3;
       this.body.velocity.y *= 0.3;
@@ -298,7 +290,7 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.play("chargerAttack");
-    this.once('animationcomplete', (animation) => {
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "chargerAttack") {
         this.endAttack();
       }
@@ -405,8 +397,6 @@ export default class Charger extends Phaser.GameObjects.Sprite {
 
   updateAnimation() {
     if (this.isAttacking) {
-      // Attack animation is handled by startAttack method
-      // No need to change animation here during attack
     } else if (this.isCharging) {
       if (
         !this.anims.isPlaying ||
@@ -429,8 +419,6 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         this.play("Charger Idle");
       }
     }
-
-    // Handle sprite flipping (don't flip during attack to maintain attack direction)
     if (!this.isAttacking) {
       if (this.lastDirection === "right") {
         this.setFlipX(false);
@@ -445,15 +433,12 @@ export default class Charger extends Phaser.GameObjects.Sprite {
 
     player.takeDamage(this.damage);
 
-    // Flash effect
     this.setTint(0xff4400);
     this.scene.time.delayedCall(200, () => {
       if (this.active) {
         this.clearTint();
       }
     });
-
-    // Don't end charge here anymore - let attack animation handle it
   }
 
   takeDamage(amount) {
@@ -468,8 +453,6 @@ export default class Charger extends Phaser.GameObjects.Sprite {
         this.clearTint();
       }
     });
-
-    // Interrupt charge and attack if damaged
     if (this.isCharging) {
       this.isCharging = false;
       this.body.velocity.x *= 0.5;
@@ -505,8 +488,8 @@ export default class Charger extends Phaser.GameObjects.Sprite {
     }
 
     this.stop();
-    this.play("chargerDeath", false); 
-    this.once('animationcomplete', (animation) => {
+    this.play("chargerDeath", false);
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "chargerDeath") {
         this.cleanupAndDestroy();
       }
@@ -555,7 +538,6 @@ export default class Charger extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

@@ -33,7 +33,6 @@ export default class Bomber extends Phaser.GameObjects.Sprite {
     this.lastDirection = "down";
     this.flashTimer = 0;
     this.flashInterval = 200;
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -252,7 +251,6 @@ export default class Bomber extends Phaser.GameObjects.Sprite {
 
       this.updateAnimation();
 
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in Bomber update:", error);
@@ -298,14 +296,14 @@ export default class Bomber extends Phaser.GameObjects.Sprite {
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
-      this.stop();
-    this.play("BomberDeath", false); 
-    this.once('animationcomplete', (animation) => {
+    this.stop();
+    this.play("BomberDeath", false);
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "BomberDeath") {
         this.cleanupAndDestroy();
       }
-    })
-       if (this.shadow) {
+    });
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
@@ -503,7 +501,6 @@ export default class Bomber extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

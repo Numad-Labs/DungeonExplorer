@@ -25,7 +25,6 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
     this.isMoving = false;
     this.isAttacking = false;
     this.lastDirection = "down";
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -119,10 +118,13 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
     if (!this.scene.anims.exists("Asassin Attack")) {
       this.scene.anims.create({
         key: "Asassin Attack",
-        frames: this.scene.anims.generateFrameNumbers("assets/Hero/zombie 2/attack.png", {
-          start: 0,
-          end: 8,
-        }),
+        frames: this.scene.anims.generateFrameNumbers(
+          "assets/Hero/zombie 2/attack.png",
+          {
+            start: 0,
+            end: 8,
+          }
+        ),
         frameRate: 8,
         repeat: 0,
       });
@@ -221,9 +223,12 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
           this.body.velocity.x * this.body.velocity.x +
             this.body.velocity.y * this.body.velocity.y
         );
-       this.isMoving = currentSpeed > 5 && !this.isAttacking;
+        this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
+        if (
+          time - this.lastAttackTime > this.attackCooldown &&
+          !this.isAttacking
+        ) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -325,12 +330,12 @@ export default class Assassin extends Phaser.GameObjects.Sprite {
     this.body.velocity.y = 0;
 
     this.play("Asassin Attack");
-    this.once('animationcomplete', (animation) => {
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "Asassin Attack") {
         this.isAttacking = false;
       }
     });
-     this.scene.time.delayedCall(200, () => {
+    this.scene.time.delayedCall(200, () => {
       if (player && player.takeDamage) {
         player.takeDamage(this.damage);
       }
