@@ -19,8 +19,9 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Explicitly load background music to ensure it loads
 		this.load.audio('gameLoop', './assets/SFX/In game loop.wav');
+		this.load.audio('characterDying', './assets/SFX/SFX charachter dying .wav');
+		this.load.audio('menuSelection', './assets/SFX/SFX menu selecetion .wav');
 	}
 
 	/** @returns {void} */

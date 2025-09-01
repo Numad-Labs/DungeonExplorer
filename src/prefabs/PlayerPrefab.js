@@ -427,6 +427,17 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		this.isDead = true;
 		this.health = 0;
 		
+		if (this.scene.backgroundMusic && this.scene.backgroundMusic.isPlaying) {
+			this.scene.backgroundMusic.stop();
+		}
+		
+		try {
+			const deathSound = this.scene.sound.add('characterDying', { volume: 0.7 });
+			deathSound.play();
+		} catch (error) {
+			console.error('Error playing death sound:', error);
+		}
+		
 		// Clean up shadow
 		if (this.shadow) {
 			this.scene.tweens.add({
