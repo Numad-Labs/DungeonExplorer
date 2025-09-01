@@ -102,10 +102,13 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
     if (!this.scene.anims.exists("CrawlerDeath")) {
       this.scene.anims.create({
         key: "CrawlerDeath",
-        frames: this.scene.anims.generateFrameNumbers("crawler_death_32x16_v01.png", {
-          start: 0,
-          end: 6,
-        }),
+        frames: this.scene.anims.generateFrameNumbers(
+          "crawler_death_32x16_v01.png",
+          {
+            start: 0,
+            end: 6,
+          }
+        ),
         frameRate: 6,
         repeat: 0,
       });
@@ -233,10 +236,7 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
           this.lastAttackTime = time;
         }
       }
-
       this.updateAnimation();
-
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in Crawler update:", error);
@@ -368,12 +368,9 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
 
     this.isDead = true;
 
-
-
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
-
 
     if (
       this.scene &&
@@ -385,13 +382,13 @@ export default class Crawler extends Phaser.GameObjects.Sprite {
 
     this.stop();
     this.play("CrawlerDeath", false);
-    this.once('animationcomplete', (animation) => {
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "CrawlerDeath") {
         this.cleanupAndDestroy();
       }
-    })
+    });
 
-if (this.shadow) {
+    if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
@@ -430,7 +427,6 @@ if (this.shadow) {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

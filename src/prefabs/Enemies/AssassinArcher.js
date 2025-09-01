@@ -30,9 +30,7 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     this.isDead = false;
     this.isMoving = false;
     this.isAttacking = false;
-
     this.lastDirection = "down";
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -102,7 +100,7 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
         repeat: -1,
       });
     }
-        if (!this.scene.anims.exists("Archer Bandit-Attack")) {
+    if (!this.scene.anims.exists("Archer Bandit-Attack")) {
       this.scene.anims.create({
         key: "Archer Bandit-Attack",
         frames: this.scene.anims.generateFrameNumbers("Archer Bandit-Attack", {
@@ -232,7 +230,10 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
         );
         this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
+        if (
+          time - this.lastAttackTime > this.attackCooldown &&
+          !this.isAttacking
+        ) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -300,7 +301,7 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-        if (this.isAttacking) {
+    if (this.isAttacking) {
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "Archer Bandit-Attack"
@@ -337,12 +338,12 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     this.body.velocity.y = 0;
 
     this.play("Archer Bandit-Attack");
-    this.once('animationcomplete', (animation) => {
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "Archer Bandit-Attack") {
         this.isAttacking = false;
       }
     });
-     this.scene.time.delayedCall(200, () => {
+    this.scene.time.delayedCall(200, () => {
       if (player && player.takeDamage) {
         player.takeDamage(this.damage);
       }

@@ -17,13 +17,13 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
     this.health = this.maxHealth;
     this.damage = 15;
     this.speed = 60;
-    this.attackRange = 30; 
+    this.attackRange = 30;
     this.attackCooldown = 800;
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
-    this.isAttacking = false; // New attack state
-    this.attackDuration = 600; // How long attack lasts
+    this.isAttacking = false;
+    this.attackDuration = 600;
 
     this.lastDirection = "down";
     // this.createHealthBar();
@@ -67,7 +67,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         zombie2.y
       );
 
-      const separationForce = 30; 
+      const separationForce = 30;
       const pushX = Math.cos(angle) * separationForce;
       const pushY = Math.sin(angle) * separationForce;
 
@@ -107,23 +107,20 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
-
-    // Improved WreackerAttack animation setup
     if (!this.scene.anims.exists("WreackerAttack")) {
-      // Check if the attack sprite sheet exists, fallback to run frames if not
-      const attackTexture = this.scene.textures.exists("WreackerAttack") ? "WreackerAttack" : "WreackerRun";
-      
+      const attackTexture = this.scene.textures.exists("WreackerAttack")
+        ? "WreackerAttack"
+        : "WreackerRun";
+
       this.scene.anims.create({
         key: "WreackerAttack",
         frames: this.scene.anims.generateFrameNumbers(attackTexture, {
           start: 0,
-          end: attackTexture === "WreackerAttack" ? 5 : 3, // Adjust based on available frames
+          end: attackTexture === "WreackerAttack" ? 5 : 3,
         }),
-        frameRate: 8, // Slower frame rate to ensure full animation plays
-        repeat: 0, // Play once
+        frameRate: 8,
+        repeat: 0,
       });
-      
-      console.log("Created WreackerAttack animation with texture:", attackTexture); // Debug log
     }
 
     if (!this.scene.anims.exists("Wreacker Idle")) {
@@ -190,15 +187,11 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         player.x,
         player.y
       );
-
-      // Handle attacking behavior
       if (this.isAttacking) {
         this.updateAttack(time);
       } else if (distance > this.attackRange) {
-        // Move towards player - Wreacker is more aggressive
         this.moveTowardPlayer(player);
       } else {
-        // Stop and attack
         this.body.velocity.x *= 0.75;
         this.body.velocity.y *= 0.75;
         const currentSpeed = Math.sqrt(
@@ -215,7 +208,6 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
 
       this.updateAnimation();
 
-      // Update shadow position
       this.updateShadowPosition();
     } catch (error) {
       console.error("Error in Wreacker update:", error);
@@ -224,11 +216,11 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
 
   moveTowardPlayer(player) {
     const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
-    const forceX = Math.cos(angle) * this.speed * 0.12; // Slightly more aggressive
+    const forceX = Math.cos(angle) * this.speed * 0.12;
     const forceY = Math.sin(angle) * this.speed * 0.12;
     this.body.velocity.x += forceX;
     this.body.velocity.y += forceY;
-    this.body.velocity.x *= 0.88; // Less damping for snappier movement
+    this.body.velocity.x *= 0.88;
     this.body.velocity.y *= 0.88;
     this.applyZombieAvoidance();
 
@@ -249,46 +241,29 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
 
   startAttack(player) {
     if (this.isAttacking) return;
-
-    console.log("Starting Wreacker attack animation"); // Debug log
-
     this.isAttacking = true;
     this.attackStartTime = this.scene.time.now;
-
-    // Stop movement during attack
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.isMoving = false;
-
-    // Clear any existing animation listeners
-    this.off('animationcomplete');
-
-    // Play attack animation with force restart
-    this.stop(); // Stop current animation
-    this.play("WreackerAttack", true); // Force restart
-
-    // Listen for animation complete to end attack
-    this.once('animationcomplete', (animation) => {
-      console.log("Animation completed:", animation.key); // Debug log
+    this.off("animationcomplete");
+    this.stop();
+    this.play("WreackerAttack", true);
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "WreackerAttack") {
         this.endAttack();
       }
     });
 
-    // Backup timer in case animation doesn't fire complete event
     this.scene.time.delayedCall(this.attackDuration, () => {
       if (this.isAttacking) {
-        console.log("Force ending attack via timer"); // Debug log
         this.endAttack();
       }
     });
 
-    // Deal damage after a short delay (mid-animation)
     this.scene.time.delayedCall(250, () => {
       if (player && player.takeDamage && !this.isDead && this.isAttacking) {
         player.takeDamage(this.damage);
-        
-        // Flash effect when damage is dealt
         this.setTint(0xff4400);
         this.scene.time.delayedCall(150, () => {
           if (this.active) {
@@ -300,12 +275,9 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
   }
 
   updateAttack(time) {
-    // Keep the wreacker stationary during attack
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.isMoving = false;
-
-    // Check if attack duration has expired (backup in case animation doesn't complete)
     const attackTime = time - this.attackStartTime;
     if (attackTime > this.attackDuration) {
       this.endAttack();
@@ -313,7 +285,6 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
   }
 
   endAttack() {
-    console.log("Ending Wreacker attack"); // Debug log
     this.isAttacking = false;
     this.attackStartTime = 0;
   }
@@ -321,8 +292,8 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
   applyZombieAvoidance() {
     if (!this.scene.zombieGroup) return;
 
-    const avoidanceRadius = 30; // Medium avoidance radius
-    const avoidanceForce = 18; // Medium avoidance force
+    const avoidanceRadius = 30;
+    const avoidanceForce = 18;
     let totalAvoidanceX = 0;
     let totalAvoidanceY = 0;
     let nearbyZombies = 0;
@@ -353,7 +324,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
     });
 
     if (nearbyZombies > 0) {
-      this.body.velocity.x += totalAvoidanceX * 0.1; // Standard avoidance effect
+      this.body.velocity.x += totalAvoidanceX * 0.1;
       this.body.velocity.y += totalAvoidanceY * 0.1;
     }
   }
@@ -374,27 +345,25 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
 
   updateAnimation() {
     if (this.isAttacking) {
-      // During attack, ensure attack animation is playing
-      if (!this.anims.isPlaying || this.anims.currentAnim.key !== "WreackerAttack") {
-        console.log("Force playing attack animation"); // Debug log
+      if (
+        !this.anims.isPlaying ||
+        this.anims.currentAnim.key !== "WreackerAttack"
+      ) {
         this.play("WreackerAttack", true);
       }
     } else if (this.isMoving) {
-      // Use run animation when moving
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "WreackerRun"
       ) {
         this.play("WreackerRun");
       }
-      // Handle flipping for direction (don't flip during attack)
       if (this.lastDirection === "right") {
         this.setFlipX(false);
       } else if (this.lastDirection === "left") {
         this.setFlipX(true);
       }
     } else {
-      // Use idle animation when not moving
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "Wreacker Idle"
@@ -403,10 +372,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       }
     }
   }
-
-  // Remove the old attackPlayer method as it's replaced by startAttack
   attackPlayer(player) {
-    // This method is deprecated - use startAttack instead
     this.startAttack(player);
   }
 
@@ -422,8 +388,6 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
         this.clearTint();
       }
     });
-
-    // Interrupt attack if damaged
     if (this.isAttacking) {
       this.endAttack();
     }
@@ -447,13 +411,9 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
       this.scene.zombieGroup.remove(this);
     }
     this.stop();
-    this.play("WreackerDeath", false); // false ensures it doesn't repeat
-    
-    // Listen for animation complete event (only once)
-    this.once('animationcomplete', (animation) => {
-      // Make sure it's the death animation that completed
+    this.play("WreackerDeath", false);
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "WreackerDeath") {
-        // Immediately remove the mob after death animation
         this.cleanupAndDestroy();
       }
     });
@@ -469,7 +429,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
   spawnRewards() {
     try {
       if (this.scene.spawnExperienceOrb) {
-        const orbCount = Phaser.Math.Between(2, 4); // Medium rewards
+        const orbCount = Phaser.Math.Between(2, 4);
 
         for (let i = 0; i < orbCount; i++) {
           const xOffset = Phaser.Math.Between(-12, 12);
@@ -478,7 +438,7 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
           this.scene.spawnExperienceOrb(
             this.x + xOffset,
             this.y + yOffset,
-            1.5 // Medium experience value
+            1.5
           );
         }
       }
@@ -501,7 +461,6 @@ export default class Wreacker extends Phaser.GameObjects.Sprite {
   }
 
   destroy(fromScene) {
-    // Clean up shadow
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

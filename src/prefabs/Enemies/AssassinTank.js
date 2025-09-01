@@ -25,7 +25,6 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
     this.isMoving = false;
     this.isAttacking = false;
     this.lastDirection = "down";
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -98,10 +97,13 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
     if (!this.scene.anims.exists("assassinTankAttack1")) {
       this.scene.anims.create({
         key: "assassinTankAttack1",
-        frames: this.scene.anims.generateFrameNumbers("assets/Hero/zombie 2/attack.png", {
-          start: 0,
-          end: 8,
-        }),
+        frames: this.scene.anims.generateFrameNumbers(
+          "assets/Hero/zombie 2/attack.png",
+          {
+            start: 0,
+            end: 8,
+          }
+        ),
         frameRate: 8,
         repeat: 0,
       });
@@ -221,7 +223,10 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
         );
         this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
+        if (
+          time - this.lastAttackTime > this.attackCooldown &&
+          !this.isAttacking
+        ) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -289,7 +294,7 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-        if (this.isAttacking) {
+    if (this.isAttacking) {
       if (
         !this.anims.isPlaying ||
         this.anims.currentAnim.key !== "assassinTankAttack1"
@@ -320,17 +325,17 @@ export default class AssassinTank extends Phaser.GameObjects.Sprite {
 
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
-        this.isAttacking = true;
+    this.isAttacking = true;
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
 
     this.play("assassinTankAttack1");
-    this.once('animationcomplete', (animation) => {
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "assassinTankAttack1") {
         this.isAttacking = false;
       }
     });
-     this.scene.time.delayedCall(200, () => {
+    this.scene.time.delayedCall(200, () => {
       if (player && player.takeDamage) {
         player.takeDamage(this.damage);
       }

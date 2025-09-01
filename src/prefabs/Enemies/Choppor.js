@@ -16,16 +16,15 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     this.maxHealth = 60;
     this.health = this.maxHealth;
     this.damage = 20;
-    this.speed = 45; 
-    this.attackRange = 35; 
-    this.attackCooldown = 1000; 
+    this.speed = 45;
+    this.attackRange = 35;
+    this.attackCooldown = 1000;
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
-    this.isAttacking = false; // Add attack state
-    this.attackStep = 0; // Track attack step (0 = not attacking, 1 = first step, 2 = second step)
+    this.isAttacking = false;
+    this.attackStep = 0;
     this.lastDirection = "down";
-    // this.createHealthBar();
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -76,7 +75,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
       zombie1.body.velocity.y -= pushY;
 
       if (warrior) {
-        warrior.body.velocity.x -= pushX * 0.6; 
+        warrior.body.velocity.x -= pushX * 0.6;
         warrior.body.velocity.y -= pushY * 0.6;
       }
     }
@@ -106,8 +105,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
-
-    // Original single attack animation (kept as fallback)
     if (
       this.scene.textures.exists("WarriorAttack") &&
       !this.scene.anims.exists("Warrior Attack")
@@ -119,11 +116,10 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
           end: 5,
         }),
         frameRate: 10,
-        repeat: 0, 
+        repeat: 0,
       });
     }
 
-    // First step of spin attack - quick startup
     if (
       this.scene.textures.exists("WarriorSpinStart") &&
       !this.scene.anims.exists("WarriorSpinStart")
@@ -132,14 +128,12 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         key: "WarriorSpinStart",
         frames: this.scene.anims.generateFrameNumbers("WarriorSpinStart", {
           start: 0,
-          end: 5, // Adjust based on your sprite sheet
+          end: 5,
         }),
-        frameRate: 12, // Fast startup
+        frameRate: 12,
         repeat: 0,
       });
     }
-
-    // Second step of spin attack - 2 second spinning
     if (
       this.scene.textures.exists("WarriorSpin2") &&
       !this.scene.anims.exists("WarriorSpin2")
@@ -148,9 +142,9 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         key: "WarriorSpin2",
         frames: this.scene.anims.generateFrameNumbers("WarriorSpin2", {
           start: 0,
-          end: 7, // Adjust based on your sprite sheet
+          end: 7,
         }),
-        frameRate: 4, // Slower frame rate for 2-second duration (8 frames / 4 fps = 2 seconds)
+        frameRate: 4,
         repeat: 0,
       });
     }
@@ -231,7 +225,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         const forceY = Math.sin(angle) * this.speed * 0.11;
         this.body.velocity.x += forceX;
         this.body.velocity.y += forceY;
-        this.body.velocity.x *= 0.87; 
+        this.body.velocity.x *= 0.87;
         this.body.velocity.y *= 0.87;
         this.applyZombieAvoidance();
 
@@ -257,7 +251,10 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         );
         this.isMoving = currentSpeed > 5 && !this.isAttacking;
 
-        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
+        if (
+          time - this.lastAttackTime > this.attackCooldown &&
+          !this.isAttacking
+        ) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
@@ -273,7 +270,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   applyZombieAvoidance() {
     if (!this.scene.zombieGroup) return;
 
-    const avoidanceRadius = 32; 
+    const avoidanceRadius = 32;
     const avoidanceForce = 19;
     let totalAvoidanceX = 0;
     let totalAvoidanceY = 0;
@@ -326,7 +323,6 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
 
   updateAnimation() {
     if (this.isAttacking) {
-      // Don't change animation while attacking
       return;
     } else if (this.isMoving) {
       if (
@@ -352,7 +348,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
 
   attackPlayer(player) {
     if (!player || !player.takeDamage) return;
-    
+
     this.isAttacking = true;
     this.attackStep = 1;
     this.body.velocity.x = 0;
@@ -363,12 +359,8 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     const hasSpin2 = this.scene.anims.exists("WarriorSpin2");
 
     if (hasSpinStart && hasSpin2) {
-      // Start the 2-step spin attack
-      console.log("Starting spin attack sequence");
       this.startSpinAttack(player);
     } else if (this.scene.anims.exists("Warrior Attack")) {
-      // Fallback to single attack animation
-      console.log("Using fallback attack animation");
       this.play("Warrior Attack");
       this.scene.time.delayedCall(300, () => {
         if (player && player.takeDamage && !this.isDead) {
@@ -378,14 +370,10 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
         this.attackStep = 0;
       });
     } else {
-      // No animations available, direct damage
-      console.log("No attack animations found, applying immediate damage");
       player.takeDamage(this.damage);
       this.isAttacking = false;
       this.attackStep = 0;
     }
-
-    // Visual feedback
     this.setTint(0xffaa00);
     this.scene.time.delayedCall(180, () => {
       if (this.active) {
@@ -397,12 +385,10 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   }
 
   startSpinAttack(player) {
-    // Step 1: Play spin start animation
     this.play("WarriorSpinStart");
-    
-    this.once('animationcomplete', (animation) => {
+
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "WarriorSpinStart" && this.attackStep === 1) {
-        // Move to step 2: Play the 2-second spin
         this.attackStep = 2;
         this.continueSpinAttack(player);
       }
@@ -410,27 +396,31 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   }
 
   continueSpinAttack(player) {
-    // Step 2: Play the 2-second spinning animation
-    console.log("Starting 2-second spin animation");
     this.play("WarriorSpin2");
-    
-    // Apply damage during the spin (multiple hits can be added here)
     this.scene.time.delayedCall(500, () => {
-      if (player && player.takeDamage && !this.isDead && this.attackStep === 2) {
-        player.takeDamage(this.damage * 0.6); // First hit
+      if (
+        player &&
+        player.takeDamage &&
+        !this.isDead &&
+        this.attackStep === 2
+      ) {
+        player.takeDamage(this.damage * 0.6);
       }
     });
 
     this.scene.time.delayedCall(1200, () => {
-      if (player && player.takeDamage && !this.isDead && this.attackStep === 2) {
-        player.takeDamage(this.damage * 0.6); // Second hit
+      if (
+        player &&
+        player.takeDamage &&
+        !this.isDead &&
+        this.attackStep === 2
+      ) {
+        player.takeDamage(this.damage * 0.6);
       }
     });
 
-    // End the attack when animation completes
-    this.once('animationcomplete', (animation) => {
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "WarriorSpin2" && this.attackStep === 2) {
-        console.log("Spin attack sequence completed");
         this.isAttacking = false;
         this.attackStep = 0;
       }
@@ -461,15 +451,15 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
     this.isDead = true;
     this.isAttacking = false;
     this.attackStep = 0;
-    
+
     this.stop();
-    this.play("WarriorDeath", false); 
-    this.once('animationcomplete', (animation) => {
+    this.play("WarriorDeath", false);
+    this.once("animationcomplete", (animation) => {
       if (animation.key === "WarriorDeath") {
         this.cleanupAndDestroy();
       }
-    })
-    
+    });
+
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
@@ -489,7 +479,7 @@ export default class Warrior extends Phaser.GameObjects.Sprite {
   spawnRewards() {
     try {
       if (this.scene.spawnExperienceOrb) {
-        const orbCount = Phaser.Math.Between(3, 5); 
+        const orbCount = Phaser.Math.Between(3, 5);
 
         for (let i = 0; i < orbCount; i++) {
           const xOffset = Phaser.Math.Between(-13, 13);
