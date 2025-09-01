@@ -22,6 +22,7 @@ export default class Preload extends Phaser.Scene {
 		this.load.audio('gameLoop', './assets/SFX/In game loop.wav');
 		this.load.audio('characterDying', './assets/SFX/SFX charachter dying .wav');
 		this.load.audio('menuSelection', './assets/SFX/SFX menu selecetion .wav');
+		this.load.audio('levelUp', './assets/SFX/SFX level up.wav');
 	}
 
 	/** @returns {void} */

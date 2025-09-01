@@ -247,6 +247,14 @@ export default class SkillUpgradeManager {
             this.pendingLevelUps++;
             return;
         }
+        
+        try {
+            const levelUpSound = this.scene.sound.add('levelUp', { volume: 0.6 });
+            levelUpSound.play();
+        } catch (error) {
+            console.error('Error playing level up sound:', error);
+        }
+        
         this.isActive = true;
         this.pauseGame();
         this.createSkillUI();
