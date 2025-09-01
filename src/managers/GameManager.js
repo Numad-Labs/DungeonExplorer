@@ -49,6 +49,7 @@ class UpgradeSystem {
     this.gameManager.gold -= cost;
     this.gameManager.passiveUpgrades[upgradeId] = { level: newLevel, value: newValue };
     
+    this.gameManager.updateUserDataGold();
     this.gameManager.saveGame();
     this.gameManager.emitStateUpdate();
     EventBus.emit('game-state-updated');
@@ -179,6 +180,22 @@ export default class GameManager {
     this.loadingBackendUpgrades = false;
     this.events = new Phaser.Events.EventEmitter();
     this.backendStatsManager = BackendStatsManager.getInstance();
+    this.loadActualPlayerGold();
+  }
+
+  loadActualPlayerGold() {
+    try {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        if (user?.data?.gold !== undefined) {
+          this.gold = user.data.gold;
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('GameManager: Error loading actual gold:', error);
+    }
   }
 
   initializeModules() {
@@ -301,8 +318,24 @@ export default class GameManager {
     
     this.gold += actualAmount;
     this.statsTracker.trackRunEvent('goldEarned', actualAmount);
+    this.updateUserDataGold();
     this.emitGoldUpdate(actualAmount);
     this.updateUI();
+  }
+
+  updateUserDataGold() {
+    try {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        if (user?.data) {
+          user.data.gold = this.gold;
+          localStorage.setItem('userData', JSON.stringify(user));
+        }
+      }
+    } catch (error) {
+      console.warn('GameManager: Error updating userData gold:', error);
+    }
   }
 
   addEnemyKill() { 

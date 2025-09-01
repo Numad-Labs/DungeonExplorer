@@ -6,7 +6,7 @@ const HPBar = ({ showGoldIcon = true }) => {
     const [playerStats, setPlayerStats] = useState({
         currentHP: 100,
         maxHP: 100,
-        gold: 500,
+        gold: 0,
         kills: 0
     });
     const [isVisible, setIsVisible] = useState(true);
@@ -14,6 +14,8 @@ const HPBar = ({ showGoldIcon = true }) => {
     const isGameActiveRef = useRef(false);
 
     useEffect(() => {
+        let hasLoadedInitialGold = false;
+        
         const handleHealthUpdate = (healthData) => {
             console.log('HPBar: Health update received:', healthData);
             
@@ -118,6 +120,45 @@ const HPBar = ({ showGoldIcon = true }) => {
         if (initialData && initialData.player) {
             handleBridgeData(initialData.player);
         }
+        
+        const loadRealPlayerGold = () => {
+            try {
+                if (hasLoadedInitialGold) {
+                    return;
+                }
+                
+                const userData = localStorage.getItem('userData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    if (user?.data?.gold !== undefined) {
+                        setPlayerStats(prevStats => ({
+                            ...prevStats,
+                            gold: user.data.gold
+                        }));
+                        
+                        const gameManager = window.gameManager || window.game?.registry?.get('gameManager');
+                        if (gameManager && gameManager.gold < user.data.gold) {
+                            gameManager.gold = user.data.gold;
+                        }
+                        
+                        hasLoadedInitialGold = true;
+                        return;
+                    }
+                }
+                
+                if (window.userAuth?.user?.data?.gold !== undefined) {
+                    const realGold = window.userAuth.user.data.gold;
+                    setPlayerStats(prevStats => ({ ...prevStats, gold: realGold }));
+                    hasLoadedInitialGold = true;
+                }
+            } catch (error) {
+                console.warn('HPBar: Error loading real player gold:', error);
+            }
+        };
+        
+        loadRealPlayerGold();
+        setTimeout(loadRealPlayerGold, 500);
+        setTimeout(loadRealPlayerGold, 1500);
         
         const fallbackTimer = setTimeout(() => {
             console.log('HPBar: Fallback timer - ensuring HP bar is visible');

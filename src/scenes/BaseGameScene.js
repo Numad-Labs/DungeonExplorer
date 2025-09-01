@@ -97,6 +97,7 @@ export default class BaseGameScene extends Phaser.Scene {
     this.gameManager = this.game.registry.get("gameManager") || new GameManager();
     this.game.registry.set("gameManager", this.gameManager);
     this.gameManager.setCurrentScene(this);
+    window.gameManager = this.gameManager;
 
     // Initialize game state
     this.gameStartTime = Date.now();

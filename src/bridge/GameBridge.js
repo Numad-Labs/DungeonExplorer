@@ -158,12 +158,11 @@ class GameBridge {
       maxExperience: 100,
       level: 1,
       experiencePercentage: 0,
-      gold: 500,
+      gold: 0,
       isAlive: true,
       isInGame: false,
     };
 
-    // Priority order: Player object -> GameManager -> Scene -> defaults
     const player =
       this.player ||
       this.currentScene?.player ||
@@ -195,6 +194,18 @@ class GameBridge {
       data.gold =
         this.gameManager.gold !== undefined ? this.gameManager.gold : data.gold;
       data.isInGame = this.gameManager.isGameRunning || false;
+    } else {
+      try {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const user = JSON.parse(userData);
+          if (user?.data?.gold !== undefined) {
+            data.gold = user.data.gold;
+          }
+        }
+      } catch (error) {
+        console.warn('GameBridge: Error getting gold from localStorage:', error);
+      }
     }
 
     // Calculate percentages safely

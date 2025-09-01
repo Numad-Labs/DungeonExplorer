@@ -169,6 +169,12 @@ const Dashboard = () => {
     };
   }, [queryClient]);
 
+  useEffect(() => {
+    if (userData?.data) {
+      localStorage.setItem('userData', JSON.stringify(userData));
+    }
+  }, [userData]);
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading user data</div>;
 
