@@ -91,9 +91,9 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
       });
     }
 
-    if (!this.scene.anims.exists("zombieDeath")) {
+    if (!this.scene.anims.exists("zombieDeath1")) {
       this.scene.anims.create({
-        key: "zombieDeath",
+        key: "zombieDeath1",
         frames: this.scene.anims.generateFrameNumbers("death_1", {
           start: 0,
           end: 4,
@@ -374,9 +374,9 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
 
     this.spawnRewards();
     this.stop();
-    this.play("zombieDeath", false);
+    this.play("zombieDeath1", false);
     this.once("animationcomplete", (animation) => {
-      if (animation.key === "zombieDeath") {
+      if (animation.key === "zombieDeath1") {
         this.cleanupAndDestroy();
       }
     });

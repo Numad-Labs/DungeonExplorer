@@ -64,7 +64,7 @@ const MOB_CONFIGS = {
     expValue: 2,
     goldValue: 2,
     spawnWeight: 15,
-    unlockTime: 120000,
+    unlockTime: 90000,
     expDropChance: 0.8,
     goldDropChance: 0.4,
   },
@@ -205,42 +205,28 @@ export default class MobManager {
     this.scene = scene;
     this.gameManager = null;
     this.player = null;
-
-    // Core tracking
     this.mobGroup = null;
     this.activeMobs = new Map();
-
-    // Spawn settings
     this.spawnTimer = null;
     this.waveTimer = null;
     this.maxMobs = 100;
     this.spawnDelay = 2000;
-
-    // Wave system
     this.currentWave = 0;
     this.waveActive = false;
     this.waveMobs = [];
-
-    // Time-based mob unlocking
     this.gameStartTime = null;
     this.isGameStarted = false;
     this.notifiedUnlocks = new Set();
-
-    // Walking Area Management
     this.walkingAreaData = null;
     this.walkablePositions = [];
     this.tileSize = 32;
     this.mapWidth = 80;
     this.mapHeight = 80;
     this.isWalkingAreaInitialized = false;
-
-    // Teleportation settings
     this.teleportConfig = MOB_TELEPORT_CONFIG;
     this.lastTeleportCheck = 0;
     this.lastObstacleCheck = 0;
     this.enableObstacleTeleport = true;
-
-    // Statistics
     this.stats = {
       totalSpawned: 0,
       totalKilled: 0,
@@ -402,9 +388,7 @@ export default class MobManager {
     mob.mobType = type;
     mob.spawnTime = Date.now();
     mob.isWaveMob = this.waveActive;
-
     this.addSpecialAbilities(mob, type);
-
     const originalDie = mob.die?.bind(mob);
     mob.die = () => {
       this.handleMobDeath(mob);
