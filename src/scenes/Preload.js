@@ -19,10 +19,19 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		this.load.audio('gameLoop', './assets/SFX/In game loop.ogg');
-		this.load.audio('characterDying', './assets/SFX/SFX charachter dying .ogg');
-		this.load.audio('menuSelection', './assets/SFX/SFX menu selecetion .ogg');
-		this.load.audio('levelUp', './assets/SFX/SFX level up.ogg');
+		// Load audio with proper browser compatibility
+		this.load.audio('characterDying', [
+			'./assets/SFX/SFX character dying.wav'
+		]);
+		this.load.audio('menuSelection', [
+			'./assets/SFX/SFX menu selection.wav'
+		]);
+		this.load.audio('levelUp', [
+			'./assets/SFX/SFX level up.wav'
+		]);
+		this.load.audio('menuDenied', [
+			'./assets/SFX/SFX menu denied action .wav'
+		]);
 	}
 
 	/** @returns {void} */
@@ -80,11 +89,6 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	create() {
-		console.log("Assets loaded - Exp:", this.textures.exists('Exp'));
-		console.log("Assets loaded - Health_Potion_01:", this.textures.exists('Health_Potion_01'));
-		
-		console.log("Preload scene complete - waiting for manual game start");
-		
 		if (window.EventBus) {
 			window.EventBus.emit('preload-complete');
 		}
