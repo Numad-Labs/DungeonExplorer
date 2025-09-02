@@ -19,22 +19,26 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Load audio with proper browser compatibility
+		// Load audio with URL-encoded paths for spaces
 		this.load.audio('characterDying', [
-			'./assets/SFX/SFX character dying.ogg'
+			'./assets/SFX/SFX%20charachter%20dying%20.ogg'
 		]);
 		this.load.audio('menuSelection', [
-			'./assets/SFX/SFX menu selection.ogg'
+			'./assets/SFX/SFX%20menu%20selecetion%20.ogg'
 		]);
 		this.load.audio('levelUp', [
-			'./assets/SFX/SFX level up.ogg'
+			'./assets/SFX/SFX%20level%20up.ogg'
+		]);
+		// Add background music
+		this.load.audio('gameLoop', [
+			'./assets/SFX/In%20game%20loop.ogg'
 		]);
 		this.load.audio('menuDenied', [
-			'./assets/SFX/SFX menu denied action.ogg'
+			'./assets/SFX/SFX%20menu%20denied%20action%20.ogg'
 		]);
 		// Add alias for select_sound (same as menuSelection)
 		this.load.audio('select_sound', [
-			'./assets/SFX/SFX menu selection.ogg'
+			'./assets/SFX/SFX%20menu%20selecetion%20.ogg'
 		]);
 	}
 
@@ -97,6 +101,7 @@ export default class Preload extends Phaser.Scene {
 		console.log("Audio system:", this.sound.context ? 'WebAudio' : 'HTML5Audio');
 		console.log("Audio loaded - characterDying:", this.cache.audio.exists('characterDying'));
 		console.log("Audio loaded - levelUp:", this.cache.audio.exists('levelUp'));
+		console.log("Audio loaded - gameLoop:", this.cache.audio.exists('gameLoop'));
 		console.log("Audio loaded - menuSelection:", this.cache.audio.exists('menuSelection'));
 		console.log("Audio loaded - menuDenied:", this.cache.audio.exists('menuDenied'));
 		console.log("Audio loaded - select_sound:", this.cache.audio.exists('select_sound'));
