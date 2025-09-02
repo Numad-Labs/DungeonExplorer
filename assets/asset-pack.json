@@ -21,27 +21,27 @@
     "audio": {
         "files": [
             {
-                "url": "assets/SFX/In game loop.wav",
+                "url": "assets/SFX/In game loop.ogg",
                 "key": "gameLoop",
                 "type": "audio"
             },
             {
-                "url": "assets/SFX/SFX charachter dying .wav",
+                "url": "assets/SFX/SFX charachter dying .ogg",
                 "key": "characterDying",
                 "type": "audio"
             },
             {
-                "url": "assets/SFX/SFX level up.wav",
+                "url": "assets/SFX/SFX level up.ogg",
                 "key": "levelUp",
                 "type": "audio"
             },
             {
-                "url": "assets/SFX/SFX menu denied action .wav",
+                "url": "assets/SFX/SFX menu denied action .ogg",
                 "key": "menuDenied",
                 "type": "audio"
             },
             {
-                "url": "assets/SFX/SFX menu selecetion .wav",
+                "url": "assets/SFX/SFX menu selecetion .ogg",
                 "key": "menuSelection",
                 "type": "audio"
             }
