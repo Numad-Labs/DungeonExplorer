@@ -10,20 +10,12 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
     // Ensure texture has a default value and exists in the scene
     const defaultTexture = "zombierun";
     const finalTexture = texture || defaultTexture;
-
+    
     // Check if the texture exists before creating the sprite
     if (!scene.textures.exists(finalTexture)) {
-      console.error(
-        `Texture '${finalTexture}' does not exist. Make sure to load it in preload().`
-      );
+      console.error(`Texture '${finalTexture}' does not exist. Make sure to load it in preload().`);
       // Fallback to a basic texture or create a placeholder
-      super(
-        scene,
-        x ?? 32,
-        y ?? 32,
-        scene.textures.exists("__DEFAULT") ? "__DEFAULT" : null,
-        0
-      );
+      super(scene, x ?? 32, y ?? 32, scene.textures.exists('__DEFAULT') ? '__DEFAULT' : null, 0);
     } else {
       super(scene, x ?? 32, y ?? 32, finalTexture, frame ?? 0);
     }
@@ -104,25 +96,7 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
   }
 
   createAnimations() {
-    // Check if textures exist before creating animations
-    const textureChecks = [
-      { key: "zombierun", animKey: "zombieRunAni" },
-      { key: "death_1", animKey: "zombieDeath1" },
-      { key: "zombieAttack", animKey: "zombieAttack" },
-    ];
-
-    textureChecks.forEach(({ key, animKey }) => {
-      if (!this.scene.textures.exists(key)) {
-        console.warn(
-          `Texture '${key}' not found. Animation '${animKey}' will not be created.`
-        );
-      }
-    });
-
-    if (
-      !this.scene.anims.exists("zombieRunAni") &&
-      this.scene.textures.exists("zombierun")
-    ) {
+    if (!this.scene.anims.exists("zombieRunAni")) {
       this.scene.anims.create({
         key: "zombieRunAni",
         frames: this.scene.anims.generateFrameNumbers("zombierun", {
@@ -134,40 +108,7 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
       });
     }
 
-    if (
-      !this.scene.anims.exists("zombieDeath1") &&
-      this.scene.textures.exists("death_1")
-    ) {
-      this.scene.anims.create({
-        key: "zombieDeath1",
-        frames: this.scene.anims.generateFrameNumbers("death_1", {
-          start: 0,
-          end: 4,
-        }),
-        frameRate: 6,
-        repeat: 0,
-      });
-    }
-
-    if (
-      !this.scene.anims.exists("zombieAttack") &&
-      this.scene.textures.exists("zombieAttack")
-    ) {
-      this.scene.anims.create({
-        key: "zombieAttack",
-        frames: this.scene.anims.generateFrameNumbers("zombieAttack", {
-          start: 0,
-          end: 3,
-        }),
-        frameRate: 8,
-        repeat: 0,
-      });
-    }
-
-    if (
-      !this.scene.anims.exists("zombieIdle") &&
-      this.scene.textures.exists("zombierun")
-    ) {
+    if (!this.scene.anims.exists("zombieIdle")) {
       this.scene.anims.create({
         key: "zombieIdle",
         frames: [{ key: "zombierun", frame: 0 }],
@@ -344,23 +285,9 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
-    if (this.isAttacking) {
-      if (
-        !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "zombieAttack"
-      ) {
-        if (this.scene.anims.exists("zombieAttack")) {
-          this.play("zombieAttack");
-        }
-      }
-    } else if (this.isMoving) {
-      if (
-        !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "zombieRunAni"
-      ) {
-        if (this.scene.anims.exists("zombieRunAni")) {
-          this.play("zombieRunAni");
-        }
+    if (this.isMoving) {
+      if (!this.anims.isPlaying || this.anims.currentAnim.key !== "zombieRunAni") {
+        this.play("zombieRunAni");
       }
       if (this.lastDirection === "right") {
         this.setFlipX(false);
@@ -368,13 +295,8 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         this.setFlipX(true);
       }
     } else {
-      if (
-        !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "zombieIdle"
-      ) {
-        if (this.scene.anims.exists("zombieIdle")) {
-          this.play("zombieIdle");
-        }
+      if (!this.anims.isPlaying || this.anims.currentAnim.key !== "zombieIdle") {
+        this.play("zombieIdle");
       }
     }
   }
@@ -384,27 +306,17 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
     this.isAttacking = true;
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
-
-    if (this.scene.anims.exists("zombieAttack")) {
-      this.play("zombieAttack");
-      this.once("animationcomplete", (animation) => {
-        if (animation.key === "zombieAttack") {
-          this.isAttacking = false;
-        }
-      });
-    } else {
-      // If animation doesn't exist, just set attacking to false after a delay
-      this.scene.time.delayedCall(500, () => {
-        this.isAttacking = false;
-      });
-    }
-
+    
+    this.scene.time.delayedCall(500, () => {
+      this.isAttacking = false;
+    });
+    
     this.scene.time.delayedCall(200, () => {
       if (player && player.takeDamage) {
         player.takeDamage(this.damage);
       }
     });
-
+    
     this.setTint(0xff0000);
     this.scene.time.delayedCall(150, () => {
       this.clearTint();
@@ -443,20 +355,16 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
 
     this.spawnRewards();
     this.stop();
-
-    if (this.scene.anims.exists("zombieDeath1")) {
-      this.play("zombieDeath1", false);
-      this.once("animationcomplete", (animation) => {
-        if (animation.key === "zombieDeath1") {
-          this.cleanupAndDestroy();
-        }
-      });
-    } else {
-      // If death animation doesn't exist, just destroy after a delay
-      this.scene.time.delayedCall(1000, () => {
+    
+    this.setTint(0xff0000);
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 0,
+      duration: 500,
+      onComplete: () => {
         this.cleanupAndDestroy();
-      });
-    }
+      }
+    });
 
     if (this.shadow) {
       this.shadow.destroy();
