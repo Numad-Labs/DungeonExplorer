@@ -18,39 +18,12 @@
             }
         ]
     },
-    "audio": {
-        "files": [
-            {
-                "url": "assets/SFX/In game loop.ogg",
-                "key": "gameLoop",
-                "type": "audio"
-            },
-            {
-                "url": "assets/SFX/SFX charachter dying .ogg",
-                "key": "characterDying",
-                "type": "audio"
-            },
-            {
-                "url": "assets/SFX/SFX level up.ogg",
-                "key": "levelUp",
-                "type": "audio"
-            },
-            {
-                "url": "assets/SFX/SFX menu denied action .ogg",
-                "key": "menuDenied",
-                "type": "audio"
-            },
-            {
-                "url": "assets/SFX/SFX menu selecetion .ogg",
-                "key": "menuSelection",
-                "type": "audio"
-            }
-        ]
-    },
     "meta": {
         "app": "Phaser Editor 2D - Asset Pack Editor",
         "contentType": "phasereditor2d.pack.core.AssetContentType",
         "url": "https://phasereditor2d.com",
-        "version": 2
+        "version": 2,
+        "showAllFilesInBlocks": false,
+        "visible": true
     }
 }

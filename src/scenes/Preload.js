@@ -19,27 +19,13 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Load audio with URL-encoded paths for spaces
-		this.load.audio('characterDying', [
-			'./assets/SFX/SFX%20charachter%20dying%20.ogg'
-		]);
-		this.load.audio('menuSelection', [
-			'./assets/SFX/SFX%20menu%20selecetion%20.ogg'
-		]);
-		this.load.audio('levelUp', [
-			'./assets/SFX/SFX%20level%20up.ogg'
-		]);
-		// Add background music
-		this.load.audio('gameLoop', [
-			'./assets/SFX/In%20game%20loop.ogg'
-		]);
-		this.load.audio('menuDenied', [
-			'./assets/SFX/SFX%20menu%20denied%20action%20.ogg'
-		]);
-		// Add alias for select_sound (same as menuSelection)
-		this.load.audio('select_sound', [
-			'./assets/SFX/SFX%20menu%20selecetion%20.ogg'
-		]);
+		// Load all audio files directly
+		this.load.audio('characterDying', './assets/SFX/SFX%20charachter%20dying%20.ogg');
+		this.load.audio('menuSelection', './assets/SFX/SFX%20menu%20selecetion%20.ogg');
+		this.load.audio('levelUp', './assets/SFX/SFX%20level%20up.ogg');
+		this.load.audio('gameLoop', './assets/SFX/In%20game%20loop.ogg');
+		this.load.audio('menuDenied', './assets/SFX/SFX%20menu%20denied%20action%20.ogg');
+		this.load.audio('select_sound', './assets/SFX/SFX%20menu%20selecetion%20.ogg');
 	}
 
 	/** @returns {void} */
@@ -105,6 +91,26 @@ export default class Preload extends Phaser.Scene {
 		console.log("Audio loaded - menuSelection:", this.cache.audio.exists('menuSelection'));
 		console.log("Audio loaded - menuDenied:", this.cache.audio.exists('menuDenied'));
 		console.log("Audio loaded - select_sound:", this.cache.audio.exists('select_sound'));
+		
+		// Add test function with audio context handling
+		window.testAudio = (key) => {
+			if (this.cache.audio.exists(key)) {
+				console.log(`Playing ${key}`);
+				
+				// Resume audio context if suspended
+				if (this.sound.context && this.sound.context.state === 'suspended') {
+					console.log('Resuming audio context...');
+					this.sound.context.resume().then(() => {
+						this.sound.play(key, { volume: 0.5 });
+					});
+				} else {
+					this.sound.play(key, { volume: 0.5 });
+				}
+			} else {
+				console.error(`${key} not found`);
+			}
+		};
+		console.log('Use window.testAudio("levelUp") to test sounds');
 		
 		if (window.EventBus) {
 			window.EventBus.emit('preload-complete');
