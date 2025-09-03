@@ -783,14 +783,11 @@ class GameBridge {
     };
   }
 
-  // Batch data tracking methods
   addMobKill(mobId) {
     if (!mobId) return;
     
     const currentCount = this.batchDataCache.mobKills.get(mobId) || 0;
     this.batchDataCache.mobKills.set(mobId, currentCount + 1);
-    
-    console.log(`GameBridge: Mob kill tracked - ${mobId}, count: ${currentCount + 1}`);
   }
 
   addSkillUsage(skillId) {
@@ -798,13 +795,10 @@ class GameBridge {
     
     const currentCount = this.batchDataCache.skillUsage.get(skillId) || 0;
     this.batchDataCache.skillUsage.set(skillId, currentCount + 1);
-    
-    console.log(`GameBridge: Skill usage tracked - ${skillId}, count: ${currentCount + 1}`);
   }
 
   addConsumableUsed() {
     this.batchDataCache.consumablesUsed += 1;
-    console.log(`GameBridge: Consumable used tracked, total: ${this.batchDataCache.consumablesUsed}`);
   }
 
   resetBatchData() {
@@ -812,7 +806,6 @@ class GameBridge {
     this.batchDataCache.skillUsage.clear();
     this.batchDataCache.consumablesUsed = 0;
     this.batchDataCache.sessionId = this.sessionId;
-    console.log('GameBridge: Batch data cache reset');
   }
 
   getBatchDataPayload() {

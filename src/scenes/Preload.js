@@ -20,6 +20,9 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
+		// Force HTML5 Audio mode for better compatibility with problematic files
+		this.sound.html5 = true;
+		
 		// Load audio files with MP3 and OGG fallbacks for better compatibility
 		try {
 			this.load.audio('characterDying', [

@@ -723,8 +723,6 @@ export default class MobManager {
             : `${timeInSeconds}s`;
         return `${timeFormatted} - ${type}`;
       });
-
-    sortedMobs.forEach((mobInfo) => console.log(mobInfo));
   }
 
   checkForNewMobUnlocks() {
