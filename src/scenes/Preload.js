@@ -20,13 +20,17 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Load all audio files with proper error handling and multiple formats
-		this.loadAudioSafely('characterDying', './assets/SFX/SFX charachter dying ');
-		this.loadAudioSafely('menuSelection', './assets/SFX/SFX menu selecetion ');
-		this.loadAudioSafely('levelUp', './assets/SFX/SFX level up');
-		this.loadAudioSafely('gameLoop', './assets/SFX/In game loop');
-		this.loadAudioSafely('menuDenied', './assets/SFX/SFX menu denied action ');
-		this.loadAudioSafely('select_sound', './assets/SFX/SFX menu selecetion ');
+		// Load audio files directly without helper function
+		try {
+			this.load.audio('characterDying', './assets/SFX/SFX charachter dying .ogg');
+			this.load.audio('menuSelection', './assets/SFX/SFX menu selecetion .ogg');
+			this.load.audio('levelUp', './assets/SFX/SFX level up.ogg');
+			this.load.audio('gameLoop', './assets/SFX/In game loop.ogg');
+			this.load.audio('menuDenied', './assets/SFX/SFX menu denied action .ogg');
+			this.load.audio('select_sound', './assets/SFX/SFX menu selecetion .ogg');
+		} catch (error) {
+			console.error('Error loading audio files:', error);
+		}
 		
 		// Add error handling for failed loads
 		this.load.on('fileerror', (file) => {
