@@ -20,38 +20,14 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Force HTML5 Audio mode for better compatibility with problematic files
-		this.sound.html5 = true;
-		
-		// Load audio files with MP3 and OGG fallbacks for better compatibility
-		try {
-			this.load.audio('characterDying', [
-				'./assets/SFX/SFX charachter dying .mp3',
-				'./assets/SFX/SFX charachter dying .ogg'
-			]);
-			this.load.audio('menuSelection', [
-				'./assets/SFX/SFX menu selecetion .mp3',
-				'./assets/SFX/SFX menu selecetion .ogg'
-			]);
-			this.load.audio('levelUp', [
-				'./assets/SFX/SFX level up.mp3',
-				'./assets/SFX/SFX level up.ogg'
-			]);
-			this.load.audio('gameLoop', [
-				'./assets/SFX/In game loop.mp3',
-				'./assets/SFX/In game loop.ogg'
-			]);
-			this.load.audio('menuDenied', [
-				'./assets/SFX/SFX menu denied action .mp3',
-				'./assets/SFX/SFX menu denied action .ogg'
-			]);
-			this.load.audio('select_sound', [
-				'./assets/SFX/SFX menu selecetion .mp3',
-				'./assets/SFX/SFX menu selecetion .ogg'
-			]);
-		} catch (error) {
-			console.error('Error loading audio files:', error);
-		}
+		// Load audio files as MP3 - universally supported
+		this.load.audio('characterDying', './assets/SFX/SFX charachter dying .mp3');
+		this.load.audio('menuSelection', './assets/SFX/SFX menu selecetion .mp3');
+		this.load.audio('levelUp', './assets/SFX/SFX level up.mp3');
+		this.load.audio('gameLoop', './assets/SFX/In game loop.mp3');
+		this.load.audio('menuDenied', './assets/SFX/SFX menu denied action .mp3');
+		this.load.audio('select_sound', './assets/SFX/SFX menu selecetion .mp3');
+	}
 		
 		// Add error handling for failed loads
 		this.load.on('fileerror', (file) => {

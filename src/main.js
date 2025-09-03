@@ -24,9 +24,6 @@ const config = {
   render: {
     pixelArt: true,
   },
-  audio: {
-    disableWebAudio: true  // Force HTML5 Audio to avoid decodeAudioData issues
-  },
   scale: {
     mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
