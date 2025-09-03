@@ -5,6 +5,7 @@ import PlayerAttack from "../prefabs/PlayerAttack";
 import PlayerLevel from "../prefabs/PlayerLevel";
 import { EventBus } from "../game/EventBus";
 import GameConfig from "../config/GameConfig.js";
+import AudioManager from "../audio/AudioManager.js";
 
 export default class BaseGameScene extends Phaser.Scene {
   constructor(sceneKey) {
@@ -17,6 +18,7 @@ export default class BaseGameScene extends Phaser.Scene {
     this.gameManager = null;
     this.gameplayManager = null;
     this.powerUpManager = null;
+    this.audioManager = null;
     
     // Player systems
     this.playerAttackSystem = null;
@@ -98,6 +100,15 @@ export default class BaseGameScene extends Phaser.Scene {
     this.game.registry.set("gameManager", this.gameManager);
     this.gameManager.setCurrentScene(this);
     window.gameManager = this.gameManager;
+    
+    // Initialize AudioManager if not already available
+    if (!window.audioManager && this.sound) {
+      this.audioManager = new AudioManager(this);
+      window.audioManager = this.audioManager;
+      console.log('AudioManager initialized in BaseGameScene');
+    } else if (window.audioManager) {
+      this.audioManager = window.audioManager;
+    }
 
     // Initialize game state
     this.gameStartTime = Date.now();
