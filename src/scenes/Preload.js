@@ -20,14 +20,32 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Load audio files directly without helper function
+		// Load audio files with MP3 and OGG fallbacks for better compatibility
 		try {
-			this.load.audio('characterDying', './assets/SFX/SFX charachter dying .ogg');
-			this.load.audio('menuSelection', './assets/SFX/SFX menu selecetion .ogg');
-			this.load.audio('levelUp', './assets/SFX/SFX level up.ogg');
-			this.load.audio('gameLoop', './assets/SFX/In game loop.ogg');
-			this.load.audio('menuDenied', './assets/SFX/SFX menu denied action .ogg');
-			this.load.audio('select_sound', './assets/SFX/SFX menu selecetion .ogg');
+			this.load.audio('characterDying', [
+				'./assets/SFX/SFX charachter dying .mp3',
+				'./assets/SFX/SFX charachter dying .ogg'
+			]);
+			this.load.audio('menuSelection', [
+				'./assets/SFX/SFX menu selecetion .mp3',
+				'./assets/SFX/SFX menu selecetion .ogg'
+			]);
+			this.load.audio('levelUp', [
+				'./assets/SFX/SFX level up.mp3',
+				'./assets/SFX/SFX level up.ogg'
+			]);
+			this.load.audio('gameLoop', [
+				'./assets/SFX/In game loop.mp3',
+				'./assets/SFX/In game loop.ogg'
+			]);
+			this.load.audio('menuDenied', [
+				'./assets/SFX/SFX menu denied action .mp3',
+				'./assets/SFX/SFX menu denied action .ogg'
+			]);
+			this.load.audio('select_sound', [
+				'./assets/SFX/SFX menu selecetion .mp3',
+				'./assets/SFX/SFX menu selecetion .ogg'
+			]);
 		} catch (error) {
 			console.error('Error loading audio files:', error);
 		}
