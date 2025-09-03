@@ -202,6 +202,19 @@
                 "key": "Archer Bandit-Death_84x32"
             },
             {
+                "url": "public/assets/Hero/assasin archer/Archer Bandit-Death_85x32.png",
+                "frameConfig": {
+                    "frameWidth": 85,
+                    "frameHeight": 112,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "Archer Bandit-Death_85x"
+            },
+            {
                 "url": "assets/Hero/assasin archer/Archer Bandit-Death_85x32.png",
                 "frameConfig": {
                     "frameWidth": 84,
@@ -252,6 +265,45 @@
                 },
                 "type": "spritesheet",
                 "key": "Archer Bandit-Run_85x32"
+            },
+            {
+                "url": "public/assets/Hero/assasin archer/AssassinArcher-Attack.png",
+                "frameConfig": {
+                    "frameWidth": 85,
+                    "frameHeight": 112,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AssassinArcher-Attack"
+            },
+            {
+                "url": "public/assets/Hero/assasin archer/AssassinArcher-Death.png",
+                "frameConfig": {
+                    "frameWidth": 85,
+                    "frameHeight": 112,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AssassinArcher-Death"
+            },
+            {
+                "url": "public/assets/Hero/assasin archer/AssassinArcher-Run.png",
+                "frameConfig": {
+                    "frameWidth": 85,
+                    "frameHeight": 112,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "AssassinArcher-Run"
             },
             {
                 "url": "assets/Hero/assasin tank/AssassinTank Death.png",
