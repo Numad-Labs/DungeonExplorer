@@ -27,7 +27,6 @@ export default class Preload extends Phaser.Scene {
 		this.load.audio('gameLoop', './assets/SFX/In game loop.mp3');
 		this.load.audio('menuDenied', './assets/SFX/SFX menu denied action .mp3');
 		this.load.audio('select_sound', './assets/SFX/SFX menu selecetion .mp3');
-	}
 		
 		// Add error handling for failed loads
 		this.load.on('fileerror', (file) => {
