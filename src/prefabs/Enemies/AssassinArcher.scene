@@ -1,5 +1,5 @@
 {
-    "id": "73355ff6-5b5b-4935-ab80-9aec723dd9a0",
+    "id": "1324f1f5-3cc5-496f-a252-25fc731ac1c4",
     "sceneType": "SCENE",
     "settings": {
         "exportClass": true,
@@ -7,23 +7,21 @@
         "preloadPackFiles": [],
         "createMethodName": "editorCreate",
         "sceneKey": "AssassinArcher",
-        "borderWidth": 2560,
-        "borderHeight": 2560
+        "borderWidth": 1280,
+        "borderHeight": 720
     },
     "displayList": [
         {
-            "type": "Sprite",
-            "id": "01a3a256-b921-44cd-857b-915e9b0a70a9",
-            "label": "assassinArcher_Run",
+            "type": "Image",
+            "id": "0ef0dd57-0741-43f1-b1b0-e37e37e9d9e9",
+            "label": "assassinArcher_Run0",
             "scope": "CLASS",
             "texture": {
-                "key": "Archer Bandit-Run_85x32",
+                "key": "AssassinArcher-Run",
                 "frame": 0
             },
-            "x": 496,
-            "y": 341,
-            "animationPlayMethod": 1,
-            "animationKey": "AssassinArcher Run"
+            "x": 506,
+            "y": 356
         }
     ],
     "plainObjects": [],

@@ -7,30 +7,26 @@
 
 export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, texture, frame) {
-    super(
-      scene,
-      x ?? 32,
-      y ?? 32,
-      texture || "Archer Bandit-Run_85x32",
-      frame ?? 0
-    );
+    super(scene, x ?? 32, y ?? 32, texture || "AssassinArcher-Run", frame ?? 0);
 
     /* START-USER-CTR-CODE */
     scene.physics.add.existing(this, false);
     this.body.setSize(16, 16, false);
     this.body.setOffset(14, 32);
 
-    this.maxHealth = 30;
+    this.maxHealth = 25;
     this.health = this.maxHealth;
-    this.damage = 10;
-    this.speed = 50;
-    this.attackRange = 5;
-    this.attackCooldown = 1000;
+    this.damage = 8;
+    this.speed = 35; // Slower than melee assassin
+    this.attackRange = 120; // Much longer range for archer
+    this.optimalRange = 80; // Preferred distance to maintain
+    this.attackCooldown = 1500; // Slightly slower attack rate
     this.lastAttackTime = 0;
     this.isDead = false;
     this.isMoving = false;
     this.isAttacking = false;
     this.lastDirection = "down";
+    this.arrowSpeed = 150;
     this.createAnimations();
     this.addToZombieGroup(scene);
     this.createShadow();
@@ -55,14 +51,14 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     scene.zombieGroup.add(this);
   }
 
-  handleZombieCollision(zombie1, zombie2, assassin) {
+  handleZombieCollision(zombie1, zombie2, archer) {
     const distance = Phaser.Math.Distance.Between(
       zombie1.x,
       zombie1.y,
       zombie2.x,
       zombie2.y,
-      assassin.x,
-      assassin.y
+      archer.x,
+      archer.y
     );
 
     if (distance < 20) {
@@ -71,8 +67,8 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
         zombie1.y,
         zombie2.x,
         zombie2.y,
-        assassin.x,
-        assassin.y
+        archer.x,
+        archer.y
       );
 
       const separationForce = 30;
@@ -83,54 +79,52 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
       zombie2.body.velocity.y += pushY;
       zombie1.body.velocity.x -= pushX;
       zombie1.body.velocity.y -= pushY;
-      assassin.body.velocity.y -= pushX;
-      assassin.body.velocity.y -= pushY;
+      archer.body.velocity.x -= pushX;
+      archer.body.velocity.y -= pushY;
     }
   }
 
   createAnimations() {
-    if (!this.scene.anims.exists("assassinArcherRun")) {
+    if (!this.scene.anims.exists("AssassinArcher Run")) {
       this.scene.anims.create({
-        key: "assassinArcherRun",
-        frames: this.scene.anims.generateFrameNumbers(
-          "Archer Bandit-Run_85x32",
-          { start: 0, end: 7 }
-        ),
+        key: "AssassinArcher Run",
+        frames: this.scene.anims.generateFrameNumbers("AssassinArcher-Run", {
+          start: 0,
+          end: 7,
+        }),
         frameRate: 8,
         repeat: -1,
       });
     }
-    if (!this.scene.anims.exists("Archer Bandit-Attack")) {
+    if (!this.scene.anims.exists("AssassinArcher Idle")) {
       this.scene.anims.create({
-        key: "Archer Bandit-Attack",
-        frames: this.scene.anims.generateFrameNumbers("Archer Bandit-Attack", {
-          start: 0,
-          end: 8,
-        }),
-        frameRate: 8,
-        repeat: 0,
-      });
-    }
-    if (!this.scene.anims.exists("AssasinArcher")) {
-      this.scene.anims.create({
-        key: "AssasinArcher",
-        frames: [{ key: "Archer Bandit-Run_85x32", frame: 0 }],
+        key: "AssassinArcher Idle",
+        frames: [{ key: "AssassinArcher-Run", frame: 0 }],
         frameRate: 1,
         repeat: 0,
       });
     }
-
-    if (!this.scene.anims.exists("Archer Bandit-Death")) {
+    if (!this.scene.anims.exists("AssassinArcher Death")) {
       this.scene.anims.create({
-        key: "Archer Bandit-Death",
-        frames: this.scene.anims.generateFrameNumbers(
-          "Archer Bandit-Death_85x32",
-          {
-            start: 0,
-            end: 10,
-          }
-        ),
+        key: "AssassinArcher Death",
+        frames: this.scene.anims.generateFrameNumbers("AssassinArcher-Death", {
+          start: 0,
+          end: 5,
+        }),
         frameRate: 6,
+        repeat: 0,
+        hideOnComplete: false,
+      });
+    }
+
+    if (!this.scene.anims.exists("AssassinArcher Attack")) {
+      this.scene.anims.create({
+        key: "AssassinArcher Attack",
+        frames: this.scene.anims.generateFrameNumbers("AssassinArcher-Attack", {
+          start: 0,
+          end: 8,
+        }),
+        frameRate: 10,
         repeat: 0,
       });
     }
@@ -148,7 +142,7 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     this.healthBarBg.setDepth(1);
 
     this.healthBarFg = this.scene.add.rectangle(
-      this.x + 55,
+      this.x - 15,
       this.y - 20,
       30,
       4,
@@ -172,7 +166,6 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     this.healthBarFg.setPosition(this.x - 25, this.y - 10);
 
     const healthPercentage = this.health / this.maxHealth;
-
     this.healthBarFg.width = 30 * healthPercentage;
   }
 
@@ -183,7 +176,6 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
       this.updateHealthBar();
 
       const player = this.scene.player;
-
       if (!player) return;
 
       const distance = Phaser.Math.Distance.Between(
@@ -193,64 +185,96 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
         player.y
       );
 
+      // Archer behavior: maintain optimal distance
       if (distance > this.attackRange) {
-        const angle = Phaser.Math.Angle.Between(
-          this.x,
-          this.y,
-          player.x,
-          player.y
-        );
-        const forceX = Math.cos(angle) * this.speed * 0.1;
-        const forceY = Math.sin(angle) * this.speed * 0.1;
-        this.body.velocity.x += forceX;
-        this.body.velocity.y += forceY;
-        this.body.velocity.x *= 0.9;
-        this.body.velocity.y *= 0.9;
-        this.applyZombieAvoidance();
-
-        const maxSpeed = this.speed;
-        const currentSpeed = Math.sqrt(
-          this.body.velocity.x * this.body.velocity.x +
-            this.body.velocity.y * this.body.velocity.y
-        );
-
-        if (currentSpeed > maxSpeed) {
-          const scale = maxSpeed / currentSpeed;
-          this.body.velocity.x *= scale;
-          this.body.velocity.y *= scale;
-        }
-        this.isMoving = true;
-        this.updateDirection(angle);
-      } else {
+        // Too far - move closer
+        this.moveTowardsPlayer(player);
+      } else if (distance < this.optimalRange * 0.7) {
+        // Too close - back away while facing player
+        this.moveAwayFromPlayer(player);
+      } else if (distance <= this.attackRange) {
+        // In range - stop and attack
         this.body.velocity.x *= 0.8;
         this.body.velocity.y *= 0.8;
-        const currentSpeed = Math.sqrt(
-          this.body.velocity.x * this.body.velocity.x +
-            this.body.velocity.y * this.body.velocity.y
-        );
-        this.isMoving = currentSpeed > 5 && !this.isAttacking;
-
-        if (
-          time - this.lastAttackTime > this.attackCooldown &&
-          !this.isAttacking
-        ) {
+        
+        if (time - this.lastAttackTime > this.attackCooldown && !this.isAttacking) {
           this.attackPlayer(player);
           this.lastAttackTime = time;
         }
       }
 
+      // Check if moving
+      const currentSpeed = Math.sqrt(
+        this.body.velocity.x * this.body.velocity.x +
+        this.body.velocity.y * this.body.velocity.y
+      );
+      this.isMoving = currentSpeed > 5 && !this.isAttacking;
+
+      // Always face the player when in combat range
+      if (distance <= this.attackRange) {
+        const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+        this.updateDirection(angle);
+      }
+
       this.updateAnimation();
       this.updateShadowPosition();
     } catch (error) {
-      console.error("Error in AssasinArcher update:", error);
+      console.error("Error in AssassinArcher update:", error);
+    }
+  }
+
+  moveTowardsPlayer(player) {
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+    const forceX = Math.cos(angle) * this.speed * 0.1;
+    const forceY = Math.sin(angle) * this.speed * 0.1;
+    
+    this.body.velocity.x += forceX;
+    this.body.velocity.y += forceY;
+    this.body.velocity.x *= 0.9;
+    this.body.velocity.y *= 0.9;
+    
+    this.applyZombieAvoidance();
+    this.limitSpeed();
+    this.updateDirection(angle);
+  }
+
+  moveAwayFromPlayer(player) {
+    const angle = Phaser.Math.Angle.Between(player.x, player.y, this.x, this.y);
+    const forceX = Math.cos(angle) * this.speed * 0.08;
+    const forceY = Math.sin(angle) * this.speed * 0.08;
+    
+    this.body.velocity.x += forceX;
+    this.body.velocity.y += forceY;
+    this.body.velocity.x *= 0.9;
+    this.body.velocity.y *= 0.9;
+    
+    this.applyZombieAvoidance();
+    this.limitSpeed();
+    
+    // Still face the player while backing away
+    const faceAngle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+    this.updateDirection(faceAngle);
+  }
+
+  limitSpeed() {
+    const maxSpeed = this.speed;
+    const currentSpeed = Math.sqrt(
+      this.body.velocity.x * this.body.velocity.x +
+      this.body.velocity.y * this.body.velocity.y
+    );
+
+    if (currentSpeed > maxSpeed) {
+      const scale = maxSpeed / currentSpeed;
+      this.body.velocity.x *= scale;
+      this.body.velocity.y *= scale;
     }
   }
 
   applyZombieAvoidance() {
     if (!this.scene.zombieGroup) return;
 
-    const avoidanceRadius = 25;
-    const avoidanceForce = 15;
+    const avoidanceRadius = 30;
+    const avoidanceForce = 20;
     let totalAvoidanceX = 0;
     let totalAvoidanceY = 0;
     let nearbyZombies = 0;
@@ -304,16 +328,16 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     if (this.isAttacking) {
       if (
         !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "Archer Bandit-Attack"
+        this.anims.currentAnim.key !== "AssassinArcher Attack"
       ) {
-        this.play("Archer Bandit-Attack");
+        this.play("AssassinArcher Attack");
       }
     } else if (this.isMoving) {
       if (
         !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "assassinArcherRun"
+        this.anims.currentAnim.key !== "AssassinArcher Run"
       ) {
-        this.play("assassinArcherRun");
+        this.play("AssassinArcher Run");
       }
       if (this.lastDirection === "right") {
         this.setFlipX(false);
@@ -321,40 +345,63 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
         this.setFlipX(true);
       }
     } else {
-      if (
-        !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "AssasinArcher"
-      ) {
-        this.play("AssasinArcher");
+      if (!this.anims.isPlaying || this.anims.currentAnim.key !== "AssassinArcher Idle") {
+        this.play("AssassinArcher Idle");
+      }
+      // Still apply direction when idle
+      if (this.lastDirection === "right") {
+        this.setFlipX(false);
+      } else if (this.lastDirection === "left") {
+        this.setFlipX(true);
       }
     }
   }
 
   attackPlayer(player) {
-    if (!player || !player.takeDamage) return;
+    if (!player) return;
 
     this.isAttacking = true;
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
 
-    this.play("Archer Bandit-Attack");
+    this.play("AssassinArcher Attack");
     this.once("animationcomplete", (animation) => {
-      if (animation.key === "Archer Bandit-Attack") {
+      if (animation.key === "AssassinArcher Attack") {
         this.isAttacking = false;
       }
     });
-    this.scene.time.delayedCall(200, () => {
-      if (player && player.takeDamage) {
-        player.takeDamage(this.damage);
-      }
-    });
 
-    this.setTint(0xff0000);
+    this.setTint(0xffaa00); // Orange tint for archer
     this.scene.time.delayedCall(150, () => {
       this.clearTint();
     });
 
     this.lastAttackTime = this.scene.time.now;
+  }
+
+  shootArrow(player) {
+    if (!player || this.isDead) return;
+
+    // Arrow collision with walls/obstacles (if you have them)
+    if (this.scene.wallsGroup) {
+      const arrowWallCollider = this.scene.physics.add.collider(
+        arrow,
+        this.scene.wallsGroup,
+        (arrow) => {
+          arrow.destroy();
+          arrowWallCollider.destroy();
+        },
+        null,
+        this.scene
+      );
+    }
+
+    // Remove arrow after 3 seconds if it doesn't hit anything
+    this.scene.time.delayedCall(3000, () => {
+      if (arrow && arrow.active) {
+        arrow.destroy();
+      }
+    });
   }
 
   takeDamage(amount) {
@@ -375,7 +422,6 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     if (this.isDead) return;
 
     this.isDead = true;
-
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
@@ -383,30 +429,30 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
+    
+    this.spawnRewards();
     this.stop();
-    this.play("Archer Bandit-Death", false);
+    this.play("AssassinArcher Death", false);
     this.once("animationcomplete", (animation) => {
-      if (animation.key === "Archer Bandit-Death") {
+      if (animation.key === "AssassinArcher Death") {
         this.cleanupAndDestroy();
       }
     });
-
+    
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;
     }
-
-    this.spawnRewards();
   }
 
   spawnRewards() {
     try {
       if (this.scene.spawnExperienceOrb) {
-        const orbCount = Phaser.Math.Between(1, 3);
+        const orbCount = Phaser.Math.Between(2, 4); // Slightly more XP for archer
 
         for (let i = 0; i < orbCount; i++) {
-          const xOffset = Phaser.Math.Between(-10, 10);
-          const yOffset = Phaser.Math.Between(-10, 10);
+          const xOffset = Phaser.Math.Between(-15, 15);
+          const yOffset = Phaser.Math.Between(-15, 15);
 
           this.scene.spawnExperienceOrb(this.x + xOffset, this.y + yOffset, 1);
         }
@@ -457,16 +503,16 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   createShadow() {
     this.shadow = this.scene.add.graphics();
     this.shadow.setDepth(0);
-    this.shadow.fillStyle(0x000000, 0);
-    this.shadow.fillEllipse(0, 42, 26, 13);
+    this.shadow.fillStyle(0x000000, 0.2);
+    this.shadow.fillEllipse(0, 14, 26, 13);
     this.updateShadowPosition();
   }
 
   updateShadowPosition() {
     if (this.shadow && !this.isDead) {
-      this.shadow.setPosition(this.x, this.y + 16);
+      this.shadow.setPosition(this.x, this.y + 44);
       const baseScale = 1.0;
-      const moveScale = this.isMoving ? 0.9 : 1.0;
+      const moveScale = this.isMoving ? 0.7 : 1.0;
       this.shadow.setScale(baseScale * moveScale);
     }
   }
