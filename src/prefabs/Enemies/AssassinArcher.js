@@ -89,9 +89,9 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
   }
 
   createAnimations() {
-    if (!this.scene.anims.exists("AssassinArcher run")) {
+    if (!this.scene.anims.exists("assassinArcherRun")) {
       this.scene.anims.create({
-        key: "AssassinArcher run",
+        key: "assassinArcherRun",
         frames: this.scene.anims.generateFrameNumbers(
           "Archer Bandit-Run_85x32",
           { start: 0, end: 7 }
@@ -311,9 +311,9 @@ export default class AssassinArcher extends Phaser.GameObjects.Sprite {
     } else if (this.isMoving) {
       if (
         !this.anims.isPlaying ||
-        this.anims.currentAnim.key !== "AssassinArcher run"
+        this.anims.currentAnim.key !== "assassinArcherRun"
       ) {
-        this.play("AssassinArcher run");
+        this.play("assassinArcherRun");
       }
       if (this.lastDirection === "right") {
         this.setFlipX(false);
