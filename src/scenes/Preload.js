@@ -20,13 +20,13 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Load audio files as MP3 - universally supported
-		this.load.audio('characterDying', './assets/SFX/SFX charachter dying .mp3');
-		this.load.audio('menuSelection', './assets/SFX/SFX menu selecetion .mp3');
-		this.load.audio('levelUp', './assets/SFX/SFX level up.mp3');
-		this.load.audio('gameLoop', './assets/SFX/In game loop.mp3');
-		this.load.audio('menuDenied', './assets/SFX/SFX menu denied action .mp3');
-		this.load.audio('select_sound', './assets/SFX/SFX menu selecetion .mp3');
+		// Load audio files as MP3 - clean filenames without spaces
+		this.load.audio('characterDying', './assets/SFX/character-dying.mp3');
+		this.load.audio('menuSelection', './assets/SFX/menu-selection.mp3');
+		this.load.audio('levelUp', './assets/SFX/level-up.mp3');
+		this.load.audio('gameLoop', './assets/SFX/game-loop.mp3');
+		this.load.audio('menuDenied', './assets/SFX/menu-denied.mp3');
+		this.load.audio('select_sound', './assets/SFX/menu-selection.mp3');
 		
 		// Add error handling for failed loads
 		this.load.on('fileerror', (file) => {
