@@ -20,13 +20,13 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Load audio files as MP3 - clean filenames without spaces
-		this.load.audio('characterDying', './assets/SFX/character-dying.mp3');
-		this.load.audio('menuSelection', './assets/SFX/menu-selection.mp3');
-		this.load.audio('levelUp', './assets/SFX/level-up.mp3');
-		this.load.audio('gameLoop', './assets/SFX/game-loop.mp3');
-		this.load.audio('menuDenied', './assets/SFX/menu-denied.mp3');
-		this.load.audio('select_sound', './assets/SFX/menu-selection.mp3');
+		// Load audio with absolute paths for deployment
+		this.load.audio('characterDying', '/assets/SFX/character-dying.mp3');
+		this.load.audio('menuSelection', '/assets/SFX/menu-selection.mp3');
+		this.load.audio('levelUp', '/assets/SFX/level-up.mp3');
+		this.load.audio('gameLoop', '/assets/SFX/game-loop.mp3');
+		this.load.audio('menuDenied', '/assets/SFX/menu-denied.mp3');
+		this.load.audio('select_sound', '/assets/SFX/menu-selection.mp3');
 		
 		// Add error handling for failed loads
 		this.load.on('fileerror', (file) => {
@@ -72,22 +72,6 @@ export default class Preload extends Phaser.Scene {
 	progressBar;
 
 	/* START-USER-CODE */
-
-	// Helper function to load audio with multiple format fallbacks
-	loadAudioSafely(key, basePath) {
-		try {
-			// Add .ogg extension without trimming (preserve spaces)
-			const cleanPath = basePath + '.ogg';
-			// Also try with URL encoding for spaces
-			const encodedPath = basePath.replace(/ /g, '%20') + '.ogg';
-			
-			// Load with multiple fallback URLs
-			this.load.audio(key, [cleanPath, encodedPath]);
-			console.log(`Loading audio: ${key} from ${cleanPath}`);
-		} catch (error) {
-			console.error(`Error loading audio ${key}:`, error);
-		}
-	}
 
 	// Safe audio playing function
 	playSound(key, config = {}) {
@@ -145,10 +129,6 @@ export default class Preload extends Phaser.Scene {
 		console.log("Audio system:", this.sound.context ? 'WebAudio' : 'HTML5Audio');
 		console.log("Audio context state:", this.sound.context ? this.sound.context.state : 'N/A');
 		
-		// Log detailed audio status
-		const audioStatus = this.audioManager.getAudioStatus();
-		console.log("Audio loading status:", audioStatus);
-		
 		// Create easy-to-use global functions
 		window.playGameSound = (key, config = {}) => {
 			return this.audioManager.playSound(key, config);
@@ -166,7 +146,7 @@ export default class Preload extends Phaser.Scene {
 			this.audioManager.setVolume(volume);
 		};
 		
-		// Add improved test function
+		// Add test function
 		window.testAudio = (key) => {
 			console.log(`Testing audio: ${key}`);
 			const result = this.audioManager.playSound(key);
@@ -178,19 +158,7 @@ export default class Preload extends Phaser.Scene {
 			return result;
 		};
 		
-		// Add audio status check function
-		window.checkAudioStatus = () => {
-			const status = this.audioManager.getAudioStatus();
-			console.table(status);
-			return status;
-		};
-		
 		console.log('🎵 Audio system initialized!');
-		console.log('📋 Available commands:');
-		console.log('   window.testAudio("levelUp") - Test a sound');
-		console.log('   window.playBackgroundMusic("gameLoop") - Play background music');
-		console.log('   window.checkAudioStatus() - Check all audio status');
-		console.log('   window.stopAllSounds() - Stop all audio');
 		
 		if (window.EventBus) {
 			window.EventBus.emit('preload-complete');

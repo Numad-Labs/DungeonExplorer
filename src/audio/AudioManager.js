@@ -48,19 +48,17 @@ export default class AudioManager {
     }
 
     /**
-     * Safe audio playing with comprehensive error handling
+     * Safe audio playing with deployment compatibility
      * @param {string} key - Audio key to play
      * @param {object} config - Audio configuration (volume, loop, etc.)
      * @returns {Phaser.Sound.BaseSound|null} - Sound instance or null if failed
      */
     playSound(key, config = {}) {
         if (!this.audioEnabled) {
-            console.debug(`AudioManager: Audio disabled, skipping ${key}`);
             return null;
         }
 
         if (this.failedAudio.has(key)) {
-            console.debug(`AudioManager: Audio ${key} previously failed, skipping`);
             return null;
         }
 
@@ -78,7 +76,7 @@ export default class AudioManager {
                 ...config
             };
 
-            // Resume audio context if needed
+            // Resume audio context if suspended
             if (this.scene.sound.context && this.scene.sound.context.state === 'suspended') {
                 this.scene.sound.context.resume()
                     .then(() => {
@@ -92,7 +90,6 @@ export default class AudioManager {
                 // Play sound directly
                 const sound = this.scene.sound.play(key, audioConfig);
                 if (sound) {
-                    console.debug(`AudioManager: Playing ${key}`);
                     return sound;
                 } else {
                     console.warn(`AudioManager: Failed to create sound instance for ${key}`);
@@ -126,7 +123,6 @@ export default class AudioManager {
     stopAllSounds() {
         try {
             this.scene.sound.stopAll();
-            console.debug('AudioManager: Stopped all sounds');
         } catch (error) {
             console.error('AudioManager: Error stopping sounds:', error);
         }
@@ -139,7 +135,6 @@ export default class AudioManager {
     setVolume(volume) {
         try {
             this.scene.sound.volume = Math.max(0, Math.min(1, volume));
-            console.debug(`AudioManager: Set master volume to ${volume}`);
         } catch (error) {
             console.error('AudioManager: Error setting volume:', error);
         }
@@ -154,7 +149,6 @@ export default class AudioManager {
         if (!enabled) {
             this.stopAllSounds();
         }
-        console.debug(`AudioManager: Audio ${enabled ? 'enabled' : 'disabled'}`);
     }
 
     /**
@@ -171,7 +165,6 @@ export default class AudioManager {
      */
     resetFailedAudio() {
         this.failedAudio.clear();
-        console.debug('AudioManager: Reset failed audio cache');
     }
 
     /**
