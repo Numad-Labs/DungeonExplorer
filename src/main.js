@@ -14,11 +14,6 @@ const config = {
   height: 1080,
   backgroundColor: "#242424",
   parent: "game-container",
-  audio: {
-    noAudio: false,
-    disableAudio: false,
-    disableWebAudio: true  // Force HTML5 Audio to avoid decode issues on deployment
-  },
   physics: {
     default: "arcade",
     arcade: {

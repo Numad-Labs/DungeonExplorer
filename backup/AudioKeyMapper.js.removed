@@ -1,0 +1,23 @@
+/**
+ * Audio Key Mapper - Maps game code keys to Phaser Editor asset-pack keys
+ */
+export const AUDIO_KEY_MAP = {
+    // Game code key -> Phaser Editor asset pack key
+    'characterDying': 'character-dying',
+    'menuSelection': 'menu-selection', 
+    'levelUp': 'level-up',
+    'gameLoop': 'game-loop',
+    'menuDenied': 'menu-denied',
+    'select_sound': 'menu-selection'
+};
+
+/**
+ * Get the correct audio key for the Phaser Editor asset pack
+ * @param {string} key - Game code key
+ * @returns {string} - Asset pack key
+ */
+export function getAudioKey(key) {
+    return AUDIO_KEY_MAP[key] || key;
+}
+
+export default { AUDIO_KEY_MAP, getAudioKey };

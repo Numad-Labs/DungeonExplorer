@@ -20,9 +20,6 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Audio files are now loaded via asset-pack.json
-		// No manual loading needed
-		
 		// Add error handling for failed loads
 		this.load.on('fileerror', (file) => {
 			console.warn(`Failed to load: ${file.key} from ${file.url}`);
@@ -120,12 +117,12 @@ export default class Preload extends Phaser.Scene {
 		// Make it globally available
 		window.audioManager = this.audioManager;
 		
-		// Check audio cache for all expected files
-		const expectedAudio = ['characterDying', 'menuSelection', 'levelUp', 'gameLoop', 'menuDenied'];
+		// Check Phaser Editor asset pack keys
+		const assetPackKeys = ['character-dying', 'menu-selection', 'level-up', 'game-loop', 'menu-denied'];
 		console.log("Audio system:", this.sound.context ? 'WebAudio' : 'HTML5Audio');
 		console.log("Audio context state:", this.sound.context ? this.sound.context.state : 'N/A');
 		console.log("Audio files loaded:");
-		expectedAudio.forEach(key => {
+		assetPackKeys.forEach(key => {
 			const exists = this.cache.audio.exists(key);
 			console.log(`  ${key}: ${exists ? '✅ Loaded' : '❌ Missing'}`);
 		});
@@ -159,10 +156,10 @@ export default class Preload extends Phaser.Scene {
 			return result;
 		};
 		
-		// Test function with correct audio keys
-		window.testMenuSound = () => window.testAudio('menuSelection');
-		window.testGameLoop = () => window.testAudio('gameLoop');
-		window.testLevelUp = () => window.testAudio('levelUp');
+		// Test function with asset pack keys
+		window.testMenuSound = () => window.testAudio('menu-selection');
+		window.testGameLoop = () => window.testAudio('game-loop');
+		window.testLevelUp = () => window.testAudio('level-up');
 		
 		// Add audio status check function
 		window.checkAudioStatus = () => {
@@ -174,11 +171,11 @@ export default class Preload extends Phaser.Scene {
 		
 		console.log('🎵 Audio system initialized!');
 		console.log('📋 Test commands:');
-		console.log('   window.testAudio("levelUp") - Test level up sound');
+		console.log('   window.testAudio("game-loop") - Test game loop sound');
 		console.log('   window.testMenuSound() - Test menu sound');
 		console.log('   window.testGameLoop() - Test game loop');
 		console.log('   window.testLevelUp() - Test level up');
-		console.log('   window.playBackgroundMusic("gameLoop") - Play background music');
+		console.log('   window.playBackgroundMusic("game-loop") - Play background music');
 		console.log('   window.checkAudioStatus() - Check all audio status');
 		
 		if (window.EventBus) {

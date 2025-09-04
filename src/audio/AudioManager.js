@@ -167,10 +167,10 @@ export default class AudioManager {
      * Get audio loading status
      */
     getAudioStatus() {
-        const allAudioKeys = ['characterDying', 'menuSelection', 'levelUp', 'gameLoop', 'menuDenied'];
+        const assetPackKeys = ['character-dying', 'menu-selection', 'level-up', 'game-loop', 'menu-denied'];
         const status = {};
         
-        allAudioKeys.forEach(key => {
+        assetPackKeys.forEach(key => {
             status[key] = {
                 loaded: this.scene.cache.audio.exists(key),
                 failed: this.failedAudio.has(key),
