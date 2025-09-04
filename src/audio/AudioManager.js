@@ -2,8 +2,6 @@
  * Audio Manager - Handles all audio playback with proper error handling
  * and web browser compatibility fixes
  */
-import { getAudioKey } from './AudioKeyMapper.js';
-
 export default class AudioManager {
     constructor(scene) {
         this.scene = scene;
@@ -60,51 +58,44 @@ export default class AudioManager {
             return null;
         }
 
-        // Map game code keys to asset pack keys
-        const audioKey = getAudioKey(key);
-
-        if (this.failedAudio.has(audioKey)) {
+        if (this.failedAudio.has(key)) {
             return null;
         }
 
         try {
-            // Check if sound exists in cache
-            if (!this.scene.cache.audio.exists(audioKey)) {
-                console.warn(`AudioManager: Sound '${audioKey}' (from '${key}') not found in cache`);
-                this.failedAudio.add(audioKey);
+            if (!this.scene.cache.audio.exists(key)) {
+                console.warn(`AudioManager: Sound '${key}' not found in cache`);
+                this.failedAudio.add(key);
                 return null;
             }
 
-            // Default config
             const audioConfig = {
                 volume: 0.5,
                 ...config
             };
 
-            // Resume audio context if suspended
             if (this.scene.sound.context && this.scene.sound.context.state === 'suspended') {
                 this.scene.sound.context.resume()
                     .then(() => {
-                        return this.scene.sound.play(audioKey, audioConfig);
+                        return this.scene.sound.play(key, audioConfig);
                     })
                     .catch(err => {
-                        console.warn(`AudioManager: Audio context resume failed for ${audioKey}:`, err);
-                        this.failedAudio.add(audioKey);
+                        console.warn(`AudioManager: Audio context resume failed for ${key}:`, err);
+                        this.failedAudio.add(key);
                     });
             } else {
-                // Play sound directly
-                const sound = this.scene.sound.play(audioKey, audioConfig);
+                const sound = this.scene.sound.play(key, audioConfig);
                 if (sound) {
                     return sound;
                 } else {
-                    console.warn(`AudioManager: Failed to create sound instance for ${audioKey}`);
-                    this.failedAudio.add(audioKey);
+                    console.warn(`AudioManager: Failed to create sound instance for ${key}`);
+                    this.failedAudio.add(key);
                     return null;
                 }
             }
         } catch (error) {
-            console.error(`AudioManager: Error playing sound '${audioKey}':`, error);
-            this.failedAudio.add(audioKey);
+            console.error(`AudioManager: Error playing sound '${key}':`, error);
+            this.failedAudio.add(key);
             return null;
         }
     }
@@ -162,8 +153,7 @@ export default class AudioManager {
      * @returns {boolean} - Whether the audio is available
      */
     isAudioAvailable(key) {
-        const audioKey = getAudioKey(key);
-        return this.scene.cache.audio.exists(audioKey) && !this.failedAudio.has(audioKey);
+        return this.scene.cache.audio.exists(key) && !this.failedAudio.has(key);
     }
 
     /**
@@ -177,14 +167,13 @@ export default class AudioManager {
      * Get audio loading status
      */
     getAudioStatus() {
-        const gameCodeKeys = ['characterDying', 'menuSelection', 'levelUp', 'gameLoop', 'menuDenied'];
+        const allAudioKeys = ['characterDying', 'menuSelection', 'levelUp', 'gameLoop', 'menuDenied'];
         const status = {};
         
-        gameCodeKeys.forEach(key => {
-            const audioKey = getAudioKey(key);
-            status[`${key} -> ${audioKey}`] = {
-                loaded: this.scene.cache.audio.exists(audioKey),
-                failed: this.failedAudio.has(audioKey),
+        allAudioKeys.forEach(key => {
+            status[key] = {
+                loaded: this.scene.cache.audio.exists(key),
+                failed: this.failedAudio.has(key),
                 available: this.isAudioAvailable(key)
             };
         });

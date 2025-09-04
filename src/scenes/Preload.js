@@ -120,12 +120,12 @@ export default class Preload extends Phaser.Scene {
 		// Make it globally available
 		window.audioManager = this.audioManager;
 		
-		// Check audio cache for all expected files (using asset pack keys)
-		const assetPackAudioKeys = ['character-dying', 'menu-selection', 'level-up', 'game-loop', 'menu-denied'];
+		// Check audio cache for all expected files
+		const expectedAudio = ['characterDying', 'menuSelection', 'levelUp', 'gameLoop', 'menuDenied'];
 		console.log("Audio system:", this.sound.context ? 'WebAudio' : 'HTML5Audio');
 		console.log("Audio context state:", this.sound.context ? this.sound.context.state : 'N/A');
 		console.log("Audio files loaded:");
-		assetPackAudioKeys.forEach(key => {
+		expectedAudio.forEach(key => {
 			const exists = this.cache.audio.exists(key);
 			console.log(`  ${key}: ${exists ? '✅ Loaded' : '❌ Missing'}`);
 		});
@@ -174,8 +174,7 @@ export default class Preload extends Phaser.Scene {
 		
 		console.log('🎵 Audio system initialized!');
 		console.log('📋 Test commands:');
-		console.log('   window.testAudio("levelUp") - Test with game code key');
-		console.log('   window.testAudio("level-up") - Test with asset pack key');
+		console.log('   window.testAudio("levelUp") - Test level up sound');
 		console.log('   window.testMenuSound() - Test menu sound');
 		console.log('   window.testGameLoop() - Test game loop');
 		console.log('   window.testLevelUp() - Test level up');
