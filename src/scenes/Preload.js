@@ -3,7 +3,6 @@
 /* START-USER-IMPORTS */
 // Old integration removed - now handled by React App
 import { EventBus } from '../game/EventBus';
-import AudioManager from '../audio/AudioManager';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -18,17 +17,14 @@ export default class Preload extends Phaser.Scene {
 
 	/** @returns {void} */
 	editorPreload() {
-		this.load.pack("asset-pack", "./assets/asset-pack.json");
+		this.load.pack("asset-pack", "assets/asset-pack.json");
 		
-		// Add error handling for failed loads
-		this.load.on('fileerror', (file) => {
-			console.warn(`Failed to load: ${file.key} from ${file.url}`);
-		});
-		
-		// Add file complete handler
-		this.load.on('addfile', (file) => {
-			console.log(`Loading: ${file.key}`);
-		});
+		// Load audio files with the keys your game code expects
+		this.load.audio('gameLoop', ['assets/SFX/game-loop.ogg', 'assets/SFX/game-loop.mp3']);
+		this.load.audio('characterDying', ['assets/SFX/character-dying.ogg', 'assets/SFX/character-dying.mp3']);
+		this.load.audio('menuSelection', ['assets/SFX/menu-selection.ogg', 'assets/SFX/menu-selection.mp3']);
+		this.load.audio('levelUp', ['assets/SFX/level-up.ogg', 'assets/SFX/level-up.mp3']);
+		this.load.audio('menuDenied', ['assets/SFX/menu-denied.ogg', 'assets/SFX/menu-denied.mp3']);
 	}
 
 	/** @returns {void} */
@@ -65,138 +61,64 @@ export default class Preload extends Phaser.Scene {
 
 	/* START-USER-CODE */
 
-	// Safe audio playing function
-	playSound(key, config = {}) {
-		try {
-			// Check if sound exists and audio context is ready
-			if (this.cache.audio.exists(key)) {
-				// Resume audio context if suspended (common on mobile/web)
-				if (this.sound.context && this.sound.context.state === 'suspended') {
-					this.sound.context.resume().then(() => {
-						return this.sound.play(key, { volume: 0.5, ...config });
-					}).catch(err => console.warn(`Audio context resume failed:`, err));
-				} else {
-					return this.sound.play(key, { volume: 0.5, ...config });
-				}
-			} else {
-				console.warn(`Sound '${key}' not found in cache`);
-				return null;
-			}
-		} catch (error) {
-			console.error(`Error playing sound '${key}':`, error);
-			return null;
-		}
-	}
-
 	preload() {
-		try {
-			this.editorCreate();
-			this.editorPreload();
+		this.editorCreate();
+		this.editorPreload();
 
-			const width = this.progressBar.width;
-			
-			this.load.on("progress", (progress) => {
-				this.progressBar.width = progress * width;
-			});
-			
-			this.load.on("complete", () => {
-				console.log("All assets loaded. Exp texture exists:", this.textures.exists('Exp'));
-				console.log("Health_Potion_01 texture exists:", this.textures.exists('Health_Potion_01'));
-			});
-		} catch (error) {
-			console.error("Error in preload:", error);
-		}
+		const width = this.progressBar.width;
+		
+		this.load.on("progress", (progress) => {
+			this.progressBar.width = progress * width;
+		});
+		
+		this.load.on("complete", () => {
+			console.log("All assets loaded");
+		});
 	}
 
 	create() {
-		// Enable audio unlock for mobile/web browsers
-		this.sound.unlock();
-		
-		// Initialize AudioManager
-		this.audioManager = new AudioManager(this);
-		// Make it globally available
-		window.audioManager = this.audioManager;
-		
-		// Check Phaser Editor asset pack keys
-		const assetPackKeys = ['character-dying', 'menu-selection', 'level-up', 'game-loop', 'menu-denied'];
-		console.log("Audio system:", this.sound.context ? 'WebAudio' : 'HTML5Audio');
-		console.log("Audio context state:", this.sound.context ? this.sound.context.state : 'N/A');
-		console.log("Audio files loaded:");
-		assetPackKeys.forEach(key => {
-			const exists = this.cache.audio.exists(key);
-			console.log(`  ${key}: ${exists ? '✅ Loaded' : '❌ Missing'}`);
-		});
-		
-		// Create easy-to-use global functions
-		window.playGameSound = (key, config = {}) => {
-			return this.audioManager.playSound(key, config);
+		// Create sound instances using camelCase keys that match your game code
+		this.sounds = {
+			'gameLoop': this.sound.add('gameLoop'),
+			'characterDying': this.sound.add('characterDying'),
+			'menuSelection': this.sound.add('menuSelection'),
+			'levelUp': this.sound.add('levelUp'),
+			'menuDenied': this.sound.add('menuDenied')
 		};
-		
-		window.playBackgroundMusic = (key, volume = 0.3) => {
-			return this.audioManager.playBackgroundMusic(key, volume);
-		};
-		
-		window.stopAllSounds = () => {
-			this.audioManager.stopAllSounds();
-		};
-		
-		window.setGameVolume = (volume) => {
-			this.audioManager.setVolume(volume);
-		};
-		
-		// Add test function
+
+		// Make sounds globally accessible
+		window.gameSounds = this.sounds;
+
+		// Test function
 		window.testAudio = (key) => {
-			console.log(`Testing audio: ${key}`);
-			const result = this.audioManager.playSound(key);
-			if (result) {
-				console.log(`✓ Successfully played ${key}`);
-			} else {
-				console.log(`✗ Failed to play ${key}`);
+			try {
+				if (this.sounds[key]) {
+					this.sounds[key].play();
+					console.log(`✓ Playing: ${key}`);
+				} else {
+					console.log(`✗ Sound not found: ${key}`);
+				}
+			} catch (error) {
+				console.log(`✗ Error playing ${key}:`, error);
 			}
-			return result;
 		};
-		
-		// Test function with asset pack keys
-		window.testMenuSound = () => window.testAudio('menu-selection');
-		window.testGameLoop = () => window.testAudio('game-loop');
-		window.testLevelUp = () => window.testAudio('level-up');
-		
-		// Add audio status check function
+
+		// Status check function
 		window.checkAudioStatus = () => {
-			const status = this.audioManager.getAudioStatus();
-			console.log('📊 Audio Status:');
-			console.table(status);
-			return status;
+			const keys = ['gameLoop', 'characterDying', 'menuSelection', 'levelUp', 'menuDenied'];
+			console.log('Audio Status:');
+			keys.forEach(key => {
+				const exists = this.cache.audio.exists(key);
+				const hasInstance = !!this.sounds[key];
+				console.log(`${key}: ${exists ? '✅ Loaded' : '❌ Not Loaded'} | ${hasInstance ? '🔊 Sound Instance' : '🔇 No Instance'}`);
+			});
 		};
+
+		console.log('Audio system ready!');
+		console.log('Test with: window.testAudio("gameLoop")');
+		console.log('Check status: window.checkAudioStatus()');
 		
-		console.log('🎵 Audio system initialized!');
-		console.log('📋 Test commands:');
-		console.log('   window.testAudio("game-loop") - Test game loop sound');
-		console.log('   window.testMenuSound() - Test menu sound');
-		console.log('   window.testGameLoop() - Test game loop');
-		console.log('   window.testLevelUp() - Test level up');
-		console.log('   window.playBackgroundMusic("game-loop") - Play background music');
-		console.log('   window.checkAudioStatus() - Check all audio status');
-		
-		if (window.EventBus) {
-			window.EventBus.emit('preload-complete');
-		}
-		window.dispatchEvent(new CustomEvent('gamePreloadComplete'));
-	}
-	
-	createFallbackTexture() {
-		try {
-			const graphics = this.add.graphics();
-			graphics.fillStyle(0x00ffff, 1);
-			graphics.fillCircle(8, 8, 8);
-			
-			graphics.generateTexture('Exp', 16, 16);
-			graphics.destroy();
-			
-			console.log("Created fallback Exp texture");
-		} catch (error) {
-			console.error("Error creating fallback texture:", error);
-		}
+		EventBus.emit("current-scene-ready", this);
 	}
 
 	/* END-USER-CODE */
