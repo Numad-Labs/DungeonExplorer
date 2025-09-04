@@ -20,13 +20,8 @@ export default class Preload extends Phaser.Scene {
 	editorPreload() {
 		this.load.pack("asset-pack", "./assets/asset-pack.json");
 		
-		// Load audio with absolute paths for deployment
-		this.load.audio('characterDying', '/assets/SFX/character-dying.mp3');
-		this.load.audio('menuSelection', '/assets/SFX/menu-selection.mp3');
-		this.load.audio('levelUp', '/assets/SFX/level-up.mp3');
-		this.load.audio('gameLoop', '/assets/SFX/game-loop.mp3');
-		this.load.audio('menuDenied', '/assets/SFX/menu-denied.mp3');
-		this.load.audio('select_sound', '/assets/SFX/menu-selection.mp3');
+		// Audio files are now loaded via asset-pack.json
+		// No manual loading needed
 		
 		// Add error handling for failed loads
 		this.load.on('fileerror', (file) => {
@@ -125,9 +120,15 @@ export default class Preload extends Phaser.Scene {
 		// Make it globally available
 		window.audioManager = this.audioManager;
 		
-		// Check audio system and loading status
+		// Check audio cache for all expected files
+		const expectedAudio = ['character-dying', 'menu-selection', 'level-up', 'game-loop', 'menu-denied'];
 		console.log("Audio system:", this.sound.context ? 'WebAudio' : 'HTML5Audio');
 		console.log("Audio context state:", this.sound.context ? this.sound.context.state : 'N/A');
+		console.log("Audio files loaded:");
+		expectedAudio.forEach(key => {
+			const exists = this.cache.audio.exists(key);
+			console.log(`  ${key}: ${exists ? '✅ Loaded' : '❌ Missing'}`);
+		});
 		
 		// Create easy-to-use global functions
 		window.playGameSound = (key, config = {}) => {
@@ -158,7 +159,28 @@ export default class Preload extends Phaser.Scene {
 			return result;
 		};
 		
+		// Test function with correct audio keys
+		window.testMenuSound = () => window.testAudio('menu-selection');
+		window.testGameLoop = () => window.testAudio('game-loop');
+		window.testLevelUp = () => window.testAudio('level-up');
+		
+		// Add audio status check function
+		window.checkAudioStatus = () => {
+			const status = this.audioManager.getAudioStatus();
+			console.log('📊 Audio Status:');
+			console.table(status);
+			return status;
+		};
+		
 		console.log('🎵 Audio system initialized!');
+		console.log('📋 Test commands:');
+		console.log('   window.testAudio("level-up") - Test new key');
+		console.log('   window.testAudio("levelUp") - Test old key (auto-mapped)');
+		console.log('   window.testMenuSound() - Test menu sound');
+		console.log('   window.testGameLoop() - Test game loop');
+		console.log('   window.testLevelUp() - Test level up');
+		console.log('   window.playBackgroundMusic("game-loop") - Play background music');
+		console.log('   window.checkAudioStatus() - Check all audio status');
 		
 		if (window.EventBus) {
 			window.EventBus.emit('preload-complete');

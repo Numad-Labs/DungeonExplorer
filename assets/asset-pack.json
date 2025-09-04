@@ -2,6 +2,20 @@
     "section1": {
         "files": [
             {
+                "url": [
+                    "assets/SFX/character-dying.mp3"
+                ],
+                "type": "audio",
+                "key": "character-dying"
+            },
+            {
+                "url": [
+                    "assets/SFX/character-dying.ogg"
+                ],
+                "type": "audio",
+                "key": "character-dying_1"
+            },
+            {
                 "url": "assets/dino.png",
                 "key": "dino",
                 "type": "image"
@@ -12,9 +26,65 @@
                 "type": "image"
             },
             {
+                "url": [
+                    "assets/SFX/game-loop.mp3"
+                ],
+                "type": "audio",
+                "key": "game-loop"
+            },
+            {
+                "url": [
+                    "assets/SFX/game-loop.ogg"
+                ],
+                "type": "audio",
+                "key": "game-loop_1"
+            },
+            {
                 "url": "assets/PickUp/Health_Potion_01.png",
                 "key": "Health_Potion_01",
                 "type": "image"
+            },
+            {
+                "url": [
+                    "assets/SFX/level-up.mp3"
+                ],
+                "type": "audio",
+                "key": "level-up"
+            },
+            {
+                "url": [
+                    "assets/SFX/level-up.ogg"
+                ],
+                "type": "audio",
+                "key": "level-up_1"
+            },
+            {
+                "url": [
+                    "assets/SFX/menu-denied.mp3"
+                ],
+                "type": "audio",
+                "key": "menu-denied"
+            },
+            {
+                "url": [
+                    "assets/SFX/menu-denied.ogg"
+                ],
+                "type": "audio",
+                "key": "menu-denied_1"
+            },
+            {
+                "url": [
+                    "assets/SFX/menu-selection.mp3"
+                ],
+                "type": "audio",
+                "key": "menu-selection"
+            },
+            {
+                "url": [
+                    "assets/SFX/menu-selection.ogg"
+                ],
+                "type": "audio",
+                "key": "menu-selection_1"
             }
         ]
     },
