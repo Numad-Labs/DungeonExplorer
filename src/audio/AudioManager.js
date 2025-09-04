@@ -60,7 +60,7 @@ export default class AudioManager {
             return null;
         }
 
-        // Map old keys to new asset pack keys
+        // Map game code keys to asset pack keys
         const audioKey = getAudioKey(key);
 
         if (this.failedAudio.has(audioKey)) {
@@ -70,7 +70,7 @@ export default class AudioManager {
         try {
             // Check if sound exists in cache
             if (!this.scene.cache.audio.exists(audioKey)) {
-                console.warn(`AudioManager: Sound '${audioKey}' not found in cache`);
+                console.warn(`AudioManager: Sound '${audioKey}' (from '${key}') not found in cache`);
                 this.failedAudio.add(audioKey);
                 return null;
             }
@@ -177,32 +177,15 @@ export default class AudioManager {
      * Get audio loading status
      */
     getAudioStatus() {
-        // Updated keys to match asset-pack.json
-        const allAudioKeys = ['character-dying', 'menu-selection', 'level-up', 'game-loop', 'menu-denied'];
-        
-        // Also check old key compatibility
-        const oldKeys = ['characterDying', 'menuSelection', 'levelUp', 'gameLoop', 'menuDenied', 'select_sound'];
-        
+        const gameCodeKeys = ['characterDying', 'menuSelection', 'levelUp', 'gameLoop', 'menuDenied'];
         const status = {};
         
-        // Check asset pack keys
-        allAudioKeys.forEach(key => {
-            status[key] = {
-                loaded: this.scene.cache.audio.exists(key),
-                failed: this.failedAudio.has(key),
-                available: this.isAudioAvailable(key),
-                type: 'asset-pack'
-            };
-        });
-        
-        // Check old key compatibility (will be mapped automatically)
-        oldKeys.forEach(key => {
-            const mappedKey = getAudioKey(key);
-            status[`${key} -> ${mappedKey}`] = {
-                loaded: this.scene.cache.audio.exists(mappedKey),
-                failed: this.failedAudio.has(mappedKey),
-                available: this.isAudioAvailable(key),
-                type: 'mapped'
+        gameCodeKeys.forEach(key => {
+            const audioKey = getAudioKey(key);
+            status[`${key} -> ${audioKey}`] = {
+                loaded: this.scene.cache.audio.exists(audioKey),
+                failed: this.failedAudio.has(audioKey),
+                available: this.isAudioAvailable(key)
             };
         });
         
