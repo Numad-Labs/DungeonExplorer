@@ -84,6 +84,15 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 			this.experience -= this.nextLevelExp;
 			this.nextLevelExp = 50 * this.level;
 			
+			// Play level up sound effect
+			try {
+				if (typeof window.playSound === 'function') {
+					window.playSound('levelUp', { volume: 0.6 });
+				}
+			} catch (error) {
+				console.warn('Could not play level up sound:', error);
+			}
+			
 			try {
 				this.onLevelUpCallbacks.forEach(callback => callback(this.level));
 			} catch (error) {

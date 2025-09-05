@@ -1,54 +1,14 @@
 /**
- * Audio Manager - Handles all audio playback with proper error handling
- * and web browser compatibility fixes
+ * Audio Manager - Simple integration with Phaser audio system
  */
 export default class AudioManager {
     constructor(scene) {
         this.scene = scene;
         this.audioEnabled = true;
-        this.failedAudio = new Set();
-        this.audioContextResumed = false;
-        
-        // Bind methods to maintain context
-        this.playSound = this.playSound.bind(this);
-        this.setupAutoResume = this.setupAutoResume.bind(this);
-        
-        this.setupAutoResume();
     }
 
     /**
-     * Auto-resume audio context on user interaction
-     */
-    setupAutoResume() {
-        const resumeAudioContext = () => {
-            if (this.scene.sound.context && this.scene.sound.context.state === 'suspended') {
-                console.log('AudioManager: Auto-resuming audio context...');
-                this.scene.sound.context.resume()
-                    .then(() => {
-                        this.audioContextResumed = true;
-                        console.log('AudioManager: Audio context resumed successfully');
-                    })
-                    .catch(err => {
-                        console.warn('AudioManager: Failed to resume audio context:', err);
-                    });
-            } else {
-                this.audioContextResumed = true;
-            }
-            
-            // Remove the event listeners after first use
-            document.removeEventListener('click', resumeAudioContext);
-            document.removeEventListener('touchstart', resumeAudioContext);
-            document.removeEventListener('keydown', resumeAudioContext);
-        };
-        
-        // Add event listeners for user interaction
-        document.addEventListener('click', resumeAudioContext);
-        document.addEventListener('touchstart', resumeAudioContext);
-        document.addEventListener('keydown', resumeAudioContext);
-    }
-
-    /**
-     * Safe audio playing with deployment compatibility
+     * Simple audio playing using global playSound function
      * @param {string} key - Audio key to play
      * @param {object} config - Audio configuration (volume, loop, etc.)
      * @returns {Phaser.Sound.BaseSound|null} - Sound instance or null if failed
@@ -58,44 +18,20 @@ export default class AudioManager {
             return null;
         }
 
-        if (this.failedAudio.has(key)) {
-            return null;
-        }
-
         try {
-            if (!this.scene.cache.audio.exists(key)) {
-                console.warn(`AudioManager: Sound '${key}' not found in cache`);
-                this.failedAudio.add(key);
-                return null;
+            // Use global playSound function if available
+            if (typeof window.playSound === 'function') {
+                return window.playSound(key, config);
             }
-
-            const audioConfig = {
-                volume: 0.5,
-                ...config
-            };
-
-            if (this.scene.sound.context && this.scene.sound.context.state === 'suspended') {
-                this.scene.sound.context.resume()
-                    .then(() => {
-                        return this.scene.sound.play(key, audioConfig);
-                    })
-                    .catch(err => {
-                        console.warn(`AudioManager: Audio context resume failed for ${key}:`, err);
-                        this.failedAudio.add(key);
-                    });
+            // Fallback to direct scene method
+            else if (this.scene.cache.audio.exists(key)) {
+                return this.scene.sound.play(key, config);
             } else {
-                const sound = this.scene.sound.play(key, audioConfig);
-                if (sound) {
-                    return sound;
-                } else {
-                    console.warn(`AudioManager: Failed to create sound instance for ${key}`);
-                    this.failedAudio.add(key);
-                    return null;
-                }
+                console.warn(`AudioManager: Sound '${key}' not found`);
+                return null;
             }
         } catch (error) {
             console.error(`AudioManager: Error playing sound '${key}':`, error);
-            this.failedAudio.add(key);
             return null;
         }
     }
@@ -153,27 +89,19 @@ export default class AudioManager {
      * @returns {boolean} - Whether the audio is available
      */
     isAudioAvailable(key) {
-        return this.scene.cache.audio.exists(key) && !this.failedAudio.has(key);
+        return this.scene.cache.audio.exists(key);
     }
 
     /**
-     * Reset failed audio cache (useful for retrying after fixes)
-     */
-    resetFailedAudio() {
-        this.failedAudio.clear();
-    }
-
-    /**
-     * Get audio loading status
+     * Get audio loading status for the camelCase keys
      */
     getAudioStatus() {
-        const assetPackKeys = ['character-dying', 'menu-selection', 'level-up', 'game-loop', 'menu-denied'];
+        const audioKeys = ['gameLoop', 'characterDying', 'menuSelection', 'levelUp', 'menuDenied'];
         const status = {};
         
-        assetPackKeys.forEach(key => {
+        audioKeys.forEach(key => {
             status[key] = {
                 loaded: this.scene.cache.audio.exists(key),
-                failed: this.failedAudio.has(key),
                 available: this.isAudioAvailable(key)
             };
         });

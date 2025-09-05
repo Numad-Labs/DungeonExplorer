@@ -17,14 +17,8 @@ export default class Preload extends Phaser.Scene {
 
 	/** @returns {void} */
 	editorPreload() {
+		// Only load asset pack - it already contains all audio files with correct camelCase keys
 		this.load.pack("asset-pack", "assets/asset-pack.json");
-		
-		// Load audio files with the keys your game code expects
-		this.load.audio('gameLoop', ['assets/SFX/game-loop.ogg', 'assets/SFX/game-loop.mp3']);
-		this.load.audio('characterDying', ['assets/SFX/character-dying.ogg', 'assets/SFX/character-dying.mp3']);
-		this.load.audio('menuSelection', ['assets/SFX/menu-selection.ogg', 'assets/SFX/menu-selection.mp3']);
-		this.load.audio('levelUp', ['assets/SFX/level-up.ogg', 'assets/SFX/level-up.mp3']);
-		this.load.audio('menuDenied', ['assets/SFX/menu-denied.ogg', 'assets/SFX/menu-denied.mp3']);
 	}
 
 	/** @returns {void} */
@@ -77,44 +71,70 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	create() {
-		// Create sound instances using camelCase keys that match your game code
-		this.sounds = {
-			'gameLoop': this.sound.add('gameLoop'),
-			'characterDying': this.sound.add('characterDying'),
-			'menuSelection': this.sound.add('menuSelection'),
-			'levelUp': this.sound.add('levelUp'),
-			'menuDenied': this.sound.add('menuDenied')
-		};
+		// Enable audio unlock for web browsers (important!)
+		this.sound.unlock();
+		
+		// Check which audio files loaded successfully from asset-pack.json
+		const audioKeys = ['gameLoop', 'characterDying', 'menuSelection', 'levelUp', 'menuDenied'];
+		
+		console.log('🎵 Audio loading status:');
+		audioKeys.forEach(key => {
+			if (this.cache.audio.exists(key)) {
+				console.log(`✅ ${key}: Loaded from asset pack`);
+			} else {
+				console.log(`❌ ${key}: Failed to load`);
+			}
+		});
+		
+		// Create sound instances using Phaser's simple method
+		this.sounds = {};
+		audioKeys.forEach(key => {
+			if (this.cache.audio.exists(key)) {
+				try {
+					this.sounds[key] = this.sound.add(key);
+				} catch (error) {
+					console.warn(`Could not create sound instance for ${key}:`, error);
+				}
+			}
+		});
 
 		// Make sounds globally accessible
 		window.gameSounds = this.sounds;
+		
+		// Simple global play function
+		window.playSound = (key, config = {}) => {
+			try {
+				if (this.sounds[key]) {
+					return this.sounds[key].play(config);
+				} else {
+					console.warn(`Sound '${key}' not available`);
+					return null;
+				}
+			} catch (error) {
+				console.error(`Error playing sound '${key}':`, error);
+				return null;
+			}
+		};
 
 		// Test function
 		window.testAudio = (key) => {
-			try {
-				if (this.sounds[key]) {
-					this.sounds[key].play();
-					console.log(`✓ Playing: ${key}`);
-				} else {
-					console.log(`✗ Sound not found: ${key}`);
-				}
-			} catch (error) {
-				console.log(`✗ Error playing ${key}:`, error);
-			}
+			return window.playSound(key, { volume: 0.5 });
 		};
 
 		// Status check function
 		window.checkAudioStatus = () => {
-			const keys = ['gameLoop', 'characterDying', 'menuSelection', 'levelUp', 'menuDenied'];
-			console.log('Audio Status:');
-			keys.forEach(key => {
+			console.log('🎵 Audio System Status:');
+			console.log(`- Audio Context: ${this.sound.context ? 'Available' : 'Not Available'}`);
+			console.log(`- Context State: ${this.sound.context?.state || 'Unknown'}`);
+			console.log('- Sound Files:');
+			audioKeys.forEach(key => {
 				const exists = this.cache.audio.exists(key);
 				const hasInstance = !!this.sounds[key];
-				console.log(`${key}: ${exists ? '✅ Loaded' : '❌ Not Loaded'} | ${hasInstance ? '🔊 Sound Instance' : '🔇 No Instance'}`);
+				console.log(`  ${key}: Cache=${exists ? '✅' : '❌'} | Instance=${hasInstance ? '🔊' : '🔇'}`);
 			});
 		};
 
-		console.log('Audio system ready!');
+		console.log('🔊 Audio system ready!');
 		console.log('Test with: window.testAudio("gameLoop")');
 		console.log('Check status: window.checkAudioStatus()');
 		
