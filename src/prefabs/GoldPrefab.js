@@ -119,6 +119,15 @@ export default class GoldPrefab extends Phaser.GameObjects.Image {
         this.isBeingCollected = true;
 
         try {
+            // Play gold collection sound effect (higher pitch for gold)
+            try {
+                if (typeof window.playSound === 'function') {
+                    window.playSound('menuSelection', { volume: 0.5, rate: 1.2 });
+                }
+            } catch (error) {
+                console.warn('Could not play gold collection sound:', error);
+            }
+            
             if (this.scene.gameManager) {
                 this.scene.gameManager.addGold(this.goldValue);
             } else {

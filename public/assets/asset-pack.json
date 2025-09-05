@@ -15,9 +15,44 @@
                 "key": "assassin-archer-run"
             },
             {
+                "url": [
+                    "public/assets/SFX/character-dying.mp3"
+                ],
+                "type": "audio",
+                "key": "characterDying"
+            },
+            {
                 "url": "assets/dino.png",
                 "key": "dino",
                 "type": "image"
+            },
+            {
+                "url": [
+                    "public/assets/SFX/game-loop.mp3"
+                ],
+                "type": "audio",
+                "key": "gameLoop"
+            },
+            {
+                "url": [
+                    "public/assets/SFX/level-up.mp3"
+                ],
+                "type": "audio",
+                "key": "levelUp"
+            },
+            {
+                "url": [
+                    "public/assets/SFX/menu-denied.mp3"
+                ],
+                "type": "audio",
+                "key": "menuDenied"
+            },
+            {
+                "url": [
+                    "public/assets/SFX/menu-selection.mp3"
+                ],
+                "type": "audio",
+                "key": "menuSelection"
             },
             {
                 "url": "assets/Hero/zombie 1/zombieDeath.png",
