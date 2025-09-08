@@ -16,7 +16,7 @@
             },
             {
                 "url": [
-                    "assets/SFX/character-death.mp3"
+                    "public/assets/SFX/character-death.mp3"
                 ],
                 "type": "audio",
                 "key": "characterDying"
@@ -28,28 +28,28 @@
             },
             {
                 "url": [
-                    "assets/SFX/game-loop.mp3"
+                    "public/assets/SFX/game-loop.mp3"
                 ],
                 "type": "audio",
                 "key": "gameLoop"
             },
             {
                 "url": [
-                    "assets/SFX/level-up.mp3"
+                    "public/assets/SFX/level-up.mp3"
                 ],
                 "type": "audio",
                 "key": "levelUp"
             },
             {
                 "url": [
-                    "assets/SFX/menu-denied.mp3"
+                    "public/assets/SFX/menu-denied.mp3"
                 ],
                 "type": "audio",
                 "key": "menuDenied"
             },
             {
                 "url": [
-                    "assets/SFX/menu-selection.mp3"
+                    "public/assets/SFX/menu-selection.mp3"
                 ],
                 "type": "audio",
                 "key": "menuSelection"
