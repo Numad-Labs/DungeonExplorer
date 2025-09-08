@@ -31,12 +31,12 @@ const config = {
     height: 1080,
     min: {
       width: 1280,
-      height: 720
+      height: 720,
     },
     max: {
       width: 2560,
-      height: 1440
-    }
+      height: 1440,
+    },
   },
 };
 
@@ -44,14 +44,15 @@ class Boot extends Phaser.Scene {
   constructor() {
     super("Boot");
   }
-  
+
   preload() {
-    this.load.pack("pack", "./assets/preload-asset-pack.json");
+    this.load.pack("pack", "assets/preload-asset-pack.json");
+    this.load.pack("asset-pack", "assets/asset-pack.json");
   }
-  
+
   create() {
-    window.dispatchEvent(new CustomEvent('gameBootComplete'));
-    
+    window.dispatchEvent(new CustomEvent("gameBootComplete"));
+
     // Only start Preload scene, don't auto-start any game scenes
     this.scene.start("Preload");
     EventBus.emit("current-scene-ready", this);
@@ -62,10 +63,10 @@ let game = null;
 
 const StartGame = (parent, gameManager = null, autoStartGame = false) => {
   console.log("Initializing Phaser game...", { parent, autoStartGame });
-  
+
   // Create or use provided GameManager
   const manager = gameManager || new GameManager();
-  
+
   const gameConfig = parent ? { ...config, parent } : config;
   game = new Phaser.Game(gameConfig);
 
@@ -92,13 +93,13 @@ const StartGame = (parent, gameManager = null, autoStartGame = false) => {
     if (manager && manager.isGameRunning) {
       manager.handlePlayerDeath("Manual Exit");
     }
-    EventBus.emit('game-stopped');
+    EventBus.emit("game-stopped");
   });
 
   // Handle scene transitions
   EventBus.on("change-scene", (sceneName, data) => {
     console.log(`Changing scene to: ${sceneName}`);
-    
+
     if (game.scene.isActive(sceneName)) {
       game.scene.restart(sceneName, data);
     } else {
@@ -108,16 +109,18 @@ const StartGame = (parent, gameManager = null, autoStartGame = false) => {
 
   // Player health updates for HP bar
   EventBus.on("player-health-update", (healthData) => {
-    EventBus.emit('player-health-updated', healthData);
+    EventBus.emit("player-health-updated", healthData);
   });
 
   // Game state updates
   EventBus.on("game-state-update", (gameData) => {
-    EventBus.emit('game-state-updated', gameData);
-    
-    window.dispatchEvent(new CustomEvent('gameStateUpdated', { 
-      detail: gameData 
-    }));
+    EventBus.emit("game-state-updated", gameData);
+
+    window.dispatchEvent(
+      new CustomEvent("gameStateUpdated", {
+        detail: gameData,
+      })
+    );
   });
 
   // Player death handling (removed duplicate event emission to prevent loops)
@@ -134,7 +137,7 @@ const StartGame = (parent, gameManager = null, autoStartGame = false) => {
   return game;
 };
 
-window.startGameManually = function() {
+window.startGameManually = function () {
   if (game) {
     const gameManager = game.registry.get("gameManager");
     if (gameManager) {
@@ -144,17 +147,17 @@ window.startGameManually = function() {
   }
 };
 
-window.stopGameManually = function() {
+window.stopGameManually = function () {
   console.log("Manual game stop requested");
   if (game) {
     const gameManager = game.registry.get("gameManager");
     if (gameManager && gameManager.isGameRunning) {
       gameManager.handlePlayerDeath("Manual Exit");
     }
-    
+
     // Stop all game scenes except Boot and Preload
     const activeScenes = game.scene.getScenes(true);
-    activeScenes.forEach(scene => {
+    activeScenes.forEach((scene) => {
       if (scene.scene.key !== "Boot" && scene.scene.key !== "Preload") {
         game.scene.stop(scene.scene.key);
       }
