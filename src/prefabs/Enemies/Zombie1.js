@@ -116,6 +116,19 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         repeat: 0,
       });
     }
+
+    // Create death animation
+    if (!this.scene.anims.exists("zombieDeath1")) {
+      this.scene.anims.create({
+        key: "zombieDeath1",
+        frames: this.scene.anims.generateFrameNumbers("zombieDeath1", {
+          start: 0,
+          end: -1, // This will use all frames in the spritesheet
+        }),
+        frameRate: 12,
+        repeat: 0, // Play once
+      });
+    }
   }
 
   createHealthBar() {
@@ -285,6 +298,8 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
   }
 
   updateAnimation() {
+    if (this.isDead) return; // Don't update animations when dead
+    
     if (this.isMoving) {
       if (!this.anims.isPlaying || this.anims.currentAnim.key !== "zombieRunAni") {
         this.play("zombieRunAni");
@@ -345,27 +360,55 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
     this.isDead = true;
     this.isAttacking = false;
 
+    // Stop movement immediately
     this.body.velocity.x = 0;
     this.body.velocity.y = 0;
     this.body.enable = false;
 
+    // Remove from zombie group
     if (this.scene.zombieGroup) {
       this.scene.zombieGroup.remove(this);
     }
 
-    this.spawnRewards();
+    // Clear any tints and stop current animations
+    this.clearTint();
     this.stop();
-    
-    this.setTint(0xff0000);
-    this.scene.tweens.add({
-      targets: this,
-      alpha: 0,
-      duration: 500,
-      onComplete: () => {
-        this.cleanupAndDestroy();
-      }
-    });
 
+    // Play death animation if the texture exists
+    if (this.scene.textures.exists("zombieDeath1")) {
+      this.play("zombieDeath1");
+      
+      // Listen for animation complete event
+      this.on('animationcomplete-zombieDeath1', () => {
+        // Spawn rewards after death animation completes
+        this.spawnRewards();
+        
+        // Start fade out effect
+        this.scene.tweens.add({
+          targets: this,
+          alpha: 0,
+          duration: 300,
+          onComplete: () => {
+            this.cleanupAndDestroy();
+          }
+        });
+      });
+    } else {
+      // If death animation doesn't exist, proceed with original death sequence
+      console.warn("zombieDeath1 texture not found, using fallback death sequence");
+      this.spawnRewards();
+      this.setTint(0xff0000);
+      this.scene.tweens.add({
+        targets: this,
+        alpha: 0,
+        duration: 500,
+        onComplete: () => {
+          this.cleanupAndDestroy();
+        }
+      });
+    }
+
+    // Clean up shadow immediately
     if (this.shadow) {
       this.shadow.destroy();
       this.shadow = null;

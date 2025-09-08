@@ -80,9 +80,9 @@
                 "key": "Animated water tiles (full tile)"
             },
             {
-                "url": "assets/Animations.json",
+                "url": "public/assets/Animations.json",
                 "type": "animation",
-                "key": "Animations"
+                "key": "Animations_1"
             },
             {
                 "url": "assets/Hero/AttackPatterns/Basic/AOE_Basic_Slash_Attack_V01.png",
