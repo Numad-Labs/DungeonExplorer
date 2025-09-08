@@ -3180,7 +3180,7 @@
         "key": "WreatherAttack"
       },
       {
-        "url": "assets/Hero/zombie 1/zombie1Attack.png",
+        "url": "public/assets/Hero/zombie 1/zombie1Attack.png",
         "frameConfig": {
           "frameWidth": 64,
           "frameHeight": 64,
