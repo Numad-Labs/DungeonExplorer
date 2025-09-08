@@ -207,7 +207,7 @@ export default class BaseGameScene extends Phaser.Scene {
     this.staticObstacles = this.physics.add.staticGroup();
   }
 
-  // Stats display - more modular using config
+  // Stats display - more modular using config ynkooon
   createStatsDisplay() {
     try {
       this.createStatsContainer();
