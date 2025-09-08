@@ -7,14 +7,9 @@
 
 export default class Zombie extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, texture, frame) {
-    // Ensure texture has a default value and exists in the scene
     const defaultTexture = "zombierun";
     const finalTexture = texture || defaultTexture;
-    
-    // Check if the texture exists before creating the sprite
     if (!scene.textures.exists(finalTexture)) {
-      console.error(`Texture '${finalTexture}' does not exist. Make sure to load it in preload().`);
-      // Fallback to a basic texture or create a placeholder
       super(scene, x ?? 32, y ?? 32, scene.textures.exists('__DEFAULT') ? '__DEFAULT' : null, 0);
     } else {
       super(scene, x ?? 32, y ?? 32, finalTexture, frame ?? 0);
@@ -23,7 +18,6 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
     /* START-USER-CTR-CODE */
     // Only proceed if the sprite was created successfully
     if (!this.texture) {
-      console.error("Failed to create zombie sprite - texture not found");
       return;
     }
 
@@ -394,8 +388,7 @@ export default class Zombie extends Phaser.GameObjects.Sprite {
         });
       });
     } else {
-      // If death animation doesn't exist, proceed with original death sequence
-      console.warn("zombieDeath1 texture not found, using fallback death sequence");
+    
       this.spawnRewards();
       this.setTint(0xff0000);
       this.scene.tweens.add({
