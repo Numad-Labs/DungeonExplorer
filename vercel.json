@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets|api|_next|favicon).*)",
+      "source": "/((?!assets).*)",
       "destination": "/index.html"
     }
   ],
@@ -16,19 +16,6 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0"
-        }
-      ]
-    },
-    {
-      "source": "/assets/SFX/(.*).ogg",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "audio/ogg"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000"
         }
       ]
     },
