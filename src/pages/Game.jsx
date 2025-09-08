@@ -9,6 +9,7 @@ const Game = () => {
   //   console.log("Redirecting to new game architecture...");
   //   navigate("/game", { replace: true });
   // }, [navigate]);
+  //
 
   return (
     <div
