@@ -16,9 +16,6 @@ export default class Preload extends Phaser.Scene {
 
   /** @returns {void} */
   editorPreload() {
-    // Load asset pack - it contains all audio files
-    this.load.pack("preload", "assets/preload-asset-pack.json");
-
     // Add loading error handlers
     this.load.on("loaderror", (file) => {
       console.error(`Failed to load: ${file.key} from ${file.url}`);
