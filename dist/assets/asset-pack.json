@@ -16,7 +16,7 @@
             },
             {
                 "url": [
-                    "assets/SFX/character-dying.mp3"
+                    "assets/SFX/character-death.mp3"
                 ],
                 "type": "audio",
                 "key": "characterDying"

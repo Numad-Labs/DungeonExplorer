@@ -1,11 +1,24 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets).*)",
+      "source": "/((?!assets|api|_next|favicon).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
+    {
+      "source": "/assets/**/*.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0"
+        }
+      ]
+    },
     {
       "source": "/assets/SFX/(.*).ogg",
       "headers": [
