@@ -2,21 +2,8 @@
     "section1": {
         "files": [
             {
-                "url": "assets/Hero/assasin archer/assassin-archer-run.png",
-                "frameConfig": {
-                    "frameWidth": 85,
-                    "frameHeight": 112,
-                    "startFrame": 0,
-                    "endFrame": -1,
-                    "spacing": 0,
-                    "margin": 0
-                },
-                "type": "spritesheet",
-                "key": "assassin-archer-run"
-            },
-            {
                 "url": [
-                    "assets/SFX/character-death.mp3"
+                    "assets/SFX/character-dying.mp3"
                 ],
                 "type": "audio",
                 "key": "characterDying"
@@ -27,11 +14,21 @@
                 "type": "image"
             },
             {
+                "url": "assets/PickUp/Exp.png",
+                "key": "Exp",
+                "type": "image"
+            },
+            {
                 "url": [
                     "assets/SFX/game-loop.mp3"
                 ],
                 "type": "audio",
                 "key": "gameLoop"
+            },
+            {
+                "url": "assets/PickUp/Health_Potion_01.png",
+                "key": "Health_Potion_01",
+                "type": "image"
             },
             {
                 "url": [
@@ -53,19 +50,6 @@
                 ],
                 "type": "audio",
                 "key": "menuSelection"
-            },
-            {
-                "url": "assets/Hero/zombie 1/zombieDeath.png",
-                "frameConfig": {
-                    "frameWidth": 46,
-                    "frameHeight": 64,
-                    "startFrame": 0,
-                    "endFrame": -1,
-                    "spacing": 0,
-                    "margin": 0
-                },
-                "type": "spritesheet",
-                "key": "zombieDeath"
             }
         ]
     },
