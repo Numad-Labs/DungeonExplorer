@@ -28,7 +28,7 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		this.maxHealth = 100;
 		this.health = this.maxHealth;
 		this.isInvulnerable = false;
-		this.invulnerabilityTime = 500; 
+		this.invulnerabilityTime = 200;
 		this.isDead = false;
 		this.damage = 10;
 		this.armor = 0;
@@ -369,16 +369,16 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		this.isInvulnerable = true;
 
 		this.scene.tweens.add({
-			targets: this,
-			alpha: 0.3,
-			duration: 100,
-			yoyo: true,
-			repeat: 9,
-			ease: 'Power2',
-			onComplete: () => {
-				this.alpha = 1;
-				this.clearTint();
-			}
+		targets: this,
+		alpha: 0.3,
+		duration: 50,
+		yoyo: true,
+		repeat: 3,
+		ease: 'Power2',
+		onComplete: () => {
+		this.alpha = 1;
+		this.clearTint();
+		}
 		});
 
 		this.scene.time.delayedCall(this.invulnerabilityTime, () => {

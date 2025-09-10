@@ -23,13 +23,13 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.setDepth(18);
         
         // Slash attack (AOE melee)
-        this.slashDamage = player.slashDamage || 10;
+        this.slashDamage = player.slashDamage || 20;
         this.slashFireRate = player.slashFireRate || 1;
         this.slashRange = player.slashRange || 70;
         this.slashCooldown = 2000 / this.slashFireRate; 
         
         // Fire bullet attack (piercing)
-        this.fireBulletDamage = player.fireBulletDamage || 8;
+        this.fireBulletDamage = player.fireBulletDamage || 25;
         this.fireBulletFireRate = player.fireBulletFireRate || 1.2;
         this.fireBulletRange = player.fireBulletRange || 200;
         this.fireBulletCooldown = 2500 / this.fireBulletFireRate;
@@ -37,23 +37,23 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.fireBulletDotDuration = 4000;
         
         // Fire bomb attack (AOE explosion)
-        this.fireBombDamage = player.fireBombDamage || 18;
+        this.fireBombDamage = player.fireBombDamage || 50;
         this.fireBombFireRate = player.fireBombFireRate || 0.4;
         this.fireBombRange = player.fireBombRange || 80;
         this.fireBombCooldown = 3000 / this.fireBombFireRate;
         this.fireBombSpeed = 120;
-        this.fireBombExplosionRadius = 50;
+        this.fireBombExplosionRadius = 100;
         this.fireBombDotDuration = 5000;
         
         // Ice projectile attack
-        this.iceDamage = player.iceDamage || 12;
+        this.iceDamage = player.iceDamage || 30;
         this.iceFireRate = player.iceFireRate || 0.6;
         this.iceRange = player.iceRange || 180;
         this.iceCooldown = 2800 / this.iceFireRate;
         this.iceProjectileSpeed = 120;
         
         // Lightning chain attack
-        this.lightningDamage = player.lightningDamage || 20;
+        this.lightningDamage = player.lightningDamage || 45;
         this.lightningFireRate = player.lightningFireRate || 0.5;
         this.lightningRange = player.lightningRange || 250;
         this.lightningCooldown = 4000 / this.lightningFireRate;
@@ -68,7 +68,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.blindingLightDisableDuration = 4000;
         
         // Marksman attack
-        this.marksmanDamage = player.marksmanDamage || 35;
+        this.marksmanDamage = player.marksmanDamage || 75;
         this.marksmanFireRate = player.marksmanFireRate || 0.3;
         this.marksmanRange = player.marksmanRange || 400;
         this.marksmanCooldown = 1500 / this.marksmanFireRate;
@@ -1646,27 +1646,27 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         if (!this.player || !this.scene || !this.scene.active) return;
         
         try {
-        this.slashDamage = this.player.slashDamage || 10;
+        this.slashDamage = this.player.slashDamage || 35;
         this.slashFireRate = this.player.slashFireRate || 1;
         this.slashRange = this.player.slashRange || 70;
         this.slashCooldown = 2000 / this.slashFireRate;
         
-        this.fireBulletDamage = this.player.fireBulletDamage || 8;
+        this.fireBulletDamage = this.player.fireBulletDamage || 25;
         this.fireBulletFireRate = this.player.fireBulletFireRate || 1.2;
         this.fireBulletRange = this.player.fireBulletRange || 300;
         this.fireBulletCooldown = 2500 / this.fireBulletFireRate;
         
-        this.fireBombDamage = this.player.fireBombDamage || 18;
+        this.fireBombDamage = this.player.fireBombDamage || 50;
         this.fireBombFireRate = this.player.fireBombFireRate || 0.4;
         this.fireBombRange = this.player.fireBombRange || 220;
         this.fireBombCooldown = 3000 / this.fireBombFireRate;
         
-        this.iceDamage = this.player.iceDamage || 12;
+        this.iceDamage = this.player.iceDamage || 30;
         this.iceFireRate = this.player.iceFireRate || 0.6;
         this.iceRange = this.player.iceRange || 180;
         this.iceCooldown = 2800 / this.iceFireRate;
         
-        this.lightningDamage = this.player.lightningDamage || 20;
+        this.lightningDamage = this.player.lightningDamage || 45;
         this.lightningFireRate = this.player.lightningFireRate || 0.5;
         this.lightningRange = this.player.lightningRange || 250;
         this.lightningCooldown = 4000 / this.lightningFireRate;
@@ -1678,7 +1678,7 @@ export default class PlayerAttack extends Phaser.GameObjects.Container {
         this.blindingLightDisableDuration = this.player.blindingLightDisableDuration || 4000;
         
         // Marksman attack
-        this.marksmanDamage = this.player.marksmanDamage || 35;
+        this.marksmanDamage = this.player.marksmanDamage || 75;
         this.marksmanFireRate = this.player.marksmanFireRate || 0.3;
         this.marksmanRange = this.player.marksmanRange || 400;
         this.marksmanCooldown = 1500 / this.marksmanFireRate;

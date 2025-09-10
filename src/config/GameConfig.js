@@ -44,17 +44,17 @@ export const PLAYER_CONFIG = {
   DEFAULTS: {
     health: 100,
     maxHealth: 100,
-    damage: 10,
+    damage: 25,
     moveSpeed: 100,
     fireRate: 1,
     attackRange: 80,
     level: 1,
     experience: 0,
-    nextLevelExp: 50
+    nextLevelExp: 30
   },
   LEVEL_UP: {
-    EXP_PER_LEVEL: 50,
-    BASE_EXP_REQUIREMENT: 50
+    EXP_PER_LEVEL: 30,
+    BASE_EXP_REQUIREMENT: 30
   },
   COMBAT: {
     EXP_PER_KILL: 10,
@@ -95,8 +95,8 @@ export const UPGRADE_CONFIGS = {
     description: "Increases maximum health"
   },
   baseDamage: { 
-    base: 10, 
-    perLevel: 2, 
+    base: 25, 
+    perLevel: 5, 
     baseCost: 150, 
     multiplier: 1.6, 
     maxLevel: 15,
@@ -131,8 +131,8 @@ export const UPGRADE_CONFIGS = {
     description: "Increases chance for critical hits"
   },
   critDamage: { 
-    base: 150, 
-    perLevel: 25, 
+    base: 200, 
+    perLevel: 50, 
     baseCost: 250, 
     multiplier: 1.9, 
     maxLevel: 8,
