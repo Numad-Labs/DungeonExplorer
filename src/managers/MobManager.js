@@ -405,14 +405,14 @@ export default class MobManager {
       policeDroid: {
         type: "projectile",
         range: 200,
-        cooldown: 600,
-        speed: 300,
+        cooldown: 1200,
+        speed: 150,
         color: 0xff0000,
         size: 2,
         fixedDamage: 1,
         spreadShot: true,
-        spreadAngle: 15,
-        projectileCount: 3,
+        spreadAngle: 30,
+        projectileCount: 2,
       },
       zombieBig: { type: "explosion", range: 80, damage: 15, color: 0xff4444 },
       assassinArcher: {
