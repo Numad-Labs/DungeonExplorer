@@ -369,10 +369,12 @@ export default class MobManager {
 
   applyStats(mob, config) {
     const difficulty = this.gameManager?.gameProgress?.currentDifficulty || 1;
-    const waveBonus = this.currentWave * 0.1;
-    const healthScale = 1 + (difficulty - 1) * 0.2 + waveBonus;
-    const damageScale = 1 + (difficulty - 1) * 0.1 + waveBonus * 0.5;
-    const speedScale = 1 + (difficulty - 1) * 0.05;
+    const waveBonus = this.currentWave * 0.05;
+    const healthScale = 1 + (difficulty - 1) * 0.15 + waveBonus;
+    const gameTimeSeconds = this.getGameTimeElapsed() / 1000;
+    const damageScale = gameTimeSeconds > 1200 ? 1 + (difficulty - 1) * 0.02 + waveBonus * 0.05 : 1;
+    
+    const speedScale = 1 + (difficulty - 1) * 0.02;
 
     mob.maxHealth = Math.floor(config.baseHealth * healthScale);
     mob.health = mob.maxHealth;
@@ -403,10 +405,14 @@ export default class MobManager {
       policeDroid: {
         type: "projectile",
         range: 200,
-        cooldown: 2000,
-        speed: 150,
+        cooldown: 600,
+        speed: 300,
         color: 0xff0000,
-        size: 3,
+        size: 2,
+        fixedDamage: 1,
+        spreadShot: true,
+        spreadAngle: 15,
+        projectileCount: 3,
       },
       zombieBig: { type: "explosion", range: 80, damage: 15, color: 0xff4444 },
       assassinArcher: {
@@ -475,6 +481,37 @@ export default class MobManager {
   fireProjectile(mob, config) {
     if (!this.player) return;
 
+    if (config.spreadShot && config.projectileCount > 1) {
+      this.fireSpreadProjectiles(mob, config);
+      return;
+    }
+
+    this.createSingleProjectile(mob, config, 0);
+    this.createMuzzleFlash(mob);
+  }
+
+  fireSpreadProjectiles(mob, config) {
+    const baseAngle = Phaser.Math.Angle.Between(
+      mob.x,
+      mob.y,
+      this.player.x,
+      this.player.y
+    );
+
+    const spreadAngleRad = Phaser.Math.DegToRad(config.spreadAngle);
+    const projectileCount = config.projectileCount;
+    const totalSpread = (projectileCount - 1) * spreadAngleRad;
+    const startAngle = baseAngle - totalSpread / 2;
+
+    for (let i = 0; i < projectileCount; i++) {
+      const angle = startAngle + i * spreadAngleRad;
+      this.createSingleProjectile(mob, config, angle - baseAngle);
+    }
+
+    this.createMuzzleFlash(mob);
+  }
+
+  createSingleProjectile(mob, config, angleOffset = 0) {
     const projectile = this.scene.add.circle(
       mob.x,
       mob.y,
@@ -486,22 +523,25 @@ export default class MobManager {
     projectile.body.setCircle(config.size);
     projectile.setDepth(15);
 
-    const angle = Phaser.Math.Angle.Between(
+    const baseAngle = Phaser.Math.Angle.Between(
       mob.x,
       mob.y,
       this.player.x,
       this.player.y
     );
+    const finalAngle = baseAngle + angleOffset;
+
     projectile.body.setVelocity(
-      Math.cos(angle) * config.speed,
-      Math.sin(angle) * config.speed
+      Math.cos(finalAngle) * config.speed,
+      Math.sin(finalAngle) * config.speed
     );
 
     const hitOverlap = this.scene.physics.add.overlap(
       this.player,
       projectile,
       () => {
-        if (this.player.takeDamage) this.player.takeDamage(mob.damage);
+        const projectileDamage = config.fixedDamage || mob.damage;
+        if (this.player.takeDamage) this.player.takeDamage(projectileDamage);
         this.createHitEffect(projectile.x, projectile.y);
         hitOverlap.destroy();
         projectile.destroy();
@@ -514,8 +554,6 @@ export default class MobManager {
         projectile.destroy();
       }
     });
-
-    this.createMuzzleFlash(mob);
   }
 
   createMuzzleFlash(mob) {
@@ -545,57 +583,83 @@ export default class MobManager {
   createDeathExplosion(mob, config) {
     if (!this.player) return;
 
-    const explosion = this.scene.add.circle(
+    const warningCircle = this.scene.add.circle(
       mob.x,
       mob.y,
       config.range,
-      config.color,
-      0.6
+      0xff4444,
+      0.3
     );
-    explosion.setDepth(30);
+    warningCircle.setDepth(25);
+    warningCircle.setStrokeStyle(3, 0xff0000, 0.8);
+    
     this.scene.tweens.add({
-      targets: explosion,
-      scale: { from: 0, to: 1.5 },
-      alpha: { from: 0.6, to: 0 },
+      targets: warningCircle,
+      alpha: { from: 0.3, to: 0.6 },
+      scaleX: { from: 0.8, to: 1.2 },
+      scaleY: { from: 0.8, to: 1.2 },
       duration: 500,
-      onComplete: () => explosion.destroy(),
+      yoyo: true,
+      repeat: 0
     });
 
-    const distanceToPlayer = Phaser.Math.Distance.Between(
-      mob.x,
-      mob.y,
-      this.player.x,
-      this.player.y
-    );
-    if (distanceToPlayer <= config.range) {
-      if (this.player.takeDamage) this.player.takeDamage(config.damage);
-      if (this.player.body) {
-        const angle = Phaser.Math.Angle.Between(
-          mob.x,
-          mob.y,
-          this.player.x,
-          this.player.y
-        );
-        const knockbackForce = 150;
-        this.player.body.velocity.x += Math.cos(angle) * knockbackForce;
-        this.player.body.velocity.y += Math.sin(angle) * knockbackForce;
+    this.scene.time.delayedCall(1000, () => {
+      if (warningCircle && warningCircle.active) {
+        warningCircle.destroy();
       }
-    }
 
-    this.getAllActiveMobs().forEach((otherMob) => {
-      if (otherMob === mob || otherMob.isDead) return;
-      const distance = Phaser.Math.Distance.Between(
+      const explosion = this.scene.add.circle(
         mob.x,
         mob.y,
-        otherMob.x,
-        otherMob.y
+        config.range,
+        config.color,
+        0.8
       );
-      if (distance <= config.range && otherMob.takeDamage) {
-        otherMob.takeDamage(Math.floor(config.damage * 0.5));
-      }
-    });
+      explosion.setDepth(30);
+      this.scene.tweens.add({
+        targets: explosion,
+        scale: { from: 0, to: 2 },
+        alpha: { from: 0.8, to: 0 },
+        duration: 500,
+        onComplete: () => explosion.destroy(),
+      });
 
-    this.scene.cameras.main.shake(200, 0.005);
+      const distanceToPlayer = Phaser.Math.Distance.Between(
+        mob.x,
+        mob.y,
+        this.player.x,
+        this.player.y
+      );
+      if (distanceToPlayer <= config.range) {
+        if (this.player.takeDamage) this.player.takeDamage(config.damage);
+        if (this.player.body) {
+          const angle = Phaser.Math.Angle.Between(
+            mob.x,
+            mob.y,
+            this.player.x,
+            this.player.y
+          );
+          const knockbackForce = 150;
+          this.player.body.velocity.x += Math.cos(angle) * knockbackForce;
+          this.player.body.velocity.y += Math.sin(angle) * knockbackForce;
+        }
+      }
+
+      this.getAllActiveMobs().forEach((otherMob) => {
+        if (otherMob === mob || otherMob.isDead) return;
+        const distance = Phaser.Math.Distance.Between(
+          mob.x,
+          mob.y,
+          otherMob.x,
+          otherMob.y
+        );
+        if (distance <= config.range && otherMob.takeDamage) {
+          otherMob.takeDamage(Math.floor(config.damage * 0.5));
+        }
+      });
+
+      this.scene.cameras.main.shake(200, 0.008);
+    });
   }
 
   spawnMobRewards(mob) {

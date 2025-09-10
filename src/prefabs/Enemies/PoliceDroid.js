@@ -302,32 +302,7 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
   }
 
   shootAtPlayer(player) {
-    if (!player || !player.takeDamage) return;
-
-    this.isAttacking = true;
-    this.body.velocity.x = 0;
-    this.body.velocity.y = 0;
-    this.play("PoliceDroidShooter");
-    this.createMuzzleFlash();
-    this.createBulletTrail(player);
-    this.once("animationcomplete", (animation) => {
-      if (animation.key === "PoliceDroidShooter") {
-        this.isAttacking = false;
-      }
-    });
-    this.scene.time.delayedCall(300, () => {
-      if (player && player.takeDamage) {
-        player.takeDamage(this.damage);
-        this.createHitEffect(player);
-      }
-    });
-
-    this.setTint(0xffaa00);
-    this.scene.time.delayedCall(150, () => {
-      this.clearTint();
-    });
-
-    this.lastAttackTime = this.scene.time.now;
+    return;
   }
 
   createMuzzleFlash() {
@@ -396,7 +371,7 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
     });
   }
   attackPlayer(player) {
-    this.shootAtPlayer(player);
+    return;
   }
 
   takeDamage(amount) {

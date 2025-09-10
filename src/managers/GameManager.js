@@ -306,7 +306,7 @@ export default class GameManager {
     this.statsTracker.trackRunEvent('levelReached', this.playerStats.level);
     
     const expOverflow = this.playerStats.experience - this.playerStats.nextLevelExp;
-    this.playerStats.nextLevelExp = 50 * this.playerStats.level;
+    this.playerStats.nextLevelExp = 30 * this.playerStats.level;
     this.playerStats.experience = expOverflow;
     
     this.events.emit('levelUp', this.playerStats.level);
