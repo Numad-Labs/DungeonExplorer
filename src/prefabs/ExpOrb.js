@@ -128,7 +128,7 @@ export default class ExpOrb extends Phaser.GameObjects.Image {
             // Play collection sound effect
             try {
                 if (typeof window.playSound === 'function') {
-                    window.playSound('menuSelection', { volume: 0.4 });
+                    window.playSound('menuSelection', { volume: 0.15 });
                 }
             } catch (error) {
                 console.warn('Could not play exp collection sound:', error);
