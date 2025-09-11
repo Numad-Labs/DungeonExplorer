@@ -46,8 +46,34 @@ class Boot extends Phaser.Scene {
   }
 
   preload() {
-    this.load.pack("pack", "assets/preload-asset-pack.json");
-    this.load.pack("asset-pack", "assets/asset-pack.json");
+    this.loadCustomPack("pack", "preload-asset-pack.json");
+    this.loadCustomPack("asset-pack", "asset-pack.json");
+  }
+
+  loadCustomPack(key, filename) {
+    const basePaths = ["assets/", "public/assets/"];
+
+    basePaths.forEach((basePath, index) => {
+      const packKey = index === 0 ? key : `${key}_fallback_${index}`;
+      this.load.pack(packKey, `${basePath}${filename}`);
+    });
+
+    this.load.on("packload", (loadedKey, pack) => {
+      if (loadedKey.startsWith(key)) {
+        // Successfully loaded, cancel other attempts
+        this.cancelFallbackPacks(key, loadedKey);
+      }
+    });
+  }
+
+  cancelFallbackPacks(baseKey, successKey) {
+    // Remove other pack loaders that aren't needed
+    const loadQueue = this.load.queue.entries;
+    loadQueue.forEach((entry) => {
+      if (entry.key.startsWith(baseKey) && entry.key !== successKey) {
+        this.load.removeFile(entry);
+      }
+    });
   }
 
   create() {
