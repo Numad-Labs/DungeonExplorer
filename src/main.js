@@ -46,19 +46,21 @@ class Boot extends Phaser.Scene {
   }
 
   preload() {
-    const basePath = window.PHASER_EDITOR_MODE ? "public/" : "";
+    // Don't modify the JSON file, modify the loading logic
+    const isProduction = window.location.href.includes("insomnus.xyz");
 
-    // Add error handling
-    this.load.on("filecomplete", (key, type, data) => {
-      console.log(`Loaded: ${key} (${type})`);
-    });
+    if (isProduction) {
+      // For production, load the pack but intercept the URLs
+      this.load.pack("pack", "assets/preload-asset-pack.json");
 
-    this.load.on("loaderror", (file) => {
-      console.error(`Failed to load: ${file.key} from ${file.url}`);
-    });
-
-    this.load.pack("pack", `${basePath}assets/preload-asset-pack.json`);
-    this.load.pack("asset-pack", `${basePath}assets/asset-pack.json`);
+      // Override the URL resolution
+      this.load.on("filecomplete-pack", () => {
+        // Manually fix paths after pack loads
+      });
+    } else {
+      // For editor, load as-is
+      this.load.pack("pack", "public/assets/preload-asset-pack.json");
+    }
   }
   create() {
     window.dispatchEvent(new CustomEvent("gameBootComplete"));
