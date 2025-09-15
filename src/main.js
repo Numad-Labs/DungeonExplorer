@@ -47,10 +47,19 @@ class Boot extends Phaser.Scene {
 
   preload() {
     const basePath = window.PHASER_EDITOR_MODE ? "public/" : "";
+
+    // Add error handling
+    this.load.on("filecomplete", (key, type, data) => {
+      console.log(`Loaded: ${key} (${type})`);
+    });
+
+    this.load.on("loaderror", (file) => {
+      console.error(`Failed to load: ${file.key} from ${file.url}`);
+    });
+
     this.load.pack("pack", `${basePath}assets/preload-asset-pack.json`);
     this.load.pack("asset-pack", `${basePath}assets/asset-pack.json`);
   }
-
   create() {
     window.dispatchEvent(new CustomEvent("gameBootComplete"));
 
