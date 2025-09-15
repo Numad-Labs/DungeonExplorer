@@ -6,7 +6,7 @@
         "autoImport": true,
         "preloadMethodName": "editorPreload",
         "preloadPackFiles": [
-            "starter-template-basic-typescript/public/assets/asset-pack.json"
+            "starter-template-basic-typescript/assets/asset-pack.json"
         ],
         "createMethodName": "editorCreate",
         "sceneKey": "Preload",
