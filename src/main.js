@@ -46,21 +46,8 @@ class Boot extends Phaser.Scene {
   }
 
   preload() {
-    // Don't modify the JSON file, modify the loading logic
-    const isProduction = window.location.href.includes("insomnus.xyz");
-
-    if (isProduction) {
-      // For production, load the pack but intercept the URLs
-      this.load.pack("pack", "assets/preload-asset-pack.json");
-
-      // Override the URL resolution
-      this.load.on("filecomplete-pack", () => {
-        // Manually fix paths after pack loads
-      });
-    } else {
-      // For editor, load as-is
-      this.load.pack("pack", "public/assets/preload-asset-pack.json");
-    }
+    this.load.pack("pack", "assets/preload-asset-pack.json");
+    this.load.pack("asset-pack", "assets/asset-pack.json");
   }
   create() {
     window.dispatchEvent(new CustomEvent("gameBootComplete"));
