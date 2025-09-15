@@ -48,6 +48,7 @@ class Boot extends Phaser.Scene {
   preload() {
     this.load.pack("pack", "assets/preload-asset-pack.json");
     this.load.pack("asset-pack", "assets/asset-pack.json");
+    //sssssssslllrr
   }
   create() {
     window.dispatchEvent(new CustomEvent("gameBootComplete"));
