@@ -46,8 +46,9 @@ class Boot extends Phaser.Scene {
   }
 
   preload() {
-    this.load.pack("pack", "assets/preload-asset-pack.json");
-    this.load.pack("asset-pack", "assets/asset-pack.json");
+    const basePath = window.PHASER_EDITOR_MODE ? "public/" : "";
+    this.load.pack("pack", `${basePath}assets/preload-asset-pack.json`);
+    this.load.pack("asset-pack", `${basePath}assets/asset-pack.json`);
   }
 
   create() {
