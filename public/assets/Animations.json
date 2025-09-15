@@ -6310,24 +6310,6 @@
                     "frame": 4,
                     "duration": 0,
                     "keyframe": false
-                },
-                {
-                    "key": "Police run",
-                    "frame": 6,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Police run",
-                    "frame": 8,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Police run",
-                    "frame": 10,
-                    "duration": 0,
-                    "keyframe": false
                 }
             ],
             "frameRate": 8,
@@ -6354,24 +6336,6 @@
                 {
                     "key": "Police shooter",
                     "frame": 4,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Police shooter",
-                    "frame": 6,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Police shooter",
-                    "frame": 8,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "Police shooter",
-                    "frame": 10,
                     "duration": 0,
                     "keyframe": false
                 }
@@ -6781,12 +6745,6 @@
                     "frame": 8,
                     "duration": 0,
                     "keyframe": false
-                },
-                {
-                    "key": "attack 2t",
-                    "frame": 9,
-                    "duration": 0,
-                    "keyframe": false
                 }
             ],
             "frameRate": 8,
@@ -6860,60 +6818,6 @@
                 {
                     "key": "shrine-buff available animation-295x311",
                     "frame": 10,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 11,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 12,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 13,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 14,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 15,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 16,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 17,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 18,
-                    "duration": 0,
-                    "keyframe": false
-                },
-                {
-                    "key": "shrine-buff available animation-295x311",
-                    "frame": 19,
                     "duration": 0,
                     "keyframe": false
                 }
