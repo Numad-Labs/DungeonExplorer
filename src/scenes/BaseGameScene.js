@@ -6,6 +6,7 @@ import PlayerLevel from "../prefabs/PlayerLevel";
 import { EventBus } from "../game/EventBus";
 import GameConfig from "../config/GameConfig.js";
 import AudioManager from "../audio/AudioManager.js";
+import PauseManager from "../managers/PauseManager.js";
 
 export default class BaseGameScene extends Phaser.Scene {
   constructor(sceneKey) {
@@ -19,6 +20,7 @@ export default class BaseGameScene extends Phaser.Scene {
     this.gameplayManager = null;
     this.powerUpManager = null;
     this.audioManager = null;
+    this.pauseManager = null;
     
     // Player systems
     this.playerAttackSystem = null;
@@ -50,6 +52,10 @@ export default class BaseGameScene extends Phaser.Scene {
     
     // Timers
     this.enemySpawnTimer = null;
+    
+    // Pause tracking
+    this._isPausedByPauseManager = false;
+    this._wasPausedByPauseManager = false;
   }
 
   preload() {
@@ -95,13 +101,15 @@ export default class BaseGameScene extends Phaser.Scene {
   }
 
   initializeCore() {
-    // Get or create game manager
     this.gameManager = this.game.registry.get("gameManager") || new GameManager();
     this.game.registry.set("gameManager", this.gameManager);
     this.gameManager.setCurrentScene(this);
     window.gameManager = this.gameManager;
     
-    // Initialize AudioManager if not already available
+    // Initialize PauseManager
+    this.pauseManager = PauseManager.get();
+    
+    // Initialize AudioManager
     if (!window.audioManager && this.sound) {
       this.audioManager = new AudioManager(this);
       window.audioManager = this.audioManager;
@@ -116,6 +124,9 @@ export default class BaseGameScene extends Phaser.Scene {
     
     // Initialize collision system
     this.initializeCollisionSystem();
+    
+    // Store reference for PauseManager
+    window.currentGameScene = this;
   }
 
   resetGameState() {
@@ -260,15 +271,21 @@ export default class BaseGameScene extends Phaser.Scene {
   startStatsUpdateTimer() {
     this.statsUpdateTimer = this.time.addEvent({
       delay: GameConfig.UI.STATS_DISPLAY.UPDATE_INTERVAL,
-      callback: this.updateStatsDisplay,
+      callback: () => {
+        this.updateStatsDisplay();
+      },
       callbackScope: this,
       loop: true
     });
   }
 
-  // Stats update - optimized
+  // Stats update
   updateStatsDisplay() {
     if (!this.gameManager) return;
+    
+    if (this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) {
+      return;
+    }
 
     try {
       const currentTime = Date.now() - this.gameStartTime;
@@ -462,6 +479,10 @@ export default class BaseGameScene extends Phaser.Scene {
   // Update loop - optimized
   update(time, delta) {
     try {
+      if (this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) {
+        return;
+      }
+      
       if (this.debugMode && this.upgradeDebugText) {
         this.updateDebugDisplay();
       }
@@ -525,6 +546,10 @@ export default class BaseGameScene extends Phaser.Scene {
         this[manager] = null;
       }
     });
+    
+    if (window.currentGameScene === this) {
+      delete window.currentGameScene;
+    }
   }
 
   cleanupPhysicsGroups() {

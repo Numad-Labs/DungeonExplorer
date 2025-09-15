@@ -11,6 +11,7 @@ import MobManager from "../managers/MobManager.js";
 /* START-USER-IMPORTS */
 import { EventBus } from "../game/EventBus";
 import GameConfig from "../config/GameConfig.js";
+import PauseManager from "../managers/PauseManager.js";
 /* END-USER-IMPORTS */
 
 export default class MainMapScene extends BaseGameScene {
@@ -48,11 +49,9 @@ export default class MainMapScene extends BaseGameScene {
   create() {
     this.setupWorld();
     super.create();
-    
     this.editorCreate();
     this.initializeAllSystems();
-    
-    // Start background music when the game scene loads
+    this.pauseManager = PauseManager.get();
     this.startBackgroundMusic();
     this.createGameStartLightEffect();
   }
@@ -341,10 +340,14 @@ export default class MainMapScene extends BaseGameScene {
     this.gameStartTime = Date.now();
     this.gameTime = 0;
     this.isGameRunning = true;
+    this.pausedTime = 0;
+    this.pauseStartTime = null;
     
     this.gameTimer = this.time.addEvent({
       delay: 1000,
-      callback: this.updateGameTime,
+      callback: () => {
+        this.updateGameTime();
+      },
       callbackScope: this,
       loop: true
     });
@@ -362,7 +365,11 @@ export default class MainMapScene extends BaseGameScene {
   startWaveTimer() {
     this.waveTimer = this.time.addEvent({
       delay: GameConfig.WAVE.ADVANCE_TIMER,
-      callback: this.advanceWave,
+      callback: () => {
+        if (!this._wasPausedByPauseManager && !this.pauseManager?.isGamePaused()) {
+          this.advanceWave();
+        }
+      },
       callbackScope: this,
       loop: true
     });
@@ -371,7 +378,22 @@ export default class MainMapScene extends BaseGameScene {
   updateGameTime() {
     if (!this.isGameRunning) return;
     
-    this.gameTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
+    const isPaused = this._wasPausedByPauseManager || this.pauseManager?.isGamePaused();
+    
+    if (isPaused) {
+      if (!this.pauseStartTime) {
+        this.pauseStartTime = Date.now();
+      }
+      return;
+    } else {
+      if (this.pauseStartTime) {
+        const pauseDuration = Date.now() - this.pauseStartTime;
+        this.pausedTime += pauseDuration;
+        this.pauseStartTime = null;
+      }
+    }
+    
+    this.gameTime = Math.floor((Date.now() - this.gameStartTime - this.pausedTime) / 1000);
     this.updateTimerDisplay();
   }
 
@@ -385,7 +407,7 @@ export default class MainMapScene extends BaseGameScene {
         gameTime: this.gameTime,
         formattedTime,
         currentWave: this.currentWave || GameConfig.WAVE.INITIAL_WAVE,
-        isGameRunning: this.isGameRunning
+        isGameRunning: true
       });
     } catch (error) {
       console.error("Error updating timer display:", error);
@@ -957,7 +979,7 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   activateRandomPortal() {
-    if (!this.scene?.isActive() || this.isTeleporting) return;
+    if (!this.scene?.isActive() || this.isTeleporting || this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) return;
 
     this.deactivateCurrentPortal();
     
@@ -1396,6 +1418,10 @@ export default class MainMapScene extends BaseGameScene {
     super.update?.(time, delta);
 
     try {
+      if (this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) {
+        return;
+      }
+      
       this.updateCamera();
       this.updateManagers(time, delta);
     } catch (error) {

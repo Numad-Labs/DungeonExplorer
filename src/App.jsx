@@ -31,6 +31,8 @@ import GameNotifications from "./components/GameNotifications.jsx";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { getBridge } from "./bridge/GameBridge.js";
 import DeathLoadingScreen from "./components/DeathLoadingScreen.jsx";
+import PauseManager from "./managers/PauseManager.js";
+import PauseMenu from "./components/PauseMenu.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -70,8 +72,9 @@ function GameRoute() {
   const [showDeathLoading, setShowDeathLoading] = useState(false);
   const [deathData, setDeathData] = useState(null);
 
-  // Auto-resume pause state
-  const [pauseCountdown, setPauseCountdown] = useState(3);
+  // Pause menu state
+  const [showPauseMenu, setShowPauseMenu] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const { setGameControls } = useGameControls();
   const location = useLocation();
@@ -82,7 +85,9 @@ function GameRoute() {
 
     switch (id) {
       case "PAUSE_MENU":
-        setGameState("paused");
+        setShowPauseMenu(true);
+        const pauseManager = PauseManager.get();
+        pauseManager.pauseGame();
         break;
       case "GAME_OVER":
         // Show death loading screen
@@ -92,6 +97,7 @@ function GameRoute() {
         setShowHPBar(false);
         break;
       case "SETTINGS":
+        setShowSettings(true);
         break;
       default:
         break;
@@ -111,11 +117,22 @@ function GameRoute() {
     if (phaserRef.current?.startGame) {
       phaserRef.current.startGame();
     }
+    
+    const pauseManager = PauseManager.get();
+    if (pauseManager.isGamePaused()) {
+      pauseManager.resumeGame();
+    }
   };
 
   const returnToMenu = () => {
+    setShowPauseMenu(false);
+    setShowSettings(false);
     setGameState("menu");
     setShowHPBar(false);
+    const pauseManager = PauseManager.get();
+    if (pauseManager.isGamePaused()) {
+      pauseManager.resumeGame();
+    }
 
     if (phaserRef.current?.stopGame) {
       phaserRef.current.stopGame();
@@ -130,6 +147,34 @@ function GameRoute() {
     setGameState("menu");
     // Navigate to dashboard after death loading
     navigate("/");
+  };
+
+  const handlePauseContinue = () => {
+    const pauseManager = PauseManager.get();
+    setShowPauseMenu(false);
+    
+    if (!pauseManager.isSkillSelectionActive()) {
+      pauseManager.resumeGame();
+    }
+  };
+
+  const handlePauseMainMenu = () => {
+    const pauseManager = PauseManager.get();
+    setShowPauseMenu(false);
+    
+    if (pauseManager.isSkillSelectionActive()) {
+      pauseManager.skillSelectionActive = false;
+    }
+    
+    returnToMenu();
+  };
+
+  const handlePauseSettings = () => {
+    setShowSettings(true);
+  };
+
+  const handleSettingsClose = () => {
+    setShowSettings(false);
   };
 
   // Register game controls with context
@@ -153,50 +198,6 @@ function GameRoute() {
       }, 500);
     }
   }, [location.search, gameState]);
-
-  // Auto-resume pause after 3 seconds
-  useEffect(() => {
-    let pauseTimer;
-
-    if (gameState === "paused") {
-      // Set a 3-second timer to auto-resume
-      pauseTimer = setTimeout(() => {
-        setGameState("playing");
-      }, 3000);
-    }
-
-    // Cleanup timer if component unmounts or gameState changes
-    return () => {
-      if (pauseTimer) {
-        clearTimeout(pauseTimer);
-      }
-    };
-  }, [gameState]);
-
-  // Handle countdown display for pause screen
-  useEffect(() => {
-    let countdownInterval;
-
-    if (gameState === "paused") {
-      setPauseCountdown(3);
-
-      countdownInterval = setInterval(() => {
-        setPauseCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownInterval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-    };
-  }, [gameState]);
 
   useEffect(() => {
     const handleGameStart = () => {
@@ -222,7 +223,23 @@ function GameRoute() {
 
     const handleKeyPress = (e) => {
       if (e.key === "Escape" && gameState === "playing") {
-        returnToMenu();
+        const pauseManager = PauseManager.get();
+        
+        if (pauseManager.isSkillSelectionActive()) {
+          if (showPauseMenu) {
+            setShowPauseMenu(false);
+          } else {
+            setShowPauseMenu(true);
+          }
+        } else {
+          if (showPauseMenu) {
+            setShowPauseMenu(false);
+            pauseManager.resumeGame();
+          } else {
+            setShowPauseMenu(true);
+            pauseManager.pauseGame();
+          }
+        }
       }
     };
 
@@ -234,7 +251,7 @@ function GameRoute() {
       EventBus.removeListener("return-to-menu", handleReturnToMenu);
       document.removeEventListener("keydown", handleKeyPress);
     };
-  }, [gameState, navigate]);
+  }, [gameState, navigate, showPauseMenu]);
 
   return (
     <div
@@ -280,7 +297,7 @@ function GameRoute() {
         />
       </div>
 
-      {gameState === "playing" && !showDeathLoading && (
+      {gameState === "playing" && !showDeathLoading && !showPauseMenu && (
         <>
           {showHPBar && <HPBar showGoldIcon={true} />}
           {showHPBar && <SkillExpBar />}
@@ -300,12 +317,22 @@ function GameRoute() {
               zIndex: 1000,
             }}
           >
-            Press ESC to return to menu
+            Press ESC to pause
           </div>
         </>
       )}
 
-      {gameState === "paused" && !showDeathLoading && (
+      {/* Pause Menu */}
+      {showPauseMenu && (
+        <PauseMenu
+          onContinue={handlePauseContinue}
+          onMainMenu={handlePauseMainMenu}
+          onSettings={handlePauseSettings}
+        />
+      )}
+
+      {/* Settings Menu (placeholder) */}
+      {showSettings && (
         <div
           style={{
             position: "fixed",
@@ -313,41 +340,22 @@ function GameRoute() {
             left: 0,
             width: "100vw",
             height: "100vh",
-            background: "linear-gradient(45deg, #1a1a1a, #2d1b1b, #1a1a1a)",
-            backgroundSize: "400% 400%",
+            background: "rgba(0, 0, 0, 0.8)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 1000,
-            animation: "backgroundShift 4s ease-in-out infinite",
+            zIndex: 1001,
           }}
         >
-          <div className="bg-cover p-5 rounded-lg text-white text-center w-[500px] h-[200px] flex flex-col justify-center items-center gap-[32px]">
-            <div>
-              <img src="GamePause.png" className="w-140 h-auto" alt="" />
-            </div>
-
-            {/* Add countdown display */}
-            <div className="text-2xl text-yellow-400 font-bold">
-              {pauseCountdown}
-            </div>
-
-            <div className="flex gap-[10px]">
-              <button
-                onClick={() => setGameState("playing")}
-                className="bg-cover bg-center bg-no-repeat w-[200px] h-[50px] border-none cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{
-                  backgroundImage: "url('./Resume.png')",
-                }}
-              ></button>
-              <button
-                onClick={returnToMenu}
-                className="bg-cover bg-center bg-no-repeat w-[200px] pr-50 h-[50px] border-none cursor-pointer transition-transform duration-200 hover:scale-105"
-                style={{
-                  backgroundImage: "url('./PauseGame.png')",
-                }}
-              ></button>
-            </div>
+          <div className="bg-gray-800 p-8 rounded-lg text-white text-center w-[400px]">
+            <h2 className="text-2xl mb-4">Settings</h2>
+            <p className="mb-4">Settings menu coming soon...</p>
+            <button
+              onClick={handleSettingsClose}
+              className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded text-white"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

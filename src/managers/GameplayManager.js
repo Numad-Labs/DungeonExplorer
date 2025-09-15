@@ -151,19 +151,31 @@ export default class GameplayManager {
   setupTimers() {
     this.timers.orbSpawn = this.scene.time.addEvent({
       delay: 1000,
-      callback: () => this.spawnRandomExperienceOrb(),
+      callback: () => {
+        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+          this.spawnRandomExperienceOrb();
+        }
+      },
       loop: true,
     });
 
     this.timers.goldSpawn = this.scene.time.addEvent({
       delay: 2000,
-      callback: () => this.spawnRandomGoldOrb(),
+      callback: () => {
+        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+          this.spawnRandomGoldOrb();
+        }
+      },
       loop: true,
     });
 
     this.timers.difficulty = this.scene.time.addEvent({
       delay: 1000,
-      callback: () => this.gameManager.updateDifficulty(1000),
+      callback: () => {
+        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+          this.gameManager.updateDifficulty(1000);
+        }
+      },
       loop: true,
     });
 
@@ -255,6 +267,7 @@ export default class GameplayManager {
   setupOrbMovement(orb, isGold = false) {
     const moveToPlayer = () => {
       if (!this.player || this.player.isDead || !orb.body) return;
+      if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
 
       const distance = Phaser.Math.Distance.Between(
         orb.x,
@@ -290,14 +303,14 @@ export default class GameplayManager {
   }
 
   spawnRandomExperienceOrb() {
-    if (!this.player) return;
+    if (!this.player || this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
     const { x, y } = this.getRandomSpawnPosition();
     const value = this.getRandomOrbValue([1, 2, 5, 10], [0.5, 0.8, 0.95, 1]);
     return this.spawnExperienceOrb(x, y, value);
   }
 
   spawnRandomGoldOrb() {
-    if (!this.player) return;
+    if (!this.player || this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
     const { x, y } = this.getRandomSpawnPosition(250, 600);
     const value = this.getRandomOrbValue(
       [1, 2, 5, 10, 20],
@@ -557,6 +570,10 @@ export default class GameplayManager {
   }
 
   update(time, delta) {
+    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) {
+      return;
+    }
+    
     this.mobManager.update(time, delta);
     this.checkEnemyBounds();
     this.checkOrbBounds();

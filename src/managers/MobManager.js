@@ -312,13 +312,21 @@ export default class MobManager {
   startSpawning() {
     this.spawnTimer = this.scene.time.addEvent({
       delay: this.spawnDelay,
-      callback: () => this.spawnRandomMob(),
+      callback: () => {
+        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+          this.spawnRandomMob();
+        }
+      },
       loop: true,
     });
 
     this.waveTimer = this.scene.time.addEvent({
       delay: 20000,
-      callback: () => this.triggerNextWave(),
+      callback: () => {
+        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+          this.triggerNextWave();
+        }
+      },
       loop: false,
     });
   }
@@ -451,6 +459,8 @@ export default class MobManager {
   }
 
   updateMobAbilities(time, delta) {
+    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
+    
     this.getAllActiveMobs().forEach((mob) => {
       if (mob.hasProjectileAttack) {
         this.updateProjectileAttack(mob, time);
@@ -733,6 +743,7 @@ export default class MobManager {
 
   spawnRandomMob() {
     if (!this.player || this.getActiveMobCount() >= this.maxMobs) return;
+    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
     const mobType = this.selectMobType();
     const position = this.getSpawnPosition();
     return this.spawnMob(mobType, position.x, position.y);
@@ -1635,6 +1646,10 @@ export default class MobManager {
   }
 
   update(time, delta) {
+    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) {
+      return;
+    }
+
     const toRemove = [];
 
     if (

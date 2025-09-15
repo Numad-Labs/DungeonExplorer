@@ -1,5 +1,6 @@
 import SkillCard from "../prefabs/SkillCard";
 import { EventBus } from '../game/EventBus';
+import PauseManager from './PauseManager.js';
 
 const SKILLS = {
     slash: {
@@ -159,7 +160,12 @@ export default class SkillUpgradeManager {
         this.scene = scene;
         this.isActive = false;
         this.pendingLevelUps = 0;
-        this.storedState = { timers: [], entities: [] };
+        this.storedState = { timers: [], entities: [], tweens: [], animations: [] };
+        this.pauseManager = PauseManager.get();
+        this.originalTimeScale = 1;
+        this.skillSelectionTimer = null;
+        this.skillSelectionTimeLimit = 10000; // 10 seconds
+        this.countdownText = null;
         
         this.skillLevels = Object.keys(SKILLS).reduce((acc, key) => {
             acc[key] = key === 'slash' ? 1 : 0;
@@ -261,47 +267,148 @@ export default class SkillUpgradeManager {
     }
     
     pauseGame() {
-        ['enemySpawnTimer', 'orbSpawnTimer', 'difficultyTimer'].forEach(timer => {
-            if (this.scene[timer]) {
-                this.storedState.timers.push({ name: timer, paused: this.scene[timer].paused });
-                this.scene[timer].paused = true;
+        this.pauseManager.skillSelectionActive = true;
+        
+        const currentScene = this.scene;
+        if (!currentScene) return;
+
+        currentScene._wasPausedByPauseManager = true;
+        
+        if (currentScene.physics?.world) {
+            currentScene.physics.world.pause();
+            this.originalTimeScale = currentScene.physics.world.timeScale || 1;
+            currentScene.physics.world.timeScale = 0;
+        }
+        
+        this.pauseTweens(currentScene);
+        this.pauseAnimations(currentScene);
+        
+        const managers = [currentScene.gameplayManager, currentScene.mobManager, currentScene.powerUpManager, currentScene.gameManager];
+        managers.forEach(manager => {
+            if (manager) {
+                manager._isPausedByPauseManager = true;
             }
         });
         
-        [this.scene.player, ...(this.scene.enemies?.getChildren() || [])].forEach(entity => {
-            if (entity?.body) {
-                this.storedState.entities.push({
-                    entity, vx: entity.body.velocity.x, vy: entity.body.velocity.y, enabled: entity.body.enable
+        this.pauseEntities(currentScene);
+    }
+    
+    pauseTweens(scene) {
+        if (!scene.tweens) return;
+        
+        try {
+            let tweens = [];
+            
+            if (typeof scene.tweens.getTweens === 'function') {
+                tweens = scene.tweens.getTweens();
+            } else if (typeof scene.tweens.getAllTweens === 'function') {
+                tweens = scene.tweens.getAllTweens();
+            } else if (scene.tweens._tweens) {
+                tweens = scene.tweens._tweens;
+            } else {
+                return;
+            }
+            
+            tweens.forEach(tween => {
+                if (tween && typeof tween.isPaused === 'function' && !tween.isPaused()) {
+                    const target = tween.targets && tween.targets[0];
+                    if (target && (target.depth > 999 || target.name === 'skillCard')) {
+                        return;
+                    }
+                    
+                    tween.pause();
+                    tween._pausedBySkillManager = true;
+                    this.storedState.tweens.push(tween);
+                }
+            });
+        } catch (error) {
+            console.warn('SkillUpgradeManager: Error pausing tweens:', error);
+        }
+    }
+    
+    pauseAnimations(scene) {
+        if (!scene.children) return;
+        
+        try {
+            if (scene.children && scene.children.list) {
+                scene.children.list.forEach(child => {
+                    if (child.depth > 999 || child.name === 'skillCard') return;
+                    
+                    if (child.anims && child.anims.isPlaying && !child.anims.isPaused) {
+                        child.anims.pause();
+                        child._animPausedBySkillManager = true;
+                        this.storedState.animations.push(child);
+                    }
                 });
-                entity.body.velocity.setTo(0, 0);
-                entity.body.enable = false;
             }
-        });
-        
-        this.originalUpdate = this.scene.update;
-        this.scene.update = () => {};
+        } catch (error) {
+            console.warn('SkillUpgradeManager: Error pausing animations:', error);
+        }
+    }
+    
+    pauseEntities(scene) {
+        try {
+            if (scene.player?.body) {
+                this.storedState.entities.push({
+                    entity: scene.player,
+                    vx: scene.player.body.velocity.x,
+                    vy: scene.player.body.velocity.y,
+                    enabled: scene.player.body.enable
+                });
+                scene.player.body.velocity.setTo(0, 0);
+                scene.player.body.enable = false;
+            }
+            
+            if (scene.enemies?.getChildren) {
+                scene.enemies.getChildren().forEach(enemy => {
+                    if (enemy?.body) {
+                        this.storedState.entities.push({
+                            entity: enemy,
+                            vx: enemy.body.velocity.x,
+                            vy: enemy.body.velocity.y,
+                            enabled: enemy.body.enable
+                        });
+                        enemy.body.velocity.setTo(0, 0);
+                        enemy.body.enable = false;
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('SkillUpgradeManager: Error pausing entities:', error);
+        }
     }
     
     createSkillUI() {
         const cam = this.scene.cameras.main;
         this.overlay = this.scene.add.rectangle(cam.width/2, cam.height/2, cam.width, cam.height, 0x000000, 0.8)
             .setScrollFactor(0).setDepth(1000);
+        this.overlay.name = 'skillUI';
         
         this.title = this.scene.add.text(cam.width/2, 80, "LEVEL UP! Choose Your Upgrade", {
             fontFamily: 'Arial', fontSize: '28px', color: '#ffff00', stroke: '#000000', strokeThickness: 4, align: 'center'
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+        this.title.name = 'skillUI';
         
         this.levelText = this.scene.add.text(cam.width/2, 110, `Player Level: ${this.playerLevel + 1}`, {
             fontFamily: 'Arial', fontSize: '20px', color: '#ffffff', stroke: '#000000', strokeThickness: 3
         }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+        this.levelText.name = 'skillUI';
+        
+        this.countdownText = this.scene.add.text(cam.width/2, 140, `Auto-select in: 10s`, {
+            fontFamily: 'Arial', fontSize: '18px', color: '#ff6666', stroke: '#000000', strokeThickness: 2
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+        this.countdownText.name = 'skillUI';
         
         this.container = this.scene.add.container(0, 0).setDepth(1001).setScrollFactor(0);
+        this.container.name = 'skillUI';
         
         const options = this.getAvailableSkillOptions();
         if (options.length === 0) {
             this.resumeGame();
             return;
         }
+        
+        this.currentSkillOptions = options;
         
         const cardPositions = this.getCardPositions(options.length, cam);
         
@@ -314,12 +421,14 @@ export default class SkillUpgradeManager {
             
             const card = new SkillCard(this.scene, cardPositions[i].x, cardPositions[i].y, skillKey, skill, currentLevel, newLevel);
             card.setScale(0.8).setScrollFactor(0).setDepth(1002);
+            card.name = 'skillCard';
             card.setOnSelectCallback(() => this.selectSkill(skillKey));
             card.setInteractive({ useHandCursor: true });
             this.container.add(card);
         });
         
         this.scene.add.existing(this.container);
+        this.startSkillSelectionTimer();
     }
     
     getCardPositions(numCards, cam) {
@@ -335,6 +444,71 @@ export default class SkillUpgradeManager {
         }));
     }
     
+    startSkillSelectionTimer() {
+        let timeRemaining = this.skillSelectionTimeLimit / 1000;
+        
+        this.skillSelectionTimer = this.scene.time.addEvent({
+            delay: 1000,
+            repeat: timeRemaining - 1,
+            callback: () => {
+                timeRemaining--;
+                if (this.countdownText) {
+                    this.countdownText.setText(`Auto-select in: ${timeRemaining}s`);
+                    
+                    if (timeRemaining <= 3) {
+                        this.countdownText.setColor('#ff3333');
+                        this.scene.tweens.add({
+                            targets: this.countdownText,
+                            alpha: 0.3,
+                            duration: 250,
+                            yoyo: true,
+                            repeat: 1
+                        });
+                    } else if (timeRemaining <= 5) {
+                        this.countdownText.setColor('#ff9933');
+                    }
+                }
+                
+                if (timeRemaining <= 0) {
+                    this.autoSelectSkill();
+                }
+            }
+        });
+    }
+    
+    autoSelectSkill() {
+        if (!this.currentSkillOptions || this.currentSkillOptions.length === 0) {
+            this.resumeGame();
+            return;
+        }
+        
+        const randomIndex = Math.floor(Math.random() * this.currentSkillOptions.length);
+        const selectedSkill = this.currentSkillOptions[randomIndex];
+        const cards = this.container.list.filter(child => child.name === 'skillCard');
+        if (cards[randomIndex]) {
+            this.scene.tweens.add({
+                targets: cards[randomIndex],
+                scaleX: 1.1,
+                scaleY: 1.1,
+                duration: 200,
+                yoyo: true,
+                repeat: 2,
+                onComplete: () => {
+                    this.selectSkill(selectedSkill, true);
+                }
+            });
+        } else {
+            this.selectSkill(selectedSkill, true);
+        }
+    }
+    
+    clearSkillSelectionTimer() {
+        if (this.skillSelectionTimer) {
+            this.skillSelectionTimer.destroy();
+            this.skillSelectionTimer = null;
+        }
+    }
+    
     getAvailableSkillOptions() {
         const options = Object.keys(SKILLS).filter(skillKey => {
             const skill = SKILLS[skillKey];
@@ -346,12 +520,18 @@ export default class SkillUpgradeManager {
         return options.sort(() => 0.5 - Math.random()).slice(0, Math.min(3, options.length));
     }
     
-    selectSkill(skillKey) {
-        try {
-            const selectionSound = this.scene.sound.add('menuSelection', { volume: 0.5 });
-            selectionSound.play();
-        } catch (error) {
-            console.error('Error playing selection sound:', error);
+    selectSkill(skillKey, isAutoSelection = false) {
+        this.clearSkillSelectionTimer();
+        
+        if (isAutoSelection) {
+            console.log(`Auto-selected skill: ${skillKey}`);
+        } else {
+            try {
+                const selectionSound = this.scene.sound.add('menuSelection', { volume: 0.5 });
+                selectionSound.play();
+            } catch (error) {
+                console.error('Error playing selection sound:', error);
+            }
         }
         
         this.skillLevels[skillKey]++;
@@ -372,10 +552,10 @@ export default class SkillUpgradeManager {
         EventBus.emit('skill-levels-updated', { skillLevels: this.skillLevels });
         
         this.scene.tweens.add({
-            targets: [this.overlay, this.title, this.levelText, this.container],
+            targets: [this.overlay, this.title, this.levelText, this.countdownText, this.container],
             alpha: 0, duration: 300,
             onComplete: () => {
-                [this.overlay, this.title, this.levelText, this.container].forEach(el => el?.destroy());
+                [this.overlay, this.title, this.levelText, this.countdownText, this.container].forEach(el => el?.destroy());
                 this.resumeGame();
                 this.handlePending();
             }
@@ -401,8 +581,30 @@ export default class SkillUpgradeManager {
     }
     
     resumeGame() {
-        this.storedState.timers.forEach(({ name, paused }) => {
-            if (this.scene[name]) this.scene[name].paused = paused;
+        this.pauseManager.skillSelectionActive = false;
+        this.clearSkillSelectionTimer();
+        
+        const currentScene = this.scene;
+        if (!currentScene) return;
+        currentScene._wasPausedByPauseManager = false;
+        
+        if (currentScene.physics?.world) {
+            currentScene.physics.world.resume();
+            currentScene.physics.world.timeScale = this.originalTimeScale;
+        }
+        
+        this.storedState.tweens.forEach(tween => {
+            if (tween._pausedBySkillManager && typeof tween.resume === 'function') {
+                tween.resume();
+                tween._pausedBySkillManager = false;
+            }
+        });
+        
+        this.storedState.animations.forEach(sprite => {
+            if (sprite._animPausedBySkillManager && sprite.anims) {
+                sprite.anims.resume();
+                sprite._animPausedBySkillManager = false;
+            }
         });
         
         this.storedState.entities.forEach(({ entity, vx, vy, enabled }) => {
@@ -412,10 +614,16 @@ export default class SkillUpgradeManager {
             }
         });
         
-        if (this.originalUpdate) this.scene.update = this.originalUpdate;
+        const managers = [currentScene.gameplayManager, currentScene.mobManager, currentScene.powerUpManager, currentScene.gameManager];
+        managers.forEach(manager => {
+            if (manager) {
+                manager._isPausedByPauseManager = false;
+            }
+        });
         
-        this.storedState = { timers: [], entities: [] };
+        this.storedState = { timers: [], entities: [], tweens: [], animations: [] };
         this.isActive = false;
+        this.currentSkillOptions = null;
     }
     
     handlePending() {
@@ -457,8 +665,16 @@ export default class SkillUpgradeManager {
     }
     
     shutdown() {
-        [this.overlay, this.title, this.levelText, this.container].forEach(el => el?.destroy());
-        if (this.originalUpdate) this.scene.update = this.originalUpdate;
+        [this.overlay, this.title, this.levelText, this.countdownText, this.container].forEach(el => el?.destroy());
+        
+        if (this.pauseManager) {
+            this.pauseManager.skillSelectionActive = false;
+        }
+        
+        this.clearSkillSelectionTimer();
+        if (this.isActive) {
+            this.resumeGame();
+        }
     }
 }
 

@@ -180,6 +180,8 @@ export default class GameManager {
     this.loadingBackendUpgrades = false;
     this.events = new Phaser.Events.EventEmitter();
     this.backendStatsManager = BackendStatsManager.getInstance();
+    this._isPausedByPauseManager = false;
+    
     this.loadActualPlayerGold();
   }
 
@@ -370,6 +372,8 @@ export default class GameManager {
   }
 
   updateDifficulty(deltaTime) {
+    if (this._isPausedByPauseManager) return;
+    
     this.gameProgress.gameTime += deltaTime / 1000;
     const newDifficultyLevel = 1 + Math.floor(
       this.gameProgress.gameTime / GameConfig.BALANCE.DIFFICULTY.SCALING_INTERVAL

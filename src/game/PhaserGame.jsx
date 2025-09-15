@@ -207,19 +207,6 @@ export const PhaserGame = forwardRef(function PhaserGame(
     };
   }, [currentActiveScene, showModal, ref]);
 
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (e.key === "Escape" && isGameStarted.current) {
-        EventBus.emit("pause-game");
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyPress);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyPress);
-    };
-  }, []);
 
   // Handle death loading completion
   const handleDeathLoadingComplete = () => {

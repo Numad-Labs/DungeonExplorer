@@ -22,6 +22,9 @@ const Timer = () => {
             if (data.currentWave !== undefined) {
                 setCurrentWave(data.currentWave);
             }
+            if (data.isGameRunning !== undefined) {
+                setIsGameRunning(data.isGameRunning);
+            }
         };
 
         const handleWaveUpdate = (data) => {
