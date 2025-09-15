@@ -46,11 +46,8 @@ class Boot extends Phaser.Scene {
   }
 
   preload() {
-    if (window.location.hostname === "localhost") {
-      this.load.pack("pack", "assets/preload-asset-pack.json");
-    } else {
-      this.load.pack("pack", "public/assets/preload-asset-pack.json");
-    }
+    this.load.pack("pack", "assets/preload-asset-pack.json");
+    this.load.pack("asset-pack", "assets/asset-pack.json");
   }
 
   create() {
