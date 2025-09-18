@@ -1,0 +1,34 @@
+{
+    "id": "5583e802-7b5b-4b66-bfdc-46f02fe90de8",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "HellGeneral",
+        "borderWidth": 1280,
+        "borderHeight": 720
+    },
+    "displayList": [
+        {
+            "type": "Image",
+            "id": "5058e305-3a04-4a35-b25b-993c7766576e",
+            "label": "boss_hell_general_walk_body_only_V010",
+            "scope": "CLASS",
+            "texture": {
+                "key": "boss_hell_general_walk_body_only_V01",
+                "frame": 0
+            },
+            "x": 597,
+            "y": 329
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

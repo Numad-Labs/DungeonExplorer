@@ -12,10 +12,24 @@ import Bomber from "../prefabs/Enemies/Bomber.Scene.js";
 import Saber from "../prefabs/Enemies/Saber.js";
 import Guardian from "../prefabs/Enemies/Guardian.js";
 import Charger from "../prefabs/Enemies/Charger.Scene.js";
+import HellGeneral from "../prefabs/Enemies/HellGeneral.js";
 import { EventBus } from "../game/EventBus";
 import { MOB_TELEPORT_CONFIG } from "../config/MobTeleportConfig.js";
 
 const MOB_CONFIGS = {
+  hellGeneral: {
+    class: HellGeneral,
+    texture: "boss_hell_general_walk_body_only_V01",
+    baseHealth: 300,
+    baseDamage: 100,
+    baseSpeed: 60,
+    expValue: 10,
+    goldValue: 5,
+    spawnWeight: 50,
+    minWave: 1,
+    expDropChance: 0.8,
+    goldDropChance: 0.4,
+  },
   zombie: {
     class: Zombie,
     texture: "zombierun",
@@ -313,7 +327,10 @@ export default class MobManager {
     this.spawnTimer = this.scene.time.addEvent({
       delay: this.spawnDelay,
       callback: () => {
-        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+        if (
+          !this._isPausedByPauseManager &&
+          !this.scene._wasPausedByPauseManager
+        ) {
           this.spawnRandomMob();
         }
       },
@@ -323,7 +340,10 @@ export default class MobManager {
     this.waveTimer = this.scene.time.addEvent({
       delay: 20000,
       callback: () => {
-        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+        if (
+          !this._isPausedByPauseManager &&
+          !this.scene._wasPausedByPauseManager
+        ) {
           this.triggerNextWave();
         }
       },
@@ -380,8 +400,11 @@ export default class MobManager {
     const waveBonus = this.currentWave * 0.05;
     const healthScale = 1 + (difficulty - 1) * 0.15 + waveBonus;
     const gameTimeSeconds = this.getGameTimeElapsed() / 1000;
-    const damageScale = gameTimeSeconds > 1200 ? 1 + (difficulty - 1) * 0.02 + waveBonus * 0.05 : 1;
-    
+    const damageScale =
+      gameTimeSeconds > 1200
+        ? 1 + (difficulty - 1) * 0.02 + waveBonus * 0.05
+        : 1;
+
     const speedScale = 1 + (difficulty - 1) * 0.02;
 
     mob.maxHealth = Math.floor(config.baseHealth * healthScale);
@@ -459,8 +482,9 @@ export default class MobManager {
   }
 
   updateMobAbilities(time, delta) {
-    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
-    
+    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager)
+      return;
+
     this.getAllActiveMobs().forEach((mob) => {
       if (mob.hasProjectileAttack) {
         this.updateProjectileAttack(mob, time);
@@ -602,7 +626,7 @@ export default class MobManager {
     );
     warningCircle.setDepth(25);
     warningCircle.setStrokeStyle(3, 0xff0000, 0.8);
-    
+
     this.scene.tweens.add({
       targets: warningCircle,
       alpha: { from: 0.3, to: 0.6 },
@@ -610,7 +634,7 @@ export default class MobManager {
       scaleY: { from: 0.8, to: 1.2 },
       duration: 500,
       yoyo: true,
-      repeat: 0
+      repeat: 0,
     });
 
     this.scene.time.delayedCall(1000, () => {
@@ -743,7 +767,8 @@ export default class MobManager {
 
   spawnRandomMob() {
     if (!this.player || this.getActiveMobCount() >= this.maxMobs) return;
-    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
+    if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager)
+      return;
     const mobType = this.selectMobType();
     const position = this.getSpawnPosition();
     return this.spawnMob(mobType, position.x, position.y);

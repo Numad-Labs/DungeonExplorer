@@ -50,6 +50,19 @@
                 ],
                 "type": "audio",
                 "key": "menuSelection"
+            },
+            {
+                "url": "public/assets/hell general/VFX_boss_hell_general_AoE_spin_sword_only_V01.png",
+                "frameConfig": {
+                    "frameWidth": 222,
+                    "frameHeight": 119,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "VFX_boss_hell_general_AoE_spin_sword_only_V01"
             }
         ]
     },
