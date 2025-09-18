@@ -9023,6 +9023,358 @@
             "frameRate": 12,
             "skipMissedFrames": true,
             "randomFrame": false
+        },
+        {
+            "key": "HellGeneralRun",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "boss_hell_general_walk_body_only_V01",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_body_only_V01",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 4,
+            "skipMissedFrames": true,
+            "repeat": -1,
+            "randomFrame": false
+        },
+        {
+            "key": "HellGeneralDeath",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 6,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 7,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 8,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 9,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 10,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 11,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 12,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 13,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 14,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 15,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 16,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 17,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 18,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 19,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 20,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 21,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 22,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 23,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 24,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 25,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 26,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 27,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 28,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 29,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 30,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 31,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 32,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 33,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 34,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_death_V01",
+                    "frame": 35,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 12,
+            "skipMissedFrames": true,
+            "randomFrame": false
+        },
+        {
+            "key": "HellGeneralMainAttack",
+            "type": "frame",
+            "frames": [
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 0,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 1,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 2,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 3,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 4,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 5,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 6,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 7,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 8,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 9,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 10,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 11,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 12,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 13,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 14,
+                    "duration": 0,
+                    "keyframe": false
+                },
+                {
+                    "key": "boss_hell_general_walk_slash_body_sword_V01",
+                    "frame": 15,
+                    "duration": 0,
+                    "keyframe": false
+                }
+            ],
+            "frameRate": 12,
+            "skipMissedFrames": true,
+            "randomFrame": false
         }
     ],
     "globalTimeScale": 1,

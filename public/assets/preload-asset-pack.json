@@ -675,6 +675,110 @@
         "key": "bones_17"
       },
       {
+        "url": "assets/hell general/boss_hell Air Attack Slam Sprite sheet 246x121.png",
+        "frameConfig": {
+          "frameWidth": 246,
+          "frameHeight": 121,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell Air Attack Slam Sprite sheet 246x121"
+      },
+      {
+        "url": "assets/hell general/boss_hell_general_AoE_Slash_body_only_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell_general_AoE_Slash_body_only_V01"
+      },
+      {
+        "url": "assets/hell general/boss_hell_general_death_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell_general_death_V01"
+      },
+      {
+        "url": "assets/hell general/boss_hell_general_flying_sword_V01.png",
+        "frameConfig": {
+          "frameWidth": 32,
+          "frameHeight": 32,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell_general_flying_sword_V01"
+      },
+      {
+        "url": "assets/hell general/boss_hell_general_walk_body_only_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell_general_walk_body_only_V01"
+      },
+      {
+        "url": "assets/hell general/boss_hell_general_walk_body_sword_apper_only_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell_general_walk_body_sword_apper_only_V01"
+      },
+      {
+        "url": "assets/hell general/boss_hell_general_walk_body_sword_disapper_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell_general_walk_body_sword_disapper_V01"
+      },
+      {
+        "url": "assets/hell general/boss_hell_general_walk_slash_body_sword_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "boss_hell_general_walk_slash_body_sword_V01"
+      },
+      {
         "url": "assets/Static prop/carriage - no tent.png",
         "frameConfig": {
           "frameWidth": 32,
@@ -2996,6 +3100,45 @@
         },
         "type": "spritesheet",
         "key": "Vase"
+      },
+      {
+        "url": "assets/hell general/VFX_boss_hell_general_AoE_slash_sword_only_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "VFX_boss_hell_general_AoE_slash_sword_only_V01"
+      },
+      {
+        "url": "assets/hell general/VFX_boss_hell_general_flying_sword_V01.png",
+        "frameConfig": {
+          "frameWidth": 118,
+          "frameHeight": 89,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "VFX_boss_hell_general_flying_sword_V01"
+      },
+      {
+        "url": "assets/hell general/VFX_boss_hell_general_walk_slash_sword_V01.png",
+        "frameConfig": {
+          "frameWidth": 222,
+          "frameHeight": 119,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "VFX_boss_hell_general_walk_slash_sword_V01"
       },
       {
         "url": "assets/Hero/assasin archer/Volley VFX 74x111.png",

@@ -152,7 +152,10 @@ export default class GameplayManager {
     this.timers.orbSpawn = this.scene.time.addEvent({
       delay: 1000,
       callback: () => {
-        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+        if (
+          !this._isPausedByPauseManager &&
+          !this.scene._wasPausedByPauseManager
+        ) {
           this.spawnRandomExperienceOrb();
         }
       },
@@ -162,7 +165,10 @@ export default class GameplayManager {
     this.timers.goldSpawn = this.scene.time.addEvent({
       delay: 2000,
       callback: () => {
-        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+        if (
+          !this._isPausedByPauseManager &&
+          !this.scene._wasPausedByPauseManager
+        ) {
           this.spawnRandomGoldOrb();
         }
       },
@@ -172,7 +178,10 @@ export default class GameplayManager {
     this.timers.difficulty = this.scene.time.addEvent({
       delay: 1000,
       callback: () => {
-        if (!this._isPausedByPauseManager && !this.scene._wasPausedByPauseManager) {
+        if (
+          !this._isPausedByPauseManager &&
+          !this.scene._wasPausedByPauseManager
+        ) {
           this.gameManager.updateDifficulty(1000);
         }
       },
@@ -267,7 +276,8 @@ export default class GameplayManager {
   setupOrbMovement(orb, isGold = false) {
     const moveToPlayer = () => {
       if (!this.player || this.player.isDead || !orb.body) return;
-      if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
+      if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager)
+        return;
 
       const distance = Phaser.Math.Distance.Between(
         orb.x,
@@ -303,14 +313,24 @@ export default class GameplayManager {
   }
 
   spawnRandomExperienceOrb() {
-    if (!this.player || this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
+    if (
+      !this.player ||
+      this._isPausedByPauseManager ||
+      this.scene._wasPausedByPauseManager
+    )
+      return;
     const { x, y } = this.getRandomSpawnPosition();
     const value = this.getRandomOrbValue([1, 2, 5, 10], [0.5, 0.8, 0.95, 1]);
     return this.spawnExperienceOrb(x, y, value);
   }
 
   spawnRandomGoldOrb() {
-    if (!this.player || this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) return;
+    if (
+      !this.player ||
+      this._isPausedByPauseManager ||
+      this.scene._wasPausedByPauseManager
+    )
+      return;
     const { x, y } = this.getRandomSpawnPosition(250, 600);
     const value = this.getRandomOrbValue(
       [1, 2, 5, 10, 20],
@@ -430,7 +450,7 @@ export default class GameplayManager {
     keyboard.on("keydown-X", () => {
       const pointer = this.scene.input.activePointer;
       const world = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-      this.spawnEnemy(world.x, world.y, "crawler");
+      this.spawnEnemy(world.x, world.y, "hellGeneral");
     });
 
     keyboard.on("keydown-C", () => {
@@ -573,7 +593,7 @@ export default class GameplayManager {
     if (this._isPausedByPauseManager || this.scene._wasPausedByPauseManager) {
       return;
     }
-    
+
     this.mobManager.update(time, delta);
     this.checkEnemyBounds();
     this.checkOrbBounds();
