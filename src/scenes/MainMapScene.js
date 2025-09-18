@@ -44,6 +44,9 @@ export default class MainMapScene extends BaseGameScene {
     this.enemySpawnTimer = null;
     this.waveTimer = null;
     this.difficultyTimer = null;
+    
+    // Boss teleport flag
+    this.hasTriggeredBossTeleport = false;
   }
 
   create() {
@@ -395,6 +398,8 @@ export default class MainMapScene extends BaseGameScene {
     
     this.gameTime = Math.floor((Date.now() - this.gameStartTime - this.pausedTime) / 1000);
     this.updateTimerDisplay();
+    
+    this.checkBossTeleportTrigger();
   }
 
   updateTimerDisplay() {
@@ -411,6 +416,14 @@ export default class MainMapScene extends BaseGameScene {
       });
     } catch (error) {
       console.error("Error updating timer display:", error);
+    }
+  }
+
+  checkBossTeleportTrigger() {
+    if (this.gameTime >= 10 && !this.hasTriggeredBossTeleport && !this.isTeleporting) {
+      this.hasTriggeredBossTeleport = true;
+      this.isTeleporting = true;
+      this.executeSceneTransition('MiniMapBossFightScene');
     }
   }
 
