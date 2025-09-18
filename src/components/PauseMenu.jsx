@@ -33,41 +33,145 @@ const PauseMenu = ({ onContinue, onMainMenu, onSettings }) => {
         zIndex: 1000,
       }}
     >
-      <div className="bg-gray-900 p-8 rounded-lg text-white text-center w-[500px] flex flex-col justify-center items-center gap-[30px] border border-gray-600">
-        {/* Pause Title */}
-        <div className="text-4xl font-bold text-gray-100">
-          GAME PAUSED
-        </div>
+      {/* Medieval Pause Menu Panel */}
+      <div 
+        className="relative flex flex-col justify-center items-center"
+        style={{
+          width: '500px',
+          height: '580px',
+          backgroundImage: 'url(/assets/HUD/PausedBackground.png)',
+          backgroundSize: '100%',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          padding: '0px 40px 45px 40px',
+          filter: 'drop-shadow(0 0 25px rgba(255, 215, 0, 0.4))',
+        }}
+      >
+        {/* Game Paused Title */}
+        <div 
+          className="mb-8"
+          style={{
+            width: '280px',
+            height: '45px',
+            backgroundImage: 'url(/assets/HUD/TittleText.png)',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            filter: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))',
+          }}
+        />
 
-        {/* Menu Options */}
-        <div className="flex flex-col gap-[15px] w-full max-w-[350px]">
-          {/* Continue Button */}
+        {/* Menu Buttons Container */}
+        <div className="flex flex-col gap-10 items-center">
+          {/* Resume Button */}
           <button
             onClick={handleContinue}
-            className="w-full h-[50px] border border-gray-500 cursor-pointer transition-all duration-200 hover:bg-gray-700 hover:border-gray-400 flex items-center justify-center text-white text-lg font-semibold bg-gray-800 rounded"
+            className="relative group transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              width: '280px',
+              height: '45px',
+              backgroundImage: 'url(/assets/HUD/ButtonBackgroundPause.png)',
+              backgroundSize: '100% 100%',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              border: 'none',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
           >
-            Continue
+            <div 
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundImage: 'url(/assets/HUD/ResumeText.png)',
+                backgroundSize: 'auto',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/0 via-yellow-400/15 to-yellow-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
           </button>
 
           {/* Settings Button */}
           <button
             onClick={handleSettings}
-            className="w-full h-[50px] border border-gray-500 cursor-pointer transition-all duration-200 hover:bg-gray-700 hover:border-gray-400 flex items-center justify-center text-white text-lg font-semibold bg-gray-800 rounded"
+            className="relative group transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              width: '280px',
+              height: '45px',
+              backgroundImage: 'url(/assets/HUD/ButtonBackgroundPause.png)',
+              backgroundSize: '100% 100%',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              border: 'none',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
           >
-            Settings
+            <div 
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundImage: 'url(/assets/HUD/SettingsText.png)',
+                backgroundSize: 'auto',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/0 via-yellow-400/15 to-yellow-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
           </button>
 
-          {/* Main Menu Button */}
+          {/* Return to Menu Button */}
           <button
             onClick={handleMainMenu}
-            className="w-full h-[50px] border border-gray-500 cursor-pointer transition-all duration-200 hover:bg-gray-700 hover:border-gray-400 flex items-center justify-center text-white text-lg font-semibold bg-gray-800 rounded"
+            className="relative group transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{
+              width: '280px',
+              height: '45px',
+              backgroundImage: 'url(/assets/HUD/ButtonBackgroundPause.png)',
+              backgroundSize: '100% 100%',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              border: 'none',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
           >
-            Main Menu
+            <div 
+              style={{
+                width: '100%',
+                height: '100%',
+                backgroundImage: 'url(/assets/HUD/ReturnToMenuText.png)',
+                backgroundSize: 'auto',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/0 via-yellow-400/15 to-yellow-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
           </button>
         </div>
 
-        {/* ESC Hint */}
-        <div className="text-sm text-gray-400 mt-2">
+        {/* ESC Hint - Styled to match medieval theme */}
+        <div 
+          className="absolute bottom-25 text-center"
+          style={{
+            color: '#D4AF37',
+            fontSize: '13px',
+            fontFamily: 'serif',
+            textShadow: '1px 1px 3px rgba(0, 0, 0, 0.9)',
+            fontWeight: '500',
+            letterSpacing: '0.5px',
+          }}
+        >
           Press ESC again to continue
         </div>
       </div>

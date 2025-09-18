@@ -93,6 +93,14 @@ export default class PlayerLevel extends Phaser.GameObjects.Container {
 				console.warn('Could not play level up sound:', error);
 			}
 			
+			EventBus.emit('player-level-up', {
+				level: this.level,
+				newLevel: this.level,
+				oldLevel: this.level - 1,
+				experience: this.experience,
+				nextLevelExp: this.nextLevelExp
+			});
+			
 			try {
 				this.onLevelUpCallbacks.forEach(callback => callback(this.level));
 			} catch (error) {

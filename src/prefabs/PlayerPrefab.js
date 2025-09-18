@@ -3,7 +3,8 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
-import { EventBus } from '../game/EventBus';  // ADD THIS LINE
+import { EventBus } from '../game/EventBus';
+import EffectUtils from '../utils/EffectUtils.js';
 /* END-USER-IMPORTS */
 
 export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
@@ -81,10 +82,49 @@ export default class PlayerPrefab extends Phaser.GameObjects.Sprite {
 		} else {
 			console.log("PlayerPrefab: Scene does not have onPlayerCreated method, but scene.player is set");
 		}
+
+		this.setupLevelUpEffects();
 		/* END-USER-CTR-CODE */
 	}
 
 	/* START-USER-CODE */
+
+	setupLevelUpEffects() {
+		if (this.scene.playerLevelSystem) {
+			this.scene.playerLevelSystem.onLevelUp((level) => {
+				this.triggerLevelUpEffect(level);
+			});
+		}
+		if (this.gameManager && this.gameManager.events) {
+			this.gameManager.events.on('levelUp', (level) => {
+				this.triggerLevelUpEffect(level);
+			});
+		}
+		EventBus.on('player-level-up', (data) => {
+			this.triggerLevelUpEffect(data.level || data);
+		});
+	}
+
+	triggerLevelUpEffect(level) {
+		if (this.isDead || !this.scene || !this.active) return;
+		const effectResult = EffectUtils.createLevelUpEffect(this.scene, this, {
+			pushRadius: 120,       
+			particleColor: 0xffd700, 
+			duration: 500,           
+			playSound: true
+		});
+
+		this.lastLevelUpEffects = effectResult;
+		this.makeInvulnerable();
+	}
+
+	addTestExperience(amount = 50) {
+		if (this.scene.playerLevelSystem) {
+			this.scene.playerLevelSystem.addExperience(amount);
+		} else {
+			console.log('No player level system found');
+		}
+	}
 
 	updateHPBar() {
 		const healthData = {
