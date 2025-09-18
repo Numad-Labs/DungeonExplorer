@@ -1,29 +1,22 @@
-/**
- * Audio Manager - Simple integration with Phaser audio system
- */
 export default class AudioManager {
     constructor(scene) {
         this.scene = scene;
         this.audioEnabled = true;
+        this.musicVolume = 0.5;
+        this.soundVolume = 0.5;
+        this.currentMusic = null;
+        this.loadAudioSettings();
     }
 
-    /**
-     * Simple audio playing using global playSound function
-     * @param {string} key - Audio key to play
-     * @param {object} config - Audio configuration (volume, loop, etc.)
-     * @returns {Phaser.Sound.BaseSound|null} - Sound instance or null if failed
-     */
     playSound(key, config = {}) {
         if (!this.audioEnabled) {
             return null;
         }
 
         try {
-            // Use global playSound function if available
             if (typeof window.playSound === 'function') {
                 return window.playSound(key, config);
             }
-            // Fallback to direct scene method
             else if (this.scene.cache.audio.exists(key)) {
                 return this.scene.sound.play(key, config);
             } else {
@@ -36,17 +29,8 @@ export default class AudioManager {
         }
     }
 
-    /**
-     * Play background music with loop
-     * @param {string} key - Audio key for background music
-     * @param {number} volume - Volume level (0-1)
-     * @returns {Phaser.Sound.BaseSound|null} - Sound instance or null if failed
-     */
-    playBackgroundMusic(key, volume = 0.3) {
-        return this.playSound(key, { 
-            loop: true, 
-            volume: volume 
-        });
+    playBackgroundMusic(key, volume = 1.0) {
+        return this.playMusic(key, { volume });
     }
 
     /**
@@ -60,10 +44,6 @@ export default class AudioManager {
         }
     }
 
-    /**
-     * Set master volume
-     * @param {number} volume - Volume level (0-1)
-     */
     setVolume(volume) {
         try {
             this.scene.sound.volume = Math.max(0, Math.min(1, volume));
@@ -71,11 +51,6 @@ export default class AudioManager {
             console.error('AudioManager: Error setting volume:', error);
         }
     }
-
-    /**
-     * Enable/disable all audio
-     * @param {boolean} enabled - Whether audio should be enabled
-     */
     setAudioEnabled(enabled) {
         this.audioEnabled = enabled;
         if (!enabled) {
@@ -83,18 +58,70 @@ export default class AudioManager {
         }
     }
 
-    /**
-     * Check if an audio key is available
-     * @param {string} key - Audio key to check
-     * @returns {boolean} - Whether the audio is available
-     */
+    loadAudioSettings() {
+        try {
+            const settings = JSON.parse(localStorage.getItem('survivor_audio_settings'));
+            if (settings) {
+                this.musicVolume = settings.musicVolume ?? 0.5;
+                this.soundVolume = settings.soundVolume ?? 0.5;
+                console.log('Audio settings loaded:', settings);
+            }
+        } catch (error) {
+            console.log('Using default audio settings');
+        }
+    }
+
+    playSoundEffect(key, config = {}) {
+        if (!this.audioEnabled) {
+            return null;
+        }
+
+        const soundConfig = {
+            ...config,
+            volume: (config.volume || 1) * this.soundVolume
+        };
+
+        return this.playSound(key, soundConfig);
+    }
+
+    playMusic(key, config = {}) {
+        if (this.currentMusic && this.currentMusic.isPlaying) {
+            this.currentMusic.stop();
+        }
+
+        const musicConfig = {
+            loop: true,
+            ...config,
+            volume: (config.volume || 1) * this.musicVolume
+        };
+
+        this.currentMusic = this.playSound(key, musicConfig);
+        return this.currentMusic;
+    }
+
+    setMusicVolume(volume) {
+        this.musicVolume = Math.max(0, Math.min(1, volume));
+        if (this.currentMusic && this.currentMusic.isPlaying) {
+            this.currentMusic.setVolume(this.musicVolume);
+        }
+    }
+
+    setSoundVolume(volume) {
+        this.soundVolume = Math.max(0, Math.min(1, volume));
+    }
+
+    getMusicVolume() {
+        return this.musicVolume;
+    }
+
+    getSoundVolume() {
+        return this.soundVolume;
+    }
+
     isAudioAvailable(key) {
         return this.scene.cache.audio.exists(key);
     }
 
-    /**
-     * Get audio loading status for the camelCase keys
-     */
     getAudioStatus() {
         const audioKeys = ['gameLoop', 'characterDying', 'menuSelection', 'levelUp', 'menuDenied'];
         const status = {};
@@ -110,5 +137,4 @@ export default class AudioManager {
     }
 }
 
-// Make it globally available for easy access
 window.AudioManager = AudioManager;

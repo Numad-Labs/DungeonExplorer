@@ -4,6 +4,7 @@
 
 // Storage key
 const STORAGE_KEY = 'survivor_game_save';
+const AUDIO_SETTINGS_KEY = 'survivor_audio_settings';
 
 /**
  * Save game data to local storage
@@ -117,6 +118,55 @@ export function resetProgress(startingGold = 500) {
     return true;
   } catch (error) {
     console.error("Error resetting progress:", error);
+    return false;
+  }
+}
+
+export function saveAudioSettings(audioSettings) {
+  try {
+    const settings = {
+      musicVolume: audioSettings.musicVolume || 0.5,
+      soundVolume: audioSettings.soundVolume || 0.5,
+      savedAt: new Date().toISOString(),
+      version: "1.0"
+    };
+    
+    localStorage.setItem(AUDIO_SETTINGS_KEY, JSON.stringify(settings));
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export function loadAudioSettings() {
+  try {
+    const savedSettings = localStorage.getItem(AUDIO_SETTINGS_KEY);
+    
+    if (!savedSettings) {
+      return {
+        musicVolume: 0.5,
+        soundVolume: 0.5
+      };
+    }
+    
+    const settings = JSON.parse(savedSettings);
+    return {
+      musicVolume: settings.musicVolume ?? 0.5,
+      soundVolume: settings.soundVolume ?? 0.5
+    };
+  } catch (error) {
+    return {
+      musicVolume: 0.5,
+      soundVolume: 0.5
+    };
+  }
+}
+
+export function clearAudioSettings() {
+  try {
+    localStorage.removeItem(AUDIO_SETTINGS_KEY);
+    return true;
+  } catch (error) {
     return false;
   }
 }
