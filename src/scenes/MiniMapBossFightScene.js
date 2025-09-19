@@ -2,13 +2,14 @@
 
 /* START OF COMPILED CODE */
 
-import BaseGameScene from "./BaseGameScene";
 import StoneStatuePrefab from "../prefabs/StoneStatuePrefab";
 import PlayerPrefab from "../prefabs/PlayerPrefab";
+import HellGeneral from "../prefabs/Enemies/HellGeneral";
+import BaseGameScene from "./BaseGameScene"; // Import the base class
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class MiniMapBossFightScene extends BaseGameScene {
+export default class MiniMapBossFightScene extends BaseGameScene { // Extend BaseGameScene instead of Phaser.Scene
 
 	constructor() {
 		super("MiniMapBossFightScene");
@@ -99,7 +100,7 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 		telAnimation.play("TelAnimation");
 
 		// playerPrefab
-		const playerPrefab = new PlayerPrefab(this, 978, 1191);
+		const playerPrefab = new PlayerPrefab(this, 1143, 1269);
 		this.add.existing(playerPrefab);
 
 		// torch1Anim
@@ -117,6 +118,12 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 		// torch1Anim_3
 		const torch1Anim_3 = this.add.sprite(618, 872, "TorchBowlRegular_V01-Sheet", 0);
 		torch1Anim_3.play("Torch1Anim");
+
+		// hellGeneral
+		const hellGeneral = new HellGeneral(this, 1411, 1176);
+		this.add.existing(hellGeneral);
+		hellGeneral.flipX = true;
+		hellGeneral.flipY = false;
 
 		this.floor_1 = floor_1;
 		this.bg_1 = bg_1;
@@ -136,6 +143,7 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 		this.stoneStatuePrefab = stoneStatuePrefab;
 		this.telAnimation = telAnimation;
 		this.playerPrefab = playerPrefab;
+		this.hellGeneral = hellGeneral;
 		this.miniMapBossFight = miniMapBossFight;
 
 		this.events.emit("scene-awake");
@@ -177,13 +185,19 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 	telAnimation;
 	/** @type {PlayerPrefab} */
 	playerPrefab;
+	/** @type {HellGeneral} */
+	hellGeneral;
 	/** @type {Phaser.Tilemaps.Tilemap} */
 	miniMapBossFight;
 
 	/* START-USER-CODE */
 	preload() {
-	    super.preload();
+	    // Call BaseGameScene preload if it exists
+	    if (super.preload) {
+	        super.preload();
+	    }
 	}
+
 	create() {
 		this.cameras.main.setBounds(0, 0, 2560, 2560);
 		this.physics.world.bounds.width = 2560;
@@ -200,10 +214,54 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 			this.setupPlayerAttack();
 			this.setupTestControls();
 			this.setupZombieCollisionSystem();
-			this.startEnemySpawning();
 			this.setupLavaAnimations();
+
+			// Auto-spawn HellGeneral boss after a short delay
+			this.time.delayedCall(1000, () => {
+				this.spawnHellGeneral();
+			});
+
 		} catch (error) {
 			console.error("Error in MiniMapBossFightScene create:", error);
+		}
+	}
+
+	spawnHellGeneral() {
+		try {
+			// Spawn HellGeneral at the center of the arena (near the teleportation animation)
+			const spawnX = 1280; // Near the golden monument
+			const spawnY = 1000; // Above the teleportation point
+
+			console.log("Spawning HellGeneral boss at:", spawnX, spawnY);
+
+			// Use the enemy spawning system to create HellGeneral
+			if (this.enemyManager && this.enemyManager.spawnSpecificEnemy) {
+				const hellGeneral = this.enemyManager.spawnSpecificEnemy('HellGeneral', spawnX, spawnY);
+
+				if (hellGeneral) {
+					// Store reference to the boss
+					this.hellGeneralBoss = hellGeneral;
+
+					// Set boss properties
+					hellGeneral.setDepth(5); // Ensure boss appears above other elements
+					hellGeneral.isBoss = true;
+
+					// Add dramatic entrance effect
+					this.cameras.main.shake(300, 0.02);
+
+					// Optional: Add boss health bar or other UI elements
+					this.events.emit('boss-spawned', hellGeneral);
+
+					console.log("HellGeneral boss spawned successfully!");
+				} else {
+					console.error("Failed to spawn HellGeneral boss");
+				}
+			} else {
+				console.error("Enemy manager not available for boss spawning");
+			}
+
+		} catch (error) {
+			console.error("Error spawning HellGeneral boss:", error);
 		}
 	}
 
@@ -215,6 +273,7 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 			this.stoneStatuePrefab.setDepth(4);
 			this.stoneStatuePrefab_1.setDepth(4);
 			this.playerPrefab.setDepth(4);
+			this.hellGeneral.setDepth(4);
 			this.decoration_1.setDepth(4);
 			this.telAnimation.setDepth(4);
 			this.floating_plat_form_Chain_1.setDepth(4);
@@ -231,7 +290,7 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 
 	setupZombieCollisionSystem() {
 		try {
-			// Register collision layers for zombies
+			// Register collision layers for zombies and boss
 			this.registerCollisionLayer(this.floating_plat_form_Floating_Col_1, "Platform Collision");
 
 			// Register statue obstacles
@@ -309,7 +368,35 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 
 	trackEnemyKill(enemy) {
 		this.removeZombie(enemy);
+
+		// Check if the killed enemy is the HellGeneral boss
+		if (enemy === this.hellGeneralBoss) {
+			console.log("HellGeneral boss defeated!");
+			this.onBossDefeated();
+		}
+
 		super.trackEnemyKill(enemy);
+	}
+
+	onBossDefeated() {
+		try {
+			// Boss defeated logic
+			this.cameras.main.shake(500, 0.03);
+
+			// Stop any ongoing enemy spawning
+			if (this.enemySpawnTimer) {
+				this.enemySpawnTimer.destroy();
+			}
+
+			// Emit boss defeated event
+			this.events.emit('boss-defeated');
+
+			// You can add victory conditions here
+			console.log("Boss fight completed!");
+
+		} catch (error) {
+			console.error("Error handling boss defeat:", error);
+		}
 	}
 
 	update(time, delta) {
@@ -319,12 +406,20 @@ export default class MiniMapBossFightScene extends BaseGameScene {
 			if (this.player && !this.player.isDead) {
 				this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 			}
+
+			// Update boss behavior if needed
+			if (this.hellGeneralBoss && this.hellGeneralBoss.active) {
+				// Add any custom boss update logic here
+			}
+
 		} catch (error) {
 			console.error("Error in MiniMapBossFightScene update:", error);
 		}
 	}
 
 	shutdown() {
+		// Clean up boss reference
+		this.hellGeneralBoss = null;
 		super.shutdown();
 	}
 

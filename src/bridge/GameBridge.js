@@ -18,7 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 //   sessionId: "string",
 //   mobKills: [
 //     {
-//       mobId: "string", 
+//       mobId: "string",
 //       count: 0,
 //     },
 //   ],
@@ -121,7 +121,7 @@ class GameBridge {
     EventBus.emit("bridge-game-progress", gameProgress);
 
     const now = Date.now();
-    
+
     // Backend sync (every 5 seconds)
     if (this.sessionId && now - this.lastSyncTime > this.syncInterval) {
       this.syncToBackend(playerData, gameProgress);
@@ -132,18 +132,31 @@ class GameBridge {
     this.checkForMobKills();
 
     // Batch data sync (every 10 seconds)
-    if (this.sessionId && now - this.lastBatchSendTime > this.batchSendInterval) {
-      console.log("GameBridge: Batch sync interval reached, attempting to send batch data");
+    if (
+      this.sessionId &&
+      now - this.lastBatchSendTime > this.batchSendInterval
+    ) {
+      console.log(
+        "GameBridge: Batch sync interval reached, attempting to send batch data"
+      );
       this.sendBatchDataToBackend();
       this.lastBatchSendTime = now;
     } else {
       // Debug logging every 30 seconds to see what's happening
-      if (now % 30000 < 100) { // Roughly every 30 seconds
-        console.log("GameBridge: Batch sync debug - sessionId:", !!this.sessionId, "timeSinceLastBatch:", now - this.lastBatchSendTime, "interval:", this.batchSendInterval);
+      if (now % 30000 < 100) {
+        // Roughly every 30 seconds
+        console.log(
+          "GameBridge: Batch sync debug - sessionId:",
+          !!this.sessionId,
+          "timeSinceLastBatch:",
+          now - this.lastBatchSendTime,
+          "interval:",
+          this.batchSendInterval
+        );
         console.log("GameBridge: Current batch data cache:", {
           mobKills: this.batchDataCache.mobKills.size,
           skillUsage: this.batchDataCache.skillUsage.size,
-          consumables: this.batchDataCache.consumablesUsed
+          consumables: this.batchDataCache.consumablesUsed,
         });
       }
     }
@@ -196,7 +209,7 @@ class GameBridge {
       data.isInGame = this.gameManager.isGameRunning || false;
     } else {
       try {
-        const userData = localStorage.getItem('userData');
+        const userData = localStorage.getItem("userData");
         if (userData) {
           const user = JSON.parse(userData);
           if (user?.data?.gold !== undefined) {
@@ -204,7 +217,10 @@ class GameBridge {
           }
         }
       } catch (error) {
-        console.warn('GameBridge: Error getting gold from localStorage:', error);
+        console.warn(
+          "GameBridge: Error getting gold from localStorage:",
+          error
+        );
       }
     }
 
@@ -240,7 +256,9 @@ class GameBridge {
       data.gameTime = elapsed;
       const minutes = Math.floor(elapsed / 60);
       const seconds = Math.floor(elapsed % 60);
-      data.formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      data.formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
     }
 
     // Get wave information
@@ -289,7 +307,7 @@ class GameBridge {
     // Batch data event listeners - listen to actual events the game emits
     EventBus.on("attack-used", (attackData) => {
       console.log("GameBridge: Attack used event received", attackData);
-      const skillId = '3c0f31b5-b7c9-4b10-9971-c0c9b2bb0fff'; // Hardcoded for hackathon
+      const skillId = "3c0f31b5-b7c9-4b10-9971-c0c9b2bb0fff"; // Hardcoded for hackathon
       console.log("GameBridge: Adding skill usage for:", skillId);
       this.addSkillUsage(skillId);
     });
@@ -300,12 +318,12 @@ class GameBridge {
     // Also listen for any existing mob/enemy events that might exist
     EventBus.on("mob-killed", (mobData) => {
       console.log("GameBridge: Mob killed event received", mobData);
-      this.addMobKill('065666a3-41cb-4f51-a4c8-4b74a04eb592'); // Hardcoded for hackathon
+      this.addMobKill("065666a3-41cb-4f51-a4c8-4b74a04eb592"); // Hardcoded for hackathon
     });
 
     EventBus.on("enemy-defeated", (enemyData) => {
       console.log("GameBridge: Enemy defeated event received", enemyData);
-      this.addMobKill('065666a3-41cb-4f51-a4c8-4b74a04eb592'); // Hardcoded for hackathon
+      this.addMobKill("065666a3-41cb-4f51-a4c8-4b74a04eb592"); // Hardcoded for hackathon
     });
 
     // Listen for health potion or consumable usage
@@ -316,7 +334,10 @@ class GameBridge {
 
     EventBus.on("item-consumed", (itemData) => {
       console.log("GameBridge: Item consumed event received", itemData);
-      if (itemData.type === 'consumable' || itemData.category === 'consumable') {
+      if (
+        itemData.type === "consumable" ||
+        itemData.category === "consumable"
+      ) {
         this.addConsumableUsed();
       }
     });
@@ -357,14 +378,14 @@ class GameBridge {
         console.log(
           "GameBridge: Save checkpoint mutation success",
           response,
-          variables,
+          variables
         );
       },
       onError: (error, variables) => {
         console.error(
           "GameBridge: Save checkpoint mutation error",
           error,
-          variables,
+          variables
         );
       },
     };
@@ -375,7 +396,7 @@ class GameBridge {
         console.log(
           "GameBridge: End session mutation success",
           response,
-          variables,
+          variables
         );
         EventBus.emit("bridge-session-ended", {
           sessionId: this.sessionId,
@@ -387,7 +408,7 @@ class GameBridge {
         console.error(
           "GameBridge: End session mutation error",
           error,
-          variables,
+          variables
         );
       },
     };
@@ -418,11 +439,11 @@ class GameBridge {
       this.sessionId = response.data?.id;
       this.lastSyncTime = Date.now();
       this.lastBatchSendTime = Date.now(); // Initialize batch send time
-      
+
       // Reset batch data for new session
       this.resetBatchData();
       this.lastKnownKills = 0; // Reset kill counter for new session
-      
+
       console.log("GameBridge: Session started successfully!");
       console.log("GameBridge: Session ID:", this.sessionId);
       console.log("GameBridge: Session data:", sessionData);
@@ -459,7 +480,7 @@ class GameBridge {
       console.error(
         "GameBridge: Checkpoint error details",
         error.message,
-        error.stack,
+        error.stack
       );
     }
   }
@@ -504,14 +525,14 @@ class GameBridge {
     // Prevent multiple calls to endSession
     if (this.sessionEnding) {
       console.log(
-        "GameBridge: Session already ending, ignoring duplicate call",
+        "GameBridge: Session already ending, ignoring duplicate call"
       );
       return;
     }
 
     if (!this.sessionId) {
       console.log(
-        "GameBridge: No session ID available, but still sending death data",
+        "GameBridge: No session ID available, but still sending death data"
       );
     }
 
@@ -558,7 +579,7 @@ class GameBridge {
       console.error(
         "GameBridge: End session error details",
         error.message,
-        error.stack,
+        error.stack
       );
     } finally {
       this.sessionEnding = false;
@@ -732,7 +753,7 @@ class GameBridge {
         (map) =>
           map.isMain ||
           map.name?.toLowerCase().includes("main") ||
-          map.type?.toLowerCase() === "main",
+          map.type?.toLowerCase() === "main"
       ) || mapsData[0]
     ); // fallback to first map if no main map found
   }
@@ -785,14 +806,14 @@ class GameBridge {
 
   addMobKill(mobId) {
     if (!mobId) return;
-    
+
     const currentCount = this.batchDataCache.mobKills.get(mobId) || 0;
     this.batchDataCache.mobKills.set(mobId, currentCount + 1);
   }
 
   addSkillUsage(skillId) {
     if (!skillId) return;
-    
+
     const currentCount = this.batchDataCache.skillUsage.get(skillId) || 0;
     this.batchDataCache.skillUsage.set(skillId, currentCount + 1);
   }
@@ -809,15 +830,19 @@ class GameBridge {
   }
 
   getBatchDataPayload() {
-    const mobKills = Array.from(this.batchDataCache.mobKills.entries()).map(([mobId, count]) => ({
-      mobId,
-      count
-    }));
+    const mobKills = Array.from(this.batchDataCache.mobKills.entries()).map(
+      ([mobId, count]) => ({
+        mobId,
+        count,
+      })
+    );
 
-    const skillUsage = Array.from(this.batchDataCache.skillUsage.entries()).map(([skillId, count]) => ({
-      skillId,
-      count
-    }));
+    const skillUsage = Array.from(this.batchDataCache.skillUsage.entries()).map(
+      ([skillId, count]) => ({
+        skillId,
+        count,
+      })
+    );
 
     return {
       sessionId: this.sessionId || this.batchDataCache.sessionId,
@@ -830,24 +855,34 @@ class GameBridge {
   async sendBatchDataToBackend() {
     console.log("GameBridge: sendBatchDataToBackend called");
     console.log("GameBridge: sessionId:", this.sessionId);
-    console.log("GameBridge: batchDataCache.sessionId:", this.batchDataCache.sessionId);
-    
+    console.log(
+      "GameBridge: batchDataCache.sessionId:",
+      this.batchDataCache.sessionId
+    );
+
     if (!this.sessionId && !this.batchDataCache.sessionId) {
-      console.log("GameBridge: No session ID available for batch data sync - EXITING");
+      console.log(
+        "GameBridge: No session ID available for batch data sync - EXITING"
+      );
       return;
     }
 
     const batchPayload = this.getBatchDataPayload();
     console.log("GameBridge: Generated batch payload:", batchPayload);
-    
+
     // Only send if there's meaningful data to send
-    if (batchPayload.mobKills.length === 0 && 
-        batchPayload.skillUsage.length === 0 && 
-        batchPayload.consumablesUsed === 0) {
+    if (
+      batchPayload.mobKills.length === 0 &&
+      batchPayload.skillUsage.length === 0 &&
+      batchPayload.consumablesUsed === 0
+    ) {
       console.log("GameBridge: No meaningful batch data to send - EXITING");
       console.log("GameBridge: - mobKills:", batchPayload.mobKills.length);
-      console.log("GameBridge: - skillUsage:", batchPayload.skillUsage.length); 
-      console.log("GameBridge: - consumablesUsed:", batchPayload.consumablesUsed);
+      console.log("GameBridge: - skillUsage:", batchPayload.skillUsage.length);
+      console.log(
+        "GameBridge: - consumablesUsed:",
+        batchPayload.consumablesUsed
+      );
       return;
     }
 
@@ -855,15 +890,21 @@ class GameBridge {
       console.log("GameBridge: Attempting to send batch data...", batchPayload);
       const response = await sendBatchData(batchPayload);
       console.log("GameBridge: Batch data sent successfully", response);
-      
+
       // Reset batch data after successful send
       this.resetBatchData();
-      
-      EventBus.emit("bridge-batch-data-sent", { payload: batchPayload, response });
+
+      EventBus.emit("bridge-batch-data-sent", {
+        payload: batchPayload,
+        response,
+      });
     } catch (error) {
       console.error("GameBridge: Failed to send batch data", error);
       console.error("GameBridge: Error details:", error.message, error.stack);
-      EventBus.emit("bridge-batch-data-error", { error, payload: batchPayload });
+      EventBus.emit("bridge-batch-data-error", {
+        error,
+        payload: batchPayload,
+      });
     }
   }
 
@@ -876,12 +917,15 @@ class GameBridge {
   // Test method to add some sample batch data
   addTestBatchData() {
     console.log("GameBridge: Adding test batch data");
-    this.addMobKill('test-goblin');
-    this.addMobKill('test-skeleton'); 
-    this.addSkillUsage('test-fireball');
-    this.addSkillUsage('test-heal');
+    this.addMobKill("test-goblin");
+    this.addMobKill("test-skeleton");
+    this.addSkillUsage("test-fireball");
+    this.addSkillUsage("test-heal");
     this.addConsumableUsed();
-    console.log("GameBridge: Test data added, current cache:", this.getBatchDataPayload());
+    console.log(
+      "GameBridge: Test data added, current cache:",
+      this.getBatchDataPayload()
+    );
   }
 
   // Test method to verify the exact batch data structure
@@ -890,7 +934,7 @@ class GameBridge {
     console.log("=== BATCH DATA STRUCTURE ===");
     console.log("sessionId:", payload.sessionId);
     console.log("mobKills:", payload.mobKills);
-    console.log("skillUsage:", payload.skillUsage); 
+    console.log("skillUsage:", payload.skillUsage);
     console.log("consumablesUsed:", payload.consumablesUsed);
     console.log("=== JSON STRUCTURE ===");
     console.log(JSON.stringify(payload, null, 2));
@@ -901,16 +945,18 @@ class GameBridge {
     if (!this.gameManager || !this.gameManager.lastRunStats) return;
 
     const currentKills = this.gameManager.lastRunStats.enemiesKilled || 0;
-    
+
     if (currentKills > this.lastKnownKills) {
       const newKills = currentKills - this.lastKnownKills;
-      console.log(`GameBridge: Detected ${newKills} new mob kills (${this.lastKnownKills} -> ${currentKills})`);
-      
+      console.log(
+        `GameBridge: Detected ${newKills} new mob kills (${this.lastKnownKills} -> ${currentKills})`
+      );
+
       // Add hardcoded mob kills for hackathon
       for (let i = 0; i < newKills; i++) {
-        this.addMobKill('065666a3-41cb-4f51-a4c8-4b74a04eb592');
+        this.addMobKill("065666a3-41cb-4f51-a4c8-4b74a04eb592");
       }
-      
+
       this.lastKnownKills = currentKills;
     }
   }

@@ -690,8 +690,8 @@
       {
         "url": "assets/hell general/boss_hell_general_AoE_Slash_body_only_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -703,8 +703,8 @@
       {
         "url": "assets/hell general/boss_hell_general_death_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -729,8 +729,8 @@
       {
         "url": "assets/hell general/boss_hell_general_walk_body_only_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -742,8 +742,8 @@
       {
         "url": "assets/hell general/boss_hell_general_walk_body_sword_apper_only_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -755,8 +755,8 @@
       {
         "url": "assets/hell general/boss_hell_general_walk_body_sword_disapper_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -768,8 +768,8 @@
       {
         "url": "assets/hell general/boss_hell_general_walk_slash_body_sword_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -3104,8 +3104,8 @@
       {
         "url": "assets/hell general/VFX_boss_hell_general_AoE_slash_sword_only_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -3117,8 +3117,8 @@
       {
         "url": "assets/hell general/VFX_boss_hell_general_flying_sword_V01.png",
         "frameConfig": {
-          "frameWidth": 118,
-          "frameHeight": 89,
+          "frameWidth": 236,
+          "frameHeight": 178,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,
@@ -3130,8 +3130,8 @@
       {
         "url": "assets/hell general/VFX_boss_hell_general_walk_slash_sword_V01.png",
         "frameConfig": {
-          "frameWidth": 222,
-          "frameHeight": 119,
+          "frameWidth": 444,
+          "frameHeight": 238,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,

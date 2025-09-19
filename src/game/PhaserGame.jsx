@@ -207,7 +207,6 @@ export const PhaserGame = forwardRef(function PhaserGame(
     };
   }, [currentActiveScene, showModal, ref]);
 
-
   // Handle death loading completion
   const handleDeathLoadingComplete = () => {
     setShowDeathLoading(false);

@@ -30,12 +30,12 @@ export default class MainMapScene extends BaseGameScene {
     this.portalActivationInterval = GameConfig.PORTAL.ACTIVATION_INTERVAL;
     this.availableScenes = GameConfig.PORTAL.AVAILABLE_SCENES;
     this.isTeleporting = false;
-    
+
     // Game systems
     this.vaseSpawner = null;
     this.playerLevelSystem = null;
     this.mobManager = null;
-    
+
     // Game state
     this.gameTimer = null;
     this.gameStartTime = 0;
@@ -58,7 +58,7 @@ export default class MainMapScene extends BaseGameScene {
     this.startBackgroundMusic();
     this.createGameStartLightEffect();
   }
-  
+
   createGameStartLightEffect() {
     this.time.delayedCall(500, () => {
       if (this.player) {
@@ -66,17 +66,17 @@ export default class MainMapScene extends BaseGameScene {
       }
     });
   }
-  
+
   createLightBeamEffect() {
     const player = this.player;
     if (!player) return;
-    
+
     const lightBeam = this.add.graphics();
     lightBeam.setDepth(500);
-    
+
     const camera = this.cameras.main;
     const worldView = camera.worldView;
-    
+
     const beamStartY = worldView.top - 1000;
     const beamEndY = player.y;
     const beamCenterX = player.x;
@@ -84,52 +84,56 @@ export default class MainMapScene extends BaseGameScene {
     const ovalHeight = 40;
     const createBeamFrame = (progress) => {
       lightBeam.clear();
-      
+
       if (progress <= 0) return;
       const cylinderHeight = beamEndY - beamStartY;
-      
+
       for (let i = 0; i < 20; i++) {
         const alpha = (1 - i / 20) * 0.3 * Math.min(progress, 1);
         const layerWidth = beamWidth + i * 3;
-        
+
         lightBeam.fillStyle(0xffffff, alpha);
         lightBeam.fillRect(
-          beamCenterX - layerWidth/2, 
-          beamStartY, 
-          layerWidth, 
+          beamCenterX - layerWidth / 2,
+          beamStartY,
+          layerWidth,
           cylinderHeight
         );
       }
-      
+
       lightBeam.fillStyle(0xffffff, 0.6 * Math.min(progress, 1));
       lightBeam.fillRect(
-        beamCenterX - beamWidth/6, 
-        beamStartY, 
-        beamWidth/3, 
+        beamCenterX - beamWidth / 6,
+        beamStartY,
+        beamWidth / 3,
         cylinderHeight
       );
-      
+
       for (let i = 0; i < 20; i++) {
         const baseAlpha = (1 - i / 20) * 0.3 * Math.min(progress, 1);
         const layerWidth = beamWidth + i * 3;
-        
+
         const strips = 10;
         for (let strip = 0; strip < strips; strip++) {
-          const stripY = (beamEndY - ovalHeight/2) + (strip * (ovalHeight / strips));
+          const stripY =
+            beamEndY - ovalHeight / 2 + strip * (ovalHeight / strips);
           const stripHeight = ovalHeight / strips;
-          
+
           const positionInOval = strip / strips;
-          const transparencyMultiplier = 0.01 + (positionInOval * 0.99);
+          const transparencyMultiplier = 0.01 + positionInOval * 0.99;
           const stripAlpha = baseAlpha * transparencyMultiplier;
-          
-          const relativeY = (stripY + stripHeight/2 - beamEndY) / (ovalHeight/2);
-          const widthMultiplier = Math.sqrt(Math.max(0, 1 - (relativeY * relativeY)));
+
+          const relativeY =
+            (stripY + stripHeight / 2 - beamEndY) / (ovalHeight / 2);
+          const widthMultiplier = Math.sqrt(
+            Math.max(0, 1 - relativeY * relativeY)
+          );
           const stripWidth = layerWidth * widthMultiplier;
-          
+
           if (stripWidth > 2) {
             lightBeam.fillStyle(0xffffff, stripAlpha);
             lightBeam.fillRect(
-              beamCenterX - stripWidth/2,
+              beamCenterX - stripWidth / 2,
               stripY,
               stripWidth,
               stripHeight + 1
@@ -137,24 +141,28 @@ export default class MainMapScene extends BaseGameScene {
           }
         }
       }
-      
+
       const centerStrips = 10;
       for (let strip = 0; strip < centerStrips; strip++) {
-        const stripY = (beamEndY - ovalHeight/2) + (strip * (ovalHeight / centerStrips));
+        const stripY =
+          beamEndY - ovalHeight / 2 + strip * (ovalHeight / centerStrips);
         const stripHeight = ovalHeight / centerStrips;
         const positionInOval = strip / centerStrips;
-        
-        const transparencyMultiplier = 0.01 + (positionInOval * 0.99);
+
+        const transparencyMultiplier = 0.01 + positionInOval * 0.99;
         const stripAlpha = 0.6 * Math.min(progress, 1) * transparencyMultiplier;
-        
-        const relativeY = (stripY + stripHeight/2 - beamEndY) / (ovalHeight/2);
-        const widthMultiplier = Math.sqrt(Math.max(0, 1 - (relativeY * relativeY)));
-        const stripWidth = (beamWidth/3) * widthMultiplier;
-        
+
+        const relativeY =
+          (stripY + stripHeight / 2 - beamEndY) / (ovalHeight / 2);
+        const widthMultiplier = Math.sqrt(
+          Math.max(0, 1 - relativeY * relativeY)
+        );
+        const stripWidth = (beamWidth / 3) * widthMultiplier;
+
         if (stripWidth > 1) {
           lightBeam.fillStyle(0xffffff, stripAlpha);
           lightBeam.fillRect(
-            beamCenterX - stripWidth/2,
+            beamCenterX - stripWidth / 2,
             stripY,
             stripWidth,
             stripHeight + 1
@@ -162,13 +170,13 @@ export default class MainMapScene extends BaseGameScene {
         }
       }
     };
-    
+
     let progress = 0;
     const beamTween = this.tweens.add({
       targets: { progress: 0 },
       progress: 1,
       duration: 100,
-      ease: 'Power3.easeIn',
+      ease: "Power3.easeIn",
       onUpdate: (tween) => {
         progress = tween.getValue();
         createBeamFrame(progress);
@@ -176,50 +184,50 @@ export default class MainMapScene extends BaseGameScene {
       onComplete: () => {
         this.cameras.main.flash(200, 255, 255, 255, false);
         this.cameras.main.shake(150, 0.01);
-        
+
         this.createPlayerGlowEffect();
-        
+
         this.tweens.add({
           targets: lightBeam,
           alpha: 0,
           duration: 600,
-          ease: 'Power2.easeOut',
+          ease: "Power2.easeOut",
           onComplete: () => {
             lightBeam.destroy();
-          }
+          },
         });
-      }
+      },
     });
   }
-  
+
   createPlayerGlowEffect() {
     if (!this.player) return;
-    
+
     const glow = this.add.graphics();
     glow.setDepth(this.player.depth - 1);
-    
+
     const createGlow = (intensity) => {
       glow.clear();
-      
+
       for (let i = 0; i < 8; i++) {
         const alpha = (1 - i / 8) * 0.15 * intensity;
         const radius = 20 + i * 5;
-        
+
         glow.fillStyle(0xffffff, alpha);
         glow.fillCircle(this.player.x, this.player.y, radius);
       }
-      
+
       glow.fillStyle(0xffffff, 0.3 * intensity);
       glow.fillCircle(this.player.x, this.player.y, 15);
     };
-    
+
     this.tweens.add({
       targets: { intensity: 1 },
       intensity: 0.3,
       duration: 1500,
       yoyo: true,
       repeat: 2,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
       onUpdate: (tween) => {
         createGlow(tween.getValue());
       },
@@ -230,37 +238,36 @@ export default class MainMapScene extends BaseGameScene {
           duration: 1000,
           onComplete: () => {
             glow.destroy();
-          }
+          },
         });
-      }
+      },
     });
   }
-  
+
   startBackgroundMusic() {
     // Wait a moment for audio to be ready, then start background music
     this.time.delayedCall(1000, () => {
       try {
-        this.backgroundMusic = this.sound.add('gameLoop', {
+        this.backgroundMusic = this.sound.add("gameLoop", {
           volume: 0.3,
-          loop: true
+          loop: true,
         });
-        
+
         // Handle browser audio policy - try to play after user interaction
         const startMusic = () => {
           if (this.backgroundMusic && !this.backgroundMusic.isPlaying) {
             this.backgroundMusic.play();
-            console.log('Background music started!');
+            console.log("Background music started!");
           }
         };
-        
+
         // Try to start immediately
         startMusic();
-        
+
         // Also start on first user interaction
-        this.input.once('pointerdown', startMusic);
-        
+        this.input.once("pointerdown", startMusic);
       } catch (error) {
-        console.error('Error starting background music:', error);
+        console.error("Error starting background music:", error);
       }
     });
   }
@@ -278,26 +285,26 @@ export default class MainMapScene extends BaseGameScene {
       this.player = this.playerPrefab;
       this.onPlayerCreated(this.player);
       this.initializeManagers();
-      
+
       const systemsToSetup = [
-        'setupZombieCollisionSystem', 
-        'setupHPBarIntegration',
-        'setupVaseSpawning',
-        'initializeMobManager',
-        'setupLavaAnimations',
-        'ensureEnemyGroups'
+        "setupZombieCollisionSystem",
+        "setupHPBarIntegration",
+        "setupVaseSpawning",
+        "initializeMobManager",
+        "setupLavaAnimations",
+        "ensureEnemyGroups",
       ];
-      
-      systemsToSetup.forEach(method => {
-        if (typeof this[method] === 'function') {
+
+      systemsToSetup.forEach((method) => {
+        if (typeof this[method] === "function") {
           this[method]();
         }
       });
-      
+
       this.time.delayedCall(200, () => {
         this.setupMobCollisions();
       });
-      
+
       this.startEnemySpawning();
     } catch (error) {
       console.error("Error initializing systems:", error);
@@ -306,7 +313,7 @@ export default class MainMapScene extends BaseGameScene {
 
   initializeMobManager() {
     if (!this.gameManager || !this.player) return;
-    
+
     try {
       this.mobManager = new MobManager(this);
       this.mobManager.initialize(this.gameManager, this.player);
@@ -317,11 +324,10 @@ export default class MainMapScene extends BaseGameScene {
 
       this.gameplayManager = { mobManager: this.mobManager };
       this.mobManager.startWave(GameConfig.WAVE.INITIAL_WAVE);
-      
+
       this.time.delayedCall(100, () => {
         this.setupMobCollisions();
       });
-      
     } catch (error) {
       console.error("MobManager initialization failed:", error);
     }
@@ -331,11 +337,11 @@ export default class MainMapScene extends BaseGameScene {
     this.startGameTimer();
     this.startMobSpawning();
     this.startWaveTimer();
-    
+
     EventBus.emit("timer-start", {
       gameTime: this.gameTime,
       currentWave: this.currentWave || GameConfig.WAVE.INITIAL_WAVE,
-      isGameRunning: true
+      isGameRunning: true,
     });
   }
 
@@ -345,14 +351,14 @@ export default class MainMapScene extends BaseGameScene {
     this.isGameRunning = true;
     this.pausedTime = 0;
     this.pauseStartTime = null;
-    
+
     this.gameTimer = this.time.addEvent({
       delay: 1000,
       callback: () => {
         this.updateGameTime();
       },
       callbackScope: this,
-      loop: true
+      loop: true,
     });
   }
 
@@ -369,20 +375,24 @@ export default class MainMapScene extends BaseGameScene {
     this.waveTimer = this.time.addEvent({
       delay: GameConfig.WAVE.ADVANCE_TIMER,
       callback: () => {
-        if (!this._wasPausedByPauseManager && !this.pauseManager?.isGamePaused()) {
+        if (
+          !this._wasPausedByPauseManager &&
+          !this.pauseManager?.isGamePaused()
+        ) {
           this.advanceWave();
         }
       },
       callbackScope: this,
-      loop: true
+      loop: true,
     });
   }
 
   updateGameTime() {
     if (!this.isGameRunning) return;
-    
-    const isPaused = this._wasPausedByPauseManager || this.pauseManager?.isGamePaused();
-    
+
+    const isPaused =
+      this._wasPausedByPauseManager || this.pauseManager?.isGamePaused();
+
     if (isPaused) {
       if (!this.pauseStartTime) {
         this.pauseStartTime = Date.now();
@@ -395,8 +405,10 @@ export default class MainMapScene extends BaseGameScene {
         this.pauseStartTime = null;
       }
     }
-    
-    this.gameTime = Math.floor((Date.now() - this.gameStartTime - this.pausedTime) / 1000);
+
+    this.gameTime = Math.floor(
+      (Date.now() - this.gameStartTime - this.pausedTime) / 1000
+    );
     this.updateTimerDisplay();
     
     this.checkBossTeleportTrigger();
@@ -406,13 +418,15 @@ export default class MainMapScene extends BaseGameScene {
     try {
       const minutes = Math.floor(this.gameTime / 60);
       const seconds = this.gameTime % 60;
-      const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
 
       EventBus.emit("timer-updated", {
         gameTime: this.gameTime,
         formattedTime,
         currentWave: this.currentWave || GameConfig.WAVE.INITIAL_WAVE,
-        isGameRunning: true
+        isGameRunning: true,
       });
     } catch (error) {
       console.error("Error updating timer display:", error);
@@ -434,7 +448,7 @@ export default class MainMapScene extends BaseGameScene {
         callback: () => {
           console.log("Basic enemy spawn triggered");
         },
-        loop: true
+        loop: true,
       });
     } catch (error) {
       console.error("Error in basic enemy spawning:", error);
@@ -485,11 +499,11 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   trackEnemyKill(enemy) {
-    if (typeof this.removeZombie === 'function') {
+    if (typeof this.removeZombie === "function") {
       this.removeZombie(enemy);
     }
-    
-    if (typeof super.trackEnemyKill === 'function') {
+
+    if (typeof super.trackEnemyKill === "function") {
       super.trackEnemyKill(enemy);
     }
 
@@ -502,16 +516,19 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   grantKillRewards() {
-    
     if (this.playerLevelSystem) {
-      this.playerLevelSystem.addExperience(GameConfig.PLAYER.COMBAT.EXP_PER_KILL);
+      this.playerLevelSystem.addExperience(
+        GameConfig.PLAYER.COMBAT.EXP_PER_KILL
+      );
     } else {
       console.error("playerLevelSystem not found!");
     }
 
     if (this.gameManager) {
       const { BASE_GOLD_REWARD, MAX_GOLD_REWARD } = GameConfig.PLAYER.COMBAT;
-      const goldReward = Math.floor(Math.random() * (MAX_GOLD_REWARD - BASE_GOLD_REWARD + 1)) + BASE_GOLD_REWARD;
+      const goldReward =
+        Math.floor(Math.random() * (MAX_GOLD_REWARD - BASE_GOLD_REWARD + 1)) +
+        BASE_GOLD_REWARD;
       this.gameManager.addGold(goldReward);
     }
   }
@@ -833,9 +850,9 @@ export default class MainMapScene extends BaseGameScene {
     }
 
     this.walkingArea_1.setCollisionByExclusion([]);
-    
-    this.walkingArea_1.layer.data.forEach(row => {
-      row.forEach(tile => {
+
+    this.walkingArea_1.layer.data.forEach((row) => {
+      row.forEach((tile) => {
         if (tile && tile.index === 0) {
           tile.setCollision(true, true, true, true);
         } else if (tile && tile.index !== 0) {
@@ -852,10 +869,10 @@ export default class MainMapScene extends BaseGameScene {
       this.stoneStatuePrefab,
       this.stoneStatuePrefab_1,
       this.stoneStatuePrefab_2,
-      this.stoneStatuePrefab_3
+      this.stoneStatuePrefab_3,
     ];
 
-    statues.forEach(statue => {
+    statues.forEach((statue) => {
       if (statue?.active && this.playerPrefab) {
         statue.setupCollision?.(this.playerPrefab);
       }
@@ -865,7 +882,7 @@ export default class MainMapScene extends BaseGameScene {
   setupTilemapCollisions() {
     if (!this.playerPrefab) return;
 
-    [this.map_Col_1, this.backGround].forEach(layer => {
+    [this.map_Col_1, this.backGround].forEach((layer) => {
       if (layer) {
         this.physics.add.collider(this.playerPrefab, layer);
         layer.setCollisionBetween(0, 10000);
@@ -874,8 +891,9 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   setupMobCollisions() {
-    const mobGroup = this.mobManager?.mobGroup || this.zombieGroup || this.enemies;
-    
+    const mobGroup =
+      this.mobManager?.mobGroup || this.zombieGroup || this.enemies;
+
     if (!mobGroup) {
       return;
     }
@@ -884,7 +902,7 @@ export default class MainMapScene extends BaseGameScene {
       this.physics.add.collider(mobGroup, this.walkingArea_1);
     }
 
-    [this.map_Col_1, this.backGround].forEach(layer => {
+    [this.map_Col_1, this.backGround].forEach((layer) => {
       if (layer) {
         this.physics.add.collider(mobGroup, layer);
       }
@@ -894,7 +912,7 @@ export default class MainMapScene extends BaseGameScene {
       this.stoneStatuePrefab,
       this.stoneStatuePrefab_1,
       this.stoneStatuePrefab_2,
-      this.stoneStatuePrefab_3
+      this.stoneStatuePrefab_3,
     ];
 
     statues.forEach((statue, index) => {
@@ -934,7 +952,7 @@ export default class MainMapScene extends BaseGameScene {
 
   createPortals() {
     const portalSprites = this.findPortalSprites();
-    
+
     GameConfig.PORTAL.POSITIONS.forEach((position, index) => {
       const portal = this.createPortal(position, portalSprites[index], index);
       this.portals.push(portal);
@@ -943,23 +961,25 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   findPortalSprites() {
-    const allSprites = this.children.list.filter(child => 
-      child instanceof Phaser.GameObjects.Sprite &&
-      child.texture?.key === "golden monument anim-going up-packed sheet"
+    const allSprites = this.children.list.filter(
+      (child) =>
+        child instanceof Phaser.GameObjects.Sprite &&
+        child.texture?.key === "golden monument anim-going up-packed sheet"
     );
 
-    return GameConfig.PORTAL.POSITIONS.map(pos => 
-      allSprites.find(sprite => 
-        Math.abs(sprite.x - pos.x) < 10 && Math.abs(sprite.y - pos.y) < 10
+    return GameConfig.PORTAL.POSITIONS.map((pos) =>
+      allSprites.find(
+        (sprite) =>
+          Math.abs(sprite.x - pos.x) < 10 && Math.abs(sprite.y - pos.y) < 10
       )
     );
   }
 
   createPortal(position, sprite, id) {
     const portalZone = this.add.zone(
-      position.x, 
-      position.y, 
-      GameConfig.PORTAL.OVERLAP_SIZE, 
+      position.x,
+      position.y,
+      GameConfig.PORTAL.OVERLAP_SIZE,
       GameConfig.PORTAL.OVERLAP_SIZE
     );
     this.physics.world.enable(portalZone);
@@ -974,7 +994,7 @@ export default class MainMapScene extends BaseGameScene {
       isActive: false,
       originalTint: GameConfig.PORTAL.COLORS.ORIGINAL_TINT,
       activeTint: GameConfig.PORTAL.COLORS.ACTIVE_TINT,
-      glowEffect: null
+      glowEffect: null,
     };
   }
 
@@ -987,20 +1007,28 @@ export default class MainMapScene extends BaseGameScene {
       delay: GameConfig.PORTAL.ACTIVATION_INTERVAL,
       callback: this.activateRandomPortal,
       callbackScope: this,
-      loop: true
+      loop: true,
     });
   }
 
   activateRandomPortal() {
-    if (!this.scene?.isActive() || this.isTeleporting || this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) return;
+    if (
+      !this.scene?.isActive() ||
+      this.isTeleporting ||
+      this._wasPausedByPauseManager ||
+      this.pauseManager?.isGamePaused()
+    )
+      return;
 
     this.deactivateCurrentPortal();
-    
-    const randomPortal = this.portals[Math.floor(Math.random() * this.portals.length)];
-    const randomScene = GameConfig.PORTAL.AVAILABLE_SCENES[
-      Math.floor(Math.random() * GameConfig.PORTAL.AVAILABLE_SCENES.length)
-    ];
-    
+
+    const randomPortal =
+      this.portals[Math.floor(Math.random() * this.portals.length)];
+    const randomScene =
+      GameConfig.PORTAL.AVAILABLE_SCENES[
+        Math.floor(Math.random() * GameConfig.PORTAL.AVAILABLE_SCENES.length)
+      ];
+
     this.activatePortal(randomPortal, randomScene);
   }
 
@@ -1024,12 +1052,12 @@ export default class MainMapScene extends BaseGameScene {
 
   applyPortalVisualEffects(portal) {
     portal.sprite.setTint(portal.activeTint);
-    
+
     const glow = this.add.circle(
-      portal.x, 
-      portal.y, 
-      GameConfig.PORTAL.GLOW_RADIUS, 
-      GameConfig.PORTAL.COLORS.GLOW_COLOR, 
+      portal.x,
+      portal.y,
+      GameConfig.PORTAL.GLOW_RADIUS,
+      GameConfig.PORTAL.COLORS.GLOW_COLOR,
       0.3
     );
     glow.setDepth(portal.sprite.depth - 1);
@@ -1041,7 +1069,7 @@ export default class MainMapScene extends BaseGameScene {
       duration: 1000,
       yoyo: true,
       repeat: -1,
-      ease: "Sine.easeInOut"
+      ease: "Sine.easeInOut",
     });
   }
 
@@ -1061,22 +1089,27 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   isValidPortalTeleport(portal) {
-    return portal?.isActive && 
-           !this.isTeleporting && 
-           portal.destinationScene &&
-           this.scene?.isActive();
+    return (
+      portal?.isActive &&
+      !this.isTeleporting &&
+      portal.destinationScene &&
+      this.scene?.isActive()
+    );
   }
 
   initiateTeleport(portal) {
     this.isTeleporting = true;
-    
-    if (this.player?.active && typeof this.createTeleportEffect === 'function') {
+
+    if (
+      this.player?.active &&
+      typeof this.createTeleportEffect === "function"
+    ) {
       this.createTeleportEffect(this.player.x, this.player.y);
     }
 
     this.saveGameBeforeTeleport();
     this.cleanupBeforeTeleport();
-    
+
     this.time.delayedCall(GameConfig.PORTAL.TELEPORT_DELAY, () => {
       this.executeSceneTransition(portal.destinationScene);
     });
@@ -1144,7 +1177,12 @@ export default class MainMapScene extends BaseGameScene {
 
   cleanupBeforeTeleport() {
     try {
-      const timersToClean = ['enemySpawnTimer', 'waveTimer', 'difficultyTimer', 'portalTimer'];
+      const timersToClean = [
+        "enemySpawnTimer",
+        "waveTimer",
+        "difficultyTimer",
+        "portalTimer",
+      ];
 
       timersToClean.forEach((timerName) => {
         if (this[timerName] && !this[timerName].hasDispatched) {
@@ -1158,7 +1196,7 @@ export default class MainMapScene extends BaseGameScene {
         { obj: this.gameplayManager, prop: "expOrbs" },
         { obj: this, prop: "enemies" },
         { obj: this, prop: "zombieGroup" },
-        { obj: this, prop: "experienceOrbs" }
+        { obj: this, prop: "experienceOrbs" },
       ];
 
       groupsToClean.forEach(({ obj, prop }) => {
@@ -1190,7 +1228,7 @@ export default class MainMapScene extends BaseGameScene {
         this.stoneStatuePrefab,
         this.stoneStatuePrefab_1,
         this.stoneStatuePrefab_2,
-        this.stoneStatuePrefab_3
+        this.stoneStatuePrefab_3,
       ];
 
       statues.forEach((statue, index) => {
@@ -1199,7 +1237,7 @@ export default class MainMapScene extends BaseGameScene {
         }
       });
 
-      if (typeof this.setupZombieObstacleCollisions === 'function') {
+      if (typeof this.setupZombieObstacleCollisions === "function") {
         this.setupZombieObstacleCollisions();
       }
     } catch (error) {
@@ -1221,10 +1259,10 @@ export default class MainMapScene extends BaseGameScene {
       this.stoneStatuePrefab,
       this.stoneStatuePrefab_1,
       this.stoneStatuePrefab_2,
-      this.stoneStatuePrefab_3
+      this.stoneStatuePrefab_3,
     ];
 
-    statues.forEach(statue => {
+    statues.forEach((statue) => {
       if (statue?.active && this.playerPrefab) {
         statue.setupCollision?.(this.playerPrefab);
       }
@@ -1234,7 +1272,7 @@ export default class MainMapScene extends BaseGameScene {
   setupTilemapCollisions() {
     if (!this.playerPrefab) return;
 
-    [this.map_Col_1, this.backGround].forEach(layer => {
+    [this.map_Col_1, this.backGround].forEach((layer) => {
       if (layer) {
         this.physics.add.collider(this.playerPrefab, layer);
         layer.setCollisionBetween(0, 10000);
@@ -1293,7 +1331,10 @@ export default class MainMapScene extends BaseGameScene {
   playerHeal(healAmount) {
     if (!this.player) return;
 
-    this.player.health = Math.min(this.player.maxHealth, this.player.health + healAmount);
+    this.player.health = Math.min(
+      this.player.maxHealth,
+      this.player.health + healAmount
+    );
     this.updateHPBar();
     this.showHealEffect();
   }
@@ -1314,14 +1355,15 @@ export default class MainMapScene extends BaseGameScene {
       currentHP: this.player.health || GameConfig.PLAYER.DEFAULTS.health,
       maxHP: this.player.maxHealth || GameConfig.PLAYER.DEFAULTS.maxHealth,
       health: this.player.health || GameConfig.PLAYER.DEFAULTS.health,
-      maxHealth: this.player.maxHealth || GameConfig.PLAYER.DEFAULTS.maxHealth
+      maxHealth: this.player.maxHealth || GameConfig.PLAYER.DEFAULTS.maxHealth,
     };
 
     EventBus.emit("player-health-updated", healthData);
   }
 
   updateGoldDisplay() {
-    const currentGold = this.gameManager?.getGold() || GameConfig.BALANCE.GOLD.STARTING_AMOUNT;
+    const currentGold =
+      this.gameManager?.getGold() || GameConfig.BALANCE.GOLD.STARTING_AMOUNT;
     const goldData = { gold: currentGold, totalGold: currentGold, currentGold };
 
     EventBus.emit("player-gold-updated", goldData);
@@ -1364,7 +1406,7 @@ export default class MainMapScene extends BaseGameScene {
           textureKey: "Vase",
           targetTileIndex: null,
           excludeTileIndices: [0],
-          removeTiles: false
+          removeTiles: false,
         });
       } else {
         console.error("vase_1 layer not found!");
@@ -1401,24 +1443,26 @@ export default class MainMapScene extends BaseGameScene {
   setupPlayerLevelSystem() {
     try {
       this.playerLevelSystem = new PlayerLevel(this, 10, 50);
-      
+
       const { level, experience, nextLevelExp } = GameConfig.PLAYER.DEFAULTS;
       this.playerLevelSystem.level = level;
       this.playerLevelSystem.experience = experience;
       this.playerLevelSystem.nextLevelExp = nextLevelExp;
-      
+
       this.playerLevelSystem.updateText();
       this.playerLevelSystem.updateExpBar();
-      
+
       if (this.gameManager?.debugMode && GameConfig.DEBUG.ENABLED) {
         this.time.addEvent({
           delay: GameConfig.DEBUG.AUTO_FEATURES.LEVEL_UP_INTERVAL,
           callback: () => {
             if (this.playerLevelSystem) {
-              this.playerLevelSystem.addExperience(GameConfig.DEBUG.AUTO_FEATURES.AUTO_EXP_AMOUNT);
+              this.playerLevelSystem.addExperience(
+                GameConfig.DEBUG.AUTO_FEATURES.AUTO_EXP_AMOUNT
+              );
             }
           },
-          loop: true
+          loop: true,
         });
       }
     } catch (error) {
@@ -1434,7 +1478,7 @@ export default class MainMapScene extends BaseGameScene {
       if (this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) {
         return;
       }
-      
+
       this.updateCamera();
       this.updateManagers(time, delta);
     } catch (error) {
@@ -1462,7 +1506,7 @@ export default class MainMapScene extends BaseGameScene {
       this.cleanupPortals();
       this.cleanupManagers();
       this.cleanupEventListeners();
-      
+
       super.shutdown?.();
     } catch (error) {
       console.error("Shutdown error:", error);
@@ -1475,9 +1519,15 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   cleanupTimers() {
-    const timers = ['portalTimer', 'gameTimer', 'enemySpawnTimer', 'waveTimer', 'difficultyTimer'];
-    
-    timers.forEach(timerName => {
+    const timers = [
+      "portalTimer",
+      "gameTimer",
+      "enemySpawnTimer",
+      "waveTimer",
+      "difficultyTimer",
+    ];
+
+    timers.forEach((timerName) => {
       if (this[timerName] && !this[timerName].hasDispatched) {
         this[timerName].destroy();
         this[timerName] = null;
@@ -1486,7 +1536,7 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   cleanupPortals() {
-    this.portals.forEach(portal => this.deactivatePortal(portal));
+    this.portals.forEach((portal) => this.deactivatePortal(portal));
     this.portals = [];
     this.activePortal = null;
     this.isTeleporting = false;
@@ -1509,8 +1559,12 @@ export default class MainMapScene extends BaseGameScene {
   }
 
   cleanupEventListeners() {
-    const events = ['request-initial-gold', 'main-scene-started', 'wave-updated'];
-    events.forEach(event => EventBus.removeListener(event));
+    const events = [
+      "request-initial-gold",
+      "main-scene-started",
+      "wave-updated",
+    ];
+    events.forEach((event) => EventBus.removeListener(event));
   }
 
   /* END-USER-CODE */
