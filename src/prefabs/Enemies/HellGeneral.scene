@@ -1,27 +1,26 @@
 {
-    "id": "5583e802-7b5b-4b66-bfdc-46f02fe90de8",
-    "sceneType": "SCENE",
+    "id": "b7e02e52-a929-4357-bb37-9d72cfa4d739",
+    "sceneType": "PREFAB",
     "settings": {
         "exportClass": true,
         "autoImport": true,
+        "preloadMethodName": "",
         "preloadPackFiles": [],
-        "createMethodName": "editorCreate",
-        "sceneKey": "HellGeneral",
-        "borderWidth": 1280,
-        "borderHeight": 720
+        "createMethodName": "",
+        "borderWidth": 2560,
+        "borderHeight": 2560
     },
     "displayList": [
         {
             "type": "Image",
-            "id": "5058e305-3a04-4a35-b25b-993c7766576e",
+            "id": "1a9157b3-2ca9-4443-abe8-9cb40287eaf7",
             "label": "boss_hell_general_walk_body_only_V010",
-            "scope": "CLASS",
             "texture": {
                 "key": "boss_hell_general_walk_body_only_V01",
                 "frame": 0
             },
-            "x": 597,
-            "y": 329
+            "x": 1058,
+            "y": 936
         }
     ],
     "plainObjects": [],

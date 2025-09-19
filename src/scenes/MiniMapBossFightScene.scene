@@ -478,8 +478,8 @@
             ],
             "label": "playerPrefab",
             "scope": "CLASS",
-            "x": 978,
-            "y": 1191
+            "x": 1143,
+            "y": 1269
         },
         {
             "type": "Sprite",
@@ -532,6 +532,22 @@
             "y": 872,
             "animationPlayMethod": 1,
             "animationKey": "Torch1Anim"
+        },
+        {
+            "prefabId": "b7e02e52-a929-4357-bb37-9d72cfa4d739",
+            "id": "53d37a7c-ac15-4f39-8a98-0a37135dfa3a",
+            "unlock": [
+                "x",
+                "y",
+                "flipX",
+                "flipY"
+            ],
+            "label": "hellGeneral",
+            "scope": "CLASS",
+            "x": 1411,
+            "y": 1176,
+            "flipX": true,
+            "flipY": false
         }
     ],
     "plainObjects": [
