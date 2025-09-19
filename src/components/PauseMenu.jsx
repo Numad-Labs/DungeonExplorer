@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PauseManager from '../managers/PauseManager.js';
+import SoundSettings from './SoundSettings.jsx';
 
 const PauseMenu = ({ onContinue, onMainMenu, onSettings }) => {
+  const [showSoundSettings, setShowSoundSettings] = useState(false);
+
   const handleContinue = () => {
     const pauseManager = PauseManager.get();
     pauseManager.resumeGame();
@@ -15,8 +18,16 @@ const PauseMenu = ({ onContinue, onMainMenu, onSettings }) => {
   };
 
   const handleSettings = () => {
-    onSettings();
+    setShowSoundSettings(true);
   };
+
+  const handleBackFromSettings = () => {
+    setShowSoundSettings(false);
+  };
+
+  if (showSoundSettings) {
+    return <SoundSettings onBack={handleBackFromSettings} />;
+  }
 
   return (
     <div
