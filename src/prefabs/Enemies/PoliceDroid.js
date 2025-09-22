@@ -90,7 +90,7 @@ export default class PoliceDroid extends Phaser.GameObjects.Sprite {
         key: "PoliceDroid",
         frames: this.scene.anims.generateFrameNumbers("Police run", {
           start: 0,
-          end: 10,
+          end: 6,
         }),
         frameRate: 8,
         repeat: -1,
