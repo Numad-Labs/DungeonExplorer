@@ -2,6 +2,19 @@
   "section1": {
     "files": [
       {
+        "url": "assets/hell general/Air Attack Slam Sprite sheet 246x121.png",
+        "frameConfig": {
+          "frameWidth": 492,
+          "frameHeight": 242,
+          "startFrame": 0,
+          "endFrame": -1,
+          "spacing": 0,
+          "margin": 0
+        },
+        "type": "spritesheet",
+        "key": "Air Attack Slam Sprite sheet 246x121"
+      },
+      {
         "url": "assets/Static prop/AncientScript_V01.png",
         "frameConfig": {
           "frameWidth": 32,
@@ -3117,8 +3130,8 @@
       {
         "url": "assets/hell general/VFX_boss_hell_general_flying_sword_V01.png",
         "frameConfig": {
-          "frameWidth": 236,
-          "frameHeight": 178,
+          "frameWidth": 118,
+          "frameHeight": 89,
           "startFrame": 0,
           "endFrame": -1,
           "spacing": 0,

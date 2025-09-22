@@ -199,31 +199,96 @@ export default class MiniMapBossFightScene extends BaseGameScene { // Extend Bas
 	}
 
 	create() {
-		this.cameras.main.setBounds(0, 0, 2560, 2560);
-		this.physics.world.bounds.width = 2560;
-		this.physics.world.bounds.height = 2560;
+	    this.cameras.main.setBounds(0, 0, 2560, 2560);
+	    this.physics.world.bounds.width = 2560;
+	    this.physics.world.bounds.height = 2560;
 
-		try {
-			// Call BaseGameScene create first!
-			super.create();
+	    try {
+	        super.create();
+	        
+	        // Create lava animations FIRST
+	        this.createLavaAnimations();
+	        
+	        this.editorCreate();
+	        
+	        // Debug logging
+	        console.log("Lava layer exists:", !!this.lava_floor_1);
+	        console.log("Spritesheet loaded:", this.textures.exists('animated lava river spritesheet'));
+	        
+	        this.setupCollisions();
+	        this.player = this.playerPrefab;
+	        this.initializeManagers();
+	        this.setupPlayerAttack();
+	        this.setupTestControls();
+	        this.setupZombieCollisionSystem();
+	        
+	        // Setup lava animations after everything else is ready
+	        this.setupLavaAnimations();
 
-			this.editorCreate();
-			this.setupCollisions();
-			this.player = this.playerPrefab;
-			this.initializeManagers();
-			this.setupPlayerAttack();
-			this.setupTestControls();
-			this.setupZombieCollisionSystem();
-			this.setupLavaAnimations();
+	        this.time.delayedCall(1000, () => {
+	            this.spawnHellGeneral();
+	        });
 
-			// Auto-spawn HellGeneral boss after a short delay
-			this.time.delayedCall(1000, () => {
-				this.spawnHellGeneral();
-			});
+	    } catch (error) {
+	        console.error("Error in MiniMapBossFightScene create:", error);
+	    }
+	}
 
-		} catch (error) {
-			console.error("Error in MiniMapBossFightScene create:", error);
-		}
+	createLavaAnimations() {
+	    try {
+	        // Create a simple lava animation if it doesn't exist
+	        if (!this.anims.exists('lava0')) {
+	            this.anims.create({
+	                key: 'lava0',
+	                frames: this.anims.generateFrameNumbers('animated lava river spritesheet', { 
+	                    start: 0, 
+	                    end: 7 
+	                }),
+	                frameRate: 8,
+	                repeat: -1
+	            });
+	        }
+	        
+	        console.log("Basic lava animation created successfully!");
+	    } catch (error) {
+	        console.error("Error creating lava animations:", error);
+	    }
+	}
+
+	setupLavaAnimations() {
+	    try {
+	        // Use EXACT same approach as MainMapScene
+	        const lavaTiles = this.lava_floor_1.getTilesWithin();
+	        this.lavaSprites = [];
+
+	        console.log(`Found ${lavaTiles.length} total tiles in lava layer`);
+
+	        lavaTiles.forEach((tile) => {
+	            if (tile && tile.index !== -1 && tile.index > 0) {
+	                console.log(`Found lava tile with index: ${tile.index} at position ${tile.pixelX}, ${tile.pixelY}`);
+	                
+	                // Create animated sprite for ANY lava tile (like MainMapScene does for index 6956)
+	                const sprite = this.add.sprite(
+	                    tile.pixelX + tile.width / 2,
+	                    tile.pixelY + tile.height / 2,
+	                    'animated lava river spritesheet'
+	                );
+
+	                // Play the lava0 animation we created
+	                sprite.play('lava0');
+	                sprite.setDepth(1);
+	                this.lavaSprites.push(sprite);
+	                tile.visible = false; // Hide the original static tile
+
+	                console.log(`Created animated lava sprite at ${tile.pixelX + tile.width/2}, ${tile.pixelY + tile.height/2}`);
+	            }
+	        });
+
+	        console.log(`Successfully created ${this.lavaSprites.length} animated lava sprites`);
+
+	    } catch (error) {
+	        console.error("Error setting up lava animations:", error);
+	    }
 	}
 
 	spawnHellGeneral() {
@@ -267,17 +332,6 @@ export default class MiniMapBossFightScene extends BaseGameScene { // Extend Bas
 
 	setupCollisions() {
 		try {
-			this.lava_floor_1.setDepth(1);
-			this.floating_plat_form_Floating_Col_1.setDepth(2);
-			this.floating_plat_form_Floatind_platform_1.setDepth(3);
-			this.stoneStatuePrefab.setDepth(4);
-			this.stoneStatuePrefab_1.setDepth(4);
-			this.playerPrefab.setDepth(4);
-			this.hellGeneral.setDepth(4);
-			this.decoration_1.setDepth(4);
-			this.telAnimation.setDepth(4);
-			this.floating_plat_form_Chain_1.setDepth(4);
-
 			this.stoneStatuePrefab_1.setupCollision(this.playerPrefab);
 			this.stoneStatuePrefab.setupCollision(this.playerPrefab);
 
@@ -304,65 +358,6 @@ export default class MiniMapBossFightScene extends BaseGameScene { // Extend Bas
 			this.setupZombieObstacleCollisions();
 		} catch (error) {
 			console.error("Error setting up boss fight zombie collision system:", error);
-		}
-	}
-
-	setupLavaAnimations() {
-		try {
-			const lavaTileset = this.lava_floor_1.getTilesWithin();
-			const lavaContainer = this.add.container(0, 0);
-			lavaContainer.setDepth(1);
-			this.lavaSprites = [];
-
-			lavaTileset.forEach(tile => {
-				if (tile && tile.index !== -1) { 
-					let animationKey = null;
-					switch(tile.index) {
-						case 2309:
-							animationKey = 'lava0';
-							break;
-						case 2307:
-							animationKey = 'lava9';
-							break;
-						case 2275:
-							animationKey = 'lava6';
-							break;
-						case 2311:
-							animationKey = 'lava3';
-							break;
-						case 2343:
-							animationKey = 'lava12';
-							break;
-						case 2324:
-							animationKey = 'lava10';
-							break;
-						case 2290:
-							animationKey = 'lava7.1';
-							break;
-						case 2276:
-							animationKey = 'lava4.1';
-							break;
-						case 2328:
-							animationKey = 'lava1.1';
-							break;
-					}
-
-					if (animationKey) {
-						const sprite = this.add.sprite(
-							tile.pixelX + tile.width/2, 
-							tile.pixelY + tile.height/2, 
-							'animated lava river spritesheet'
-						);
-
-						sprite.play(animationKey);
-						lavaContainer.add(sprite);
-						this.lavaSprites.push(sprite);
-						tile.visible = false;
-					}
-				}
-			});
-		} catch (error) {
-			console.error("Error setting up lava animations:", error);
 		}
 	}
 
@@ -418,6 +413,16 @@ export default class MiniMapBossFightScene extends BaseGameScene { // Extend Bas
 	}
 
 	shutdown() {
+		// Clean up lava sprites
+		if (this.lavaSprites) {
+			this.lavaSprites.forEach(sprite => {
+				if (sprite && sprite.destroy) {
+					sprite.destroy();
+				}
+			});
+			this.lavaSprites = null;
+		}
+
 		// Clean up boss reference
 		this.hellGeneralBoss = null;
 		super.shutdown();
