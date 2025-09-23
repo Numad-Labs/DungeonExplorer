@@ -23,19 +23,15 @@ export default class BaseGameScene extends Phaser.Scene {
     this.pauseManager = null;
     
     // Player systems
-    this.playerAttackSystem = null;
     this.playerAttack = null;
     this.playerLevelSystem = null;
     this.player = null;
     
     // Game state
-    this.isTeleporting = false;
-    this.debugMode = false;
     this.gameStartTime = 0;
     this.enemiesKilled = 0;
     this.currentWave = 0;
-    this.isWaveActive = false;
-    this.waveEnemiesRemaining = 0;
+    this.debugMode = false;
     
     // Physics groups
     this.enemies = null;
@@ -48,14 +44,7 @@ export default class BaseGameScene extends Phaser.Scene {
     // UI elements
     this.statsContainer = null;
     this.statsUpdateTimer = null;
-    this.upgradeDebugText = null;
-    
-    // Timers
-    this.enemySpawnTimer = null;
-    
-    // Pause tracking
-    this._isPausedByPauseManager = false;
-    this._wasPausedByPauseManager = false;
+    this.statTexts = {};
   }
 
   preload() {
@@ -63,266 +52,153 @@ export default class BaseGameScene extends Phaser.Scene {
   }
 
   loadEssentialAssets() {
-    // Load only essential assets that every scene needs
+    // Essential assets
     const assets = [
-      { type: 'image', key: 'Exp', path: GameConfig.ASSETS.PICKUPS.EXP },
-      { type: 'image', key: 'Health_Potion_01', path: GameConfig.ASSETS.PICKUPS.HEALTH_POTION }
+      ['image', 'Exp', GameConfig.ASSETS.PICKUPS.EXP],
+      ['image', 'Health_Potion_01', GameConfig.ASSETS.PICKUPS.HEALTH_POTION],
+      ['spritesheet', 'AOE_Fire_Ball_Projectile_VFX_V01', GameConfig.ASSETS.EFFECTS.FIRE_BALL, GameConfig.ASSETS.SPRITESHEETS.FIRE_BALL],
+      ['spritesheet', 'AOE_Fire_Blast_Attack_VFX_V01', GameConfig.ASSETS.EFFECTS.FIRE_BLAST, GameConfig.ASSETS.SPRITESHEETS.FIRE_BLAST],
+      ['spritesheet', 'AOE_Ice_Shard_Projectile_VFX_V01', GameConfig.ASSETS.EFFECTS.ICE_SHARD, GameConfig.ASSETS.SPRITESHEETS.ICE_SHARD]
     ];
 
-    const spritesheets = [
-      {
-        key: 'AOE_Fire_Ball_Projectile_VFX_V01',
-        path: GameConfig.ASSETS.EFFECTS.FIRE_BALL,
-        config: GameConfig.ASSETS.SPRITESHEETS.FIRE_BALL
-      },
-      {
-        key: 'AOE_Fire_Blast_Attack_VFX_V01',
-        path: GameConfig.ASSETS.EFFECTS.FIRE_BLAST,
-        config: GameConfig.ASSETS.SPRITESHEETS.FIRE_BLAST
-      },
-      {
-        key: 'AOE_Ice_Shard_Projectile_VFX_V01',
-        path: GameConfig.ASSETS.EFFECTS.ICE_SHARD,
-        config: GameConfig.ASSETS.SPRITESHEETS.ICE_SHARD
-      }
-    ];
-
-    assets.forEach(asset => this.load.image(asset.key, asset.path));
-    spritesheets.forEach(sheet => this.load.spritesheet(sheet.key, sheet.path, sheet.config));
+    assets.forEach(([type, key, path, config]) => {
+      this.load[type](key, path, config);
+    });
   }
 
   create() {
     this.initializeCore();
-    this.initializeManagers();
-    this.initializeUI();
+    this.createStatsDisplay();
     this.setupEventListeners();
-    
     EventBus.emit("current-scene-ready", this);
   }
 
   initializeCore() {
+    // Setup GameManager
     this.gameManager = this.game.registry.get("gameManager") || new GameManager();
     this.game.registry.set("gameManager", this.gameManager);
     this.gameManager.setCurrentScene(this);
     window.gameManager = this.gameManager;
-    
-    // Initialize PauseManager
     this.pauseManager = PauseManager.get();
+    this.audioManager = window.audioManager || (this.sound ? new AudioManager(this) : null);
+    if (this.audioManager && !window.audioManager) window.audioManager = this.audioManager;
     
-    // Initialize AudioManager
-    if (!window.audioManager && this.sound) {
-      this.audioManager = new AudioManager(this);
-      window.audioManager = this.audioManager;
-      console.log('AudioManager initialized in BaseGameScene');
-    } else if (window.audioManager) {
-      this.audioManager = window.audioManager;
-    }
-
-    // Initialize game state
+    // Initialize systems
     this.gameStartTime = Date.now();
-    this.resetGameState();
+    this.initializePhysicsGroups();
+    this.initializeManagers();
     
-    // Initialize collision system
-    this.initializeCollisionSystem();
-    
-    // Store reference for PauseManager
     window.currentGameScene = this;
-  }
-
-  resetGameState() {
-    this.currentWave = 0;
-    this.isWaveActive = false;
-    this.waveEnemiesRemaining = 0;
-    this.enemiesKilled = 0;
-    this.isTeleporting = false;
   }
 
   initializeManagers() {
     try {
-      this.initializePowerUpManager();
-      this.initializeGameplayManager();
-    } catch (error) {
-      console.error("Manager initialization failed:", error);
-    }
-  }
-
-  initializePowerUpManager() {
-    if (!this.powerUpManager) {
-      this.powerUpManager = new PowerUpManager(this);
-      this.powerUpManager.initialize();
-    }
-  }
-
-  initializeGameplayManager() {
-    try {
+      if (!this.powerUpManager) {
+        this.powerUpManager = new PowerUpManager(this);
+        this.powerUpManager.initialize();
+      }
+      
       if (!this.gameplayManager) {
         this.gameplayManager = new GameplayManager(this);
         this.gameplayManager.initialize?.();
       }
     } catch (error) {
-      console.warn("GameplayManager initialization failed:", error);
-      this.gameplayManager = null;
+      console.error("Manager initialization failed:", error);
     }
   }
 
-  initializeUI() {
-    this.createStatsDisplay();
-  }
-
-  // Player system initialization - streamlined
-  initializePlayerSystems() {
-    if (!this.player) {
-      console.warn("Player not found, cannot initialize player systems");
-      return;
-    }
-
-    this.setupPlayerLevel();
-    this.setupPlayerAttack();
-    this.setupLevelUpCallback();
-    this.setupInitialSkills();
-  }
-
-  setupPlayerLevel() {
-    this.playerLevelSystem = new PlayerLevel(this, 20, 20);
-    this.add.existing(this.playerLevelSystem);
-  }
-
-  setupPlayerAttack() {
-    this.playerAttack = new PlayerAttack(this, this.player);
-    this.add.existing(this.playerAttack);
-    this.playerAttackSystem = this.playerAttack;
-  }
-
-  setupLevelUpCallback() {
-    this.playerLevelSystem.onLevelUp((newLevel) => {
-      if (this.powerUpManager?.skillUpgradeManager) {
-        this.powerUpManager.skillUpgradeManager.playerLevel = newLevel;
-        this.powerUpManager.skillUpgradeManager.showSkillUpgradeSelection();
-      } else {
-        console.error("PowerUpManager or SkillUpgradeManager not found!");
-      }
-    });
-  }
-
-  setupInitialSkills() {
-    this.powerUpManager?.skillUpgradeManager?.setupInitialSkills();
-  }
-
-  // Collision system - simplified
-  initializeCollisionSystem() {
-    const groups = ['enemies', 'experienceOrbs', 'goldOrbs', 'zombieGroup'];
-    groups.forEach(group => {
+  initializePhysicsGroups() {
+    ['enemies', 'experienceOrbs', 'goldOrbs', 'zombieGroup'].forEach(group => {
       this[group] = this.physics.add.group();
     });
-    
     this.staticObstacles = this.physics.add.staticGroup();
   }
 
-  // Stats display - more modular using config ynkooon
+  initializePlayerSystems() {
+    if (!this.player) return console.warn("Player not found");
+
+    this.playerLevelSystem = new PlayerLevel(this, 20, 20);
+    this.add.existing(this.playerLevelSystem);
+    this.playerAttack = new PlayerAttack(this, this.player);
+    this.add.existing(this.playerAttack);
+    
+    this.playerLevelSystem.onLevelUp((newLevel) => {
+      const skillManager = this.powerUpManager?.skillUpgradeManager;
+      if (skillManager) {
+        skillManager.playerLevel = newLevel;
+        skillManager.showSkillUpgradeSelection();
+      }
+    });
+    
+    this.powerUpManager?.skillUpgradeManager?.setupInitialSkills();
+  }
+
+  // Stats display
   createStatsDisplay() {
     try {
-      this.createStatsContainer();
-      this.createStatsBackground();
-      this.createStatsTexts();
-      this.startStatsUpdateTimer();
+      const { x, y } = GameConfig.UI.STATS_DISPLAY.POSITION;
+      const { width, height } = GameConfig.UI.STATS_DISPLAY.SIZE;
+      const { color, alpha } = GameConfig.UI.STATS_DISPLAY.BACKGROUND;
+      
+      this.statsContainer = this.add.container(this.cameras.main.width + x, y)
+        .setScrollFactor(0)
+        .setDepth(1000);
+      
+      const statsBg = this.add.rectangle(-width, 0, width, height, color, alpha).setOrigin(0, 0);
+      this.statsContainer.add(statsBg);
+      
+      const statConfigs = [
+        ['level', 'Level: 1'],
+        ['exp', 'EXP: 0/100'],
+        ['kills', 'Kills: 0'],
+        ['gold', 'Gold: 0'],
+        ['time', 'Time: 00:00'],
+        ['wave', 'Wave: 0']
+      ];
+      
+      statConfigs.forEach(([key, text], index) => {
+        this.statTexts[key] = this.add.text(-190, 10 + (index * 15), text, GameConfig.UI.STATS_DISPLAY.TEXT_STYLE);
+        this.statsContainer.add(this.statTexts[key]);
+      });
+      
+      // Start update timer
+      this.statsUpdateTimer = this.time.addEvent({
+        delay: GameConfig.UI.STATS_DISPLAY.UPDATE_INTERVAL,
+        callback: this.updateStatsDisplay,
+        callbackScope: this,
+        loop: true
+      });
     } catch (error) {
       console.error("Stats display creation failed:", error);
     }
   }
 
-  createStatsContainer() {
-    const { x, y } = GameConfig.UI.STATS_DISPLAY.POSITION;
-    this.statsContainer = this.add.container(
-      this.cameras.main.width + x,
-      y
-    );
-    this.statsContainer.setScrollFactor(0);
-    this.statsContainer.setDepth(1000);
-  }
-
-  createStatsBackground() {
-    const { width, height } = GameConfig.UI.STATS_DISPLAY.SIZE;
-    const { color, alpha } = GameConfig.UI.STATS_DISPLAY.BACKGROUND;
-    const statsBg = this.add.rectangle(-width, 0, width, height, color, alpha);
-    statsBg.setOrigin(0, 0);
-    this.statsContainer.add(statsBg);
-  }
-
-  createStatsTexts() {
-    const textStyle = GameConfig.UI.STATS_DISPLAY.TEXT_STYLE;
-    const startY = 10;
-    const lineHeight = 15;
-
-    const statTexts = [
-      { key: 'levelText', text: 'Level: 1' },
-      { key: 'expText', text: 'EXP: 0/100' },
-      { key: 'killsText', text: 'Kills: 0' },
-      { key: 'goldText', text: 'Gold: 0' },
-      { key: 'timeText', text: 'Time: 00:00' },
-      { key: 'waveText', text: 'Wave: 0' }
-    ];
-
-    statTexts.forEach((stat, index) => {
-      this[stat.key] = this.add.text(-190, startY + (index * lineHeight), stat.text, textStyle);
-      this.statsContainer.add(this[stat.key]);
-    });
-  }
-
-  startStatsUpdateTimer() {
-    this.statsUpdateTimer = this.time.addEvent({
-      delay: GameConfig.UI.STATS_DISPLAY.UPDATE_INTERVAL,
-      callback: () => {
-        this.updateStatsDisplay();
-      },
-      callbackScope: this,
-      loop: true
-    });
-  }
-
   // Stats update
   updateStatsDisplay() {
-    if (!this.gameManager) return;
-    
-    if (this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) {
-      return;
-    }
+    if (!this.gameManager || this.pauseManager?.isGamePaused()) return;
 
     try {
       const currentTime = Date.now() - this.gameStartTime;
-      const stats = this.getGameStats();
+      const stats = this.gameplayManager?.mobManager?.getStatistics() || {};
+      const playerLevel = this.playerLevelSystem?.getLevel() || 1;
+      const playerExp = this.playerLevelSystem ? 
+        `${this.playerLevelSystem.experience}/${this.playerLevelSystem.nextLevelExp}` : '0/100';
 
-      this.updateStatTexts(stats, currentTime);
+      const updates = {
+        level: `Level: ${playerLevel}`,
+        exp: `EXP: ${playerExp}`,
+        kills: `Kills: ${stats.totalKilled || this.enemiesKilled}`,
+        gold: `Gold: ${this.gameManager.gold || 0}`,
+        time: `Time: ${this.formatTime(currentTime)}`,
+        wave: `Wave: ${stats.currentWave || this.currentWave}`
+      };
+
+      Object.entries(updates).forEach(([key, text]) => {
+        this.statTexts[key]?.setText(text);
+      });
     } catch (error) {
       console.error("Stats display update failed:", error);
     }
-  }
-
-  getGameStats() {
-    return this.gameplayManager?.mobManager?.getStatistics() || {};
-  }
-
-  updateStatTexts(stats, currentTime) {
-    const updates = [
-      { element: this.levelText, text: `Level: ${this.getPlayerLevel()}` },
-      { element: this.expText, text: `EXP: ${this.getPlayerExp()}` },
-      { element: this.killsText, text: `Kills: ${stats.totalKilled || this.enemiesKilled}` },
-      { element: this.goldText, text: `Gold: ${this.gameManager.gold || 0}` },
-      { element: this.timeText, text: `Time: ${this.formatTime(currentTime)}` },
-      { element: this.waveText, text: `Wave: ${stats.currentWave || this.currentWave}` }
-    ];
-
-    updates.forEach(update => {
-      update.element?.setText(update.text);
-    });
-  }
-
-  getPlayerLevel() {
-    return this.playerLevelSystem?.getLevel() || 1;
-  }
-
-  getPlayerExp() {
-    if (!this.playerLevelSystem) return '0/100';
-    return `${this.playerLevelSystem.experience}/${this.playerLevelSystem.nextLevelExp}`;
   }
 
   formatTime(milliseconds) {
@@ -332,55 +208,35 @@ export default class BaseGameScene extends Phaser.Scene {
     return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   }
 
-  // Event system - consolidated
   setupEventListeners() {
-    this.setupWindowEventListeners();
-    this.setupKeyboardListeners();
-  }
-
-  setupWindowEventListeners() {
     window.addEventListener("gameStateUpdated", this.updateStatsDisplay.bind(this));
     window.addEventListener("levelUp", this.updateStatsDisplay.bind(this));
-  }
-
-  setupKeyboardListeners() {
-    // Use config for debug controls
+    
     this.input.keyboard.on(`keydown-${GameConfig.DEBUG.CONTROLS.TOGGLE_DEBUG}`, () => {
       this.debugMode = !this.debugMode;
     });
   }
 
-  // Player interaction - simplified
   onPlayerCreated(player) {
     this.player = player;
     this.initializePlayerSystems();
-    this.setupExperienceCollection();
-  }
-
-  setupExperienceCollection() {
-    if (!this.player || !this.experienceOrbs) return;
-
-    // Experience collection
-    this.physics.add.overlap(this.player, this.experienceOrbs, (player, orb) => {
-      this.collectExperience(orb);
-    });
-
-    // Enemy interactions
+    
+    if (this.experienceOrbs) {
+      this.physics.add.overlap(player, this.experienceOrbs, (player, orb) => {
+        if (this.playerLevelSystem) {
+          this.playerLevelSystem.addExperience(orb.expValue || 1);
+        }
+        orb.destroy();
+      });
+    }
+    
     if (this.enemies) {
-      this.physics.add.overlap(this.player, this.enemies, this.handleEnemyCollision.bind(this));
+      this.physics.add.overlap(player, this.enemies, this.handleEnemyCollision.bind(this));
     }
-
+    
     if (this.zombieGroup) {
-      this.physics.add.overlap(this.player, this.zombieGroup, this.handleZombieCollision.bind(this));
+      this.physics.add.overlap(player, this.zombieGroup, this.handleZombieCollision.bind(this));
     }
-  }
-
-  collectExperience(orb) {
-    if (this.playerLevelSystem) {
-      const expAmount = orb.expValue || 1;
-      this.playerLevelSystem.addExperience(expAmount);
-    }
-    orb.destroy();
   }
 
   handleEnemyCollision(player, enemy) {
@@ -391,7 +247,6 @@ export default class BaseGameScene extends Phaser.Scene {
     // Override in child classes
   }
 
-  // Combat system - streamlined using config
   addExperience(amount) {
     this.playerLevelSystem?.addExperience(amount);
   }
@@ -402,103 +257,31 @@ export default class BaseGameScene extends Phaser.Scene {
     this.gameManager?.trackEnemyKill();
   }
 
+  addEnemyToGroups(enemy) {
+    if (!enemy) return;
+    this.enemies?.add(enemy);
+    if (enemy.isZombie || enemy.constructor.name.toLowerCase().includes("zombie")) {
+      this.zombieGroup?.add(enemy);
+    }
+  }
+
   removeZombie(zombie) {
     this.zombieGroup?.remove(zombie);
     this.enemies?.remove(zombie);
   }
 
-  addEnemyToGroups(enemy) {
-    if (!enemy) return;
-
-    this.enemies?.add(enemy);
-    
-    if (this.isZombieType(enemy)) {
-      this.zombieGroup?.add(enemy);
-    }
-  }
-
-  isZombieType(enemy) {
-    return enemy.isZombie || enemy.constructor.name.toLowerCase().includes("zombie");
-  }
-
-  // Spawning system - basic implementation
   startEnemySpawning() {
-    if (this.gameplayManager?.mobManager) {
-      try {
-        this.gameplayManager.mobManager.startSpawning?.();
-        return;
-      } catch (error) {
-        console.warn("GameplayManager spawning failed:", error);
-      }
-    }
-    
-    this.ensureEnemyGroups();
-  }
-
-  ensureEnemyGroups() {
-    if (!this.enemies) this.enemies = this.physics.add.group();
-    if (!this.zombieGroup) this.zombieGroup = this.physics.add.group();
-  }
-
-  spawnBasicEnemy() {
-    if (!this.player?.active || this.player.isDead) return;
-    // Override in child classes for specific enemy spawning
-  }
-
-  // Player attack setup - simplified
-  setupPlayerAttack() {
-    if (!this.player) {
-      console.warn("Cannot setup player attack - player not found");
-      return;
-    }
-
-    if (this.playerAttack) {
-      console.log("PlayerAttack system already exists");
-      return;
-    }
-
     try {
-      this.playerAttack = new PlayerAttack(this, this.player);
-      this.add.existing(this.playerAttack);
-      this.playerAttackSystem = this.playerAttack;
-      this.playerAttack.setActive?.(true);
+      this.gameplayManager?.mobManager?.startSpawning?.();
     } catch (error) {
-      console.error("PlayerAttack initialization failed:", error);
+      if (!this.enemies) this.enemies = this.physics.add.group();
+      if (!this.zombieGroup) this.zombieGroup = this.physics.add.group();
     }
   }
 
   // Utility methods
   showPowerUpSelection() {
     this.powerUpManager?.showPowerUpSelection();
-  }
-
-  getPlayerLevel() {
-    return this.playerLevelSystem?.getLevel() || 1;
-  }
-
-  // Update loop - optimized
-  update(time, delta) {
-    try {
-      if (this._wasPausedByPauseManager || this.pauseManager?.isGamePaused()) {
-        return;
-      }
-      
-      if (this.debugMode && this.upgradeDebugText) {
-        this.updateDebugDisplay();
-      }
-    } catch (error) {
-      console.error("BaseGameScene update error:", error);
-    }
-  }
-
-  updateDebugDisplay() {
-    if (!this.upgradeDebugText) return;
-
-    try {
-      this.upgradeDebugText.setText(debugInfo);
-    } catch (error) {
-      console.error("Debug display update failed:", error);
-    }
   }
 
   getPlayerHealthDisplay() {
@@ -508,95 +291,43 @@ export default class BaseGameScene extends Phaser.Scene {
     return `${health}/${maxHealth}`;
   }
 
-  // Cleanup - comprehensive
+  update(time, delta) {
+    if (this.pauseManager?.isGamePaused()) return;
+    
+    if (this.debugMode) {
+      // Add debug functionality if needed
+    }
+  }
+
   shutdown() {
     try {
-      this.cleanupTimers();
-      this.cleanupEventListeners();
-      this.cleanupManagers();
-      this.cleanupPhysicsGroups();
-      this.cleanupUI();
-      this.resetState();
+      this.statsUpdateTimer?.destroy();
+      window.removeEventListener("gameStateUpdated", this.updateStatsDisplay);
+      window.removeEventListener("levelUp", this.updateStatsDisplay);
+      this.input.keyboard.removeAllListeners();
+      this.gameplayManager?.shutdown?.();
+      this.powerUpManager?.shutdown?.();
+      this.statsContainer?.destroy();
+      this.staticObstacles?.clear(true, true);
+      this.enemiesKilled = 0;
+      this.currentWave = 0;
+      this.gameStartTime = 0;
+      this.gameManager?.saveGame();
+      
+      if (window.currentGameScene === this) {
+        delete window.currentGameScene;
+      }
     } catch (error) {
       console.error("BaseGameScene shutdown error:", error);
     }
   }
 
-  cleanupTimers() {
-    const timers = ['statsUpdateTimer', 'enemySpawnTimer'];
-    timers.forEach(timer => {
-      if (this[timer]) {
-        this[timer].destroy();
-        this[timer] = null;
-      }
-    });
-  }
-
-  cleanupEventListeners() {
-    window.removeEventListener("gameStateUpdated", this.updateStatsDisplay);
-    window.removeEventListener("levelUp", this.updateStatsDisplay);
-    this.input.keyboard.removeAllListeners();
-  }
-
-  cleanupManagers() {
-    const managers = ['gameplayManager', 'powerUpManager'];
-    managers.forEach(manager => {
-      if (this[manager]) {
-        this[manager].shutdown?.();
-        this[manager] = null;
-      }
-    });
-    
-    if (window.currentGameScene === this) {
-      delete window.currentGameScene;
-    }
-  }
-
-  cleanupPhysicsGroups() {
-    const groups = ['enemies', 'experienceOrbs', 'goldOrbs', 'zombieGroup'];
-    groups.forEach(group => {
-      this[group] = null;
-    });
-
-    if (this.staticObstacles) {
-      this.staticObstacles.clear(true, true);
-      this.staticObstacles = null;
-    }
-  }
-
-  cleanupUI() {
-    if (this.statsContainer) {
-      this.statsContainer.destroy();
-      this.statsContainer = null;
-    }
-  }
-
-  resetState() {
-    this.collisionLayers = [];
-    this.enemiesKilled = 0;
-    this.currentWave = 0;
-    this.isWaveActive = false;
-    this.waveEnemiesRemaining = 0;
-    this.gameStartTime = 0;
-    
-    // Save game state
-    this.gameManager?.saveGame();
-    if (this.gameManager) {
-      this.gameManager.currentWave = 0;
-    }
-  }
-
-  // Collision registration - utility methods
   registerCollisionLayer(layer, name) {
-    if (layer) {
-      this.collisionLayers.push({ layer, name });
-    }
+    if (layer) this.collisionLayers.push({ layer, name });
   }
 
-  registerStaticObstacle(obstacle, name) {
-    if (obstacle && this.staticObstacles) {
-      this.staticObstacles.add(obstacle);
-    }
+  registerStaticObstacle(obstacle) {
+    this.staticObstacles?.add(obstacle);
   }
 
   setupZombieObstacleCollisions() {
